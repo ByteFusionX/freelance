@@ -6,9 +6,8 @@ import { DashboardComponent } from './dashboard.component';
 import { NavBarComponent } from './pages/nav-bar/nav-bar.component';
 import { SideBarComponent } from './pages/side-bar/side-bar.component';
 
-import { NgIconsModule } from '@ng-icons/core';
-import { heroBars3, heroMagnifyingGlass, heroUserCircle, heroChevronDown, heroHome, heroChevronUp, heroUserGroup, heroChevronRight, heroQuestionMarkCircle, heroBriefcase, heroNewspaper } from '@ng-icons/heroicons/outline';
 import { AccordionComponent } from 'src/app/shared/components/accordion/accordion.component';
+import { IconsModule } from 'src/app/lib/icons/icons.module';
 
 @NgModule({
   declarations: [
@@ -19,8 +18,8 @@ import { AccordionComponent } from 'src/app/shared/components/accordion/accordio
   imports: [
     CommonModule,
     DashboardRoutingModule,
-    NgIconsModule.withIcons({ heroBars3, heroMagnifyingGlass, heroUserCircle, heroChevronDown, heroHome, heroChevronUp, heroUserGroup, heroChevronRight, heroQuestionMarkCircle, heroBriefcase, heroNewspaper }),
-    AccordionComponent
+    AccordionComponent,
+    IconsModule
   ]
 })
 export class DashboardModule { }
