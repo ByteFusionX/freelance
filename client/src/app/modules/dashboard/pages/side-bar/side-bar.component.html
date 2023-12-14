@@ -1,49 +1,90 @@
-<div class="h-screen bg-white border border-[#e5e7eb]">
+<div class="h-screen bg-white border border-gray-100">
     <div class="flex flex-col">
-        <div class="h-16 border-b border-[#e5e7eb]"></div>
+        <div class="h-16 border-b border-gray-100"></div>
         <div class="py-5 px-4">
-            <div class="w-52 my-3 cursor-pointer">
-                <div class="w-full p-2 rounded-md hover:bg-gray-200 flex">
-                    <i><ng-icon name="heroHome" class="text-xl text-gray-600"></ng-icon></i>
-                    <div class="w-48 flex justify-between ml-3 accordion-content">
-                        <p class="">Home</p>
-                        <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+            <div class="w-60 overflow-hidden" [@sideBarTrigger]="showFullBar? 'default':'reduce'">
+                <div class="my-3 cursor-pointer" (click)="onHomeClick()">
+                    <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
+                        <i><ng-icon name="heroHome" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Home</p>
+                            <i>
+                                <ng-icon name="heroChevronUp" class="text-gray-600"
+                                    *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
+                                <ng-template #homeDropDownMenu>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </ng-template>
+                            </i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-52 my-3 cursor-pointer">
-                <div class="w-full p-2 rounded-md hover:bg-gray-200 flex">
-                    <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
-                    <div class="w-48 flex justify-between ml-3 accordion-content">
-                        <p class="">Customers</p>
-                        <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                <div class="overflow-hidden" *ngIf="homeDropDown" [ngClass]="{dropDown: !showFullBar }">
+                    <div class="" @dropDownTrigger>
+                        <ul class="px-2 mx-5">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                <button>Dashboard</button>
+                            </li>
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                <button>Employees</button>
+                            </li>
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                <button>Announcements</button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </div>
-            <div class="w-52 my-3 cursor-pointer">
-                <div class="w-full p-2 rounded-md hover:bg-gray-200 flex">
-                    <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
-                    <div class="w-48 flex justify-between ml-3 accordion-content">
-                        <p class="">Enquiry</p>
-                        <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                    <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
+                        <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Customers</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-52 my-3 cursor-pointer">
-                <div class="w-full p-2 rounded-md hover:bg-gray-200 flex">
-                    <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
-                    <div class="w-48 flex justify-between ml-3 accordion-content">
-                        <p class="">Quotations</p>
-                        <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                    <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
+                        <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Enquiry</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="w-52 my-3 cursor-pointer">
-                <div class="w-full p-2 rounded-md hover:bg-gray-200 flex">
-                    <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
-                    <div class="w-48 flex justify-between ml-3 accordion-content">
-                        <p class="">Job</p>
-                        <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                    <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
+                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Quotations</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" (click)="onJobClick()" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                    <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
+                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Job</p>
+                            <i>
+                                <ng-icon name="heroChevronUp" class="text-gray-600"
+                                    *ngIf="jobDropDown else jobDropDownMenu"></ng-icon>
+                                <ng-template #jobDropDownMenu>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </ng-template>
+                            </i>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden" *ngIf="jobDropDown" [ngClass]="{dropDown: !showFullBar }">
+                    <div class="" @dropDownTrigger>
+                        <ul class="px-2 mx-5">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                <button>Assigned Jobs</button>
+                            </li>
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                <button>Job sheet</button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

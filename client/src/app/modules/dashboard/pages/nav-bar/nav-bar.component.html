@@ -1,9 +1,14 @@
 <div class="w-full h-16 flex">
-    <div class="w-full border-b border-[#e5e7eb] bg-white">
+    <div class="w-full border-b border-gray-100 bg-white">
         <div class="flex justify-between">
             <div class="w-16 h-16 flex justify-center items-center">
-                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-200 cursor-pointer" (click)="reduceSideBar()">
-                    <ng-icon name="heroBars3" class="text-2xl text-gray-600"></ng-icon>
+                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-100 cursor-pointer" (click)="reduceSideBar()">
+                    <i  *ngIf="showFullBar else toggleIcon">
+                        <ng-icon name="heroBars3" class="text-2xl text-gray-800"></ng-icon>
+                    </i>
+                    <ng-template #toggleIcon>
+                        <ng-icon name="heroBars3CenterLeft" class="text-2xl text-gray-800"></ng-icon>
+                    </ng-template>
                 </div>
             </div>
             <div class="flex justify-center items-center">
