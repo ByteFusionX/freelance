@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class DashboardComponent {
 
+  reduceSate: boolean = true
+
+  reduceSideBar(event: boolean) {
+    this.reduceSate = event
+  }
 }

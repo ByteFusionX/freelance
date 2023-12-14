@@ -1,24 +1,41 @@
 <div class="h-screen bg-white border border-[#e5e7eb]">
     <div class="flex flex-col">
         <div class="h-16 border-b border-[#e5e7eb]"></div>
-        <div class="mt-5 py-4 px-10">
-            <div class="flex">
-                <i><ng-icon name="heroHome" class="text-lg"></ng-icon></i>
-                <div class="w-60 flex justify-between ml-3">
-                    <p class="">Home</p>
-                    <i><ng-icon name="heroChevronDown"></ng-icon></i>
+        <div class="py-4 px-6">
+            
+            <app-accordion [showFullBar]="showFullBar" [title]="'Home'" [icon]="'heroHome'"
+                [lists]="['Dashboard','Employees', 'Announcements']"></app-accordion>
+
+            <div class="flex hover:bg-gray-200 hover:rounded-md cursor-pointer p-2" >
+                <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
+                <div class="w-48 flex justify-between ml-3 accordion-content">
+                    <p class="">Customers</p>
+                    <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                 </div>
             </div>
-        </div>
-        <div class="py-4 px-10">
-            <div class="flex">
-                <i>00</i>
-                <div class="w-60 flex justify-between ml-3">
-                    <p>Home</p>
-                    <i>00</i>
+            <div class="flex hover:bg-gray-200 hover:rounded-md cursor-pointer p-2 mt-2">
+                <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
+                <div class="w-48 flex justify-between ml-3 accordion-content">
+                    <p class="">Enquiry</p>
+                    <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                 </div>
             </div>
+            <div class="flex hover:bg-gray-200 hover:rounded-md cursor-pointer p-2 mt-2">
+                <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
+                <div class="w-48 flex justify-between ml-3 accordion-content">
+                    <p class="">Jobs</p>
+                    <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                </div>
+            </div>
+            <div class="flex hover:bg-gray-200 hover:rounded-md cursor-pointer p-2 mt-2">
+                <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
+                <div class="w-48 flex justify-between ml-3 accordion-content">
+                    <p class="">Quotations</p>
+                    <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                </div>
+            </div>
+            <app-accordion [showFullBar]="showFullBar" [title]="'Job'" [icon]="'heroBriefcase'"
+                [lists]="['Assigned Jobs','Job Sheet']"></app-accordion>
         </div>
-        
     </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-nav-bar',
@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class NavBarComponent {
 
+  @Output() reduce = new EventEmitter<boolean>()
+  showFullBar: boolean = true
+
+  reduceSideBar() {
+    this.showFullBar = !this.showFullBar
+    this.reduce.emit(this.showFullBar)
+  }
 }
