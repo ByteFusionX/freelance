@@ -1,0 +1,8 @@
+:host{
+    display: block;
+}
+
+.dropDown{
+    position: absolute;
+    background-color: white;
+}

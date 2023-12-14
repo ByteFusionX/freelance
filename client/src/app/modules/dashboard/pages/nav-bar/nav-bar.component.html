@@ -2,11 +2,11 @@
     <div class="w-full border-b border-[#e5e7eb] bg-white">
         <div class="flex justify-between">
             <div class="w-16 h-16 flex justify-center items-center">
-                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-200 cursor-pointer">
-                    <ng-icon name="heroBars3" class="text-2xl"></ng-icon>
+                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-200 cursor-pointer" (click)="reduceSideBar()">
+                    <ng-icon name="heroBars3" class="text-2xl text-gray-600"></ng-icon>
                 </div>
             </div>
-            <div class="flex justify-center items-center mr-5">
+            <div class="flex justify-center items-center">
                 <div class="grid grid-cols-6 gap-4">
                     <div class="col-span-1 flex justify-center items-center">
                         <ng-icon name="heroMagnifyingGlass" class="text-xl cursor-pointer"></ng-icon>
