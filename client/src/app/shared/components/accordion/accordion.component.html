@@ -1,0 +1,26 @@
+<nb-accordion>
+    <nb-accordion-item class="overflow-hidden">
+        <nb-accordion-item-header [@sideBarTrigger]="showFullBar? 'default' : 'reduce'">
+            <div class="flex">
+                <i><ng-icon name="'{{icon}}'" class="text-xl text-gray-600"></ng-icon></i>
+                <div class="flex justify-between accordion-content">
+                    <p class="">{{title}}</p>
+                    <i *ngIf="showToggle; else toggleUp"><ng-icon name="heroChevronUp"
+                            class="text-gray-600"></ng-icon></i>
+                    <ng-template #toggleUp>
+                        <i><ng-icon name="heroChevronRight"></ng-icon></i>
+                    </ng-template>
+                </div>
+            </div>
+        </nb-accordion-item-header>
+
+        <nb-accordion-item-body class="m-2">
+            <ul class="list-none">
+                <li class="px-5 py-2 hover:bg-gray-200 rounded" *ngFor="let list of lists">
+                    <a href="">{{list}}</a>
+                </li>
+            </ul>
+        </nb-accordion-item-body>
+
+    </nb-accordion-item>
+</nb-accordion>
