@@ -10,3 +10,4 @@ export const sideBarState = trigger('sideBarTrigger', [
     })),
     transition('default => reduce', animate('300ms')),
     transition('reduce => default', animate('300ms'))
+])
