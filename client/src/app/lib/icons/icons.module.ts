@@ -13,7 +13,8 @@ import {
   heroChevronRight, 
   heroQuestionMarkCircle, 
   heroBriefcase, 
-  heroNewspaper 
+  heroNewspaper,
+  heroXMark
 } from '@ng-icons/heroicons/outline';
 
 
@@ -33,7 +34,8 @@ import {
       heroChevronRight, 
       heroQuestionMarkCircle, 
       heroBriefcase, 
-      heroNewspaper 
+      heroNewspaper,
+      heroXMark
     })
   ],
   exports:[NgIconsModule]
