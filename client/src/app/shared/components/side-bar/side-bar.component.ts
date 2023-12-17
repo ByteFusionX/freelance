@@ -43,7 +43,7 @@ export class SideBarComponent implements OnChanges {
 
   @HostListener('document:click', ['$event.target'])
   onClick(event: HTMLElement) {
-    if (!(this.eref.nativeElement.contains(event))) {
+    if (!(this.eref.nativeElement.contains(event)) && !this.showFullBar) {
       this.homeDropDown = this.jobDropDown = false;
     }
   }
