@@ -1,1 +1,12 @@
-<router-outlet></router-outlet>
+<div class="w-full flex">
+    <div class="h-screen">
+        <app-side-bar [showFullBar]="reduceSate"></app-side-bar>
+    </div>
+
+    <div class="w-full h-screen bg-gray-100 overflow-y-auto flex flex-col">
+        <app-nav-bar (reduce)="reduceSideBar($event)"></app-nav-bar>
+        <div class="overflow-x-auto">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,5 @@
-import { animate, animation, state, style, transition, trigger, useAnimation } from "@angular/animations";
+import { animate, animation, state, style, transition, trigger, useAnimation } from "@angular/animations"
+
 
 const moveDown = animation([
     style({
@@ -39,4 +40,3 @@ export const buttonSlideState = trigger('slideTrigger',[
     transition('slideUp => slideDown',useAnimation(moveDown)),
     transition('slideDown => slideUp',useAnimation(moveUp)),
 ])
-

@@ -1,9 +1,13 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { IconsModule } from 'src/app/lib/icons/icons.module';
 
 @Component({
   selector: 'app-nav-bar',
   templateUrl: './nav-bar.component.html',
-  styleUrls: ['./nav-bar.component.css']
+  styleUrls: ['./nav-bar.component.css'],
+  standalone: true,
+  imports: [CommonModule, IconsModule]
 })
 export class NavBarComponent {
 

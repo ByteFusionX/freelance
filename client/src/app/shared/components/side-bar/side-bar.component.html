@@ -20,20 +20,24 @@
                 </div>
                 <div class="overflow-hidden" *ngIf="homeDropDown" [ngClass]="{dropDown: !showFullBar }">
                     <div class="" @dropDownTrigger>
-                        <ul class="px-2 mx-5">
-                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <ul class="mx-5">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer" routerLink="/home"
+                                routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
                                 <button>Dashboard</button>
                             </li>
-                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer" routerLink="/home/employees"
+                                routerLinkActive="active">
                                 <button>Employees</button>
                             </li>
-                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer" routerLink="/home/announcements"
+                                routerLinkActive="active">
                                 <button>Announcements</button>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                    routerLink="/customers" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
                         <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
@@ -42,7 +46,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/enquiry" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
                         <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
@@ -51,7 +56,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/quotations" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
                         <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
@@ -60,7 +66,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="my-3 cursor-pointer" (click)="onJobClick()" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                <div class="my-3 cursor-pointer" (click)="onJobClick()"
+                    [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
                     <div class="w-full p-2 rounded-md hover:bg-gray-100 flex">
                         <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
@@ -77,11 +84,11 @@
                 </div>
                 <div class="overflow-hidden" *ngIf="jobDropDown" [ngClass]="{dropDown: !showFullBar }">
                     <div class="" @dropDownTrigger>
-                        <ul class="px-2 mx-5">
-                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                        <ul class="mx-5">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer" routerLink="/jobs/assign" routerLinkActive="active">
                                 <button>Assigned Jobs</button>
                             </li>
-                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                            <li class="p-2 hover:bg-gray-100 rounded-md cursor-pointer" routerLink="/jobs/sheet" routerLinkActive="active">
                                 <button>Job sheet</button>
                             </li>
                         </ul>

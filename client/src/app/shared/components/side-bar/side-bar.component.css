@@ -9,3 +9,10 @@
     margin-left: 55px;
     padding: 10px 0px 10px 0px;
 }
+
+.active {
+    background: #e5e7eb;
+    transform: scale(1.05);
+    border: none;
+    border-radius: 0.375rem;
+  }
