@@ -18,7 +18,7 @@ import { CustomersComponent } from './modules/customers/customers.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     NavBarComponent,
-    SideBarComponent,
+    SideBarComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
