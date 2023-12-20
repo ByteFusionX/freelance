@@ -6,5 +6,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  
   title = 'client';
+  
+  reduceSate: boolean = true
+  reduceSideBar(event: boolean) {
+    this.reduceSate = event
+  }
 }
