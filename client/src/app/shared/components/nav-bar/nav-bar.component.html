@@ -2,8 +2,9 @@
     <div class="w-full border-b border-gray-100 bg-white">
         <div class="flex justify-between">
             <div class="w-16 h-16 flex justify-center items-center">
-                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-100 cursor-pointer" (click)="reduceSideBar()">
-                    <i  *ngIf="showFullBar else toggleIcon">
+                <div class="w-9 h-9 rounded-full flex justify-center items-center hover:bg-gray-100 cursor-pointer"
+                    (click)="reduceSideBar()">
+                    <i *ngIf="showFullBar else toggleIcon">
                         <ng-icon name="heroBars3" class="text-2xl text-gray-800"></ng-icon>
                     </i>
                     <ng-template #toggleIcon>
@@ -11,19 +12,46 @@
                     </ng-template>
                 </div>
             </div>
-            <div class="flex justify-center items-center">
-                <div class="grid grid-cols-6 gap-4">
-                    <div class="col-span-1 flex justify-center items-center">
-                        <ng-icon name="heroMagnifyingGlass" class="text-xl cursor-pointer"></ng-icon>
+            <div class="flex me-5 justify-center items-center">
+                <div class="flex items-center me-5">
+                    <ng-icon name="heroMagnifyingGlass" class="text-2xl cursor-pointer"></ng-icon>
+                </div>
+                <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="beforeMenu" mat-button>
+                    <div class="w-8 rounded-full overflow-hidden">
+                        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
+                            alt="">
                     </div>
-                    <div class="col-span-4 flex cursor-pointer">
-                        <ng-icon name="heroUserCircle" class="text-3xl text-gray-600"></ng-icon>
-                        <p class="ms-1">profile info</p>
-                        <div class="m-1">
-                            <ng-icon name="heroChevronDown"></ng-icon>
-                        </div>
+                    <p class="mx-2 text-sm">Mr. User</p>
+                    <div class="mt-1">
+                        <ng-icon name="heroChevronDown"></ng-icon>
                     </div>
                 </div>
+                <mat-menu #beforeMenu="matMenu" class="w-96 mt-2">
+                    <div class="p-3">
+                        <div class="bg-gray-100 p-5 flex items-center">
+                            <div class="w-10 rounded-full overflow-hidden">
+                                <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
+                                    alt="">
+                            </div>
+                            <div class="mx-3">
+                                <p class="text-sm leading-3">Mr. User</p>
+                                <span class="text-xs leading-3">Manager</span>
+                            </div>
+                        </div>
+                        <div class="">
+                            <ul>
+                                <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 cursor-pointer">
+                                    <ng-icon name="heroUser" class="text-lg mx-3"></ng-icon>
+                                    <p class="text-sm">Profile</p>
+                                </li>
+                                <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 cursor-pointer">
+                                    <ng-icon name="heroArrowRightOnRectangle" class="text-lg mx-3"></ng-icon>
+                                    <p class="text-sm">Sign Out</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </mat-menu>
             </div>
         </div>
     </div>
