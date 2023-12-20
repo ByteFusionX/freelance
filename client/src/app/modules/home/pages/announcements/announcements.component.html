@@ -1,1 +1,36 @@
-<p>announcements works!</p>
+<div class=" m-6 ">
+    <div class="text-lg bg-white font-medium p-4 border border-b-gray-300 px-8 rounded-md">
+
+        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+            <h3>Announcement</h3>
+
+            <div class="flex justify-end gap-4 h-10">
+
+                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+                    (click)="openDialog()">
+                    + Create Announcement
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="h-32 w-full bg-white mt-5 font-medium p-4 rounded-md">
+        <div>
+            <div class="flex gap-2">
+                <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
+                <p class="text-orange-400 text-sm">Recent Announcement</p>
+            </div>
+            <div class="flex justify-between"> 
+                <h1 class="text-xl mt-2 text-violet-700">Christmas Vacation</h1>
+                <div class="flex mt-2"> 
+                    <i><ng-icon name="heroCalendarDays" class="text-lg mt-1 "></ng-icon></i>
+                    <p class="ml-2 mr-6"> Dec 3, 2023</p> 
+                </div>
+                
+            </div>
+            <p class="text-sm mt-1">The company will be closed for 10 days due to Christmas leaves. Merry Christmas!</p>
+        </div>
+    </div>
+    
+</div>

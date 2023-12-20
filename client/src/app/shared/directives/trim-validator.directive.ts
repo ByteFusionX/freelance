@@ -11,7 +11,6 @@ export class appNoLeadingSpace {
   onInput(event: Event): void {
     const element = this.el.nativeElement as HTMLInputElement | HTMLTextAreaElement;
     const value = element.value;
-    console.log(value)
     if (value.startsWith(' ')) {
       element.value = value.trimStart();
       element.dispatchEvent(new Event('input'));

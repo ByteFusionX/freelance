@@ -8,10 +8,12 @@ import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { CustomersComponent } from './modules/customers/customers.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
     CustomersComponent,
+    
   ],
   imports: [
     BrowserModule,
