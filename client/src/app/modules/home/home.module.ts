@@ -11,6 +11,8 @@ import { CreateEmployeeDialog } from './pages/employees/create-employee/create-e
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { NgApexchartsModule } from "ng-apexcharts";
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+
 
 @NgModule({
   declarations: [
@@ -25,8 +27,9 @@ import { NgApexchartsModule } from "ng-apexcharts";
     HomeRoutingModule,
     IconsModule,
     MatTableModule,
-    MatDialogModule,
-    NgApexchartsModule
+    MatDialogModule
+    NgApexchartsModule,
+    directiveSharedModule,
   ]
 })
 export class HomeModule { }
