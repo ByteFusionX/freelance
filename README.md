@@ -6,6 +6,7 @@
             --dashboard.ts
             --dashboard.module.ts
             --dashboard.routing.module.ts
+            --pages
 
     --core
         --guards

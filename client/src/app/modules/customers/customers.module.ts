@@ -7,6 +7,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CustomersListComponent } from './pages/customers-list/customers-list.component';
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { CreateCustomerDialog } from './pages/create-customer/create-customer.co
     CustomersRoutingModule,
     NgIconsModule, 
     MatTableModule,
-    MatDialogModule
+    MatDialogModule,
+    directiveSharedModule
   ]
 })
 export class CustomersModule { }
