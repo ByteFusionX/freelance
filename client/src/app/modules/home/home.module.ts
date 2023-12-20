@@ -10,8 +10,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CreateEmployeeDialog } from './pages/employees/create-employee/create-employee.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
-import { NgApexchartsModule } from "ng-apexcharts";
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { NgApexchartsModule } from "ng-apexcharts";
 
 
 @NgModule({
@@ -27,7 +27,7 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     HomeRoutingModule,
     IconsModule,
     MatTableModule,
-    MatDialogModule
+    MatDialogModule,
     NgApexchartsModule,
     directiveSharedModule,
   ]
