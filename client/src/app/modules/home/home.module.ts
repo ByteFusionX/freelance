@@ -10,7 +10,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CreateEmployeeDialog } from './pages/employees/create-employee/create-employee.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
-
+import { NgApexchartsModule } from "ng-apexcharts";
 
 @NgModule({
   declarations: [
@@ -25,7 +25,8 @@ import { AnnouncementsComponent } from './pages/announcements/announcements.comp
     HomeRoutingModule,
     IconsModule,
     MatTableModule,
-    MatDialogModule
+    MatDialogModule,
+    NgApexchartsModule
   ]
 })
 export class HomeModule { }

@@ -1,1 +1,138 @@
-<p>dashboard works!</p>
+<div>
+    <div class="p-10">
+        <div class="w-full bg-white rounded-md">
+            <div class="flex p-10">
+                <div class="w-1/2">
+                    <p class="text-3xl font-medium">Hey Mr. User! Welcome to the <br> Dashboard </p>
+                    <div class="mt-5">
+                        <p class="text-gray-800">There are many variations of passages of Lorem Ipsum available, ut the
+                            majority have suffered
+                            passages of Lorem Ipsum available alteration in some form</p>
+                    </div>
+                    <div class="mt-5">
+                        <button class="py-3 px-5 bg-violet-600 text-white rounded hover:bg-violet-500">Learn
+                            More</button>
+                    </div>
+                </div>
+                <div class="w-1/2">
+                    <div class="flex justify-center">
+                        <img src="assets/images/active-panel.png" alt="" width="450">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full bg-white rounded-md mt-5">
+            <div class="p-10">
+                <p class="text-md font-medium">Total no of Enquires</p>
+                <div class="grid grid-cols-3 gap-10 mt-5">
+                    <div class="col-span-1 flex">
+                        <div>
+                            <div class="w-20 h-20 flex justify-center items-center rounded-full bg-violet-100">
+                                <ng-icon name="heroClipboardDocumentList" class="text-5xl text-violet-700"></ng-icon>
+                            </div>
+                        </div>
+                        <div class="mx-5">
+                            <span class="text-gray-800">ICT</span>
+                            <p class="text-3xl font-bold mt-1">911 <span class="text-xs text-gray-700">Nos</span></p>
+                            <div class="text-sm text-gray-700 mt-2">
+                                <span class="text-green-500">
+                                    <ng-icon name="heroArrowUp" class="font-medium"></ng-icon> 20.5%
+                                </span>
+                                <span class="mx-1">since last month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-1 flex">
+                        <div>
+                            <div class="w-20 h-20 flex justify-center items-center rounded-full bg-green-100">
+                                <ng-icon name="heroShieldCheck" class="text-5xl text-green-700"></ng-icon>
+                            </div>
+                        </div>
+                        <div class="mx-5">
+                            <span class="text-gray-800">Security system</span>
+                            <p class="text-3xl font-bold mt-1">369 <span class="text-xs text-gray-700">Nos</span></p>
+                            <div class="text-sm text-gray-700 mt-2">
+                                <span class="text-red-500">
+                                    <ng-icon name="heroArrowDown" class="font-medium"></ng-icon> 8.5%
+                                </span>
+                                <span class="mx-1">since last month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-1 flex">
+                        <div>
+                            <div class="w-20 h-20 flex justify-center items-center rounded-full bg-orange-100">
+                                <ng-icon name="heroCube" class="text-5xl text-orange-700"></ng-icon>
+                            </div>
+                        </div>
+                        <div class="mx-5">
+                            <span class="text-gray-800">Distributions</span>
+                            <p class="text-3xl font-bold mt-1">2,255 <span class="text-xs text-gray-700">Nos</span></p>
+                            <div class="text-sm text-gray-700 mt-2">
+                                <span class="text-green-500">
+                                    <ng-icon name="heroArrowUp" class="font-medium"></ng-icon> 25.5%
+                                </span>
+                                <span class="mx-1">since last month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full rounded-md mt-5">
+            <div class="grid grid-cols-2 gap-10">
+                <div class="p-10 bg-white">
+                    <p class="text-md font-medium">Total No of Quote Submitted</p>
+                    <div class="mt-5 flex">
+                        <div class="w-20 h-20 flex justify-center items-center rounded-full bg-yellow-100">
+                            <ng-icon name="heroNewspaper" class="text-5xl text-yellow-700"></ng-icon>
+                        </div>
+                        <div class="mx-5">
+                            <p class="text-3xl font-bold mt-1">100 <span class="text-xs text-gray-700">Nos</span></p>
+                            <div class="text-sm text-gray-700 mt-2">
+                                <span class="text-green-500">
+                                    <ng-icon name="heroArrowUp" class="font-medium"></ng-icon> 13.8%
+                                </span>
+                                <span class="mx-1">since last month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-10 bg-white">
+                    <p class="text-md font-medium">Total No of Jobs Awarded</p>
+                    <div class="mt-5 flex">
+                        <div class="w-20 h-20 flex justify-center items-center rounded-full bg-rose-100">
+                            <ng-icon name="heroBriefcase" class="text-5xl text-rose-700"></ng-icon>
+                        </div>
+                        <div class="mx-5">
+                            <p class="text-3xl font-bold mt-1">769 <span class="text-xs text-gray-700">Nos</span></p>
+                            <div class="text-sm text-gray-700 mt-2">
+                                <span class="text-red-500">
+                                    <ng-icon name="heroArrowDown" class="font-medium"></ng-icon> 10.2%
+                                </span>
+                                <span class="mx-1">since last month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full bg-white rounded-md mt-5">
+            <div class="p-10">
+                <p class="text-md font-medium">Enquires</p>
+                <div id="chart">
+                    <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!"
+                        [xaxis]="chartOptions.xaxis!" [stroke]="chartOptions.stroke!" [tooltip]="chartOptions.tooltip!"
+                        [dataLabels]="chartOptions.dataLabels!"></apx-chart>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="w-full h-10 bg-white relative">
+        <div class="absolute bottom-0 right-0">
+            <a href="https://github.com/ByteFusionX" class="text-xs underline text-violet-800 ">ByteFusionX</a>
+        </div>
+    </div>
+</div>
