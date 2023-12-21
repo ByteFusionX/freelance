@@ -22,7 +22,9 @@ import {
   heroClipboardDocumentList,
   heroShieldCheck,
   heroCube,
-  heroArrowDown
+  heroArrowDown,
+  heroCalendarDays,
+  heroBellAlert
 } from '@ng-icons/heroicons/outline';
 
 
@@ -52,7 +54,9 @@ import {
       heroArrowDown,
       heroClipboardDocumentList,
       heroShieldCheck,
-      heroCube
+      heroCube,
+      heroCalendarDays,
+      heroBellAlert
     }),
   ],
   exports:[NgIconsModule]
