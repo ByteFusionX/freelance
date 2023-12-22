@@ -11,7 +11,6 @@ export class CustomersListComponent {
 
   constructor(public dialog: MatDialog) { }
   displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
-
   dataSource = [
     { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
     { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
