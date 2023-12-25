@@ -17,7 +17,8 @@ import {
   heroBars3CenterLeft,
   heroXMark,
   heroUser,
-  heroArrowRightOnRectangle
+  heroArrowRightOnRectangle,
+  heroPaperClip
 } from '@ng-icons/heroicons/outline';
 
 
@@ -41,7 +42,8 @@ import {
       heroBars3CenterLeft,
       heroXMark,
       heroUser,
-      heroArrowRightOnRectangle
+      heroArrowRightOnRectangle,
+      heroPaperClip
     })
   ],
   exports:[NgIconsModule]
