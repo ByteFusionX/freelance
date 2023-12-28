@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: 'enquiry', loadChildren: () => import('./modules/enquirys/enquiry.module').then((m) => m.EnquiryModule) },
   { path: 'quotations', loadChildren: () => import('./modules/quotations/quotations.module').then((m) => m.QuotationsModule) },
   { path: 'jobs', loadChildren: () => import('./modules/jobs/jobs.module').then((m) => m.JobsModule) },
-
+  { path: 'profile', loadChildren: () => import('./modules/profile/profile.module').then((m) => m.ProfileModule) },
 ];
 
 @NgModule({
