@@ -14,17 +14,17 @@ export class EnquiryComponent {
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName','department','status'];
 
     dataSource = [
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
-    {enquiryId: 'Basim', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'}
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'},
+    {enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim',department:'Engineering',status:'Work in progress'}
   ];
 
 openDialog(){
