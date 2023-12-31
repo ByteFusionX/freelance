@@ -14,7 +14,6 @@
 
         </div>
     </div>
-
     <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
 
         <div class="flex gap-2 justify-between">
@@ -34,13 +33,8 @@
                 {{recentData.postedDate | date: 'MMM d, y'}}
             </time>
         </div>
-
-
         <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
-
-
         <p class="text-sm text-gray-600">{{recentData.description}}</p>
-
     </div>
 
     <div *ngFor="let item of announcementData">
@@ -59,11 +53,7 @@
                     <p class=" mr-6"> {{item.date}}</p>
                 </div>
             </div>
-
-
             <h1 class="text-xl text-violet-700">{{item.title}}</h1>
-
-
             <p class="text-sm text-gray-600">{{item.description}}</p>
 
         </div>
