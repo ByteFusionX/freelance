@@ -13,7 +13,6 @@ import { CustomersComponent } from './modules/customers/customers.component';
   declarations: [
     AppComponent,
     CustomersComponent,
-    
   ],
   imports: [
     BrowserModule,
