@@ -2,11 +2,11 @@ import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 @Directive({
-  selector: '[appImageFileValidator]'
+  selector: '[appFileValidator]'
 })
-export class appImageFileValidator {
+export class appFileValidator {
 
-  @Input() allowedExtensions: string[] = ['.jpg', '.jpeg', '.png', '.bmp' , '.gif'];
+  @Input() allowedExtensions: string[] = ['.jpg','.jpeg','.png','.pdf','.doc','.docx'];
 
   constructor(private el: ElementRef, private toast: ToastrService) {}
 
@@ -16,9 +16,9 @@ export class appImageFileValidator {
 
     const isValid = this.allowedExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
 
-    if (isValid) {
+    if (!isValid) {
       fileInput.value = '';
-      this.toast.warning('Invalid file type. Please upload an file with one of the following extensions: .pdf, .doc,', "Warning")
+      this.toast.warning('Invalid file type. Please upload an file with one of the following extensions: .jpg,.jpeg,.png,.pdf,.doc,.docx', "Warning")
     }
   }
 }

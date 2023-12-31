@@ -10,6 +10,7 @@ import { CustomersComponent } from './modules/customers/customers.component';
 import { ToastrModule } from 'ngx-toastr';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -25,7 +26,8 @@ import { ToastrModule } from 'ngx-toastr';
       timeOut: 3000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
-    })
+    }),
+    
   ],
   providers: [],
   bootstrap: [AppComponent]
