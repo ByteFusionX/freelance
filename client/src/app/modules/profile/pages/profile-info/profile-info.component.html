@@ -5,19 +5,28 @@
                 <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
                     alt="">
             </div>
-            <div class="p-5">
-                <p class="text-lg">Mr.User</p>
-                <span class="text-sm">Manager</span>
-                <div class="mt-3">
-                    <p>Email : mruser@gmail.com</p>
-                    <p>Contact No: +91 876423....</p>
+            <div class=" px-4">
+                <div class="flex gap-1">
+                    <i><ng-icon  name="heroUser" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                    <p class="font-medium text-orange-400 "> Profile info:</p>
+                </div>
+                <div class="mt-1 ml-1">
+                    <p class="text-lg">Mr.User</p>
+                    <span class="text-sm">Manager</span>
+                    <div class="mt-3">
+                        <p>Email : mruser@gmail.com</p>
+                        <p>Contact No: +91 876423....</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="w-full h-full bg-white p-10 m-2 rounded-md">
         <div class="mb-5">
-            <p class="font-medium"> Organization Details:</p>
+            <div class="flex gap-1">
+                <i><ng-icon  name="heroBuildingOffice" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                <p class="font-medium text-orange-400 "> Organization Details:</p>
+            </div>
             <p class="text-gray-600 mt-1">
                 <span class="">Neuron Technologies</span> <br>
                 A versatile technology integrator with unparalleled array of products and services to encompass every
@@ -26,14 +35,20 @@
         </div>
 
         <div class="mb-5">
-            <p class="font-medium">Address:</p>
+            <div class="flex gap-1">
+                <i><ng-icon  name="heroMapPin" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                <p class="font-medium text-orange-400">Address:</p>
+            </div>
             <p class="text-gray-600 mt-1">Neuron Technologies, <br>
                 Umm Ghuwailina, street No.950, <br>
                 Area No.27 , Doha-Qatar</p>
         </div>
 
         <div class="mb-5">
-            <p class="font-medium">Department:</p>
+            <div class="flex gap-1">
+                <i><ng-icon  name="heroBuildingLibrary" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                <p class="font-medium text-orange-400">Department:</p>
+            </div>
             <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-3 text-sm"
                 (click)="openCreateForm = true" *ngIf="!openCreateForm">+ Add
                 Department</button>
