@@ -5,12 +5,13 @@
 
 @import "~@ng-select/ng-select/themes/default.theme.css";
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@font-face{
+    font-family: 'Jost, sans-serif';
+    src: url('./assets/font/static/Jost-Medium.ttf');
+}
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
+body { margin: 0; font-family: "Jost, sans-serif"; }
 
 .ng-select.form .ng-select-container {
     height: 45px;
@@ -22,3 +23,4 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .ng-select.filter .ng-select-container {
     height: 40px;
 }
+

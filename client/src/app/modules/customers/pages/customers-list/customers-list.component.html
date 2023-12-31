@@ -1,18 +1,20 @@
 <div class="bg-white m-6 rounded-2xl">
-    <div class="text-lg font-medium p-4 border border-b-gray-300 px-8">
+    <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <h3>Customers Details</h3>
 
-            <div class="flex justify-end gap-4">
+            <div class="flex justify-end gap-4 items-center">
+                <p class="text-sm">Created By : </p>
+                
                 <div
                     class="h-10 inline-flex items-center text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                    <ng-icon name="heroMagnifyingGlass" class="text-xl text-gray-600 mr-2">
-                    </ng-icon>
-                    <input type="text" placeholder="Search Employees"
-                        class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
+                    <select class="bg-transparent border-none text-[15px] shadow-none text-gray-600 flex items-center focus:outline-none custom-select" id="grid-state">
+                        <option value="" [defaultSelected]="" hidden>Created By</option>
+                        <option class="px-10">Mhd Shamil</option>
+                      </select>
                 </div>
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     (click)="openDialog()">
                     + Create Customer
                 </button>
@@ -63,8 +65,6 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-
-
     </div>
     <div>
 

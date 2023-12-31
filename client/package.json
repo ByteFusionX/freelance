@@ -24,6 +24,7 @@
     "@ng-icons/core": "^26.3.0",
     "@ng-icons/heroicons": "^26.3.0",
     "@ng-select/ng-select": "^11.2.0",
+    "ng-apexcharts": "^1.8.0",
     "ng-process-env": "^16.0.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -31,7 +32,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.0.1",
-    "@angular/cli": "~16.0.1",
+    "@angular/cli": "^16.2.10",
     "@angular/compiler-cli": "^16.0.0",
     "@types/jasmine": "~4.3.0",
     "autoprefixer": "^10.4.16",
