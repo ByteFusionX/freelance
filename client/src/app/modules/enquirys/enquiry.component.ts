@@ -9,6 +9,23 @@ import { CreateEnquiryDialog } from './create-enquiry/create-enquiry.component';
 })
 export class EnquiryComponent {
 
+  selectedSalesPerson!: number;;
+  selectedStatus!:number;
+
+  salesPerson: { id: number, name: string }[] = [
+    { id: 2, name: 'Name1' },
+    { id: 5, name: 'Name2' },
+    { id: 3, name: 'Name3' },
+    { id: 4, name: 'Name4' },
+  ];
+
+  status: { id: number, name: string }[] = [
+    { id: 1, name: 'Status1' },
+    { id: 2, name: 'Status2' },
+    { id: 3, name: 'Status3' },
+    { id: 4, name: 'Status4' },
+  ];
+
   constructor(public dialog:MatDialog){}
 
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName','department','status'];
@@ -34,4 +51,7 @@ openDialog(){
   })
 }
 
+handleNotClose(event: MouseEvent) {
+  event.stopPropagation();
+}
 }

@@ -6,12 +6,15 @@ import { EnquiryComponent } from './enquiry.component';
 import { MatTableModule } from '@angular/material/table';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CreateEnquiryDialog } from './create-enquiry/create-enquiry.component';
-import {  MatDialogModule } from '@angular/material/dialog';
-import {MatDatepickerModule} from '@angular/material/datepicker'; 
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatNativeDateModule} from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
 import { NgIconsModule } from '@ng-icons/core';
-// import { MatMomentDateModule } from "@angular/material-moment-adapter";
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 @NgModule({
@@ -29,6 +32,10 @@ import { NgIconsModule } from '@ng-icons/core';
     MatFormFieldModule,
     MatNativeDateModule,
     NgIconsModule,
+    NgSelectModule,
+    FormsModule,
+    MatMenuModule,
+    MatButtonModule
   ]
 })
 export class EnquiryModule { }
