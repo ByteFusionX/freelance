@@ -3,10 +3,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face{
+@font-face {
     font-family: 'Jost, sans-serif';
     src: url('./assets/font/static/Jost-Medium.ttf');
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: "Jost, sans-serif"; }
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: "Jost, sans-serif";
+}

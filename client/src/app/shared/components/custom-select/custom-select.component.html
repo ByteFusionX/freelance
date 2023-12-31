@@ -11,7 +11,7 @@
                 placeholder="Search..." (input)="onSearchName($event)">
         </div>
         <div class="mt-3 h-full max-h-44 overflow-hidden overflow-y-auto">
-            <ul *ngFor="let option of options" class="">
+            <ul *ngFor="let option of filterOptions" class="">
                 <li class="px-4 py-1.5 hover:bg-violet-200 cursor-pointer text-gray-600 hover:scale-105"
                     (click)="onEmployeeSelect($event)">{{option.name}}</li>
             </ul>

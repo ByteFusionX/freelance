@@ -1,5 +1,5 @@
 <div class="w-full p-8">
-    <div class="w-full h-full bg-white p-10 m-2 rounded-md">
+    <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
         <div class="flex">
             <div class="w-40">
                 <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
@@ -15,7 +15,7 @@
             </div>
         </div>
     </div>
-    <div class="w-full h-full bg-white p-10 m-2 rounded-md">
+    <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
         <div class="mb-5">
             <p class="font-medium"> Organization Details:</p>
             <p class="text-gray-600 mt-1">
@@ -25,13 +25,14 @@
             </p>
         </div>
 
-        <div class="mb-5">
+        <div class="">
             <p class="font-medium">Address:</p>
             <p class="text-gray-600 mt-1">Neuron Technologies, <br>
                 Umm Ghuwailina, street No.950, <br>
                 Area No.27 , Doha-Qatar</p>
         </div>
-
+    </div>
+    <div class="w-full h-full bg-white p-10 m-2 rounded-md">
         <div class="mb-5">
             <p class="font-medium">Department:</p>
             <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-3 text-sm"
@@ -55,10 +56,48 @@
                     <button class="bg-orange-600 px-3 py-2 text-white hover:bg-orange-500 rounded-md mt-2 text-sm me-2"
                         (click)="onCloseClicked()">Close</button>
                     <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-2 text-sm"
-                        (click)="onSubmit()">+ Add
+                        (click)="onSubmit()" [disabled]="!enableSubmit">+ Add
                         Department</button>
                 </form>
             </div>
+        </div>
+        <div>
+            <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+                <!-- Position Column -->
+                <ng-container matColumnDef="position">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        No </th>
+                    <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department Name </th>
+                    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+                </ng-container>
+
+                <!-- Head Column -->
+                <ng-container matColumnDef="head">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department Head </th>
+                    <td mat-cell *matCellDef="let element"> {{element.head}} </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="date">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Created Date </th>
+                    <td mat-cell *matCellDef="let element"> {{element.date | date }} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
         </div>
     </div>
 </div>
