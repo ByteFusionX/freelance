@@ -30,7 +30,8 @@ import {
   heroIdentification,
   heroBuildingOffice,
   heroMapPin,
-  heroBuildingLibrary
+  heroBuildingLibrary,
+  heroPencilSquare
 } from '@ng-icons/heroicons/outline';
 
 
@@ -68,7 +69,8 @@ import {
       heroIdentification,
       heroBuildingOffice,
       heroMapPin,
-      heroBuildingLibrary
+      heroBuildingLibrary,
+      heroPencilSquare
     }),
   ],
   exports:[NgIconsModule]
