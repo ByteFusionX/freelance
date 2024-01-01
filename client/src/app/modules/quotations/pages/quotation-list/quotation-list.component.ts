@@ -26,7 +26,7 @@ export class QuotationListComponent {
   constructor() { 
   }
 
-  displayedColumns: string[] = ['slNo','date', 'quoteId', 'customerName', 'description','salesPerson', 'department', 'status'];
+  displayedColumns: string[] = ['slNo','date', 'quoteId', 'customerName', 'description','salesPerson', 'department', 'status','action'];
   dataSource = [
     {
       date: '2023-01-01',

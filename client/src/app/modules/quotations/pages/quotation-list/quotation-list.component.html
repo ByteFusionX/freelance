@@ -52,7 +52,7 @@
                     </div>
                 </mat-menu>
                 <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
-                    routerLink="/quotations/create-quote">
+                    routerLink="/quotations/create">
                     + Create Quote
                 </button>
             </div>
@@ -88,7 +88,7 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Quote Id </th>
-                <td mat-cell *matCellDef="let element"> <a class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
+                <td mat-cell *matCellDef="let element"> <a routerLink="/quotations/view"  class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
             </ng-container>
 
             <!-- Department Column -->
@@ -136,6 +136,13 @@
                         <option>Won</option>
                         <option>Lost</option>
                     </select> </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[16px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
+                    Action </th>
+                <td  mat-cell *matCellDef="let element"><div class="text-center" ><ng-icon routerLink="/quotations/edit" class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"></ng-icon> </div></td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
