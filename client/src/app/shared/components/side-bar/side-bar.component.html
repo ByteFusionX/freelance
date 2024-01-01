@@ -71,34 +71,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="my-3 cursor-pointer" (click)="onJobClick()"
-                    [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'">
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/jobs/assign" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroIdentification" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
-                            <p class="">Job</p>
-                            <i>
-                                <ng-icon name="heroChevronUp" class="text-gray-600"
-                                    *ngIf="jobDropDown else jobDropDownMenu"></ng-icon>
-                                <ng-template #jobDropDownMenu>
-                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
-                                </ng-template>
-                            </i>
+                            <p class="">Assigned Jobs</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
                     </div>
                 </div>
-                <div class="overflow-hidden" *ngIf="jobDropDown" [ngClass]="{dropDown: !showFullBar }">
-                    <div class="" @dropDownTrigger>
-                        <ul class="">
-                            <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/jobs/assign"
-                                routerLinkActive="active">
-                                <button class="mx-8">Assigned Jobs</button>
-                            </li>
-                            <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/jobs/sheet"
-                                routerLinkActive="active">
-                                <button class="mx-8">Job sheet</button>
-                            </li>
-                        </ul>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/jobs/sheet" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Jobs Sheet</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
                     </div>
                 </div>
             </div>

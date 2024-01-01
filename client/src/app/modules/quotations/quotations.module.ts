@@ -11,13 +11,17 @@ import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatMenuModule } from '@angular/material/menu';
+import { QuotationViewComponent } from './pages/quotation-view/quotation-view.component';
+import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.component';
 
 
 @NgModule({
   declarations: [
     QuotationsComponent,
     CreateQuotatationComponent,
-    QuotationListComponent
+    QuotationListComponent,
+    QuotationViewComponent,
+    QuotationEditComponent
   ],
   imports: [
     CommonModule,

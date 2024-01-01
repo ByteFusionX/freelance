@@ -27,6 +27,7 @@ import {
   heroArrowDown,
   heroCalendarDays,
   heroBellAlert,
+  heroIdentification,
   heroBuildingOffice,
   heroMapPin,
   heroBuildingLibrary
@@ -64,6 +65,7 @@ import {
       heroCube,
       heroCalendarDays,
       heroBellAlert,
+      heroIdentification,
       heroBuildingOffice,
       heroMapPin,
       heroBuildingLibrary
