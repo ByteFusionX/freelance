@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-profile-info',
@@ -7,39 +7,26 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 })
 export class ProfileInfoComponent {
 
-  @ViewChild('search') searchElement!: ElementRef
-  @ViewChild('select') selectElement!: ElementRef
-  @ViewChild('input') inputElement!: HTMLInputElement
-
-  emplyeeList: { name: string }[] = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }]
-  openSelectField: boolean = false
+  depName!: string;
+  optionSelected!: string;
   openCreateForm: boolean = false
+  employeeList = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }]
 
-  onSelectClick() {
-    this.openSelectField = !this.openSelectField
-    if (this.openSelectField) {
-      setTimeout(() => { this.searchElement.nativeElement.focus() }, 100)
-    }
-  }
-
-  onCloseClicked(){
+  onCloseClicked() {
     this.openCreateForm = false
-    this.openSelectField = false
   }
 
-  onEmployeeSelect(event: Event) {
-    let selectedName = (event.target as HTMLElement).innerHTML
-    this.selectElement.nativeElement.innerHTML = selectedName
-    this.openSelectField = false
+  onInputValues(event:Event){
+    this.depName = (event.target as HTMLInputElement).value
   }
 
-  onSearchName(event:Event){
-    let searching = (event.target as HTMLInputElement).value
+  onOptionSelected(event: string) {
+    this.optionSelected = event
   }
 
-  onSubmit(input: HTMLInputElement, select: HTMLElement) {
-    let departmentName = input.value
-    let departmentHead = select.innerHTML
-    let department = { name: departmentName, head: departmentHead }
+  onSubmit() {
+    let depName = this.depName
+    let depHead = this.optionSelected
+    let department = { name: depName, head: depHead }
   }
 }

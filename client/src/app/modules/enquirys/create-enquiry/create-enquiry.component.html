@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 <div class="  border border-white border-b-gray-300 p-3 px-6 flex justify-between">
     <h3 class="text-md font-medium">Create Enquiry</h3>
@@ -12,10 +13,24 @@
 
 <form class="w-full max-w-lg">
     <div class="flex flex-wrap -mx-3 mb-4">
+=======
+<div class="  border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+  <h3 class="text-md font-medium">Create Enquiry</h3>
+  <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+    <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+  </button>
+</div>
+
+<div class="flex flex-col py-6 mx-auto md:w-[600px]  text-gray-900 bg-white   shadow px-6">
+
+  <div class="w-full ">
+    <div class="flex flex-wrap -mx-3 mb-3">
+>>>>>>> add98ac11b5dcdbc36ea69837822d95d3602c2c2
       <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
           Client
         </label>
+<<<<<<< HEAD
         <input class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" type="text" >
        
       </div>
@@ -79,4 +94,62 @@
     <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm" >
         Create
     </button>
+=======
+        <ng-select [(ngModel)]="selectedCustomer" class="form" >
+          <ng-option *ngFor="let customer of customers" [value]="customer.id">{{customer.name}}</ng-option>
+
+          <ng-template ng-footer-tmp>
+            <a (click)="createCustomer()"
+              class="text-violet-700 cursor-pointer  flex justify-center items-center h-full w-full  ">
+              + Create Customer
+            </a>
+          </ng-template>
+        </ng-select>
+      </div>
+      <div class="w-full md:w-1/2 px-3">
+        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+          Contact
+        </label>
+        <ng-select [(ngModel)]="selectedContact"  class="form"> 
+          <ng-option *ngFor="let contact of contacts" [value]="contact.id">{{contact.name}}</ng-option>
+        </ng-select>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap -mx-3 ">
+      <div class="w-full md:w-1/2 px-3">
+        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+          Date
+        </label>
+        <input appNoLeadingSpace
+          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+          id="grid-last-name" type="date" placeholder="Email">
+      </div>
+      <div class="w-full md:w-1/2 px-3">
+        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+          Attachements
+        </label>
+        <div
+          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+          <label for="fileInput" class="custom-file-upload">
+            <ng-icon name="heroPaperClip"></ng-icon> Choose File
+          </label>
+          <input id="fileInput" type="file" style="display: none;" />
+        </div>
+
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+
+<div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-between gap-2">
+  <button class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm">
+    Assign to Presale
+  </button>
+  <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm">
+    Create Quote
+  </button>
+>>>>>>> add98ac11b5dcdbc36ea69837822d95d3602c2c2
 </div>

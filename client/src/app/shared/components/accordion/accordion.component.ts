@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NbAccordionModule } from '@nebular/theme'
-import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { NgIconComponent, NgIconsModule, provideIcons } from '@ng-icons/core';
 import {
   heroBars3,
   heroMagnifyingGlass,
@@ -18,8 +18,7 @@ import { AccordionAnimationState } from './accordion.animations';
   styleUrls: ['./accordion.component.css'],
   animations: [AccordionAnimationState],
   standalone: true,
-  imports: [NbAccordionModule, NgIconComponent, CommonModule],
-  providers: [provideIcons({ heroBars3, heroMagnifyingGlass, heroUserCircle, heroChevronDown, heroHome, heroChevronUp })]
+  imports: [NbAccordionModule, NgIconComponent, CommonModule, NgIconsModule],
 })
 export class AccordionComponent {
 

@@ -18,6 +18,8 @@ import {
   heroXMark,
   heroUser,
   heroArrowRightOnRectangle,
+  heroPaperClip,
+  heroAdjustmentsHorizontal,
   heroArrowUp,
   heroClipboardDocumentList,
   heroShieldCheck,
@@ -25,7 +27,10 @@ import {
   heroArrowDown,
   heroCalendarDays,
   heroBellAlert,
-  heroIdentification
+  heroIdentification,
+  heroBuildingOffice,
+  heroMapPin,
+  heroBuildingLibrary
 } from '@ng-icons/heroicons/outline';
 
 
@@ -51,6 +56,8 @@ import {
       heroXMark,
       heroUser,
       heroArrowRightOnRectangle,
+      heroPaperClip,
+      heroAdjustmentsHorizontal,
       heroArrowUp,
       heroArrowDown,
       heroClipboardDocumentList,
@@ -58,7 +65,10 @@ import {
       heroCube,
       heroCalendarDays,
       heroBellAlert,
-      heroIdentification
+      heroIdentification,
+      heroBuildingOffice,
+      heroMapPin,
+      heroBuildingLibrary
     }),
   ],
   exports:[NgIconsModule]
