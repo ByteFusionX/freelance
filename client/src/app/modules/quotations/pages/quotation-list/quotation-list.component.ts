@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { CreateQuotatationComponent } from '../create-quotatation/create-quotatation.component';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-quotation-list',
@@ -9,7 +7,24 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class QuotationListComponent {
 
-  constructor(public dialog: MatDialog) { }
+  selectedSalesPerson!: number;;
+  selectedDepartment!:number;
+
+  salesPerson: { id: number, name: string }[] = [
+    { id: 2, name: 'Name1' },
+    { id: 5, name: 'Name2' },
+    { id: 3, name: 'Name3' },
+    { id: 4, name: 'Name4' },
+  ];
+
+  departments: { id: number, name: string }[] = [
+    { id: 1, name: 'ICT' },
+    { id: 2, name: 'Security System' },
+    { id: 3, name: 'Distribution ' },
+  ];
+
+  constructor() { 
+  }
 
   displayedColumns: string[] = ['slNo','date', 'quoteId', 'customerName', 'description','salesPerson', 'department', 'status'];
   dataSource = [
@@ -42,11 +57,7 @@ export class QuotationListComponent {
     }
   ];
 
-  openDialog() {
-    const dialogRef = this.dialog.open(CreateQuotatationComponent);
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
-    });
-  }
+handleNotClose(event: MouseEvent) {
+  event.stopPropagation();
+}
 }

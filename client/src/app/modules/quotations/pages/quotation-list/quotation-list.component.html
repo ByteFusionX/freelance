@@ -5,19 +5,54 @@
             <h3>Quotations</h3>
 
             <div class="flex justify-end gap-4 items-center">
-                <p class="text-sm">Created By : </p>
 
-                <div
-                    class="h-10 inline-flex items-center text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                    <select
-                        class="bg-transparent border-none text-[15px] shadow-none text-gray-600 flex items-center focus:outline-none custom-select"
-                        id="grid-state">
-                        <option value="" [defaultSelected]="" hidden>Created By</option>
-                        <option class="px-10">Mhd Shamil</option>
-                    </select>
+                <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]" [matMenuTriggerFor]="beforeMenu" mat-button>
+                    <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
+                    <p class="mx-2 text-sm">Filter By</p>
+                    <div class="mt-1">
+                        <ng-icon name="heroChevronDown"></ng-icon>
+                    </div>
                 </div>
+                <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  w-96">
+                    <div class="p-4" (click)="handleNotClose($event)">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="fromDate" class="font-medium"> From:</label>
+                            <input type="date" id="fromDate"
+                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                        </div>
+                        <div  class="flex justify-between  items-center">
+                            <label for="toDate" class="font-medium"> To:</label>
+                            <input type="date" id="toDate"
+                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                        </div>
+                        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
+                            Submit
+                          </button>
+                        <div class="mb-2">
+                            <label for="salesPerson" class="font-medium">Sales Person:</label>
+                            <ng-select id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter" placeholder="Sales Person"  appendTo="body">
+                                <ng-option *ngFor="let person of salesPerson"
+                                    [value]="person.id">{{person.name}}</ng-option>
+                            </ng-select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="customer" class="font-medium">Customer:</label>
+                            <ng-select id="customer" [(ngModel)]="selectedSalesPerson" class=" filter" placeholder="Sales Person"  appendTo="body">
+                                <ng-option *ngFor="let person of salesPerson"
+                                    [value]="person.id">{{person.name}}</ng-option>
+                            </ng-select>
+                        </div>
+                        <div>
+                            <label for="department" class="font-medium">Department:</label>
+                            <ng-select dropdownPosition="top" id="department" [(ngModel)]="selectedDepartment" class=" filter" placeholder="Department" appendTo="body">
+                                <ng-option *ngFor="let department of departments"
+                                    [value]="department.id">{{department.name}}</ng-option>
+                            </ng-select>
+                        </div>
+                    </div>
+                </mat-menu>
                 <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
-                    (click)="openDialog()">
+                    routerLink="/quotations/create-quote">
                     + Create Quote
                 </button>
             </div>
@@ -35,7 +70,7 @@
             <!-- Position Column -->
             <ng-container matColumnDef="slNo">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Sl No. </th>
                 <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
             </ng-container>
@@ -43,7 +78,7 @@
             <!-- Name Column -->
             <ng-container matColumnDef="date">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[120px]">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
                     Date </th>
                 <td mat-cell *matCellDef="let element"> {{element.date}} </td>
             </ng-container>
@@ -51,7 +86,7 @@
             <!-- Creator Column -->
             <ng-container matColumnDef="quoteId">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Quote Id </th>
                 <td mat-cell *matCellDef="let element"> <a class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
             </ng-container>
@@ -59,39 +94,39 @@
             <!-- Department Column -->
             <ng-container matColumnDef="customerName">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Customer Name </th>
                 <td mat-cell *matCellDef="let element"> {{element.customerName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="description">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Description </th>
                 <td mat-cell *matCellDef="let element"> {{element.description}} </td>
             </ng-container>
 
             <ng-container matColumnDef="salesPerson">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Sales Person Name </th>
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Sales Person </th>
                 <td mat-cell *matCellDef="let element"> {{element.salesPerson}} </td>
             </ng-container>
 
             <ng-container matColumnDef="department">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Department </th>
                 <td mat-cell *matCellDef="let element"> {{element.department}} </td>
             </ng-container>
 
             <ng-container matColumnDef="status">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Status </th>
                 <td mat-cell *matCellDef="let element">
                      <select
-                        class="block w-full  border border-gray-200 text-gray-700 py-2 px-2 rounded "
+                        class="block w-full  border border-gray-160 text-gray-700 py-2 px-2 rounded "
                         id="grid-state">
                         <option>Work In Progress</option>
                         <option>Quote Submitted</option>
