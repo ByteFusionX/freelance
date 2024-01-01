@@ -1,1 +1,109 @@
-<p>job-list works!</p>
+<div class="bg-white m-6 rounded-2xl">
+    <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
+
+        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+            <h3>Enquiry Details</h3>
+
+            <div class="flex justify-end gap-4">
+
+                    <div class="w-48" (click)="handleNotClose($event)">
+                       
+                       
+                        <div >
+                            <ng-select [(ngModel)]="selectedStatus" class=" filter " placeholder="Status" appendTo="body">
+                                <ng-option *ngFor="let customer of status"
+                                    [value]="customer.id">{{customer.name}}</ng-option>
+                            </ng-select>
+                        </div>
+                    </div>
+                
+               
+            </div>
+
+        </div>
+    </div>
+
+    <div class="m-8  overflow-y-auto">
+
+        <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+
+            <!--- Note that these columns can be defined in any order.
+                  The actual rendered columns are set as a property on the row definition" -->
+
+            <!-- Position Column -->
+            <ng-container matColumnDef="jobId">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Job ID </th>
+                <td mat-cell *matCellDef="let element"> {{element.jobId}} </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="customerName">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Customer Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.customerName}} </td>
+            </ng-container>
+
+            <!-- Weight Column -->
+            <ng-container matColumnDef="description">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Description </th>
+                <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+            </ng-container>
+
+            <!-- Symbol Column -->
+            <ng-container matColumnDef="salesPersonName">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Sales Person Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.salesPersonName}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="department">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Department </th>
+                <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lpo">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    LPO </th>
+                <td mat-cell *matCellDef="let element"> {{element.lpo}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quotations">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Quotations </th>
+                <td mat-cell *matCellDef="let element"> {{element.quotations}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lpoValue">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    LPO Value </th>
+                <td mat-cell *matCellDef="let element"> {{element.lpoValue}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Status </th>
+                <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+
+    </div>
+    <div>
+
+    </div>
+</div>
