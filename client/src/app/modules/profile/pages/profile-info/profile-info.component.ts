@@ -1,4 +1,4 @@
-import { Component, DoCheck, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, DoCheck, OnInit } from '@angular/core';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 
 @Component({
@@ -14,30 +14,17 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
   employeeList = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }]
   enableSubmit: boolean = false
 
-  displayedColumns: string[] = ['position', 'name', 'head', 'date'];
-  dataSource = [
-    { name: 'ICT', head: 'John Doe', date: Date.now() },
-    { name: 'Security System', head: 'John Doe', date: Date.now() },
-    { name: 'Distributions', head: 'John Doe', date: Date.now() },
-    { name: 'ICT', head: 'John Doe', date: Date.now() },
-    { name: 'Security System', head: 'John Doe', date: Date.now() },
-    { name: 'Distributions', head: 'John Doe', date: Date.now() },
-    { name: 'ICT', head: 'John Doe', date: Date.now() },
-    { name: 'Security System', head: 'John Doe', date: Date.now() },
-    { name: 'Distributions', head: 'John Doe', date: Date.now() },
-  ];
-
-  constructor(private _profileService : ProfileService){}
+  constructor(private _profileService: ProfileService) { }
   ngDoCheck(): void {
     if (this.depName && this.optionSelected) {
       this.enableSubmit = true
-    }else{
+    } else {
       this.enableSubmit = false
     }
   }
 
   ngOnInit(): void {
-      this._profileService.getDepartments().subscribe()
+    this._profileService.getDepartments().subscribe()
   }
 
   onCloseClicked() {
