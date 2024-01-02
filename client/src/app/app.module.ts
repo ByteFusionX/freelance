@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { CustomersComponent } from './modules/customers/customers.component';
-
+ import{ HttpClientModule } from '@angular/common/http'
 
 @NgModule({
   declarations: [
@@ -20,6 +20,7 @@ import { CustomersComponent } from './modules/customers/customers.component';
     BrowserAnimationsModule,
     NavBarComponent,
     SideBarComponent,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
