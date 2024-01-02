@@ -18,7 +18,7 @@ export class appFileValidator {
 
     if (!isValid) {
       fileInput.value = '';
-      this.toast.warning('Invalid file type. Please upload an file with one of the following extensions: .jpg,.jpeg,.png,.pdf,.doc,.docx', "Warning")
+      this.toast.warning('Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx.', "Warning")
     }
   }
 }

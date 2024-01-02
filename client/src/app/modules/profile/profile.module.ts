@@ -6,6 +6,7 @@ import { ProfileInfoComponent } from './pages/profile-info/profile-info.componen
 import { NgIconsModule } from '@ng-icons/core';
 import { FormsModule} from '@angular/forms';
 import { CustomSelectComponent } from 'src/app/shared/components/custom-select/custom-select.component';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { CustomSelectComponent } from 'src/app/shared/components/custom-select/c
     NgIconsModule,
     FormsModule,
     CustomSelectComponent,
+    directiveSharedModule
   ]
 })
 export class ProfileModule { }
