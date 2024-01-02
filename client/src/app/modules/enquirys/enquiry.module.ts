@@ -12,9 +12,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NgIconsModule } from '@ng-icons/core';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 
 @NgModule({
@@ -35,7 +36,10 @@ import { MatMenuModule } from '@angular/material/menu';
     NgSelectModule,
     FormsModule,
     MatMenuModule,
-    MatButtonModule
+    MatButtonModule,
+    directiveSharedModule,
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class EnquiryModule { }

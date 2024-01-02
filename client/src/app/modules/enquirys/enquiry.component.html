@@ -6,43 +6,58 @@
 
             <div class="flex justify-end gap-4">
 
-                <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]" [matMenuTriggerFor]="beforeMenu" mat-button>
+                <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
+                    [matMenuTriggerFor]="beforeMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
                     <p class="mx-2 text-sm">Filter By</p>
                     <div class="mt-1">
                         <ng-icon name="heroChevronDown"></ng-icon>
                     </div>
                 </div>
-                <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  w-96">
+                <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto w-96">
+
                     <div class="p-4" (click)="handleNotClose($event)">
-                        <div class="flex justify-between items-center mb-2">
-                            <label for="fromDate" class="font-medium"> From:</label>
-                            <input type="date" id="fromDate"
-                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                        </div>
-                        <div  class="flex justify-between  items-center">
-                            <label for="toDate" class="font-medium"> To:</label>
-                            <input type="date" id="toDate"
-                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                        </div>
-                        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
-                            Submit
-                          </button>
+                        <form [formGroup]="formData" (ngSubmit)="onSubmit()">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="fromDate" class="font-medium"> From:</label>
+                                <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                            </div>
+                            <div class="text-red-700" *ngIf="formData.get('fromDate')?.hasError('futureDate')">
+                                Date must be in the past.
+                            </div>
+                            <div class="flex justify-between  items-center">
+                                <label for="toDate" class="font-medium"> To:</label>
+                                <input dateFutureDirective type="date" id="toDate" formControlName="toDate"
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                            </div>
+                            <div class="text-red-700" *ngIf="formData.get('toDate')?.hasError('futureDate')">
+                                Date must be in the past.
+                            </div>
+                            <div *ngIf="dateError" class="text-red-700">ToDate must be greater than FromDate</div>
+                            <button 
+                                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
+                                Submit
+                            </button>
+                        </form>
                         <div class="mb-2">
                             <label for="salesPerson" class="font-medium"> Sales Person:</label>
-                            <ng-select id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter" placeholder="Sales Person"  appendTo="body">
+                            <ng-select appNoLeadingSpace id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter"
+                                placeholder="Sales Person" appendTo="body">
                                 <ng-option *ngFor="let person of salesPerson"
                                     [value]="person.id">{{person.name}}</ng-option>
                             </ng-select>
                         </div>
                         <div>
                             <label for="salesPerson" class="font-medium"> Status:</label>
-                            <ng-select [(ngModel)]="selectedStatus" class=" filter" placeholder="Status" appendTo="body">
+                            <ng-select appNoLeadingSpace [(ngModel)]="selectedStatus" class=" filter" placeholder="Status"
+                                appendTo="body">
                                 <ng-option *ngFor="let customer of status"
                                     [value]="customer.id">{{customer.name}}</ng-option>
                             </ng-select>
                         </div>
                     </div>
+
                 </mat-menu>
                 <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     (click)="openDialog()">
@@ -57,10 +72,6 @@
 
         <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
 
-            <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
-
-            <!-- Position Column -->
             <ng-container matColumnDef="enquiryId">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
