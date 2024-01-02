@@ -7,8 +7,6 @@ import { AppComponent } from './app.component';
 import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { CustomersComponent } from './modules/customers/customers.component';
-import { ToastrModule } from 'ngx-toastr';
-
 
 
 @NgModule({
@@ -22,12 +20,7 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserAnimationsModule,
     NavBarComponent,
     SideBarComponent,
-    ToastrModule.forRoot({
-      timeOut: 3000,
-      positionClass: 'toast-top-right',
-      preventDuplicates: true,
-    }),
-    
+
   ],
   providers: [],
   bootstrap: [AppComponent]

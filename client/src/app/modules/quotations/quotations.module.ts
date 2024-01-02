@@ -7,8 +7,9 @@ import { CreateQuotatationComponent } from './pages/create-quotatation/create-qu
 import { QuotationListComponent } from './pages/quotation-list/quotation-list.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
-import { NgSelectComponent, NgSelectModule } from '@ng-select/ng-select';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { QuotationViewComponent } from './pages/quotation-view/quotation-view.component';
