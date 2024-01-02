@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-quotation-list',
@@ -7,8 +8,13 @@ import { Component } from '@angular/core';
 })
 export class QuotationListComponent {
 
+  constructor(private _fb: FormBuilder) {
+  }
+  submit: boolean = false
+  dateError: boolean = false
+
   selectedSalesPerson!: number;;
-  selectedDepartment!:number;
+  selectedDepartment!: number;
 
   salesPerson: { id: number, name: string }[] = [
     { id: 2, name: 'Name1' },
@@ -23,10 +29,14 @@ export class QuotationListComponent {
     { id: 3, name: 'Distribution ' },
   ];
 
-  constructor() { 
-  }
 
-  displayedColumns: string[] = ['slNo','date', 'quoteId', 'customerName', 'description','salesPerson', 'department', 'status','action'];
+  formData = this._fb.group({
+    fromDate: [new FormControl()],
+    toDate: [new FormControl()],
+  })
+
+
+  displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
   dataSource = [
     {
       date: '2023-01-01',
@@ -57,7 +67,21 @@ export class QuotationListComponent {
     }
   ];
 
-handleNotClose(event: MouseEvent) {
-  event.stopPropagation();
-}
+  handleNotClose(event: MouseEvent) {
+    event.stopPropagation();
+  }
+
+  onSubmit() {
+    this.submit = true
+    if (this.formData.value.fromDate > this.formData.value.toDate) {
+      this.dateError = true
+      setTimeout(() => {
+        this.dateError = false
+      }, 3000);
+    } else if (this.formData.value.fromDate < this.formData.value.toDate) {
+      this.dateError = false
+    } else {
+
+    }
+  }
 }

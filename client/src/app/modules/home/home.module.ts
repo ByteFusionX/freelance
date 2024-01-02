@@ -12,6 +12,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { NgApexchartsModule } from "ng-apexcharts";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -30,6 +31,8 @@ import { NgApexchartsModule } from "ng-apexcharts";
     MatDialogModule,
     NgApexchartsModule,
     directiveSharedModule,
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class HomeModule { }

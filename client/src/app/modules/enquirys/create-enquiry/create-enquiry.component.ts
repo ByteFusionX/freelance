@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { NgSelectConfig } from '@ng-select/ng-select';
 
@@ -10,6 +11,18 @@ import { NgSelectConfig } from '@ng-select/ng-select';
 export class CreateEnquiryDialog {
   selectedCustomer!: number;
   selectedContact!:number;
+
+  constructor(
+    public dialogRef: MatDialogRef<CreateEnquiryDialog>,
+    private config: NgSelectConfig,
+    private _fb : FormBuilder
+  ) {
+    this.config.notFoundText = 'Custom not found';
+    this.config.appendTo = 'body';
+
+    this.config.bindValue = 'value';
+  }
+
 
   customers: { id: number, name: string }[] = [
     { id: 1, name: 'Company' },
@@ -25,29 +38,18 @@ export class CreateEnquiryDialog {
     { id: 4, name: 'Contact4' },
   ];
 
+  formData = this._fb.group({
+    date:['']
+  })
 
-
-  constructor(
-    public dialogRef: MatDialogRef<CreateEnquiryDialog>,
-    private config: NgSelectConfig
-  ) {
-
-    this.config.notFoundText = 'Custom not found';
-    this.config.appendTo = 'body';
-    // set the bindValue to global config when you use the same 
-    // bindValue in most of the place. 
-    // You can also override bindValue for the specified template 
-    // by defining `bindValue` as property
-    // Eg : <ng-select bindValue="some-new-value"></ng-select>
-    this.config.bindValue = 'value';
-  }
-
+  
+  
   onClose() {
     this.dialogRef.close()
   }
 
   createCustomer() {
-    console.log("asdffffff");
+    
 
   }
 }

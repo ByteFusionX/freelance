@@ -8,11 +8,13 @@ import { QuotationListComponent } from './pages/quotation-list/quotation-list.co
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { QuotationViewComponent } from './pages/quotation-view/quotation-view.component';
 import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.component';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 
 @NgModule({
@@ -32,6 +34,9 @@ import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.co
     FormsModule,
     IconsModule,
     MatMenuModule,
+    FormsModule,
+    ReactiveFormsModule,
+    directiveSharedModule
   ]
 })
 export class QuotationsModule { }
