@@ -11,7 +11,7 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
   depName!: string;
   optionSelected!: string;
   openCreateForm: boolean = false
-  employeeList = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }]
+  employeeList = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }, { name: 'Peter' }]
   enableSubmit: boolean = false
 
   constructor(private _profileService: ProfileService) { }
@@ -24,7 +24,9 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
   }
 
   ngOnInit(): void {
-    this._profileService.getDepartments().subscribe()
+    this._profileService.getDepartments().subscribe((data) => {
+      console.log(data);
+    })
   }
 
   onCloseClicked() {
@@ -42,7 +44,11 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
   onSubmit() {
     let depName = this.depName
     let depHead = this.optionSelected
-    let department = { name: depName, head: depHead, date: Date.now() }
-    this._profileService.setDepartment(department)
+    if (depName && depHead) {
+      let department = { name: depName, head: depHead, date: Date.now() }
+      this._profileService.setDepartment(department).subscribe((data) => {
+        console.log(data);
+      })
+    }
   }
 }

@@ -9,14 +9,14 @@ import { Department } from './profile.interface';
 })
 export class ProfileService {
 
-  apiUrl: string = environment.apiUrl
-  constructor(private http: HttpClient) {}
-
-  setDepartment(department: Department): void {
-    this.http.post(`${this.apiUrl}/department`, department)
-  }
+  api: string = environment.api
+  constructor(private http: HttpClient) { }
 
   getDepartments(): Observable<Department> {
-    return this.http.get<Department>(`${this.apiUrl}/department/getAll`)
+    return this.http.get<Department>(`${this.api}/department`)
+  }
+
+  setDepartment(department: Department): Observable<any> {
+    return this.http.post(`${this.api}/department`, department)
   }
 }
