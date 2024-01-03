@@ -26,12 +26,12 @@ export class CustomersListComponent {
     { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
   ];
 
-  openDialog() {
-    const dialogRef = this.dialog.open(CreateCustomerDialog);
+  // openDialog() {
+  //   const dialogRef = this.dialog.open(CreateCustomerDialog);
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
-    });
-  }
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     console.log(`Dialog result: ${result}`);
+  //   });
+  // }
 
 }
