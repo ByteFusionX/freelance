@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -9,16 +9,30 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class CreateEmployeeDialog {
 
+  employeeForm = this.fb.group({
+    employeeId: ['', Validators.required],
+    userName: ['', Validators.required],
+    email: ['', Validators.required],
+    designation: ['', Validators.required],
+    dob: ['', Validators.required],
+    department: ['', Validators.required],
+    category: ['', Validators.required],
+    dateOfJoining: ['', Validators.required],
+    reportingTo: ['', Validators.required],
+    userRole: ['', Validators.required],
+  })
+
   constructor(
     public dialogRef: MatDialogRef<CreateEmployeeDialog>,
-    public fb:FormBuilder
-  ) { 
-    fb.group({
-      
-    })
+    private fb: FormBuilder
+  ) { }
+
+  onSubmit() {
+    if (this.employeeForm.valid) {
+
+    }
   }
 
-  
   onClose(): void {
     this.dialogRef.close();
   }
