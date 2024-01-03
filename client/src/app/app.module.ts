@@ -8,6 +8,7 @@ import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { CustomersComponent } from './modules/customers/customers.component';
 import { ToastrModule } from 'ngx-toastr';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { ToastrModule } from 'ngx-toastr';
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
+    HttpClientModule
 
   ],
   providers: [],

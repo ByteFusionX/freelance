@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
+import { announcementData } from 'src/app/core/services/announcement/announcement.interface';
+import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CreateCustomerDialog } from 'src/app/modules/customers/pages/create-customer/create-customer.component';
-import { datePastDirective } from 'src/app/shared/directives/date-validator.directive';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 @Component({
@@ -16,7 +16,7 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
   imports: [CommonModule, IconsModule, directiveSharedModule, ReactiveFormsModule, FormsModule],
 })
 export class AddAnnouncementComponent {
-  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>, private fb: FormBuilder , private toast : ToastrService) { }
+  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>, private fb: FormBuilder, private _service: AnnouncementService) { }
 
   onClose(): void {
     this.dialogRef.close();
@@ -24,10 +24,21 @@ export class AddAnnouncementComponent {
   formData = this.fb.group({
     title: ['', Validators.required],
     description: ['', Validators.required],
-    date: [''] 
+    date: [new FormControl()]
   })
 
-  toastCheck(){
-    this.toast.warning('Invalid file type. Please upload an file with one of the following extensions: .pdf, .doc,', "Warning")
+  data: announcementData = {
+    title: this.formData.value.title as string,
+    description: this.formData.value as string,
+    date: this.formData.value.date as Date
+  }
+
+  onSubmit() {
+    if (this.formData.valid) {
+      this._service.createAnnouncement(this.data).subscribe((res: boolean) => {
+        console.log(res)
+      })
+    }
+
   }
 }

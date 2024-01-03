@@ -6,6 +6,8 @@ import { ProfileInfoComponent } from './pages/profile-info/profile-info.componen
 import { NgIconsModule } from '@ng-icons/core';
 import { FormsModule } from '@angular/forms';
 import { CustomSelectComponent } from 'src/app/shared/components/custom-select/custom-select.component';
+import { HttpClientModule } from '@angular/common/http';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 
 @NgModule({
@@ -18,6 +20,8 @@ import { CustomSelectComponent } from 'src/app/shared/components/custom-select/c
     NgIconsModule,
     FormsModule,
     CustomSelectComponent,
+    HttpClientModule,
+    directiveSharedModule
   ]
 })
 export class ProfileModule { }
