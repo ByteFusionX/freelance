@@ -19,7 +19,7 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    NavBarComponent,
+    NavBarComponent, 
     SideBarComponent,
     ToastrModule.forRoot({
       timeOut: 3000,
