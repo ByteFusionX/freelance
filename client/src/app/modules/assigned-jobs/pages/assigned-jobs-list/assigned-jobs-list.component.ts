@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AssignedJobsListComponent {
 
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy','department','download','upload','send'];
+
+  dataSource = [
+    {enqId: '1251', customerName: 'shiyas', description: 'enquiry done', assignedBy: 'basim',department:'Engineering'},
+  ]
 }

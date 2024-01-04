@@ -20,7 +20,7 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    NavBarComponent,
+    NavBarComponent, 
     SideBarComponent,
     ToastrModule.forRoot({
       timeOut: 3000,

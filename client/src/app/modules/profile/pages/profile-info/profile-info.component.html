@@ -65,8 +65,10 @@
                         </div>
                         <div class="mt-2 flex">
                             <label for="" class="me-3 text-gray-700">Department Head:</label>
-                            <app-custom-select [options]="employeeList"
-                                (selectedOption)="onOptionSelected($event)"></app-custom-select>
+                            <div class="w-80">
+                                <app-custom-select [options]="employeeList"
+                                    (selectedOption)="onOptionSelected($event)"></app-custom-select>
+                            </div>
                         </div>
                     </div>
                     <button class="bg-orange-600 px-3 py-2 text-white hover:bg-orange-500 rounded-md mt-2 text-sm me-2"
@@ -75,6 +77,47 @@
                         (click)="onSubmit()" [disabled]="!enableSubmit">+ Add
                         Department</button>
                 </form>
+            </div>
+        </div>
+        <div>
+            <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
+                <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+    
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="position">
+                        <th *matHeaderCellDef
+                            class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                            No </th>
+                        <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
+                    </ng-container>
+        
+                    <!-- Name Column -->
+                    <ng-container matColumnDef="name">
+                        <th *matHeaderCellDef
+                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                            Name </th>
+                        <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
+                    </ng-container>
+        
+                    <!-- head Column -->
+                    <ng-container matColumnDef="head">
+                        <th *matHeaderCellDef
+                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                            Head </th>
+                        <td mat-cell *matCellDef="let element"> {{element.departmentHead}} </td>
+                    </ng-container>
+        
+                    <!-- date Column -->
+                    <ng-container matColumnDef="date">
+                        <th *matHeaderCellDef
+                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                           Created Date </th>
+                        <td mat-cell *matCellDef="let element"> {{element.createdDate | date: 'dd/MM/yyyy'}} </td>
+                    </ng-container>
+        
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
             </div>
         </div>
     </div>

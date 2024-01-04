@@ -1,5 +1,5 @@
 export interface Department {
-    name: string,
-    head: string,
-    date: number
+    departmentName: string,
+    departmentHead: string,
+    createdDate: number
 }

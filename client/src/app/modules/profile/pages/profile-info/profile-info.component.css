@@ -1,3 +1,26 @@
-th,td{
-    text-align: center;
+
+
+.example::-webkit-scrollbar {
+    width: 8px;
+    background-color: #f3f4f6;
 }
+
+.example::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.example::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 5px;
+  }
+
+  .table-wrapper {
+    overflow: auto; /* Enable horizontal scrolling if needed */
+  }
+  
+  .fixed-header {
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Ensure it's above other elements */
+    background-color: white; /* Adjust as needed */
+  }

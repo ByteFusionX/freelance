@@ -1,4 +1,5 @@
-import { Component, DoCheck, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DoCheck } from '@angular/core';
+import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 
 @Component({
@@ -6,13 +7,16 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
   templateUrl: './profile-info.component.html',
   styleUrls: ['./profile-info.component.css'],
 })
-export class ProfileInfoComponent implements DoCheck, OnInit {
+export class ProfileInfoComponent implements DoCheck, AfterViewInit {
 
   depName!: string;
   optionSelected!: string;
   openCreateForm: boolean = false
   employeeList = [{ name: 'Chandler' }, { name: 'Ross' }, { name: 'Joe' }, { name: 'Peter' }]
   enableSubmit: boolean = false
+
+  displayedColumns: string[] = ['position', 'name', 'head', 'date'];
+  dataSource:any = new MatTableDataSource()
 
   constructor(private _profileService: ProfileService) { }
   ngDoCheck(): void {
@@ -23,9 +27,12 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
     }
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit() {
     this._profileService.getDepartments().subscribe((data) => {
-      console.log(data);
+      if (data) {
+        this.dataSource.data = data
+        console.log(this.dataSource);
+      }
     })
   }
 
@@ -45,9 +52,13 @@ export class ProfileInfoComponent implements DoCheck, OnInit {
     let depName = this.depName
     let depHead = this.optionSelected
     if (depName && depHead) {
-      let department = { name: depName, head: depHead, date: Date.now() }
+      let department = { departmentName: depName, departmentHead: depHead, createdDate: Date.now() }
       this._profileService.setDepartment(department).subscribe((data) => {
-        console.log(data);
+        if(data == true){
+          this.onCloseClicked()
+          this.dataSource.data.push(department)
+          this.dataSource.data = this.dataSource.data
+        }
       })
     }
   }

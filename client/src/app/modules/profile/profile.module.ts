@@ -8,6 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { CustomSelectComponent } from 'src/app/shared/components/custom-select/custom-select.component';
 import { HttpClientModule } from '@angular/common/http';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { MatTableModule } from '@angular/material/table';
+
 
 
 @NgModule({
@@ -21,7 +24,10 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     FormsModule,
     CustomSelectComponent,
     HttpClientModule,
-    directiveSharedModule
-  ]
+    directiveSharedModule,
+    MatTableModule,
+  ],
+  providers: [ProfileService]
+
 })
 export class ProfileModule { }
