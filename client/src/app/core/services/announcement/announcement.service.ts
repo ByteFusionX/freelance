@@ -11,8 +11,12 @@ export class AnnouncementService {
 
   constructor(private http: HttpClient) { }
   readonly apiUrl = environment.api
-  createAnnouncement(data: announcementData): Observable<boolean> {
-    return this.http.post<boolean>(`${this.apiUrl}/addAcnnouncement`, data)
+  createAnnouncement(data: announcementData): Observable<boolean> { 
+    return this.http.post<boolean>(`${this.apiUrl}/announcement/addAcnnouncement`, data)
+  }
+
+  getAnnouncment():Observable<any>{
+    return this.http.get(`${this.apiUrl}/announcement/getAcnnouncement`)
   }
 
 }

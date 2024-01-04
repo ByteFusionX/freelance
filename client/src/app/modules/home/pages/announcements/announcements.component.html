@@ -14,48 +14,47 @@
 
         </div>
     </div>
-    <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
-
-        <div class="flex gap-2 justify-between">
-            <div class="flex gap-2">
-                <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
-                <p class="text-orange-400 text-sm">Recent Announcement</p>
-            </div>
-            <div class="flex gap-2 ">
-                <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                <p class=" mr-6"> {{recentData.date}}</p>
-            </div>
-        </div>
-
-        <div class="flex gap-1">
-            <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
-            <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
-                {{recentData.postedDate | date: 'MMM d, y'}}
-            </time>
-        </div>
-        <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
-        <p class="text-sm text-gray-600">{{recentData.description}}</p>
-    </div>
-
-    <div *ngFor="let item of announcementData">
+    <div *ngIf="recentData || announcementData.length">
         <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
-
-
-            <div class="flex gap-1 justify-between">
-               <div class="flex gap-1">
-                <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
-                <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
-                    {{item.postedDate | date: 'MMM d, y' }}
-                </time>
-               </div>
+            <div class="flex gap-2 justify-between">
+                <div class="flex gap-2">
+                    <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
+                    <p class="text-orange-400 text-sm">Recent Announcement</p>
+                </div>
                 <div class="flex gap-2 ">
                     <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                    <p class=" mr-6"> {{item.date}}</p>
+                    <p class=" mr-6"> {{recentData.date | date: 'MMM d, y'}}</p>
                 </div>
             </div>
-            <h1 class="text-xl text-violet-700">{{item.title}}</h1>
-            <p class="text-sm text-gray-600">{{item.description}}</p>
 
+            <div class="flex gap-1">
+                <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
+                <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
+                    {{recentData.createdDate | date: 'MMM d, y'}}
+                </time>
+            </div>
+            <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
+            <p class="text-sm text-gray-600">{{recentData.description}}</p>
+        </div>
+
+        <div *ngFor="let item of announcementData;trackBy:trackByIdFn">
+            <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
+                <div class="flex gap-1 justify-between">
+                    <div class="flex gap-1">
+                        <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
+                        <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
+                            {{item.createdDate | date: 'MMM d, y' }}
+                        </time>
+                    </div>
+                    <div class="flex gap-2 ">
+                        <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
+                        <p class=" mr-6"> {{item.date | date: 'MMM d, y'}}</p>
+                    </div>
+                </div>
+                <h1 class="text-xl text-violet-700">{{item.title}}</h1>
+                <p class="text-sm text-gray-600">{{item.description}}</p>
+
+            </div>
         </div>
     </div>
 
