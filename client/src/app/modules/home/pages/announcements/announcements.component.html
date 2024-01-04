@@ -14,7 +14,7 @@
 
         </div>
     </div>
-    <div *ngIf="recentData || announcementData.length">
+    <div *ngIf="recentData || announcementData.length;else noData" >
         <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
             <div class="flex gap-2 justify-between">
                 <div class="flex gap-2">
@@ -57,5 +57,8 @@
             </div>
         </div>
     </div>
+    <ng-template #noData>
+        <p class="text-lg text-center mt-12">No Data Available</p>
+      </ng-template>
 
 </div>
