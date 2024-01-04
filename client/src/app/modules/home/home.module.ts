@@ -13,6 +13,7 @@ import { AnnouncementsComponent } from './pages/announcements/announcements.comp
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     NgApexchartsModule,
     directiveSharedModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ]
 })
 export class HomeModule { }

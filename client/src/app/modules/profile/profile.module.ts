@@ -6,9 +6,11 @@ import { ProfileInfoComponent } from './pages/profile-info/profile-info.componen
 import { NgIconsModule } from '@ng-icons/core';
 import { FormsModule } from '@angular/forms';
 import { CustomSelectComponent } from 'src/app/shared/components/custom-select/custom-select.component';
-import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { HttpClientModule } from '@angular/common/http';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { MatTableModule } from '@angular/material/table';
+
 
 
 @NgModule({
@@ -22,8 +24,10 @@ import { MatTableModule } from '@angular/material/table';
     FormsModule,
     CustomSelectComponent,
     HttpClientModule,
+    directiveSharedModule,
     MatTableModule,
   ],
   providers: [ProfileService]
+
 })
 export class ProfileModule { }
