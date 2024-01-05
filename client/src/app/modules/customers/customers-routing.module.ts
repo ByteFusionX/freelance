@@ -5,9 +5,9 @@ import { CustomersListComponent } from './pages/customers-list/customers-list.co
 
 const routes: Routes = [
   {
-    path: '', component: CustomersComponent,
+    path: '', component: CustomersComponent, 
     children: [
-      { path: '', component: CustomersListComponent }
+      { path: '', component: CustomersListComponent, }
     ]
   }
 ];

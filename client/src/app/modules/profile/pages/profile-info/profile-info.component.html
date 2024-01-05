@@ -64,10 +64,13 @@
                                 placeholder="Eg:- ICT" (input)="onInputValues($event)">
                         </div>
                         <div class="mt-2 flex">
-                            <label for="" class="me-3 text-gray-700">Department Head:</label>
+                            <label for="employee" class="me-3 text-gray-700">Department Head:</label>
                             <div class="w-80">
-                                <app-custom-select [options]="employeeList"
-                                    (selectedOption)="onOptionSelected($event)"></app-custom-select>
+                                <ng-select id="employee" [(ngModel)]="depHead"
+                                class="filter" placeholder="Emloyees" appendTo="body">
+                                <ng-option *ngFor="let employee of employeeList"
+                                    [value]="employee.id">{{employee.name}}</ng-option>
+                            </ng-select>
                             </div>
                         </div>
                     </div>
@@ -82,7 +85,7 @@
         <div>
             <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
                 <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
-    
+
                     <!-- Position Column -->
                     <ng-container matColumnDef="position">
                         <th *matHeaderCellDef
@@ -90,7 +93,7 @@
                             No </th>
                         <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
                     </ng-container>
-        
+
                     <!-- Name Column -->
                     <ng-container matColumnDef="name">
                         <th *matHeaderCellDef
@@ -98,23 +101,33 @@
                             Name </th>
                         <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
                     </ng-container>
-        
+
                     <!-- head Column -->
                     <ng-container matColumnDef="head">
                         <th *matHeaderCellDef
                             class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                             Head </th>
-                        <td mat-cell *matCellDef="let element"> {{element.departmentHead}} </td>
+                        <td mat-cell *matCellDef="let element"> {{element.departmentHead[0].userName}} </td>
                     </ng-container>
-        
+
                     <!-- date Column -->
                     <ng-container matColumnDef="date">
                         <th *matHeaderCellDef
                             class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                           Created Date </th>
+                            Created Date </th>
                         <td mat-cell *matCellDef="let element"> {{element.createdDate | date: 'dd/MM/yyyy'}} </td>
                     </ng-container>
-        
+
+                    <!-- action Column -->
+                    <ng-container matColumnDef="action">
+                        <th *matHeaderCellDef
+                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                            Action </th>
+                        <td mat-cell *matCellDef="let element; let i=index">
+                            <ng-icon class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare" (click)="onEditClick(i)"></ng-icon>
+                        </td>
+                    </ng-container>
+
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
