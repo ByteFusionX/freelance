@@ -1,14 +1,18 @@
 import express from 'express';
 import cors from 'cors'
 import dotenv from "dotenv";
+import morgan from "morgan";
 import * as path from 'path';
 import mongoose from 'mongoose';
 import router from './routes/user.router';
 import depRouter from './routes/department.router'
+import empRouter from './routes/employee.router';
 import annoRouter from './routes/announcment.router';
 
-
 const app: express.Application = express();
+
+app.use(morgan("tiny"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
@@ -25,6 +29,7 @@ app.use(
 
 app.use('/', router);
 app.use('/department', depRouter)
+app.use('/employee', empRouter)
 app.use('/announcement',annoRouter)
 
 mongoose

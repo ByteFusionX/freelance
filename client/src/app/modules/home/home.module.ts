@@ -14,6 +14,9 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
 import { NgApexchartsModule } from "ng-apexcharts";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
@@ -34,6 +37,10 @@ import { HttpClientModule } from '@angular/common/http';
     directiveSharedModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
+    NgSelectModule,
+    SkeltonLoadingComponent,
+    MatPaginatorModule,
     HttpClientModule
   ]
 })
