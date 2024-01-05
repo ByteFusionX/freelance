@@ -41,6 +41,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     NgSelectModule,
     SkeltonLoadingComponent,
     MatPaginatorModule,
+    HttpClientModule
   ]
 })
 export class HomeModule { }

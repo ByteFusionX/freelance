@@ -13,6 +13,7 @@ import { SkeltonLoadingComponent } from './shared/components/skelton-loading/ske
 import { ValidationPipe } from './shared/pipes/validation.pipe';
 
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +23,7 @@ import { ValidationPipe } from './shared/pipes/validation.pipe';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    NavBarComponent,
+    NavBarComponent, 
     SideBarComponent,
     ToastrModule.forRoot({
       timeOut: 3000,
