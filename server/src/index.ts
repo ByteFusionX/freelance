@@ -1,18 +1,22 @@
 import express from 'express';
 import cors from 'cors'
 import dotenv from "dotenv";
+import morgan from "morgan";
 import * as path from 'path';
 import mongoose from 'mongoose';
-import router from './routes/user-router';
+import router from './routes/user.router';
+import depRouter from './routes/department.router'
+import empRouter from './routes/employee.router';
 
 
 const app: express.Application = express();
 
-const port = process.env.PORT;
+app.use(morgan("tiny"));
 
-app.listen(port, () => {
-	console.log("server running..");
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
+
+
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
@@ -24,9 +28,16 @@ app.use(
 );
 
 app.use('/', router);
+app.use('/department', depRouter)
+app.use('/employee', empRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)
 	.then(() => {
 		console.log("Database connected and Working  ");
 	});
+
+const port = process.env.PORT;
+app.listen(port, () => {
+	console.log("server running..");
+});

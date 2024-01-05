@@ -6,7 +6,8 @@
 
             <div class="flex justify-end gap-4 items-center">
 
-                <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-1" [matMenuTriggerFor]="beforeMenu" mat-button>
+                <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-1"
+                    [matMenuTriggerFor]="beforeMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
                     <p class="mx-2 text-sm">Filter By</p>
                     <div class="mt-1">
@@ -15,36 +16,49 @@
                 </div>
                 <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  w-96">
                     <div class="p-4" (click)="handleNotClose($event)">
-                        <div class="flex justify-between items-center mb-2">
-                            <label for="fromDate" class="font-medium"> From:</label>
-                            <input type="date" id="fromDate"
-                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                        </div>
-                        <div  class="flex justify-between  items-center">
-                            <label for="toDate" class="font-medium"> To:</label>
-                            <input type="date" id="toDate"
-                                class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
-                        </div>
-                        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
-                            Submit
-                          </button>
+                        <form [formGroup]="formData" (submit)="onSubmit()">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="fromDate" class="font-medium"> From:</label>
+                                <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                            </div>
+                            <div class="text-red-700 ml-3" *ngIf="formData.get('fromDate')?.hasError('futureDate')">
+                                Date must be in the past.
+                            </div>
+                            <div class="flex justify-between  items-center">
+                                <label for="toDate" class="font-medium"> To:</label>
+                                <input dateFutureDirective type="date" id="toDate" formControlName="toDate"
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                            </div>
+                            <div class="text-red-700 ml-3" *ngIf="formData.get('toDate')?.hasError('futureDate')">
+                                Date must be in the past.
+                            </div>
+                            <div *ngIf="dateError" class="text-red-700">ToDate must be greater than FromDate</div>
+                            <button type="submit"
+                                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
+                                Submit
+                            </button>
+                        </form>
                         <div class="mb-2">
                             <label for="salesPerson" class="font-medium">Sales Person:</label>
-                            <ng-select id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter" placeholder="Sales Person"  appendTo="body">
+                            <ng-select id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter"
+                                placeholder="Sales Person" appendTo="body">
                                 <ng-option *ngFor="let person of salesPerson"
                                     [value]="person.id">{{person.name}}</ng-option>
                             </ng-select>
                         </div>
                         <div class="mb-2">
                             <label for="customer" class="font-medium">Customer:</label>
-                            <ng-select id="customer" [(ngModel)]="selectedSalesPerson" class=" filter" placeholder="Sales Person"  appendTo="body">
+                            <ng-select id="customer" [(ngModel)]="selectedSalesPerson" class=" filter"
+                                placeholder="Sales Person" appendTo="body">
                                 <ng-option *ngFor="let person of salesPerson"
                                     [value]="person.id">{{person.name}}</ng-option>
                             </ng-select>
                         </div>
                         <div>
                             <label for="department" class="font-medium">Department:</label>
-                            <ng-select dropdownPosition="top" id="department" [(ngModel)]="selectedDepartment" class=" filter" placeholder="Department" appendTo="body">
+                            <ng-select dropdownPosition="top" id="department" [(ngModel)]="selectedDepartment"
+                                class=" filter" placeholder="Department" appendTo="body">
                                 <ng-option *ngFor="let department of departments"
                                     [value]="department.id">{{department.name}}</ng-option>
                             </ng-select>
@@ -88,7 +102,8 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Quote Id </th>
-                <td mat-cell *matCellDef="let element"> <a routerLink="/quotations/view"  class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
+                <td mat-cell *matCellDef="let element"> <a routerLink="/quotations/view"
+                        class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
             </ng-container>
 
             <!-- Department Column -->
@@ -125,8 +140,7 @@
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Status </th>
                 <td mat-cell *matCellDef="let element">
-                     <select
-                        class="block w-full  border border-gray-160 text-gray-700 py-2 px-2 rounded "
+                    <select class="block w-full  border border-gray-160 text-gray-700 py-2 px-2 rounded "
                         id="grid-state">
                         <option>Work In Progress</option>
                         <option>Quote Submitted</option>
@@ -135,14 +149,18 @@
                         <option>Ready for submission</option>
                         <option>Won</option>
                         <option>Lost</option>
-                    </select> </td>
+                    </select>
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="action">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
                     Action </th>
-                <td  mat-cell *matCellDef="let element"><div class="text-center" ><ng-icon routerLink="/quotations/edit" class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"></ng-icon> </div></td>
+                <td mat-cell *matCellDef="let element">
+                    <div class="text-center"><ng-icon routerLink="/quotations/edit"
+                            class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"></ng-icon> </div>
+                </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

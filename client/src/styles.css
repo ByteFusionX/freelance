@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @import "~@ng-select/ng-select/themes/default.theme.css";
 
 @font-face{
@@ -23,4 +24,16 @@ body { margin: 0; font-family: "Jost, sans-serif"; }
 .ng-select.filter .ng-select-container {
     height: 40px;
 }
+
+/* CSS to hide spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
 

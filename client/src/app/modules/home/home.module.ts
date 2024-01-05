@@ -12,7 +12,11 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { NgApexchartsModule } from "ng-apexcharts";
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
@@ -31,7 +35,12 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatDialogModule,
     NgApexchartsModule,
     directiveSharedModule,
-    ReactiveFormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgSelectModule,
+    SkeltonLoadingComponent,
+    MatPaginatorModule,
   ]
 })
 export class HomeModule { }

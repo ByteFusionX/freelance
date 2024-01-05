@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateEmployeeDialog } from './create-employee/create-employee.component';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-employees',
@@ -8,31 +12,43 @@ import { CreateEmployeeDialog } from './create-employee/create-employee.componen
   styleUrls: ['./employees.component.css']
 })
 export class EmployeesComponent {
-  
-  constructor(public dialog: MatDialog) {}
 
-  displayedColumns: string[] = ['name', 'department', 'email', 'contactNo','privilage'];
+  employees: getEmployee[] = [];
+  displayedColumns: string[] = ['name', 'department', 'email', 'contactNo', 'privilage'];
+  isLoading: boolean = true;
 
-  dataSource = [
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-    {name: 'Basim', department: 'department#1', email: 'basimohammed@gmail.com', contactNo: 949494949494},
-  ];
+  dataSource!: MatTableDataSource<getEmployee>;
 
-  openDialog(){
+  constructor(
+    public dialog: MatDialog,
+    private _employeeService: EmployeeService,
+    private toast: ToastrService
+  ) { }
+
+  ngOnInit() {
+    this.getEmployees()
+  }
+
+  ngDoCheck() {
+    this.dataSource = new MatTableDataSource(this.employees);
+
+  }
+
+  getEmployees() {
+    this._employeeService.getEmployees().subscribe((res: getEmployee[]) => {
+      this.employees = res;
+      this.isLoading = false;
+    })
+  }
+
+  openDialog() {
     const dialogRef = this.dialog.open(CreateEmployeeDialog);
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data) {
+        this.employees.push(data)
+        this.toast.success('Employee Created Successfully')
+      }
     });
   }
 }

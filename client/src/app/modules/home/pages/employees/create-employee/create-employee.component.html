@@ -1,136 +1,199 @@
-
 <div class="  border border-white border-b-gray-300 p-3 px-6 flex justify-between">
-    <h3 class="text-md font-medium">Create Employee</h3>
-    <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center"  (click)="onClose()">
-        <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
-    </button>
+  <h3 class="text-md font-medium">Create Employee</h3>
+  <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+    <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+  </button>
 </div>
 
 <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
-<div
-  class="flex flex-col p-6 mx-auto max-w-3xl  text-gray-900 bg-white rounded-lg  shadow px-9"
->
-<div class="w-full max-w-6xl">
-    <div class="flex flex-wrap -mx-3 mb-6">
-      <div class="w-full md:w-1/2 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="employeeId">
-          Employee ID
-        </label>
-        <input formControlName="employeeId" id="employeeId" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="text" placeholder="Employee ID">
-      </div>
-      <div class="w-full md:w-1/2 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="userName">
-          User Name
-        </label>
-        <input formControlName="userName"  id="userName" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="text" placeholder="User Name">
-      </div>
-      
-    </div>
-    <div class="flex flex-wrap -mx-3 mb-6">
-      <div class="w-full md:w-1/2 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="email">
-          Email
-        </label>
-        <input  formControlName="email" for="email" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="text" placeholder="Email">
-      </div>
-      <div class="w-full md:w-1/2 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="designation">
-          Designation
-        </label>
-        <input  formControlName="designation" id="designation" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="text" placeholder="Designation">
-      </div>
-      
-    </div>
-    <div class="flex flex-wrap -mx-3 mb-6">
-      
-      
-      <div class="w-full md:w-1/3 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="dob">
-          Date Of Birth
-        </label>
-        <input  formControlName="dob" id="dob" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="date" placeholder="Email">
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="department">
-          Department
-        </label>
-        <div class="relative">
-          <select  formControlName="department" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="department">
-            <option>Manager</option>
-            <option>Engineer</option>
-            <option>Sales</option>
-            <option>Administrations</option>
-            <option>Operations</option>
-            <option>HR</option>
-            <option>Finance</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+  <div class="flex flex-col p-6 mx-auto max-w-3xl  text-gray-900 bg-white rounded-lg  shadow px-9">
+    <div class="w-full max-w-6xl">
+      <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="employeeId">
+            Employee ID
+          </label>
+          <input formControlName="employeeId" id="employeeId" appNoLeadingSpace
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            type="text" placeholder="Employee ID">
+            <div class="text-red-700 text-sm mt-1" *ngIf="employeeForm.get('employeeId')?.hasError('required') && employeeForm.get('employeeId')?.touched">
+              This field is Required
+            </div>
+        </div>
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="userName">
+            User Name
+          </label>
+          <input formControlName="userName" id="userName" appNoLeadingSpace
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            type="text" placeholder="User Name">
+            <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('userName')?.hasError('required') && employeeForm.get('userName')?.touched">
+              This field is Required
+            </div>
+        </div>
+        <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="department">
+            Department
+          </label>
+          <div class="relative">
+            <select formControlName="department"
+              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="department">
+              <option value="" disabled selected hidden>Select an option</option>
+              <option *ngFor="let department of departments" [value]="department._id">{{ department.departmentName }}
+              </option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+          <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('department')?.hasError('required') && employeeForm.get('department')?.touched">
+            This field is Required
           </div>
         </div>
       </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="category">
-          Category
-        </label>
-        <div class="relative">
-          <select  formControlName="category" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="category">
-            <option>Manager</option>
-            <option>Engineer</option>
-            <option>Sales</option>
-            <option>Administrations</option>
-            <option>Operations</option>
-            <option>HR</option>
-            <option>Finance</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+      <div class="flex flex-wrap -mx-3 mb-6">
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="email">
+            Email
+          </label>
+          <input formControlName="email" for="email" appNoLeadingSpace
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            type="text" placeholder="Email">
+            <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('email')?.hasError('required') && employeeForm.get('email')?.touched">
+              This field is Required
+            </div>
+            <div class="text-red-700 text-sm mt-1" *ngIf="employeeForm.get('email')?.hasError('email')  && employeeForm.get('email')?.touched">
+              Invalid email format.
+            </div>
+            
+        </div>
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="contactNo">
+            Contact No
+          </label>
+          <input formControlName="contactNo" id="contactNo" appNoLeadingSpace
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            type="text" placeholder="Contact No">
+            <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('contactNo')?.hasError('required') && employeeForm.get('contactNo')?.touched">
+              This field is Required
+            </div>
+        </div>
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="designation">
+            Designation
+          </label>
+          <input formControlName="designation" id="designation" appNoLeadingSpace
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            type="text" placeholder="Designation">
+            <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('designation')?.hasError('required') && employeeForm.get('designation')?.touched">
+              This field is Required
+            </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap -mx-3 mb-6">
+
+        <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="category">
+            Category
+          </label>
+          <div class="relative">
+            <select formControlName="category"
+              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="category">
+              <option>Manager</option>
+              <option>Engineer</option>
+              <option>Sales</option>
+              <option>Administrations</option>
+              <option>Operations</option>
+              <option>HR</option>
+              <option>Finance</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="dob">
+            Date Of Birth
+          </label>
+          <input dateFutureDirective formControlName="dob"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="grid-last-name" type="date" placeholder="">
+          <div class="text-red-700 text-sm mt-1 absolute mb-1" *ngIf="employeeForm.get('dob')?.hasError('futureDate')">
+            Date must be in the past.
+          </div>
+          <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('dob')?.hasError('required') && employeeForm.get('dob')?.touched">
+            This field is Required
+          </div>
+        </div>
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="doj">
+            Date Of Joining
+          </label>
+          <input dateFutureDirective formControlName="dateOfJoining"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="grid-last-name" type="date" placeholder="Date Of Joining">
+          <div class="text-red-700 text-sm mt-1 absolute mb-1" *ngIf="employeeForm.get('dateOfJoining')?.hasError('futureDate')">
+            Date must be in the past.
+          </div>
+          <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('dateOfJoining')?.hasError('required') && employeeForm.get('dateOfJoining')?.touched">
+            This field is Required
           </div>
         </div>
       </div>
-     
-    </div>
-    <div class="flex flex-wrap  -mx-3 mb-2">
-      
-      <div class="w-full md:w-1/3 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="doj">
-          Date Of Joining
-        </label>
-        <input  formControlName="dateOfJoining" id="doj" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="date" placeholder="Date Of Joining">
-      </div>
-      <div class="w-full md:w-1/3 px-3">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="reporting">
-          Reporting To
-        </label>
-        <input  formControlName="reportingTo" id="reporting" appNoLeadingSpace class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"  type="text" placeholder="Reporting To">
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="userRole">
-          User Role
-        </label>
-        <div class="relative">
-          <select  formControlName="userRole" id="userRole" class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" >
-            <option>Super Admin</option>
-            <option>Admin</option>
-            <option>User</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+      <div class="flex flex-wrap  -mx-3 mb-2">
+        <div class="w-full md:w-1/3 px-3">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="reporting">
+            Reporting To
+          </label>
+          <ng-select formControlName="reportingTo" class="form" id="reporting">
+            <ng-option value="">No one</ng-option>
+            <ng-option *ngFor="let employee of employees" [value]="employee._id">{{employee.userName}}</ng-option>
+          </ng-select>
+          <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('reportingTo')?.hasError('required') && employeeForm.get('reportingTo')?.touched">
+            This field is Required
           </div>
         </div>
+        <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="userRole">
+            User Role
+          </label>
+          <div class="relative">
+            <select formControlName="userRole" id="userRole"
+              class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+              <option value="superAdmin">Super Admin</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+          <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('userRole')?.hasError('required') && employeeForm.get('userRole')?.touched">
+            This field is Required
+          </div>
+        </div>
+
       </div>
-     
     </div>
   </div>
-</div>
 
 
-<div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
-    <button  (click)="onClose()" class="bg-violet-200 hover:bg-violet-300 text-black font-medium py-2 px-4 rounded text-sm" >
-        Cancel
+  <div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
+    <button (click)="onClose()"
+      class="bg-violet-200 hover:bg-violet-300 text-black font-medium py-2 px-4 rounded text-sm">
+      Cancel
     </button>
-    <button type="submit" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm" >
-        Create
+    <button type="submit" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm disabled:bg-violet-400 disabled:cursor-not-allowed" [disabled]="!employeeForm.valid" >
+      Create
     </button>
-</div>
+  </div>
 </form>
