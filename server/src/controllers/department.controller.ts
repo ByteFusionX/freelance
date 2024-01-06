@@ -1,12 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import Department from '../models/department.model'
-const { ObjectId } = require('mongodb');
 
 
 export const getDepartments = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const departments = await Department.find().sort({ createdDate: 1 })
-        if (departments.length) {
+        const departments = await Department.aggregate([
+            {
+                $lookup: {
+                    from: 'employees', localField: 'departmentHead',
+                    foreignField: '_id', as: 'departmentHead'
+                }
+            },
+        ])
+
+        if (departments.length > 0) {
             return res.status(200).json(departments);
         }
         return res.status(204).json()
@@ -17,16 +24,28 @@ export const getDepartments = async (req: Request, res: Response, next: NextFunc
 
 export const createDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { departmentName, departmentHead, createdDate } = req.body
-        const department = new Department({
-            departmentName: departmentName,
-            departmentHead: new ObjectId('6593e5ce8c8761526bdcbda4'),
-            createdDate: createdDate
-        })
+        const departmentData = req.body
+        const department = new Department(departmentData)
+        const saveDepartment = await (await department.save()).populate(['departmentHead'])
 
-        const saveDepartment = await department.save()
         if (saveDepartment) {
-            return res.status(200).json(true)
+            return res.status(200).json(saveDepartment)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const updateDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = req.body
+        let department = await Department.findOneAndUpdate(
+            { departmentName: data.departmentName }, { departmentHead: data.departmentHead })
+
+        if (department) {
+            department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
+            return res.status(200).json(department)
         }
         return res.status(502).json()
     } catch (error) {

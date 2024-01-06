@@ -52,35 +52,8 @@
                 <p class="font-medium text-orange-400">Department:</p>
             </div>
             <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-3 text-sm"
-                (click)="openCreateForm = true" *ngIf="!openCreateForm">+ Add
+                (click)="onCreateClicks()" *ngIf="!openCreateForm">+ Add
                 Department</button>
-            <div class="" *ngIf="openCreateForm">
-                <form action="">
-                    <div class="">
-                        <div class="mt-1">
-                            <label for="" class="me-2 text-gray-700">Department Name:</label>
-                            <input type="text" name="" appNoLeadingSpace
-                                class="w-80 mt-1 px-3 py-1.5 border border-gray-200 rounded-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-violet-300 outline-none sm:text-sm sm:leading-6"
-                                placeholder="Eg:- ICT" (input)="onInputValues($event)">
-                        </div>
-                        <div class="mt-2 flex">
-                            <label for="employee" class="me-3 text-gray-700">Department Head:</label>
-                            <div class="w-80">
-                                <ng-select id="employee" [(ngModel)]="depHead"
-                                class="filter" placeholder="Emloyees" appendTo="body">
-                                <ng-option *ngFor="let employee of employeeList"
-                                    [value]="employee.id">{{employee.name}}</ng-option>
-                            </ng-select>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="bg-orange-600 px-3 py-2 text-white hover:bg-orange-500 rounded-md mt-2 text-sm me-2"
-                        (click)="onCloseClicked()">Close</button>
-                    <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-2 text-sm"
-                        (click)="onSubmit()" [disabled]="!enableSubmit">+ Add
-                        Department</button>
-                </form>
-            </div>
         </div>
         <div>
             <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
