@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { Department, getDepartment } from 'src/app/shared/interfaces/department.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,11 @@ export class ProfileService {
     return this.http.get<getDepartment[]>(`${this.api}/department`)
   }
 
-  setDepartment(department: getDepartment): Observable<any> {
-    return this.http.post(`${this.api}/department`, department)
+  setDepartment(department: Department): Observable<getDepartment> {
+    return this.http.post<getDepartment>(`${this.api}/department`, department)
+  }
+
+  updateDepartment(department: Department): Observable<getDepartment> {
+    return this.http.put<getDepartment>(`${this.api}/department`, department)
   }
 }
