@@ -9,7 +9,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class CreateCustomerDialog {
   
-  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>,private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder) { }
 
   customerForm: FormGroup = this.fb.group({
     contactDetails:this.fb.array([]),
@@ -27,7 +27,5 @@ export class CreateCustomerDialog {
     this.contactDetails.removeAt(index);
   }
 
-  onClose(): void {
-    this.dialogRef.close();
-  }
+  
 }
