@@ -8,6 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CustomersListComponent } from './pages/customers-list/customers-list.component';
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     NgIconsModule, 
     MatTableModule,
     MatDialogModule,
-    directiveSharedModule
+    directiveSharedModule,
+    ReactiveFormsModule
   ]
 })
 export class CustomersModule { }

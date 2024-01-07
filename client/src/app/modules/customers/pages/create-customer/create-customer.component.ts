@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 
 @Component({
   selector: 'app-create-customer',
@@ -8,24 +10,78 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./create-customer.component.css']
 })
 export class CreateCustomerDialog {
-  
-  constructor(private fb: FormBuilder) { }
+  departments: getDepartment[] = [];
+  customerForm!: FormGroup;
+  isSubmitted:boolean = false;
 
-  customerForm: FormGroup = this.fb.group({
-    contactDetails:this.fb.array([]),
-  })
+  constructor(
+    private _fb: FormBuilder,
+    private _profileService: ProfileService,
+  ) { }
+
+  ngOnInit() {
+    this.getDepartment()
+    this.customerForm = this._fb.group({
+      department: ['', Validators.required],
+      contactDetails: this._fb.array([
+        this._fb.group({
+          courtesytitle: ['', Validators.required],
+          firstName: ['', Validators.required],
+          lastName: ['', Validators.required],
+          email: ['', [Validators.required, Validators.email]]
+        })
+      ]),
+      companyName: ['', Validators.required],
+      customerEmailId: ['', [Validators.required, Validators.email]],
+      contactNo: ['', Validators.required]
+    });
+  }
+
+
 
   get contactDetails(): FormArray {
     return this.customerForm.get('contactDetails') as FormArray;
   }
 
-  onAddContact(): void {
-    this.contactDetails.push(this.fb.control(''));
+  addContactFormGroup() {
+    this.contactDetails.push(this._fb.group({
+      courtesytitle: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]]
+    }));
   }
-  
+
   onRemoveContact(index: number): void {
     this.contactDetails.removeAt(index);
   }
 
+  getDepartment() {
+    this._profileService.getDepartments().subscribe((res: getDepartment[]) => {
+      this.departments = res;
+    })
+  }
+
+  hasContactDetailsErrors(): boolean {
   
+    for (let i = 0; i < this.contactDetails.length; i++) {
+      const contactDetailGroup = this.contactDetails.at(i) as FormGroup;
+  
+      if (contactDetailGroup && contactDetailGroup.invalid && (contactDetailGroup?.touched || this.isSubmitted)) {
+        
+        return true;
+      }
+    }
+  
+    return false;
+  }
+
+  onSubmit(): void {
+    this.isSubmitted = true;
+    if (this.customerForm.valid) {
+      
+    } 
+  }
+
+
 }
