@@ -2,9 +2,10 @@ import { Schema, Document, model, Types } from "mongoose";
 
 interface Employee extends Document {
     employeeId: string;
-    userName: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    contactNo:number;
+    contactNo: number;
     designation: string;
     dob: Date;
     department: Types.ObjectId;
@@ -12,9 +13,10 @@ interface Employee extends Document {
     dateOfJoining: Date;
     reportingTo: Types.ObjectId;
     userRole: string;
+    password: string;
 }
 
-enum UserRole{
+enum UserRole {
     user,
     admin,
     superAdmin
@@ -26,7 +28,11 @@ const employeeSchema = new Schema<Employee>({
         required: true,
         unique: true,
     },
-    userName: {
+    firstName: {
+        type: String,
+        required: true,
+    },
+    lastName: {
         type: String,
         required: true,
     },
@@ -34,9 +40,9 @@ const employeeSchema = new Schema<Employee>({
         type: String,
         required: true,
     },
-    contactNo:{
-        type:Number,
-        required:true,
+    contactNo: {
+        type: Number,
+        required: true,
     },
     designation: {
         type: String,
@@ -66,7 +72,11 @@ const employeeSchema = new Schema<Employee>({
     },
     userRole: {
         type: String,
-        enum:UserRole,
+        enum: UserRole,
+        required: true,
+    },
+    password: {
+        type: String,
         required: true,
     },
 });
