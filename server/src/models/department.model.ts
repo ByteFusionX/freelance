@@ -13,8 +13,8 @@ const departmentSchema = new Schema<Department>({
         required: true,
     },
     departmentHead: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+        type: Schema.Types.ObjectId, 
+        ref: 'Employee',
         required: true
     },
     createdDate: {

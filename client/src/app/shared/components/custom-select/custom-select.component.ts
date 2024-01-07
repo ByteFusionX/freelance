@@ -20,7 +20,7 @@ export class CustomSelectComponent implements OnChanges {
   openSelectField: boolean = false
   filterOptions: any[] = []
 
-  constructor(private elem : ElementRef){}
+  constructor(private elem: ElementRef) { }
   ngOnChanges(changes: SimpleChanges): void {
     this.filterOptions = [...this.options]
   }
@@ -35,7 +35,8 @@ export class CustomSelectComponent implements OnChanges {
   onEmployeeSelect(event: Event) {
     let selectedName = (event.target as HTMLElement).innerHTML
     this.selectElement.nativeElement.innerHTML = selectedName
-    this.selectedOption.emit(selectedName)
+    let selectedValue = this.filterOptions.find((val) => val.name == selectedName)
+    this.selectedOption.emit(selectedValue.id)
     this.openSelectField = false
   }
 

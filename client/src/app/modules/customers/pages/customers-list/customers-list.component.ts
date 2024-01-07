@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateCustomerDialog } from '../create-customer/create-customer.component';
 
@@ -7,9 +7,9 @@ import { CreateCustomerDialog } from '../create-customer/create-customer.compone
   templateUrl: './customers-list.component.html',
   styleUrls: ['./customers-list.component.css']
 })
-export class CustomersListComponent {
+export class CustomersListComponent{
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog, private elem: ElementRef) { }
   displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
   dataSource = [
     { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },

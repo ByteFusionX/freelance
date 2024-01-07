@@ -1,6 +1,14 @@
+import { getEmployee } from "./employee.interface";
+
 export interface getDepartment {
-    _id:string;
+    _id?:string;
     departmentName: string;
-    departmentHead: string;
-    createdDate: Date;
+    departmentHead: getEmployee[];
+    createdDate: number;
+}
+
+export interface Department{
+    departmentName:string,
+    departmentHead:string,
+    createdDate:number
 }

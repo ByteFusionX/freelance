@@ -6,7 +6,7 @@ import { CreateCustomerDialog } from './pages/create-customer/create-customer.co
 
 const routes: Routes = [
   {
-    path: '', component: CustomersComponent,
+    path: '', component: CustomersComponent, 
     children: [
       { path: '', component: CustomersListComponent },
       { path:'create',component:CreateCustomerDialog}

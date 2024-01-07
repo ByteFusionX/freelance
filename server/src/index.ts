@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import router from './routes/user.router';
 import depRouter from './routes/department.router'
 import empRouter from './routes/employee.router';
-
+import annoRouter from './routes/announcment.router';
 
 const app: express.Application = express();
 
@@ -30,6 +30,7 @@ app.use(
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
+app.use('/announcement',annoRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)
