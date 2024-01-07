@@ -9,6 +9,7 @@ import { CustomersListComponent } from './pages/customers-list/customers-list.co
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatTableModule,
     MatDialogModule,
     directiveSharedModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SkeltonLoadingComponent
   ]
 })
 export class CustomersModule { }

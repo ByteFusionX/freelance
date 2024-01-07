@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 
 @Component({
@@ -17,6 +20,8 @@ export class CreateCustomerDialog {
   constructor(
     private _fb: FormBuilder,
     private _profileService: ProfileService,
+    private _customerService:CustomerService,
+    private _router:Router
   ) { }
 
   ngOnInit() {
@@ -25,7 +30,7 @@ export class CreateCustomerDialog {
       department: ['', Validators.required],
       contactDetails: this._fb.array([
         this._fb.group({
-          courtesytitle: ['', Validators.required],
+          courtesyTitle: ['', Validators.required],
           firstName: ['', Validators.required],
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]]
@@ -45,7 +50,7 @@ export class CreateCustomerDialog {
 
   addContactFormGroup() {
     this.contactDetails.push(this._fb.group({
-      courtesytitle: ['', Validators.required],
+      courtesyTitle: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]]
@@ -79,7 +84,9 @@ export class CreateCustomerDialog {
   onSubmit(): void {
     this.isSubmitted = true;
     if (this.customerForm.valid) {
-      
+      this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{
+        this._router.navigate(['/customers'])
+      })
     } 
   }
 

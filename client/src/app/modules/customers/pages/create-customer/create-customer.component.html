@@ -43,12 +43,12 @@
                       <ng-icon *ngIf="i!==0" name="heroXMark" class="text-md p-0 m-0 cursor-pointer mt-1 text-red-600"
                         (click)="onRemoveContact(i)"></ng-icon>
                       <div class="flex">
-                        <input type="radio" formControlName="courtesytitle" value="Mr" name="courtesytitle" id="Mr">
-                        <label class="pl-2" for="Mr">MR</label>
+                        <input type="radio" formControlName="courtesyTitle" value="Mr"  [id]="'Mr'+i">
+                        <label class="pl-2" [for]="'Mr'+i">MR</label>
                       </div>
                       <div class="flex">
-                        <input type="radio" formControlName="courtesytitle" value="Mrs" name="courtesytitle" id="Mrs">
-                        <label class="pl-2" for="Mrs">MRS</label>
+                        <input type="radio" formControlName="courtesyTitle" value="Mrs"  [id]="'Mrs'+i">
+                        <label class="pl-2" [for]="'Mrs'+i">MRS</label>
                       </div>
                     </div>
                   </div>
@@ -84,7 +84,7 @@
             </div>
 
             <!-- Button to add contact -->
-            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-1 px-4 rounded text-sm mb-6"
+            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-1 px-4 rounded text-sm mb-6" type="button"
               (click)="addContactFormGroup()">
               + Add Contact
             </button>

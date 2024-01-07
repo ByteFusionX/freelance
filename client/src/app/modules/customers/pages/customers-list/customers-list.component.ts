@@ -1,37 +1,39 @@
-import { Component, ElementRef } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component } from '@angular/core';
 import { CreateCustomerDialog } from '../create-customer/create-customer.component';
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { MatTableDataSource } from '@angular/material/table';
+import { CustomerService } from 'src/app/core/services/customer/customer.service';
 
 @Component({
   selector: 'app-customers-list',
   templateUrl: './customers-list.component.html',
   styleUrls: ['./customers-list.component.css']
 })
-export class CustomersListComponent{
-
-  constructor(public dialog: MatDialog, private elem: ElementRef) { }
+export class CustomersListComponent {
+  customers:getCustomer[] = []
   displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
-  dataSource = [
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-  ];
+  isLoading:boolean = true;
 
-  // openDialog() {
-  //   const dialogRef = this.dialog.open(CreateCustomerDialog);
+  dataSource!: MatTableDataSource<getCustomer>;
 
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     console.log(`Dialog result: ${result}`);
-  //   });
-  // }
+  constructor(
+    private _customerService:CustomerService
+  ) { }
+
+  ngOnInit(){
+    this.getCustomers()
+  }
+
+  ngDoCheck() {
+    this.dataSource = new MatTableDataSource(this.customers);
+  }
+
+  getCustomers(){
+    this._customerService.getCustomers().subscribe((res: getCustomer[]) => {
+      this.customers = res;
+      this.isLoading = false;
+    })
+  }
+
 
 }
