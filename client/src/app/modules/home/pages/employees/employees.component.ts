@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 export class EmployeesComponent {
 
   employees: getEmployee[] = [];
-  displayedColumns: string[] = ['name', 'department', 'email', 'contactNo', 'privilage'];
+  displayedColumns: string[] = ['employeeId','name', 'department', 'email', 'contactNo', 'privilage'];
   isLoading: boolean = true;
 
   dataSource!: MatTableDataSource<getEmployee>;
@@ -36,7 +36,10 @@ export class EmployeesComponent {
 
   getEmployees() {
     this._employeeService.getEmployees().subscribe((res: getEmployee[]) => {
-      this.employees = res;
+      if(res){
+        this.employees = res;
+      console.log(this.employees)
+      }
       this.isLoading = false;
     })
   }
