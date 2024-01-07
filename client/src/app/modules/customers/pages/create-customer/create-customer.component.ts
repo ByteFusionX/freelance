@@ -38,7 +38,8 @@ export class CreateCustomerDialog {
       ]),
       companyName: ['', Validators.required],
       customerEmailId: ['', [Validators.required, Validators.email]],
-      contactNo: ['', Validators.required]
+      contactNo: ['', Validators.required],
+      createdBy:['',Validators.required]
     });
   }
 
@@ -83,6 +84,8 @@ export class CreateCustomerDialog {
 
   onSubmit(): void {
     this.isSubmitted = true;
+    let userId = localStorage.getItem('userId');
+    this.customerForm.patchValue({createdBy:userId})
     if (this.customerForm.valid) {
       this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{
         this._router.navigate(['/customers'])

@@ -10,12 +10,15 @@ import { CreateCustomerDialog } from './pages/create-customer/create-customer.co
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
   declarations: [
     CustomersListComponent,
-    CreateCustomerDialog
+    CreateCustomerDialog,
+    CustomerViewComponent
   ],
   imports: [
     CommonModule,
@@ -25,7 +28,8 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
     MatDialogModule,
     directiveSharedModule,
     ReactiveFormsModule,
-    SkeltonLoadingComponent
+    SkeltonLoadingComponent,
+    MatPaginatorModule
   ]
 })
 export class CustomersModule { }

@@ -3,6 +3,7 @@ import { CreateCustomerDialog } from '../create-customer/create-customer.compone
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'app-customers-list',
@@ -17,7 +18,8 @@ export class CustomersListComponent {
   dataSource!: MatTableDataSource<getCustomer>;
 
   constructor(
-    private _customerService:CustomerService
+    private _customerService:CustomerService,
+    private _router:Router
   ) { }
 
   ngOnInit(){
@@ -35,5 +37,10 @@ export class CustomersListComponent {
     })
   }
 
-
+  onCustomer(data: any){
+    const navigationExtras: NavigationExtras = {
+      state: data
+    };
+    this._router.navigate(['/customers/view'], navigationExtras);
+  }
 }

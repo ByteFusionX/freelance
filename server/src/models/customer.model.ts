@@ -13,6 +13,7 @@ interface Customer extends Document {
   companyName: string;
   customerEmailId: string;
   contactNo: number;
+  createdBy: Types.ObjectId;
 }
 
 const contactDetailSchema = new Schema({
@@ -58,6 +59,11 @@ const customerSchema = new Schema<Customer>({
     type: Number,
     required: true,
   },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee',
+    required: true,
+  }
 });
 
 export default model<Customer>("Customer", customerSchema);

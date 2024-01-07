@@ -11,14 +11,19 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
-  constructor(public dialog: MatDialog, private _service: AnnouncementService) { }
   mySubscription!: Subscription
   announcementData: any = []
-  recentData:any
+  recentData: any;
+  isLoading: boolean = true;
+
+  constructor(
+    public dialog: MatDialog,
+    private _service: AnnouncementService
+  ) { }
+
   ngOnInit(): void {
     this.getAnnouncementData()
   }
-
 
   openDialog() {
     const dialogRef = this.dialog.open(AddAnnouncementComponent);
@@ -28,16 +33,17 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
     });
   }
 
-  getAnnouncementData(){
+  getAnnouncementData() {
     this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
       if (res)
-      this.announcementData = res
-      this.recentData = this.announcementData.shift()
+        this.announcementData = res
+        this.recentData = this.announcementData.shift()
+        this.isLoading = false
     })
   }
 
   trackByIdFn(index: number, item: any): number {
-    return item._id; 
+    return item._id;
   }
 
 

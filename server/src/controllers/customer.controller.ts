@@ -4,7 +4,7 @@ import Customer from '../models/customer.model'
 
 export const getCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department')
+        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy')
 
         if (customers.length > 0) {
             return res.status(200).json(customers);
@@ -20,7 +20,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
         const customerData = req.body
         console.log(customerData)
         const customer = new Customer(customerData)
-        const saveCustomer = await (await customer.save()).populate(['department'])
+        const saveCustomer = await customer.save()
 
         if (saveCustomer) {
             return res.status(200).json(saveCustomer)

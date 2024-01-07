@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,5 +9,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./skelton-loading.component.css']
 })
 export class SkeltonLoadingComponent {
-
+  @Input() lineLength!:number;
+  ngOnInit(){
+    console.log(this.lineLength)
+  }
 }
