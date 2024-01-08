@@ -3,6 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddAnnouncementComponent } from './add-announcement/add-announcement.component';
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { Subscription } from 'rxjs';
+import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
+
 
 
 @Component({
@@ -13,8 +15,10 @@ import { Subscription } from 'rxjs';
 export class AnnouncementsComponent implements OnDestroy, OnInit {
   constructor(public dialog: MatDialog, private _service: AnnouncementService) { }
   mySubscription!: Subscription
-  announcementData: any = []
-  recentData:any
+  announcementData: announcementGetData[] = []
+  recentData!:announcementGetData
+  isLoading:boolean = true
+  
   ngOnInit(): void {
     this.getAnnouncementData()
   }
@@ -31,8 +35,10 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   getAnnouncementData(){
     this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
       if (res)
+      this.isLoading = false
       this.announcementData = res
-      this.recentData = this.announcementData.shift()
+      this.recentData = this.announcementData.shift() as announcementGetData
+      
     })
   }
 
