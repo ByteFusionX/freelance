@@ -3,7 +3,7 @@ import announcementModel from "../models/announcement.model";
 
 
 export const createAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+    try { 
         const { title, description, date } = req.body
         const addAcnnouncement = new announcementModel({
             title,
@@ -11,10 +11,7 @@ export const createAnnouncement = async (req: Request, res: Response, next: Next
             description
         })
         const saveAnnouncement = await addAcnnouncement.save()
-        if (saveAnnouncement) {
-            
-            return res.status(200).json(true)
-        }
+        if (saveAnnouncement) return res.status(200).json(true)
         return res.status(502).json()
     } catch (error) {
         next(error);

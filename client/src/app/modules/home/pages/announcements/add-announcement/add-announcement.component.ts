@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder,  FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
-import { Subscriber, Subscription } from 'rxjs';
-import { announcementData } from 'src/app/core/services/announcement/announcement.interface';
+import {  Subscription } from 'rxjs';
+
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CreateCustomerDialog } from 'src/app/modules/customers/pages/create-customer/create-customer.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { announcementPostData } from 'src/app/shared/interfaces/announcement.interface';
 
 @Component({
   selector: 'app-add-announcement',
@@ -38,7 +39,7 @@ export class AddAnnouncementComponent implements OnDestroy {
   onSubmit() {
     this.submit = true
     if (this.formData.valid) {
-      const data: announcementData = {
+      const data: announcementPostData = {
         title: this.formData.value.title as string,
         description: this.formData.value.description as string,
         date: this.formData.value.date as Date | null
