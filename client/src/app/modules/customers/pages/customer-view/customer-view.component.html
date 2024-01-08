@@ -1,0 +1,84 @@
+<div class="bg-white m-6 rounded-2xl">
+    <div class="  border-b p-3 px-9 flex justify-between items-center">
+        <h3 class="text-md font-medium">Customer - <span class="uppercase">{{customerData.companyName}}</span></h3>
+        
+        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
+        routerLink="/customers/edit">
+        <div class="flex justify-center items-center gap-2">
+            <ng-icon  name="heroPencilSquare"></ng-icon>
+            Edit
+        </div>
+    </button>
+    </div>
+
+    <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">
+
+        <div class="w-full ">
+            <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
+                <table class="w-full text-md text-left rtl:text-right text-black border ">
+                    <tbody>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-left font-medium bg-gray-50">
+                                Customer Type
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{customerData.department.departmentName}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Company Name
+                            </td>
+                            <td class="px-2 py-2 border text-start uppercase">
+                                {{customerData.companyName}}
+                            </td>
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Customer Email Id
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{customerData.customerEmailId}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Contact No.
+                            </td>
+                            <td class="px-2 py-2 border text-start uppercase">
+                                {{customerData.contactNo}}
+                            </td>
+                        </tr>
+                        
+                        
+                    </tbody>
+                </table>
+                </div>
+
+        </div>
+        <div class="relative overflow-x-auto mt-6">
+        <p class="text-sm uppercase font-semibold mb-2">Contact Details</p>
+
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50  ">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 w-96 border">
+                            Name
+                        </th>
+                        <th scope="col" class="px-6 py-3 border">
+                            Email
+                        </th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bg-white border-b " *ngFor="let contact of customerData.contactDetails">
+                        <td class=" border px-6 py-3  font-medium text-gray-800 text-base">
+                            {{contact.courtesyTitle + '.' + contact.firstName + ' ' + contact.lastName}}
+                        </td>
+                        <td class="border px-6 py-3  font-medium text-gray-800 text-base">
+                           {{contact.email}}
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+      
+</div>

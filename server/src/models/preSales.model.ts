@@ -1,14 +1,15 @@
 import { Schema, Document, model, ObjectId } from "mongoose";
 
 interface preSales extends Document {
-    equiryId: String
+    enquiryId: String
     description: String
     employee: ObjectId
     attachment: string
+    createdBy:ObjectId
 }
 
 const preSalesSchema = new Schema<preSales>({
-    equiryId: {
+    enquiryId: {
         type: String,
         unique: true,
         required: true,
@@ -25,6 +26,11 @@ const preSalesSchema = new Schema<preSales>({
     attachment: {
         type: String,
         required: true
+    },
+    createdBy:{
+        type:Schema.Types.ObjectId,
+        ref:'User',
+        required:true
     }
 });
 

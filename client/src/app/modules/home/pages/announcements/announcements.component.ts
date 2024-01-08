@@ -18,11 +18,10 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   announcementData: announcementGetData[] = []
   recentData!:announcementGetData
   isLoading:boolean = true
-  
+
   ngOnInit(): void {
     this.getAnnouncementData()
   }
-
 
   openDialog() {
     const dialogRef = this.dialog.open(AddAnnouncementComponent);
@@ -32,18 +31,19 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
     });
   }
 
-  getAnnouncementData(){
+  getAnnouncementData() {
     this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
       if (res)
       this.isLoading = false
       this.announcementData = res
       this.recentData = this.announcementData.shift() as announcementGetData
-      
+
+    
     })
   }
 
   trackByIdFn(index: number, item: any): number {
-    return item._id; 
+    return item._id;
   }
 
 

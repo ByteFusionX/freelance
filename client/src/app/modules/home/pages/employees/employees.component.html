@@ -20,22 +20,31 @@
 
         </div>
     </div>
-    <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
+    <app-skelton-loading *ngIf="isLoading"  [lineLength]="4"></app-skelton-loading>
 
     <div class="m-8  overflow-y-auto">
 
-
-        <table *ngIf="!isLoading" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed" >
+        <div *ngIf="!employees.length && !isLoading">
+            <p class="text-lg text-center ">No Data Available</p>
+        </div>
+        <table *ngIf="!isLoading && employees.length" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
 
             <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row definition" -->
 
+            <ng-container matColumnDef="employeeId">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-center text-dark  text-[15px] font-medium border-none before:hidden rounded-l-xl">
+                    Employee ID </th>
+                <td mat-cell *matCellDef="let element"> <p  class="text-center font-medium">{{element.employeeId}}</p> </td>
+            </ng-container>
+
             <!-- Position Column -->
             <ng-container matColumnDef="name">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden rounded-l-xl">
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Employee Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.firstName+' '+element.lastName}} </td>
             </ng-container>
 
             <!-- Name Column -->
@@ -72,15 +81,13 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-        
-        
+
+
 
     </div>
     <div>
-        <div class="border-t border-t-gray-300"  *ngIf="!isLoading" >
-            <mat-paginator
-        
-      ></mat-paginator>
+        <div class="border-t border-t-gray-300" *ngIf="!isLoading">
+            <mat-paginator></mat-paginator>
         </div>
     </div>
 </div>
