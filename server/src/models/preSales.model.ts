@@ -5,13 +5,14 @@ interface preSales extends Document {
     description: String
     employee: ObjectId
     attachment: string
-    createdBy:ObjectId
+    createdBy: ObjectId,
+    preSaleAttachement: string[]
 }
 
 const preSalesSchema = new Schema<preSales>({
     enquiryId: {
-        type: String,
-        unique: true,
+        type: Schema.Types.ObjectId,
+        ref: 'Enquiry',
         required: true,
     },
     description: {
@@ -27,11 +28,16 @@ const preSalesSchema = new Schema<preSales>({
         type: String,
         required: true
     },
-    createdBy:{
-        type:Schema.Types.ObjectId,
-        ref:'User',
-        required:true
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
+    },
+    preSaleAttachement: {
+        type: [String],
+        required: true
     }
+
 });
 
 export default model<preSales>("preSales", preSalesSchema);

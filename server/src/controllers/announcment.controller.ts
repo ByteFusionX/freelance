@@ -3,7 +3,7 @@ import announcementModel from "../models/announcement.model";
 
 
 export const createAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
-    try { 
+    try {
         const { title, description, date } = req.body
         const addAcnnouncement = new announcementModel({
             title,
@@ -20,7 +20,7 @@ export const createAnnouncement = async (req: Request, res: Response, next: Next
 
 export const getAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let announcementData = await announcementModel.find().sort({ createdDate: -1 })
+        const announcementData = await announcementModel.find().sort({ createdDate: -1 })
         if (announcementData.length) return res.status(200).json(announcementData)
         return res.status(202).json()
     } catch (error) {
