@@ -63,7 +63,7 @@ const customerSchema = new Schema<Customer>({
     type: Schema.Types.ObjectId,
     ref: 'Employee',
     required: true,
-  }
+  },
 });
 
 export default model<Customer>("Customer", customerSchema);

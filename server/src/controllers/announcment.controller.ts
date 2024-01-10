@@ -11,10 +11,7 @@ export const createAnnouncement = async (req: Request, res: Response, next: Next
             description
         })
         const saveAnnouncement = await addAcnnouncement.save()
-        if (saveAnnouncement) {
-            
-            return res.status(200).json(true)
-        }
+        if (saveAnnouncement) return res.status(200).json(true)
         return res.status(502).json()
     } catch (error) {
         next(error);
@@ -23,7 +20,7 @@ export const createAnnouncement = async (req: Request, res: Response, next: Next
 
 export const getAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let announcementData = await announcementModel.find().sort({ createdDate: -1 })
+        const announcementData = await announcementModel.find().sort({ createdDate: -1 })
         if (announcementData.length) return res.status(200).json(announcementData)
         return res.status(202).json()
     } catch (error) {
