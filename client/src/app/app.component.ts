@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -13,4 +14,11 @@ export class AppComponent {
   reduceSideBar(event: boolean) {
     this.reduceSate = event
   }
+
+  constructor(private route:ActivatedRoute){}
+
+  isLoginRoute():boolean{
+    return this.route.snapshot.firstChild?.routeConfig?.path === 'login';
+  }
+ 
 }
