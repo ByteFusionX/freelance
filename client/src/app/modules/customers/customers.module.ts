@@ -12,10 +12,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { CustomersComponent } from './customers.component';
 
 
 @NgModule({
   declarations: [
+    CustomersComponent,
     CustomersListComponent,
     CreateCustomerDialog,
     CustomerViewComponent

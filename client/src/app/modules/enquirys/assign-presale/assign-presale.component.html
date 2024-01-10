@@ -1,0 +1,64 @@
+<div class="w-[500px]">
+    <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+        <h3 class="text-md font-medium">Assign To Presale</h3>
+        <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+            <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col p-6 mx-auto text-gray-900 bg-white rounded-lg shadow">
+        <form action="">
+            <div class="w-full mb-4">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
+                    Presale Person
+                </label>
+                <ng-select id="saleperson" class="form" placeholder="Sales Person" appendTo="body" (change)="onChange($event)">
+                    <ng-option *ngFor="let employee of employees$ | async"
+                        [value]="employee._id">{{employee.firstName}} {{employee.lastName}}</ng-option>
+                </ng-select>
+            </div>
+
+            <div class="w-full">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
+                    Documents
+                </label>
+                <div class="flex items-center justify-center w-full">
+                    <label for="dropzone-file"
+                        class="flex flex-col items-center justify-center w-full py-5 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-200">
+                        <div class="flex flex-col items-center justify-center py-3">
+                            <ng-icon name="heroCloudArrowUp" class="text-xl text-violet-500"></ng-icon>
+                            <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to
+                                    upload</span></p>
+                            <p class="text-xs text-gray-500">Pdf, jpg, png, doc</p>
+                        </div>
+                        <input id="dropzone-file" type="file" class="hidden" multiple #fileInput
+                            (change)="onFileSelected($event)"/>
+                    </label>
+                </div>
+                <div class="w-full mt-2" *ngIf="selectedFiles">
+                    <div *ngFor="let file of selectedFiles; let i = index" @fileTrigger>
+                        <div class="flex justify-center">
+                            <ng-icon name="heroDocumentArrowUp"></ng-icon>
+                            <p class="text-sm text-gray-500 px-2 w-24 truncate ..."
+                            matTooltip="{{file.name}}" matTooltipPosition="above"
+                            matTooltipClass="mat-tooltip"> {{file.name}}...</p>
+                            <ng-icon name="heroXMark" class="text-orange-500 text-lg cursor-pointer me-2"
+                                (click)="onFileRemoved(i)"></ng-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-end gap-2">
+        <button class="border text-black font-medium py-2 px-4 rounded text-sm"
+            (click)="onClose()">
+            Close
+        </button>
+        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+            (click)="onSubmit()">
+            Submit
+        </button>
+    </div>
