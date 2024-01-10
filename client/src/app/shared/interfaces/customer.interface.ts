@@ -1,6 +1,7 @@
 import { getDepartment } from "./department.interface";
 
-interface ContactDetail {
+export interface ContactDetail {
+    _id?: string
     courtesyTitle: string;
     firstName: string;
     lastName: string;
@@ -8,7 +9,7 @@ interface ContactDetail {
 }
 
 export interface getCustomer {
-    _id:string;
+    _id: string;
     department: getDepartment;
     contactDetails: ContactDetail[];
     companyName: string;

@@ -1,28 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateEnquiryDialog } from './create-enquiry/create-enquiry.component';
 import { FormBuilder, FormControl } from '@angular/forms';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { Observable } from 'rxjs';
+import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 
 @Component({
   selector: 'app-enquiry',
   templateUrl: './enquiry.component.html',
   styleUrls: ['./enquiry.component.css']
 })
-export class EnquiryComponent {
+export class EnquiryComponent implements OnInit {
 
-  constructor(public dialog: MatDialog, private _fb: FormBuilder) { }
+  constructor(
+    public dialog: MatDialog, 
+    private _fb: FormBuilder,
+    private _employeeService:EmployeeService) { }
 
   selectedSalesPerson!: number;;
   selectedStatus!: number;
   submit: boolean = false
   dateError: boolean = false
 
-  salesPerson: { id: number, name: string }[] = [
-    { id: 2, name: 'Name1' },
-    { id: 5, name: 'Name2' },
-    { id: 3, name: 'Name3' },
-    { id: 4, name: 'Name4' },
-  ];
+  salesPerson$!: Observable<getEmployee[]>;
 
   status: { id: number, name: string }[] = [
     { id: 1, name: 'Status1' },
@@ -51,6 +52,10 @@ export class EnquiryComponent {
     { enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim', department: 'Engineering', status: 'Work in progress' },
     { enquiryId: '1251', customerName: 'shiyas', enquiryDescription: 'enquiry done', salesPersonName: 'basim', department: 'Engineering', status: 'Work in progress' }
   ];
+
+  ngOnInit(): void {
+     this.salesPerson$ = this._employeeService.getEmployees()
+  }
 
   openDialog() {
     const dialogRef = this.dialog.open(CreateEnquiryDialog)

@@ -1,7 +1,8 @@
 export interface getEmployee {
     _id?:string;
     employeeId: string;
-    userName: string;
+    firstName: string;
+    lastName: string;
     email: string;
     designation: string;
     dob: string;

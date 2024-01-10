@@ -1,23 +1,5 @@
-import { animate, animation, state, style, transition, trigger, useAnimation } from "@angular/animations"
-
-
-const moveDown = animation([
-    style({
-        transform: 'translateY(-100%)'
-    }),
-    animate('300ms',
-        style({
-            transform: 'translateY(0)'
-        })
-    )
-])
-const moveUp = animation([
-    animate('300ms',
-        style({
-            transform: 'translateY(0%)'
-        })
-    )
-])
+import { animate, state, style, transition, trigger, useAnimation } from "@angular/animations"
+import { moveDown, moveUp } from "../../animations/animations"
 
 export const sideBarState = trigger('sideBarTrigger', [
     state('default', style({

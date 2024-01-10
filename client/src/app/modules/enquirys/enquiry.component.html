@@ -35,23 +35,23 @@
                                 Date must be in the past.
                             </div>
                             <div *ngIf="dateError" class="text-red-700">ToDate must be greater than FromDate</div>
-                            <button 
+                            <button
                                 class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
                                 Submit
                             </button>
                         </form>
                         <div class="mb-2">
                             <label for="salesPerson" class="font-medium"> Sales Person:</label>
-                            <ng-select appNoLeadingSpace id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter"
-                                placeholder="Sales Person" appendTo="body">
-                                <ng-option *ngFor="let person of salesPerson"
-                                    [value]="person.id">{{person.name}}</ng-option>
+                            <ng-select appNoLeadingSpace id="salesPerson" [(ngModel)]="selectedSalesPerson"
+                                class=" filter" placeholder="Sales Person" appendTo="body">
+                                <ng-option *ngFor="let person of salesPerson$ | async"
+                                    [value]="person._id">{{person.firstName}} {{person.lastName}}</ng-option>
                             </ng-select>
                         </div>
                         <div>
                             <label for="salesPerson" class="font-medium"> Status:</label>
-                            <ng-select appNoLeadingSpace [(ngModel)]="selectedStatus" class=" filter" placeholder="Status"
-                                appendTo="body">
+                            <ng-select appNoLeadingSpace [(ngModel)]="selectedStatus" class=" filter"
+                                placeholder="Status" appendTo="body">
                                 <ng-option *ngFor="let customer of status"
                                     [value]="customer.id">{{customer.name}}</ng-option>
                             </ng-select>
@@ -71,7 +71,6 @@
     <div class="m-8  overflow-y-auto">
 
         <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
-
             <ng-container matColumnDef="enquiryId">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
