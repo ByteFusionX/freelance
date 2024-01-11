@@ -16,7 +16,8 @@
             <label for="employee" class="me-3 text-gray-700">Department Head:</label>
             <div class="w-80">
                 <ng-select id="employee" class="filter" placeholder="Emloyees" appendTo="body" [formControl]="head">
-                    <ng-option *ngFor="let employee of employeeList" [value]="employee.id">{{employee.name}}</ng-option>
+                    <ng-option *ngFor="let employee of employeesList$ | async"
+                        [value]="employee._id">{{employee.firstName}} {{employee.lastName}}</ng-option>
                 </ng-select>
             </div>
         </div>

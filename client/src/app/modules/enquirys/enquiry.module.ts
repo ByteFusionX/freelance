@@ -16,12 +16,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
-
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
     EnquiryComponent,
-    CreateEnquiryDialog
+    CreateEnquiryDialog,
+    AssignPresaleComponent
   ],
   imports: [
     CommonModule,
@@ -35,11 +38,13 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     NgIconsModule,
     NgSelectModule,
     FormsModule,
+    ReactiveFormsModule,
     MatMenuModule,
     MatButtonModule,
+    MatTooltipModule, 
     directiveSharedModule,
     FormsModule,
-    ReactiveFormsModule
+    SkeltonLoadingComponent
   ]
 })
 export class EnquiryModule { }

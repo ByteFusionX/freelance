@@ -154,7 +154,7 @@
           </label>
           <ng-select formControlName="reportingTo" class="form" id="reporting">
             <ng-option value="">No one</ng-option>
-            <ng-option *ngFor="let employee of employees" [value]="employee._id">{{employee.userName}}</ng-option>
+            <ng-option *ngFor="let employee of employees" [value]="employee._id">{{employee.firstName}} {{employee.lastName}}</ng-option>
           </ng-select>
           <div class="text-red-700 text-xs mt-1 absolute mb-1" *ngIf="employeeForm.get('reportingTo')?.hasError('required') && employeeForm.get('reportingTo')?.touched">
             This field is Required
