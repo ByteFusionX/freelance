@@ -41,7 +41,6 @@ export class LoginPageComponent {
     this.submit = true
     this.employeeService.employeeLogin(this.loginForm.value).subscribe((res:login) => {
      if(res.employeeData&&res.token){
-      localStorage.setItem('employeeID',res.employeeData.employeeId)
       localStorage.setItem('employeeToken',res.token)
       this.router.navigate(['/home'])
     }

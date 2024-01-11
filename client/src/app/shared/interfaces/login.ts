@@ -5,5 +5,4 @@ export interface login{
     employeeData?:getEmployee,
     employeeNotFoundError?:boolean,
     passwordNotMatchError?:boolean
-
 }

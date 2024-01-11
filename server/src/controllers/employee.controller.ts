@@ -64,21 +64,21 @@ const generateEmployeeId = async () => {
 }
 
 
-export const login = async (req:Request,res:Response,next:NextFunction) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {employeeId,password} = req.body
-        const employee = await Employee.findOne({employeeId:employeeId})
-        if(employee){
-            const passwordMatch = await bcrypt.compare(password,employee.password)
-            if(passwordMatch){
-                const payload = {id:employee._id,employeeId:employee.employeeId} 
-                const token = await jwt.sign(payload,'shhhhh')
-                res.status(200).json({token:token,employeeData:employee})
-            }else{
-                res.send({passwordNotMatchError:true})
+        const { employeeId, password } = req.body
+        const employee = await Employee.findOne({ employeeId: employeeId })
+        if (employee) {
+            const passwordMatch = await bcrypt.compare(password, employee.password)
+            if (passwordMatch) {
+                const payload = { id: employee._id, employeeId: employee.employeeId }
+                const token = await jwt.sign(payload, process.env.JWT_SECRET)
+                res.status(200).json({ token: token, employeeData: employee })
+            } else {
+                res.send({ passwordNotMatchError: true })
             }
-        }else{
-            res.status(502).json({employeeNotFoundError:true})
+        } else {
+            res.status(502).json({ employeeNotFoundError: true })
         }
     } catch (error) {
         next(error)
