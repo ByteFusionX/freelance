@@ -10,6 +10,7 @@ import empRouter from './routes/employee.router';
 import annoRouter from './routes/announcment.router';
 import cusRouter from './routes/customer.router';
 import equiRouter from './routes/enquiry.router';
+import celebRouter from './routes/celebrationCheck.router';
 
 const app: express.Application = express();
 
@@ -35,6 +36,7 @@ app.use('/employee', empRouter)
 app.use('/announcement',annoRouter)
 app.use('/customer',cusRouter)
 app.use('/equiry',equiRouter)
+app.use('/celebrationCheck',celebRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)

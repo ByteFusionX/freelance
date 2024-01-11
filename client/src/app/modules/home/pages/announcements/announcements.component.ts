@@ -42,7 +42,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
     })
   }
 
-  trackByIdFn(index: number, item: any): number {
+  trackByIdFn(index: number, item: announcementGetData): string {
     return item._id;
   }
 
