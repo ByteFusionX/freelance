@@ -3,6 +3,7 @@ import employeeModel from "../models/employee.model"
 
 export const celebrationCheck = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const currentDay = today.getDate();
@@ -16,7 +17,17 @@ export const celebrationCheck = async (req: Request, res: Response, next: NextFu
             }
         });
 
-        res.status(200).json(birthdayEmployee);
+        const anniversaryEmployees = await employeeModel.find({
+            $expr: {
+                $and: [
+                    { $eq: [{ $month: "$dateOfJoining" }, currentMonth] },
+                    { $eq: [{ $dayOfMonth: "$dateOfJoining" }, currentDay] }
+                ]
+            }
+        });
+
+        res.status(200).json({ birthdayEmployee: birthdayEmployee, anniversaryEmployees: anniversaryEmployees });
+
     } catch (error) {
         next(error)
     }
