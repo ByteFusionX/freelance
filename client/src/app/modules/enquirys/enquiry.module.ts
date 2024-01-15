@@ -19,6 +19,7 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 
 @NgModule({
   declarations: [
@@ -41,10 +42,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ReactiveFormsModule,
     MatMenuModule,
     MatButtonModule,
-    MatTooltipModule, 
+    MatTooltipModule,
     directiveSharedModule,
     FormsModule,
     SkeltonLoadingComponent
-  ]
+  ],
+  providers: [EnquiryService]
 })
 export class EnquiryModule { }

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { assignToPreSales, getPreSalesData } from "../controllers/enquiry.controler";
+import { createEnquiry, getEnquiries } from "../controllers/enquiry.controler";
 const equiRouter = Router()
 
-equiRouter.post('/assignToPreSales',assignToPreSales)
-equiRouter.get('/getPreSales',getPreSalesData)
+equiRouter.post('/create',createEnquiry)
+equiRouter.get('/get',getEnquiries)
 
 export default equiRouter;

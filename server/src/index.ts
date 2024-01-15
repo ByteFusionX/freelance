@@ -34,7 +34,7 @@ app.use('/department', depRouter)
 app.use('/employee', empRouter)
 app.use('/announcement',annoRouter)
 app.use('/customer',cusRouter)
-app.use('/equiry',equiRouter)
+app.use('/enquiry',equiRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)

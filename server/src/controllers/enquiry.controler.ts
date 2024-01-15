@@ -1,38 +1,28 @@
 import { NextFunction, Request, Response } from "express"
-import preSalesModel from "../models/preSales.model"
+import enquiryModel from "../models/enquiry.model"
 
-export const assignToPreSales = async (req: Request, res: Response, next: NextFunction) => {
+export const createEnquiry = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.body) return res.status(204).json({ err: 'No data' })
-        const { enquiryId, description, employee, attachment, createdBy } = req.body
-
-        const preSaleData = new preSalesModel({
-            enquiryId,
-            description,
-            employee,
-            attachment,
-            createdBy
-        })
-        const savePreSaleData = await preSaleData.save()
-
+        const enquiryData = req.body
+        const preSaleData = new enquiryModel(enquiryData)
+        const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
         if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
-        return res.status(200).json(true)
+        return res.status(200).json(preSaleData)
 
     } catch (error) {
         next(error)
     }
 }
 
-export const getPreSalesData = async (req: Request, res: Response, next: NextFunction) => {
+export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const getPreSalesData = await preSalesModel.find()
-            .populate('employee')
-            .populate('createdBy')
-            .populate('enquiryId')
+        const enquiryData = await enquiryModel.find()
+            .populate(['client', 'department', 'salesPerson'])
 
-        if (!getPreSalesData.length) return res.status(504).json({ err: 'No pre-sales data found' })
+        if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
 
-        return res.status(200).json(getPreSalesData)
+        return res.status(200).json(enquiryData)
     } catch (error) {
         next(error)
     }

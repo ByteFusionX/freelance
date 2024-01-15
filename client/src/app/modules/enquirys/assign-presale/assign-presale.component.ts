@@ -33,16 +33,21 @@ export class AssignPresaleComponent implements OnInit {
     this.dialogRef.close()
   }
 
-  onFileSelected(event: any) {
-    let files = event.target.files
-    for (let i = 0; i < files.length; i++) {
-      this.selectedFiles.push(files[i])
-    }
-  }
-
   onChange(change: string) {
     this.selectedEmployee = change
   }
+  
+  onFileSelected(event: any) {
+    let files = event.target.files
+    for (let i = 0; i < files.length; i++) {
+      const newFile = files[i]
+      const exist = this.selectedFiles.some(file=> file.name === newFile.name)
+      if(!exist){
+        this.selectedFiles.push(files[i])
+      }
+    }
+  }
+
 
   onFileRemoved(index: number) {
     this.selectedFiles.splice(index, 1)

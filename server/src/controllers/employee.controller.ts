@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
-const { ObjectId } = require('mongodb');
 import * as bcrypt from 'bcrypt';
 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
