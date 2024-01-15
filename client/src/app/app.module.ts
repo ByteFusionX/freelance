@@ -9,6 +9,7 @@ import { SideBarComponent } from './shared/components/side-bar/side-bar.componen
 import { ToastrModule } from 'ngx-toastr';
 import { HttpClientModule } from '@angular/common/http';
 
+
 @NgModule({
   declarations: [
     AppComponent
