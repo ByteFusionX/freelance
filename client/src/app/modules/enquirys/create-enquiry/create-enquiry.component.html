@@ -28,7 +28,7 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="contact">
             Point of Contact
           </label>
-          <ng-select id="contact" class="form" placeholder="Contact" appendTo="body" notFoundText="Select Customer" formControlName="contact">
+          <ng-select id="contact" class="form" placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
             <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.firstName}}
               {{contact.lastName}}</ng-option>
           </ng-select>
@@ -94,7 +94,7 @@
                 <div class="flex">
                   <ng-icon name="heroDocumentArrowUp"></ng-icon>
                   <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.name}}" matTooltipPosition="above"
-                    matTooltipClass="mat-tooltip">{{file.name}}...</p>
+                    matTooltipClass="mat-tooltip">{{file.name}}</p>
                 </div>
                 <div>
                   <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>

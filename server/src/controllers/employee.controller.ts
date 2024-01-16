@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
-const { ObjectId } = require('mongodb');
 import * as bcrypt from 'bcrypt';
 var jwt = require('jsonwebtoken');
 
