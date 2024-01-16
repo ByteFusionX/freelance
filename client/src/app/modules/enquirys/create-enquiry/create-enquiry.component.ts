@@ -11,6 +11,7 @@ import { Observable, Subscription } from 'rxjs';
 import { fileEnterState } from '../enquiry-animations';
 import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-create-enquiry',
@@ -31,6 +32,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedDep!: string;
   selectedFiles: File[] = []
   private subscriptions = new Subscription();
+  tokenData!: { id: string, employeeId: string };
 
   today = new Date().toISOString().substring(0, 10)
   formData = this._fb.group({
@@ -55,14 +57,16 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _customerService: CustomerService,
     private _profileService: ProfileService,
     private _enquiryService: EnquiryService,
+    private _employeeService: EmployeeService,
   ) {
     this.config.notFoundText = 'Wait a few Sec';
   }
 
   ngOnInit(): void {
+    this.getEmployee()
     this.getCustomers()
     this.getDepartments()
-    this.data = String(Number(this.data) + 1).padStart(this.data.length, '0')  
+    this.data = String(Number(this.data) + 1).padStart(this.data.length, '0')
   }
 
   ngOnDestroy(): void {
@@ -102,7 +106,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   onSubmit() {
     if (this.formData.valid) {
       this.formData.controls.enquiryId.setValue(this.generateId())
-      this.formData.controls.salesPerson.setValue('65a003e97a3e452b6751c514')
+      this.formData.controls.salesPerson.setValue(this.tokenData.id)
       let data = this.formData.value as Partial<Enquiry>
       this.subscriptions.add(
         this._enquiryService.createEnquiry(data).subscribe((data) => {
@@ -149,6 +153,15 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   getDepartments() {
     this.departments$ = this._profileService.getDepartments()
+  }
+
+  getEmployee() {
+    this.tokenData = this._employeeService.employeeToken()
+    this._employeeService.getEmployee(this.tokenData.id).subscribe((data) => {
+      if (data) {
+        this.formData.controls.salesPerson.setValue(data.firstName + ' ' + data.lastName)
+      }
+    })
   }
 
   getDepartment(id: string) {

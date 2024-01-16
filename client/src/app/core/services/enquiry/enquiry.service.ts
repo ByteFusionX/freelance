@@ -19,4 +19,8 @@ export class EnquiryService {
   getEnquiry():Observable<getEnquiry[]>{
     return this.http.get<getEnquiry[]>(`${this.api}/enquiry/get`)
   }
+
+  getPresale():Observable<getEnquiry[]>{
+    return this.http.get<getEnquiry[]>(`${this.api}/enquiry/presales`)
+  }
 }

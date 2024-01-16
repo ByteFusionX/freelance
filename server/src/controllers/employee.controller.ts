@@ -3,7 +3,7 @@ import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
 var jwt = require('jsonwebtoken');
 
-export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
+export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await Employee.find().sort({ createdDate: -1 }).populate('department')
         if (employees.length) {
@@ -18,7 +18,6 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
 export const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let employeeId: string = await generateEmployeeId();
-        console.log(employeeId)
         const employeeData = req.body;
         employeeData.employeeId = employeeId;
 
@@ -79,6 +78,18 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         } else {
             res.status(502).json({ employeeNotFoundError: true })
         }
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeId = req.params.id
+        const employeeData = await Employee.findOne({ _id: employeeId })
+        if(employeeData) return res.status(200).json(employeeData)
+        return res.status(502).json()
     } catch (error) {
         next(error)
     }

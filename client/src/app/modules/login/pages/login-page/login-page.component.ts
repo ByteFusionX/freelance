@@ -12,8 +12,8 @@ import { login } from 'src/app/shared/interfaces/login';
 export class LoginPageComponent {
 
   submit: boolean = false
-  employeeNotFoundError:boolean = false
-  passwordNotMatchError:boolean = false
+  employeeNotFoundError: boolean = false
+  passwordNotMatchError: boolean = false
 
 
   constructor(
@@ -39,16 +39,16 @@ export class LoginPageComponent {
 
   onSubmit() {
     this.submit = true
-    this.employeeService.employeeLogin(this.loginForm.value).subscribe((res:login) => {
-     if(res.employeeData&&res.token){
-      localStorage.setItem('employeeToken',res.token)
-      this.router.navigate(['/home'])
-    }
-    else if(res.employeeNotFoundError){
-      this.employeeNotFoundError=true
-    }else if(res.passwordNotMatchError){
-      this.passwordNotMatchError=true
-    }
+    this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
+      if (res.employeeData && res.token) {
+        localStorage.setItem('employeeToken', res.token)
+        this.router.navigate(['/home'])
+      }
+      else if (res.employeeNotFoundError) {
+        this.employeeNotFoundError = true
+      } else if (res.passwordNotMatchError) {
+        this.passwordNotMatchError = true
+      }
     })
 
 

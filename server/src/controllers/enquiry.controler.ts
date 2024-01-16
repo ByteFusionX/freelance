@@ -28,3 +28,13 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const preSaleData = await enquiryModel.find({ status: 'Assigned To Presales' })
+            .populate(['client', 'department', 'salesPerson'])
+        if(preSaleData) return res.status(200).json(preSaleData)
+        return res.status(504).json()
+    } catch (error) {
+        next(error)
+    }
+}

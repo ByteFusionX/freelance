@@ -6,7 +6,8 @@ import { AssignedJobsComponent } from './assigned-jobs.component';
 import { AssignedJobsListComponent } from './pages/assigned-jobs-list/assigned-jobs-list.component';
 import { MatTableModule } from '@angular/material/table';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
-
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
     AssignedJobsRoutingModule,
     MatTableModule,
     IconsModule,
-    
+    SkeltonLoadingComponent,
+    MatTooltipModule
   ]
 })
 export class AssignedJobsModule { }
