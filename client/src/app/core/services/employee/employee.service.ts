@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee, getEmployeeObject } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 
@@ -22,7 +22,10 @@ export class EmployeeService {
   }
 
   employeeLogin(employeeData:Object):Observable<login>{
-    console.log(employeeData)
     return this.http.post(`${this.api}/employee/login`,employeeData)
+  }
+  
+  getEmployeeData(employeeId:string){
+    return this.http.get<getEmployeeObject>(`${this.api}/employee/getEmployeeData/${employeeId}`)
   }
 }

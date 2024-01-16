@@ -4,6 +4,8 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from 'src/app/app-routing.module';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { getEmployee, getEmployeeObject } from '../../interfaces/employee.interface';
 
 @Component({
   selector: 'app-nav-bar',
@@ -17,6 +19,15 @@ export class NavBarComponent {
   @Output() reduce = new EventEmitter<boolean>()
   showFullBar: boolean = true
   menuState: boolean = false
+  employeeData!:getEmployee
+
+  constructor(private _employeeService:EmployeeService){}
+
+  ngOnInit(){
+    this._employeeService.getEmployeeData("NT-1102").subscribe((res:getEmployeeObject)=>{
+      this.employeeData=res.employeeData
+    })
+  }
 
   reduceSideBar() {
     this.showFullBar = !this.showFullBar

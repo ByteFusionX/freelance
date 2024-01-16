@@ -4,6 +4,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { CreateDepartmentDialog } from '../create-department/create-department.component';
 import { Subscription } from 'rxjs';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { getEmployee, getEmployeeObject } from 'src/app/shared/interfaces/employee.interface';
 
 @Component({
   selector: 'app-profile-info',
@@ -16,12 +18,22 @@ export class ProfileInfoComponent implements AfterViewInit, OnDestroy {
   depHead!: string;
   optionSelected!: string;
   openCreateForm: boolean = false
+  employeeData!:getEmployee
 
   displayedColumns: string[] = ['position', 'name', 'head', 'date', 'action'];
   dataSource: any = new MatTableDataSource()
   private subscriptions = new Subscription();
 
-  constructor(private _profileService: ProfileService, public dialog: MatDialog) { }
+  constructor(private _profileService: ProfileService,
+     public dialog: MatDialog,
+     private _employeeService:EmployeeService) { }
+
+  ngOnInit(){
+    // const employeeId=localStorage.getItem('employeeId') as string
+    this._employeeService.getEmployeeData('NT-1102').subscribe((res:getEmployeeObject)=>{
+    this.employeeData = res.employeeData
+    })
+  }
 
   ngAfterViewInit() {
     this.subscriptions.add(this._profileService.getDepartments().subscribe((data) => {

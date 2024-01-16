@@ -23,4 +23,5 @@ export class ProfileService {
   updateDepartment(department: Department): Observable<getDepartment> {
     return this.http.put<getDepartment>(`${this.api}/department`, department)
   }
+
 }

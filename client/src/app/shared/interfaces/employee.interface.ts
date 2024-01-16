@@ -13,3 +13,7 @@ export interface getEmployee {
     reportingTo: string | null | undefined;
     userRole: string;
 }
+
+export interface getEmployeeObject{
+    employeeData:getEmployee
+}

@@ -84,3 +84,13 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         next(error)
     }
 }
+
+export const getEmployeeData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeId = req.params.employeeId
+        const employeeData = await Employee.findOne({ employeeId: employeeId })
+        res.status(200).json({ employeeData: employeeData })
+    } catch (error) {
+        next(error)
+    }
+}
