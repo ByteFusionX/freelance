@@ -11,6 +11,7 @@ import annoRouter from './routes/announcment.router';
 import cusRouter from './routes/customer.router';
 import equiRouter from './routes/enquiry.router';
 import celebRouter from './routes/celebrationCheck.router';
+const cronService = require('./service/cronService.ts');
 
 const app: express.Application = express();
 
@@ -18,6 +19,7 @@ app.use(morgan("tiny"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
+cronService.startCronJob();
 
 
 
