@@ -20,6 +20,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
+import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
     MatTooltipModule,
     directiveSharedModule,
     FormsModule,
-    SkeltonLoadingComponent
+    SkeltonLoadingComponent,
+    UploadFileComponent
   ],
   providers: [EnquiryService]
 })

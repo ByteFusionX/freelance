@@ -101,4 +101,8 @@ export class EnquiryComponent implements OnInit {
     }
 
   }
+
+  onRowClicks(index:number){
+    
+  }
 }

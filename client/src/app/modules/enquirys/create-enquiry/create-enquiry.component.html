@@ -18,7 +18,7 @@
             <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id">{{customer.companyName}}</ng-option>
             <ng-template ng-footer-tmp>
               <a (click)="createCustomer()"
-                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full  ">
+                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full" routerLink="/customers/create">
                 + Create Customer
               </a>
             </ng-template>

@@ -27,7 +27,7 @@ export interface getEnquiry {
     title: string;
     date: string;
     attachments: File[];
-    presale: {
+    preSale: {
         presalePerson: string;
         presaleFile: File[];
     };

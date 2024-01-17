@@ -12,15 +12,19 @@ export class EnquiryService {
   api: string = environment.api
   constructor(private http: HttpClient) { }
 
-  createEnquiry(enquiry:Partial<Enquiry>):Observable<Enquiry>{
-    return this.http.post<Enquiry>(`${this.api}/enquiry/create`,enquiry)
+  createEnquiry(enquiry: Partial<Enquiry>): Observable<Enquiry> {
+    return this.http.post<Enquiry>(`${this.api}/enquiry/create`, enquiry)
   }
 
-  getEnquiry():Observable<getEnquiry[]>{
+  getEnquiry(): Observable<getEnquiry[]> {
     return this.http.get<getEnquiry[]>(`${this.api}/enquiry/get`)
   }
 
-  getPresale():Observable<getEnquiry[]>{
+  getPresale(): Observable<getEnquiry[]> {
     return this.http.get<getEnquiry[]>(`${this.api}/enquiry/presales`)
+  }
+
+  updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
+    return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 }

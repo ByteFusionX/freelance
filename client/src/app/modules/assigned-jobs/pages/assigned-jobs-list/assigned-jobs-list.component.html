@@ -66,18 +66,17 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Upload </th>
-                <td mat-cell *matCellDef="let element">
-                    <div *ngIf="selectedDocs.length > 0">
-                        <div class="flex items-center" *ngFor="let file of selectedDocs; let i=index">
-                            <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>
+                <td mat-cell *matCellDef="let element; let i = index">
+                    <ng-icon class="ml-6 cursor-pointer" name="heroDocumentArrowUp"
+                    (click)="onUploadClicks(i)"></ng-icon>
+                    <div class="w-28" *ngIf="element.preSale.presaleFile">
+                        <div class="flex items-center px-2 bg-gray-200 rounded-full m-1" *ngFor="let file of element.preSale.presaleFile; let j=index">
+                            <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer"
+                                (click)="onFileRemoved(i,j)"></ng-icon>
                             <p class="text-sm px-2 w-28 truncate ..." matTooltip="{{file.name}}"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.name}}</p>
                         </div>
                     </div>
-                    <label for="doc" class="cursor-pointer">
-                        <ng-icon class="ml-6 " name="heroDocumentArrowUp"></ng-icon>
-                    </label>
-                    <input type="file" name="" id="doc" hidden multiple (input)="onInputDoc($event)" #fileInput>
                 </td>
             </ng-container>
 
@@ -85,18 +84,18 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                 </th>
-                <td mat-cell *matCellDef="let element"> <button
-                        class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-1 px-4 rounded text-sm"
-                        >
+                <td mat-cell *matCellDef="let element; let i =index">
+                    <button
+                        class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-1 px-4 rounded-md text-sm"
+                        (click)="onSendClicked(i)">
                         Send
-                    </button> </td>
+                    </button>
+                </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-
-
     </div>
     <div>
 

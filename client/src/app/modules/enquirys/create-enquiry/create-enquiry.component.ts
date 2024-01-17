@@ -106,15 +106,17 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   onSubmit() {
     if (this.formData.valid) {
       this.formData.controls.enquiryId.setValue(this.generateId())
-      this.formData.controls.salesPerson.setValue(this.tokenData.id)
-      let data = this.formData.value as Partial<Enquiry>
-      this.subscriptions.add(
-        this._enquiryService.createEnquiry(data).subscribe((data) => {
-          if (data) {
-            this.dialogRef.close(data)
-          }
-        })
-      )
+      setTimeout(() => {
+        this.formData.controls.salesPerson.setValue(this.tokenData.id)
+        let data = this.formData.value as Partial<Enquiry>
+        this.subscriptions.add(
+          this._enquiryService.createEnquiry(data).subscribe((data) => {
+            if (data) {
+              this.dialogRef.close(data)
+            }
+          })
+        )
+      }, 300)
     }
   }
 
@@ -134,13 +136,15 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   createCustomer() {
-
+    this.onClose()
   }
 
   onClickPresale() {
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
+        console.log(data);
+        
         this.formData.controls.presale.setValue(data)
         this.formData.controls.status.setValue('Assigned To Presales')
       }
