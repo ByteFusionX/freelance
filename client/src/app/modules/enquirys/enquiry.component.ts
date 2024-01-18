@@ -6,8 +6,9 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { Observable, Subscription } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { Enquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-enquiry',
@@ -16,45 +17,44 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class EnquiryComponent implements OnInit {
 
-  constructor(
-    public dialog: MatDialog,
-    private fb: FormBuilder,
-    private _employeeService: EmployeeService,
-    private _enquiryService: EnquiryService
-  ) { }
-
   selectedSalesPerson!: string;
   selectedStatus!: string;
   submit: boolean = false
   enqId!: string;
   salesPerson$!: Observable<getEmployee[]>;
-  isLoading:boolean = true;
-
-  private subscriptions = new Subscription()
+  isLoading: boolean = true;
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
+  dataSource = new MatTableDataSource<getEnquiry>()
+  filteredData = new MatTableDataSource<getEnquiry>()
+  private subscriptions = new Subscription()
+
+  constructor(
+    public dialog: MatDialog,
+    private fb: FormBuilder,
+    private _employeeService: EmployeeService,
+    private _enquiryService: EnquiryService,
+    private router: Router
+  ) { }
 
   formData = this.fb.group({
     fromDate: new FormControl(),
     toDate: new FormControl(),
   })
 
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
-
-  dataSource = new MatTableDataSource<getEnquiry>()
-  filteredData = new MatTableDataSource<getEnquiry>()
-
   ngOnInit(): void {
     this.salesPerson$ = this._employeeService.getEmployees()
     this.subscriptions.add(
-      this._enquiryService.getEnquiry().subscribe((data) => {
-        this.dataSource.data = data;
-        this.filteredData.data = data;
-        this.isLoading = false
-        let length = data.length - 1;
-        this.enqId = data[length].enquiryId.slice(-3);
-      }, (error) => {
-        this.enqId = '000'
-      })
+      this._enquiryService.getEnquiry()
+        .subscribe((data) => {
+          this.dataSource.data = data;
+          this.filteredData.data = data;
+          this.isLoading = false
+          let length = data.length - 1;
+          this.enqId = data[length].enquiryId.slice(-3);
+        }, (error) => {
+          this.enqId = '000'
+        })
     )
   }
 
@@ -99,10 +99,13 @@ export class EnquiryComponent implements OnInit {
       let data = this.dataSource.data.filter((data) => data.status === this.selectedStatus)
       this.dataSource.data = [...data]
     }
-
   }
 
-  onRowClicks(index:number){
-    
+  onRowClicks(index: number) {
+    let enqData = this.dataSource.data[index]
+    if (enqData.status != 'Assigned To Presales') {
+      this._enquiryService.emitToQuote(enqData)
+      this.router.navigate(['/quotations/create'])
+    }
   }
 }

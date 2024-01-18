@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { Enquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
@@ -10,10 +10,12 @@ import { environment } from 'src/environments/environment';
 export class EnquiryService {
 
   api: string = environment.api
+  quoteSubject = new BehaviorSubject<getEnquiry | undefined>(undefined)
+  enquiryData$ = this.quoteSubject.asObservable()
   constructor(private http: HttpClient) { }
 
-  createEnquiry(enquiry: Partial<Enquiry>): Observable<Enquiry> {
-    return this.http.post<Enquiry>(`${this.api}/enquiry/create`, enquiry)
+  createEnquiry(enquiry: Partial<Enquiry>): Observable<getEnquiry> {
+    return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, enquiry)
   }
 
   getEnquiry(): Observable<getEnquiry[]> {
@@ -26,5 +28,9 @@ export class EnquiryService {
 
   updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
     return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
+  }
+
+  emitToQuote(enquiry: getEnquiry) {
+    this.quoteSubject.next(enquiry)
   }
 }

@@ -49,6 +49,6 @@ import { UploadFileComponent } from 'src/app/shared/components/upload-file/uploa
     SkeltonLoadingComponent,
     UploadFileComponent
   ],
-  providers: [EnquiryService]
+  providers: []
 })
 export class EnquiryModule { }
