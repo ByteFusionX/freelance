@@ -28,6 +28,7 @@ export class EnquiryComponent implements OnInit {
   submit: boolean = false
   enqId!: string;
   salesPerson$!: Observable<getEmployee[]>;
+  isLoading:boolean = true;
 
   private subscriptions = new Subscription()
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
@@ -48,6 +49,7 @@ export class EnquiryComponent implements OnInit {
       this._enquiryService.getEnquiry().subscribe((data) => {
         this.dataSource.data = data;
         this.filteredData.data = data;
+        this.isLoading = false
         let length = data.length - 1;
         this.enqId = data[length].enquiryId.slice(-3);
       }, (error) => {
@@ -98,5 +100,9 @@ export class EnquiryComponent implements OnInit {
       this.dataSource.data = [...data]
     }
 
+  }
+
+  onRowClicks(index:number){
+    
   }
 }

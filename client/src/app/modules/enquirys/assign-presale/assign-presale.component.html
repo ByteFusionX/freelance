@@ -6,9 +6,9 @@
         </button>
     </div>
 
-    <div class="flex flex-col p-6 mx-auto text-gray-900 bg-white rounded-lg shadow">
+    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow">
         <form action="">
-            <div class="w-full mb-4">
+            <div class="w-full px-5 py-2">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
                     Presale Person
                 </label>
@@ -19,34 +19,7 @@
             </div>
 
             <div class="w-full">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
-                    Documents
-                </label>
-                <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file"
-                        class="flex flex-col items-center justify-center w-full py-5 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-200">
-                        <div class="flex flex-col items-center justify-center py-3">
-                            <ng-icon name="heroCloudArrowUp" class="text-xl text-violet-500"></ng-icon>
-                            <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to
-                                    upload</span></p>
-                            <p class="text-xs text-gray-500">Pdf, jpg, png, doc</p>
-                        </div>
-                        <input id="dropzone-file" type="file" class="hidden" multiple #fileInput
-                            (change)="onFileSelected($event)"/>
-                    </label>
-                </div>
-                <div class="w-full mt-2" *ngIf="selectedFiles">
-                    <div *ngFor="let file of selectedFiles; let i = index" @fileTrigger>
-                        <div class="flex justify-center">
-                            <ng-icon name="heroDocumentArrowUp"></ng-icon>
-                            <p class="text-sm text-gray-500 px-2 w-24 truncate ..."
-                            matTooltip="{{file.name}}" matTooltipPosition="above"
-                            matTooltipClass="mat-tooltip"> {{file.name}}</p>
-                            <ng-icon name="heroXMark" class="text-orange-500 text-lg cursor-pointer me-2"
-                                (click)="onFileRemoved(i)"></ng-icon>
-                        </div>
-                    </div>
-                </div>
+                <app-upload-file (fileUpload)="onFileUpload($event)"></app-upload-file>
             </div>
 
         </form>

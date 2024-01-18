@@ -36,22 +36,9 @@ export class AssignPresaleComponent implements OnInit {
   onChange(change: string) {
     this.selectedEmployee = change
   }
-  
-  onFileSelected(event: any) {
-    let files = event.target.files
-    for (let i = 0; i < files.length; i++) {
-      const newFile = files[i]
-      const exist = this.selectedFiles.some(file=> file.name === newFile.name)
-      if(!exist){
-        this.selectedFiles.push(files[i])
-      }
-    }
-  }
 
-
-  onFileRemoved(index: number) {
-    this.selectedFiles.splice(index, 1)
-    this.fileInput.nativeElement.value = '';
+  onFileUpload(event:File[]){
+    this.selectedFiles = event
   }
 
   onSubmit() {

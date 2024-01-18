@@ -23,7 +23,8 @@
                                 <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
                                     class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
                             </div>
-                            <div class="text-orange-500 text-sm" *ngIf="formData.get('fromDate')?.hasError('futureDate')">
+                            <div class="text-orange-500 text-sm"
+                                *ngIf="formData.get('fromDate')?.hasError('futureDate')">
                                 Please choose a date on or before today's date.
                             </div>
                             <div class="flex justify-between  items-center">
@@ -66,15 +67,15 @@
 
         </div>
     </div>
-
     <div class="m-8  overflow-y-auto">
-
-        <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+        <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
+        <table mat-table *ngIf="!isLoading" [dataSource]="dataSource" class="rounded-lg table-fixed">
             <ng-container matColumnDef="enquiryId">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Enquiry ID </th>
-                <td mat-cell *matCellDef="let element" class="text-violet-500 cursor-pointer hover:underline"> {{element.enquiryId}} </td>
+                <td mat-cell *matCellDef="let element">
+                    {{element.enquiryId}} </td>
             </ng-container>
 
             <!-- Name Column -->
@@ -98,7 +99,8 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Sales Person Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.salesPerson.firstName}} {{element.salesPerson.lastName}}</td>
+                <td mat-cell *matCellDef="let element"> {{element.salesPerson.firstName}}
+                    {{element.salesPerson.lastName}}</td>
             </ng-container>
 
             <ng-container matColumnDef="department">
@@ -110,13 +112,14 @@
 
             <ng-container matColumnDef="status">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
                     Status </th>
                 <td mat-cell *matCellDef="let element"> {{element.status}} </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns; let i= index"
+                class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
         </table>
 
 
