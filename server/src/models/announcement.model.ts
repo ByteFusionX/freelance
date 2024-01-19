@@ -4,7 +4,8 @@ interface announcment extends Document {
     title: String
     description: String
     date: Date
-    createdDate: Date
+    createdDate: Date,
+    celeb:boolean
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -23,6 +24,10 @@ const AnnouncementSchema = new Schema<announcment>({
     date :{
         type:Date,
         required:true
+    },
+    celeb :{
+        type:Boolean,
+        required: true
     }
 });
 
