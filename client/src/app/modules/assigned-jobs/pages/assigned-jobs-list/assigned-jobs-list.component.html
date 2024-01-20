@@ -18,7 +18,7 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Enquiry ID </th>
-                <td mat-cell *matCellDef="let element"> {{element.enquiryId}} </td>
+                <td mat-cell *matCellDef="let element"> <p class="text-violet-500">{{element.enquiryId}}</p> </td>
             </ng-container>
 
             <!-- Name Column -->
@@ -48,29 +48,33 @@
 
             <ng-container matColumnDef="department">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Department </th>
                 <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="download">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Download </th>
                 <td mat-cell *matCellDef="let element">
-                    <button><ng-icon class="ml-8 " name="heroInboxArrowDown"></ng-icon></button>
+                    <button class="w-7 h-7 ms-2 border rounded-full flex justify-center items-center">
+                        <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
+                    </button>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="upload">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Upload </th>
                 <td mat-cell *matCellDef="let element; let i = index">
-                    <ng-icon class="ml-6 cursor-pointer" name="heroDocumentArrowUp"
-                    (click)="onUploadClicks(i)"></ng-icon>
+                    <button class="w-7 h-7 ms-2 rounded-full bg-orange-500 flex justify-center items-center" (click)="onUploadClicks(i)">
+                        <ng-icon name="heroDocumentArrowUp" class="text-white"></ng-icon>
+                    </button>
                     <div class="w-28" *ngIf="element.preSale.presaleFile">
-                        <div class="flex items-center px-2 bg-gray-200 rounded-full m-1" *ngFor="let file of element.preSale.presaleFile; let j=index">
+                        <div class="flex items-center px-2 bg-gray-200 rounded-full m-1"
+                            *ngFor="let file of element.preSale.presaleFile; let j=index">
                             <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer"
                                 (click)="onFileRemoved(i,j)"></ng-icon>
                             <p class="text-sm px-2 w-28 truncate ..." matTooltip="{{file.name}}"
