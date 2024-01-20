@@ -37,6 +37,7 @@ import {
   heroEye,
   heroEyeSlash,
   heroCloudArrowUp,
+  heroRectangleStack
 } from '@ng-icons/heroicons/outline';
 
 

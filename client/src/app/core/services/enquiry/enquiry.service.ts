@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Enquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Enquiry, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -32,5 +32,13 @@ export class EnquiryService {
 
   emitToQuote(enquiry: getEnquiry) {
     this.quoteSubject.next(enquiry)
+  }
+
+  totalEnquiries(): Observable<TotalEnquiry[]> {
+    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum`)
+  }
+
+  monthlyEnquiries(): Observable<MonthlyEnquiry[]> {
+    return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly`)
   }
 }
