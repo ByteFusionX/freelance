@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express"
 import enquiryModel from "../models/enquiry.model"
-import { json } from "stream/consumers"
 
 export const createEnquiry = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -45,6 +44,85 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
         const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status } })
             .populate(['client', 'department', 'salesPerson'])
         if (update) return res.status(200).json(update)
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const totalEnquiries = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await enquiryModel.aggregate([
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department'
+                }
+            },
+            {
+                $group: { _id: "$department", total: { $sum: 1 }, enquiry: { $push: '$$ROOT' } }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    department: '$_id',
+                    // enquiry: 1,
+                    total: 1
+                }
+            }
+        ])
+
+        if (result) return res.status(200).json(result)
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const monthlyEnquiries = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await enquiryModel.aggregate([
+            {
+                $project: {
+                    department: 1,
+                    date: 1
+                }
+            },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department'
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        department: '$department',
+                        year: { $year: "$date" },
+                        month: { $month: "$date" },
+                        // day: { $dayOfMonth: '$date' }
+                    },
+                    total: { $sum: 1 },
+                    enquiry: { $push: '$$ROOT' }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    department: '$_id.department',
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    total: 1,
+                    // enquiry: 1
+                }
+            }
+        ])
+
+        if (result) return res.status(200).json(result)
         return res.status(502).json()
     } catch (error) {
         next(error)

@@ -33,3 +33,17 @@ export interface getEnquiry {
     };
     status: string;
 }
+
+export interface TotalEnquiry {
+    total: number;
+    department: getDepartment[];
+    enquiry?: getEnquiry[];
+}
+
+export interface MonthlyEnquiry {
+    total: number;
+    department: getDepartment[];
+    enquiry?: getEnquiry[];
+    year: number;
+    month: number;
+}
