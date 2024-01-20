@@ -72,10 +72,11 @@
         <table mat-table *ngIf="!isLoading" [dataSource]="dataSource" class="rounded-lg table-fixed">
             <ng-container matColumnDef="enquiryId">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
                     Enquiry ID </th>
                 <td mat-cell *matCellDef="let element">
-                    {{element.enquiryId}} </td>
+                    <p class="text-violet-500">{{element.enquiryId}}</p>
+                </td>
             </ng-container>
 
             <!-- Name Column -->
@@ -114,12 +115,17 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
                     Status </th>
-                <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                <td mat-cell *matCellDef="let element">
+                    <div [ngSwitch]="element.status">
+                        <p class="w-fit bg-orange-100 rounded-full px-2 text-orange-600" *ngSwitchCase="'Work In Progress'">{{element.status}}</p>
+                        <p class="w-fit bg-red-100 rounded-full px-2 text-red-600" *ngSwitchCase="'Assigned To Presales'">{{element.status}}</p>
+                    </div>
+                </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns; let i= index"
-                class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)" ></tr>
+                class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
         </table>
 
 
