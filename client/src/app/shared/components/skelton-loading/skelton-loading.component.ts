@@ -10,7 +10,5 @@ import { CommonModule } from '@angular/common';
 })
 export class SkeltonLoadingComponent {
   @Input() lineLength!:number;
-  ngOnInit(){
-    console.log(this.lineLength)
-  }
+  
 }

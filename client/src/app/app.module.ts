@@ -24,7 +24,7 @@ import { HttpClientModule } from '@angular/common/http';
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

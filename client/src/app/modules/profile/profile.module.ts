@@ -5,7 +5,6 @@ import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileInfoComponent } from './pages/profile-info/profile-info.component';
 import { NgIconsModule } from '@ng-icons/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CustomSelectComponent } from 'src/app/shared/components/custom-select/custom-select.component';
 import { HttpClientModule } from '@angular/common/http';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
@@ -28,7 +27,6 @@ import { MatDialogModule } from '@angular/material/dialog';
     NgIconsModule,
     FormsModule,
     ReactiveFormsModule,
-    CustomSelectComponent,
     HttpClientModule,
     directiveSharedModule,
     MatTableModule,

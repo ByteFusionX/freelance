@@ -12,6 +12,7 @@ import { fileEnterState } from '../enquiry-animations';
 import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-enquiry',
@@ -58,6 +59,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _profileService: ProfileService,
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
+    private router: Router,
   ) {
     this.config.notFoundText = 'Wait a few Sec';
   }
@@ -66,7 +68,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.getEmployee()
     this.getCustomers()
     this.getDepartments()
-    this.data = String(Number(this.data) + 1).padStart(this.data.length, '0')
+    this.data = String(Number(this.data) + 1).padStart(3, '0')
   }
 
   ngOnDestroy(): void {
@@ -105,7 +107,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   onSubmit() {
     if (this.formData.valid) {
-      this.formData.controls.enquiryId.setValue(this.generateId())
+      this.generateId()
       setTimeout(() => {
         this.formData.controls.salesPerson.setValue(this.tokenData.id)
         let data = this.formData.value as Partial<Enquiry>
@@ -128,7 +130,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     let formDate = <string>this.formData.controls.date.value
     const [year, month] = formDate.split('-');
     let date = `-${month}/${year.slice(2)}`
-    return ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
+    let enqId = ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
+    this.formData.controls.enquiryId.setValue(enqId)
   }
 
   onClose() {
@@ -149,6 +152,25 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
         this.formData.controls.status.setValue('Assigned To Presales')
       }
     })
+  }
+
+  onClickQuote() {
+    if (this.formData.valid) {
+      this.generateId()
+      setTimeout(() => {
+        this.formData.controls.salesPerson.setValue(this.tokenData.id)
+        let data = this.formData.value as Partial<Enquiry>
+        this.subscriptions.add(
+          this._enquiryService.createEnquiry(data).subscribe((data) => {
+            if (data) {
+              this._enquiryService.emitToQuote(data)
+              this.dialogRef.close()
+              this.router.navigate(['/quotations/create'])
+            }
+          })
+        )
+      }, 300)
+    }
   }
 
   getCustomers() {

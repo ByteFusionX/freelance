@@ -17,6 +17,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'download', 'upload', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   isLoading: boolean = true;
+  isEmpty: boolean = false
 
   selectedDocs: File[] = []
   subscriptions = new Subscription()
@@ -26,10 +27,10 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.add(
       this._enquiryService.getPresale().subscribe((data) => {
-        if (data) {
-          this.dataSource.data = data
-          this.isLoading = false
-        }
+        this.dataSource.data = data
+        this.isLoading = false
+      }, (error) => {
+        this.isEmpty = true
       })
     )
   }
