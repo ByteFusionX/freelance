@@ -1,0 +1,8 @@
+.custom-link {
+    pointer-events: none;
+}
+
+.active {
+    background-color: #7c3aed;
+    color: white;
+}

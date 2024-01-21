@@ -68,7 +68,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.getEmployee()
     this.getCustomers()
     this.getDepartments()
-    this.data = String(Number(this.data) + 1).padStart(this.data.length, '0')
+    this.data = String(Number(this.data) + 1).padStart(3, '0')
   }
 
   ngOnDestroy(): void {

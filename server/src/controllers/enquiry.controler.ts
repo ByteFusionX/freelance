@@ -16,12 +16,39 @@ export const createEnquiry = async (req: Request, res: Response, next: NextFunct
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const enquiryData = await enquiryModel.find()
-            .populate(['client', 'department', 'salesPerson'])
+        let pageNumber = Number(req.query.page)
+        let rowNumber = Number(req.query.row)
+        let index: number = (pageNumber - 1) * rowNumber
+
+        const enquiryData = await enquiryModel.aggregate([
+            {
+                $sort: { createdDate: -1 }
+            },
+            {
+                $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
+            },
+            {
+                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 }, enquiry: { $push: '$$ROOT' } }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    total: 1,
+                    enquiry: {
+                        $slice: ['$enquiry', index, index + rowNumber]
+                    }
+                }
+            },
+        ]);
 
         if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
-
-        return res.status(200).json(enquiryData)
+        return res.status(200).json(enquiryData[0])
     } catch (error) {
         next(error)
     }

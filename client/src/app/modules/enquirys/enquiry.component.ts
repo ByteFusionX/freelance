@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateEnquiryDialog } from './create-enquiry/create-enquiry.component';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-enquiry',
   templateUrl: './enquiry.component.html',
-  styleUrls: ['./enquiry.component.css']
+  styleUrls: ['./enquiry.component.css'],
 })
 export class EnquiryComponent implements OnInit {
 
@@ -27,7 +27,11 @@ export class EnquiryComponent implements OnInit {
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
+  total!: number;
+  page: number = 1
+  row: number = 10
   private subscriptions = new Subscription()
+  private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row })
 
   constructor(
     public dialog: MatDialog,
@@ -44,14 +48,23 @@ export class EnquiryComponent implements OnInit {
 
   ngOnInit(): void {
     this.salesPerson$ = this._employeeService.getEmployees()
+    this.subject.subscribe((data) => {
+      this.page = data.page
+      this.row = data.row
+      this.getEnquiries(data.page, data.row)
+    })
+  }
+
+  getEnquiries(page: number, row: number) {
     this.subscriptions.add(
-      this._enquiryService.getEnquiry()
+      this._enquiryService.getEnquiry(page, row)
         .subscribe((data) => {
-          this.dataSource.data = data;
-          this.filteredData.data = data;
+          this.dataSource.data = [...data.enquiry];
+          this.filteredData.data = data.enquiry;
+          this.total = data.total
           this.isLoading = false
-          let length = data.length - 1;
-          this.enqId = data[length].enquiryId.slice(-3);
+          let length = data.enquiry.length - 1;
+          this.enqId = data.enquiry[length].enquiryId.slice(-3);
         }, (error) => {
           this.enqId = '000'
         })
@@ -107,5 +120,9 @@ export class EnquiryComponent implements OnInit {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
     }
+  }
+
+  onPageNumberClick(event: { page: number, row: number }) {
+    this.subject.next(event)
   }
 }

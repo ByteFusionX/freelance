@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Enquiry, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Enquiry, EnquiryTable, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -18,8 +18,8 @@ export class EnquiryService {
     return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, enquiry)
   }
 
-  getEnquiry(): Observable<getEnquiry[]> {
-    return this.http.get<getEnquiry[]>(`${this.api}/enquiry/get`)
+  getEnquiry(page: number, row: number): Observable<EnquiryTable> {
+    return this.http.get<EnquiryTable>(`${this.api}/enquiry/get?page=${page}&row=${row}`)
   }
 
   getPresale(): Observable<getEnquiry[]> {
