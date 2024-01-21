@@ -12,7 +12,7 @@
                     </ng-template>
                 </div>
             </div>
-            <div class="flex me-5 justify-center items-center">
+            <div class="flex me-5 justify-center items-center" *ngIf="employeeData$ | async as employeeData">
                 <div class="flex items-center me-5">
                     <ng-icon name="heroMagnifyingGlass" class="text-2xl cursor-pointer"></ng-icon>
                 </div>
@@ -21,7 +21,7 @@
                         <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
                             alt="">
                     </div>
-                    <p class="mx-2 text-sm">Mr. User</p>
+                    <p class="mx-2 text-sm">{{employeeData.firstName}}</p>
                     <div class="mt-1">
                         <div *ngIf="menuState; else menuElseBlock">
                             <ng-icon name="heroChevronDown"></ng-icon>
@@ -39,8 +39,8 @@
                                     alt="">
                             </div>
                             <div class="mx-3">
-                                <p class="text-sm leading-3">Mr. User</p>
-                                <span class="text-xs leading-3">Manager</span>
+                                <p class="text-sm leading-3">{{employeeData.firstName}} {{employeeData.lastName}}</p>
+                                <span class="text-xs leading-3">{{employeeData.designation}}</span>
                             </div>
                         </div>
                         <div class="">
@@ -49,7 +49,7 @@
                                     <ng-icon name="heroUser" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Profile</p>
                                 </li>
-                                <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer" routerLink="/login">
+                                <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer" (click)="signOut()">
                                     <ng-icon name="heroArrowRightOnRectangle" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Sign Out</p>
                                 </li>
