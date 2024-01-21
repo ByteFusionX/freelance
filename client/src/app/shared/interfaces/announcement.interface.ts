@@ -9,8 +9,8 @@ export interface announcementGetData {
     title: string
     description: string
     date: Date
-    createdDate: Date
-
+    createdDate: Date,
+    celeb: boolean
   }
   
   

@@ -1,6 +1,5 @@
-<div class=" m-6 ">
+<div class="m-6  ">
     <div class="text-lg bg-white font-medium p-4 border border-b-gray-300 px-8 rounded-md">
-
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <h3>Announcement</h3>
             <div class="flex justify-end gap-4 h-10">
@@ -9,12 +8,15 @@
                     + Create Announcement
                 </button>
             </div>
-
         </div>
     </div>
     <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
-    <div *ngIf="recentData || announcementData.length;else noData" >
-        <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
+
+    <div *ngIf="recentData || announcementData.length;else noData">
+        <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
+            <div *ngIf="recentData.celeb" class="confetti-container">
+                <app-confetti-component></app-confetti-component>
+            </div>
             <div class="flex gap-2 justify-between">
                 <div class="flex gap-2">
                     <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
@@ -22,7 +24,7 @@
                 </div>
                 <div class="flex gap-2 ">
                     <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                    <p class=" mr-6"> {{recentData.date | date: 'MMM d, y'}}</p>
+                    <p class="mr-6">{{recentData.date | date: 'MMM d, y'}}</p>
                 </div>
             </div>
 
@@ -36,28 +38,32 @@
             <p class="text-sm text-gray-600">{{recentData.description}}</p>
         </div>
 
-        <div *ngFor="let item of announcementData;trackBy:trackByIdFn">
-            <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
+
+        <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
+            <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" style="position: relative;">
+                <div *ngIf="item.celeb" class="confetti-container">
+                    <app-confetti-component></app-confetti-component>
+                </div>
                 <div class="flex gap-1 justify-between">
                     <div class="flex gap-1">
                         <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
                         <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
-                            {{item.createdDate | date: 'MMM d, y' }}
+                            {{item.createdDate | date: 'MMM d, y'}}
                         </time>
                     </div>
-                    <div class="flex gap-2 ">
+                    <div class="flex gap-2">
                         <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                        <p class=" mr-6"> {{item.date | date: 'MMM d, y'}}</p>
+                        <p class="mr-6">{{item.date | date: 'MMM d, y'}}</p>
                     </div>
                 </div>
                 <h1 class="text-xl text-violet-700">{{item.title}}</h1>
                 <p class="text-sm text-gray-600">{{item.description}}</p>
-
             </div>
         </div>
+
+
     </div>
-    <ng-template #noData >
+    <ng-template #noData>
         <p class="text-lg text-center mt-12">No data found</p>
     </ng-template>
-
 </div>
