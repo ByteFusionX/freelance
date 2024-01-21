@@ -21,12 +21,16 @@ const processEmployeeEvent = async (element, eventType) => {
             eventDescription = 'Sending warm anniversary wishes to our valued employees! Thank you for your dedication and contributions to our success. Here\'s to many more years of collaboration and achievements. Happy Work Anniversary!';
         }
 
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+
         const saveEvent = new announcementModel({
             title: eventTitle,
             description: eventDescription,
-            date: new Date(),
+            date: today,
             celeb: true
         });
+
 
         const saveComment = await saveEvent.save();
 

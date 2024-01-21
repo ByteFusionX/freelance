@@ -5,7 +5,7 @@
       <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
     </button>
   </div>
-
+  
   <div class="flex flex-col p-6 mx-auto text-gray-900 bg-white rounded-lg shadow">
     <form class="" [formGroup]="formData">
       <div class="w-full flex mb-2">
@@ -18,7 +18,7 @@
             <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id">{{customer.companyName}}</ng-option>
             <ng-template ng-footer-tmp>
               <a (click)="createCustomer()"
-                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full  ">
+                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full" routerLink="/customers/create">
                 + Create Customer
               </a>
             </ng-template>
@@ -28,7 +28,7 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="contact">
             Point of Contact
           </label>
-          <ng-select id="contact" class="form" placeholder="Contact" appendTo="body" notFoundText="Select Customer" formControlName="contact">
+          <ng-select id="contact" class="form" placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
             <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.firstName}}
               {{contact.lastName}}</ng-option>
           </ng-select>
@@ -50,7 +50,7 @@
           </label>
           <input appNoLeadingSpace
             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white"
-            id="sales-person-name" type="text" placeholder="John Doe" formControlName="salesPerson">
+            id="sales-person-name" type="text" placeholder="John Doe" formControlName="salesPerson" readonly>
         </div>
       </div>
       <div class="flex flex-wrap mb-2">
@@ -94,7 +94,7 @@
                 <div class="flex">
                   <ng-icon name="heroDocumentArrowUp"></ng-icon>
                   <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.name}}" matTooltipPosition="above"
-                    matTooltipClass="mat-tooltip">{{file.name}}...</p>
+                    matTooltipClass="mat-tooltip">{{file.name}}</p>
                 </div>
                 <div>
                   <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>
@@ -113,7 +113,7 @@
         (click)="onClickPresale()">
         Assign to Presale
       </button>
-      <button class="bg-transparent border hover:bg-gray-200 text-black font-medium py-2 px-4 rounded text-sm">
+      <button class="bg-transparent border hover:bg-gray-200 text-black font-medium py-2 px-4 rounded text-sm" (click)="onClickQuote()">
         Create Quote
       </button>
     </div>

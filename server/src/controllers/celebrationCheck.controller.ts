@@ -1,33 +1,23 @@
 import { Request, Response, NextFunction } from "express"
-import employeeModel from "../models/employee.model"
+import announcementModel from "../models/announcement.model"
 
 export const celebrationCheck = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
         const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        const currentDay = today.getDate();
-
-        const birthdayEmployee = await employeeModel.find({
-            $expr: {
-                $and: [
-                    { $eq: [{ $month: "$dob" }, currentMonth] },
-                    { $eq: [{ $dayOfMonth: "$dob" }, currentDay] }
-                ]
-            }
+        today.setUTCHours(0, 0, 0, 0); 
+        
+        const tomorrow = new Date(today);
+        tomorrow.setUTCDate(today.getUTCDate() + 1); 
+        
+        const celebData = await announcementModel.find({
+          $and: [
+            { celeb: true },
+            { date: { $gte: today, $lt: tomorrow } }
+          ]
         });
 
-        const anniversaryEmployees = await employeeModel.find({
-            $expr: {
-                $and: [
-                    { $eq: [{ $month: "$dateOfJoining" }, currentMonth] },
-                    { $eq: [{ $dayOfMonth: "$dateOfJoining" }, currentDay] }
-                ]
-            }
-        });
-
-        res.status(200).json({ birthdayEmployee: birthdayEmployee, anniversaryEmployees: anniversaryEmployees });
-
+        return res.json(200).json(celebData)
+        
     } catch (error) {
         next(error)
     }

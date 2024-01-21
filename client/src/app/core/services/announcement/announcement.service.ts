@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { announcementPostData } from 'src/app/shared/interfaces/announcement.interface';
+import { announcementGetData, announcementPostData } from 'src/app/shared/interfaces/announcement.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -15,8 +15,9 @@ export class AnnouncementService {
     return this.http.post<boolean>(`${this.apiUrl}/announcement/addAcnnouncement`, data)
   }
 
-  getAnnouncment():Observable<any>{
-    return this.http.get(`${this.apiUrl}/announcement/getAcnnouncement`)
+  getAnnouncment():Observable<announcementGetData[]>{
+    return this.http.get<announcementGetData[]>(`${this.apiUrl}/announcement/getAcnnouncement`)
   }
+
 
 }

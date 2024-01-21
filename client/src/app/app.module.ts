@@ -8,7 +8,6 @@ import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { ToastrModule } from 'ngx-toastr';
 import { HttpClientModule } from '@angular/common/http';
-import { ConfettiComponentComponent } from './shared/components/confetti-component/confetti-component.component';
 
 
 @NgModule({
@@ -26,7 +25,7 @@ import { ConfettiComponentComponent } from './shared/components/confetti-compone
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

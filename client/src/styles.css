@@ -12,7 +12,7 @@
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: "Jost, sans-serif"; }
+body,td,th { margin: 0; font-family: "Jost, sans-serif"; }
 
 .ng-select.form .ng-select-container {
     height: 45px;
@@ -34,4 +34,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield; /* Firefox */
+}
+
+.mat-tooltip {
+  font-size: 10px;
 }

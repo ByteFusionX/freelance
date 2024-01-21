@@ -33,20 +33,12 @@ export class AssignPresaleComponent implements OnInit {
     this.dialogRef.close()
   }
 
-  onFileSelected(event: any) {
-    let files = event.target.files
-    for (let i = 0; i < files.length; i++) {
-      this.selectedFiles.push(files[i])
-    }
-  }
-
   onChange(change: string) {
     this.selectedEmployee = change
   }
 
-  onFileRemoved(index: number) {
-    this.selectedFiles.splice(index, 1)
-    this.fileInput.nativeElement.value = '';
+  onFileUpload(event:File[]){
+    this.selectedFiles = event
   }
 
   onSubmit() {
