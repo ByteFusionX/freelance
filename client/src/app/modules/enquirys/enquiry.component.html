@@ -66,7 +66,7 @@
     </div>
 
     <div class="m-8 overflow-y-auto">
-        <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
+        <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
         <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
             <table mat-table *ngIf="!isLoading" [dataSource]="dataSource" class="rounded-lg table-fixed">
                 <ng-container matColumnDef="enquiryId">
@@ -129,8 +129,14 @@
                     class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
             </table>
         </section>
-        <div class="w-full bg-white">
+        <div class="w-full bg-white" *ngIf="!isEmpty">
             <app-pagination [page]="page" [row]="row" [total]="total" (pageNum)="onPageNumberClick($event)"></app-pagination>
+        </div>
+    </div>
+    <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+        <div class="p-3">
+            <img src="assets/images/empty.png" alt="">
+            <p class="m-2 text-center text-gray-500">No Data</p>
         </div>
     </div>
 </div>
