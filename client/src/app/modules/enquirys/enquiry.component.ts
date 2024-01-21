@@ -23,6 +23,7 @@ export class EnquiryComponent implements OnInit {
   enqId!: string;
   salesPerson$!: Observable<getEmployee[]>;
   isLoading: boolean = true;
+  isEmpty: boolean = false
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
   dataSource = new MatTableDataSource<getEnquiry>()
@@ -66,6 +67,7 @@ export class EnquiryComponent implements OnInit {
           let length = data.enquiry.length - 1;
           this.enqId = data.enquiry[length].enquiryId.slice(-3);
         }, (error) => {
+          this.isEmpty = true
           this.enqId = '000'
         })
     )
