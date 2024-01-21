@@ -35,6 +35,6 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatDialogModule,
     NgSelectModule,
   ],
-  providers: [ProfileService, EmployeeService]
+  providers: [ProfileService,EmployeeService ]
 })
 export class ProfileModule { }

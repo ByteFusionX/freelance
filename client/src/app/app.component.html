@@ -4,7 +4,7 @@
     </div>
 
     <div class="w-full h-screen bg-gray-100 overflow-y-auto flex flex-col">
-        <app-nav-bar (reduce)="reduceSideBar($event)"></app-nav-bar>
+        <app-nav-bar (reduce)="reduceSideBar($event)"  (fetchEmployeeName)="fetch()"></app-nav-bar>
         <div class="overflow-x-auto">
             <router-outlet></router-outlet>
         </div>

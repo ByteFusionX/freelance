@@ -1,4 +1,4 @@
-<div class="w-full p-8">
+<div class="w-full p-8" >
     <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
         <div class="flex">
             <div class="w-40">
@@ -10,12 +10,12 @@
                     <i><ng-icon name="heroUser" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
                     <p class="font-medium text-orange-400 "> Profile info:</p>
                 </div>
-                <div class="mt-1 ml-1">
-                    <p class="text-lg">Mr.{{employeeData.firstName}} {{employeeData.lastName}}</p>
-                    <span class="text-sm">{{employeeData.designation}}</span>
+                <div class="mt-1 ml-1" *ngIf="employeeData$ | async as employeeData">
+                    <p class="text-lg">{{employeeData.employeeData.firstName}} {{employeeData.employeeData.lastName}}</p>
+                    <span class="text-sm">{{employeeData.employeeData.designation}}</span>
                     <div class="mt-3">
-                        <p>Email : {{employeeData.email}}</p>
-                        <p>Contact No: {{employeeData.contactNo}}</p>
+                        <p>Email : {{employeeData.employeeData.email}}</p>
+                        <p>Contact No: {{employeeData.employeeData.contactNo}}</p>
                     </div>
                 </div>
             </div>
