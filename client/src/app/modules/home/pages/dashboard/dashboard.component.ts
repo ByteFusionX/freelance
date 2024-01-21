@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartOptions } from './dashboard.chart';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 
 @Component({
@@ -17,32 +17,47 @@ export class DashboardComponent implements OnInit {
   jobs!: number;
   graphSeries: { name: string, data: number[] }[] = []
   graphCategory: string[] = []
-  public chartOptions!: Partial<ChartOptions> ;
+  isLoading: boolean = true
+
+  private subscriptions = new Subscription()
+  public chartOptions!: Partial<ChartOptions>;
 
   constructor(private enquiryService: EnquiryService) { }
 
   ngOnInit(): void {
     this.enquiries$ = this.enquiryService.totalEnquiries()
+    this.loading()
     this.dateCategories()
-    this.enquiryService.monthlyEnquiries().subscribe((data) => {
-      data.map((item) => {
-        const dateArray: number[] = new Array(12).fill(0)
-        let depName = item.department[0].departmentName.toUpperCase()
-        let dep = this.graphSeries.find((ser) => ser.name == depName)
-        
-        if (!dep) {
-          let obj = { name: depName, data: dateArray }
-          this.graphSeries.push(obj)
-          dep = this.graphSeries[this.graphSeries.length - 1]
-        }
-        
-        let date: string = `${item.year}-${item.month.toString().padStart(2, '0')}`
-        let index = this.graphCategory.indexOf(date)
-        dep.data[index] = item.total
-      })
-      this.chartDetails()
-    })
+    this.subscriptions.add(
+      this.enquiryService.monthlyEnquiries().subscribe((data) => {
+        data.map((item) => {
+          const dateArray: number[] = new Array(12).fill(0)
+          let depName = item.department[0].departmentName.toUpperCase()
+          let dep = this.graphSeries.find((ser) => ser.name == depName)
 
+          if (!dep) {
+            let obj = { name: depName, data: dateArray }
+            this.graphSeries.push(obj)
+            dep = this.graphSeries[this.graphSeries.length - 1]
+          }
+
+          let date: string = `${item.year}-${item.month.toString().padStart(2, '0')}`
+          let index = this.graphCategory.indexOf(date)
+          dep.data[index] = item.total
+        })
+        this.chartDetails()
+      })
+    )
+  }
+
+  loading() {
+    this.subscriptions.add(
+      this.enquiries$.subscribe((data) => {
+        if (data) {
+          this.isLoading = false
+        }
+      })
+    )
   }
 
   dateCategories() {
