@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
-const { ObjectId } = require('mongodb');
 import * as bcrypt from 'bcrypt';
 var jwt = require('jsonwebtoken');
 
-export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
+export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await Employee.find().sort({ createdDate: -1 }).populate('department')
         if (employees.length) {
@@ -19,7 +18,6 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
 export const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let employeeId: string = await generateEmployeeId();
-        console.log(employeeId)
         const employeeData = req.body;
         employeeData.employeeId = employeeId;
 
@@ -56,11 +54,9 @@ const generateEmployeeId = async () => {
         } else {
             return 'NT-1100'
         }
-
     } catch (error) {
         console.log(error)
     }
-
 }
 
 
@@ -83,13 +79,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     } catch (error) {
         next(error)
     }
+
 }
 
-export const getEmployeeData = async (req: Request, res: Response, next: NextFunction) => {
+export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employeeId = req.params.employeeId
-        const employeeData = await Employee.findOne({ employeeId: employeeId })
-        res.status(200).json({ employeeData: employeeData })
+        const employeeId = req.params.id
+        const employeeData = await Employee.findOne({ _id: employeeId })
+        if(employeeData) return res.status(200).json(employeeData)
+        return res.status(502).json()
     } catch (error) {
         next(error)
     }

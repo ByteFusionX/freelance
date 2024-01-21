@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
+import { MatTableDataSource } from '@angular/material/table';
+import { NavigationExtras, Router } from '@angular/router';
+import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { quotatation, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-quotation-list',
@@ -7,14 +11,26 @@ import { FormBuilder, FormControl } from '@angular/forms';
   styleUrls: ['./quotation-list.component.css']
 })
 export class QuotationListComponent {
-
-  constructor(private _fb: FormBuilder) {
-  }
+  isLoading:boolean = true;
   submit: boolean = false
   dateError: boolean = false
-
   selectedSalesPerson!: number;;
   selectedDepartment!: number;
+  dataSource!: MatTableDataSource<quotatation>;
+  quoteStatuses = Object.values(QuoteStatus);
+
+  displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
+
+  constructor(
+    private _fb: FormBuilder,
+    private _quoteService: QuotationService,
+    private _router:Router
+  ) { }
+
+  ngOnInit(){
+    this.getQuotation()
+  }
+  
 
   salesPerson: { id: number, name: string }[] = [
     { id: 2, name: 'Name1' },
@@ -36,39 +52,31 @@ export class QuotationListComponent {
   })
 
 
-  displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
-  dataSource = [
-    {
-      date: '2023-01-01',
-      quoteId: 'Q1001',
-      customerName: 'Customer A',
-      description: 'Product A',
-      salesPerson: 'John Doe',
-      department: 'Sales',
-      status: 'Pending'
-    },
-    {
-      date: '2023-02-15',
-      quoteId: 'Q1002',
-      customerName: 'Customer B',
-      description: 'Product B',
-      salesPerson: 'Jane Smith',
-      department: 'Marketing',
-      status: 'Approved'
-    },
-    {
-      date: '2023-12-20',
-      quoteId: 'Q1010',
-      customerName: 'Customer J',
-      description: 'Product J',
-      salesPerson: 'Alex Johnson',
-      department: 'Operations',
-      status: 'Completed'
-    }
-  ];
+  onQuote(data:quotatation){
+    const navigationExtras: NavigationExtras = {
+      state: data
+    };
+    
+    this._router.navigate(['/quotations/view'], navigationExtras);
+  }
+
+  onQuoteEdit(data:quotatation){
+    const navigationExtras: NavigationExtras = {
+      state: data
+    };
+    
+    this._router.navigate(['/quotations/edit'], navigationExtras);
+  }
 
   handleNotClose(event: MouseEvent) {
     event.stopPropagation();
+  }
+
+  getQuotation(){
+    this._quoteService.getQuotation().subscribe((data:quotatation[])=>{
+      this.dataSource = new MatTableDataSource(data);
+      this.isLoading = false;
+    })
   }
 
   onSubmit() {
@@ -83,5 +91,12 @@ export class QuotationListComponent {
     } else {
 
     }
+  }
+
+  updateStatus(i:number,quoteId:string){
+    const selectedValue = this.dataSource.data[i].status;
+    this._quoteService.updateQuoteStatus(quoteId,selectedValue).subscribe((res)=>{
+      
+    })
   }
 }

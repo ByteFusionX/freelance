@@ -74,9 +74,13 @@
         </div>
     </div>
 
-    <div class="m-8  overflow-y-auto">
+    <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
 
-        <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+    <div class="m-8  overflow-y-auto">
+        <div *ngIf="!this.dataSource.data.length && !isLoading">
+            <p class="text-lg text-center ">No Data Available</p>
+        </div>
+        <table *ngIf="!isLoading && this.dataSource.data.length" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
 
             <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row definition" -->
@@ -94,7 +98,7 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
                     Date </th>
-                <td mat-cell *matCellDef="let element"> {{element.date}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.date | date:'dd/MM/yyyy'}} </td>
             </ng-container>
 
             <!-- Creator Column -->
@@ -102,7 +106,7 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Quote Id </th>
-                <td mat-cell *matCellDef="let element"> <a routerLink="/quotations/view"
+                <td mat-cell *matCellDef="let element"> <a (click)="onQuote(element)"
                         class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
             </ng-container>
 
@@ -111,45 +115,41 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Customer Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.customerName}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.client.companyName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="description">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Description </th>
-                <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
             </ng-container>
 
             <ng-container matColumnDef="salesPerson">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Sales Person </th>
-                <td mat-cell *matCellDef="let element"> {{element.salesPerson}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+' '+element.createdBy.lastName}}
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="department">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Department </th>
-                <td mat-cell *matCellDef="let element"> {{element.department}} </td>
+                <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
             </ng-container>
 
             <ng-container matColumnDef="status">
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                     Status </th>
-                <td mat-cell *matCellDef="let element">
-                    <select class="block w-full  border border-gray-160 text-gray-700 py-2 px-2 rounded "
-                        id="grid-state">
-                        <option>Work In Progress</option>
-                        <option>Quote Submitted</option>
-                        <option>Under negotiation</option>
-                        <option>Under review</option>
-                        <option>Ready for submission</option>
-                        <option>Won</option>
-                        <option>Lost</option>
-                    </select>
+                <td mat-cell *matCellDef="let element;let i= index">
+                    <ng-select appNoLeadingSpace id="salesPerson" [(ngModel)]="element.status" [clearable]="false"
+                    class=" filter" placeholder="Sales Person" appendTo="body" (change)="updateStatus(i,element._id)">
+                    <ng-option *ngFor="let status of quoteStatuses"
+                        [value]="status">{{status}}</ng-option>
+                </ng-select>
                 </td>
             </ng-container>
 
@@ -157,17 +157,23 @@
                 <th *matHeaderCellDef
                     class="bg-gray-100  px-[16px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
                     Action </th>
-                <td mat-cell *matCellDef="let element">
-                    <div class="text-center"><ng-icon routerLink="/quotations/edit"
-                            class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"></ng-icon> </div>
+                <td mat-cell *matCellDef="let element" class="">
+                    <div class="flex justify-end items-center gap-2">
+                        <div *ngIf="element.status == 'Won'" class="cursor-pointer text-center flex justify-center items-center gap-2 px-4 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium"><ng-icon routerLink="/quotations/edit"
+                             name="heroDocumentArrowUp"></ng-icon>Upload </div>
+                            <div (click)="onQuoteEdit(element)" class="cursor-pointer text-center flex justify-center items-center gap-2 px-4 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-gray-200"><ng-icon routerLink="/quotations/edit"
+                               name="heroPencilSquare"></ng-icon>Edit </div>
+                    </div>
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
     </div>
     <div>
-
+        <div class="border-t border-t-gray-300" *ngIf="!isLoading">
+            <mat-paginator></mat-paginator>
+        </div>
     </div>
 </div>

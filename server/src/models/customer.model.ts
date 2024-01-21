@@ -1,13 +1,14 @@
 import { Schema, Document, model, Types } from "mongoose";
 
 interface ContactDetail {
+  _id: string;
   courtesyTitle: string;
   firstName: string;
   lastName: string;
   email: string;
 }
 
-interface Customer extends Document {
+export interface Customer extends Document {
   department: Types.ObjectId;
   contactDetails: ContactDetail[];
   companyName: string;
