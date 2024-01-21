@@ -47,7 +47,6 @@ const generateEmployeeId = async () => {
         }
 
         if (lastEmployee && lastEmployeeId) {
-            console.log('asdf')
             const IdNumber = lastEmployeeId.split('-')
             const incrementedNum = parseInt(IdNumber[1]) + 1;
             return `NT-${incrementedNum}`

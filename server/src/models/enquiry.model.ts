@@ -8,6 +8,7 @@ interface Enquiry extends Document {
     salesPerson: Types.ObjectId;
     title: String;
     date: string | number | Date;
+    createdDate: Date;
     preSale: { presalePerson: Types.ObjectId, presaleFiles: [] };
     status: string;
     attachments: []
@@ -48,6 +49,10 @@ const enquirySchema = new Schema<Enquiry>({
     date: {
         type: Date || String,
         required: true
+    },
+    createdDate: {
+        type: Date,
+        default : Date.now()
     },
     attachments: [],
     preSale: [preSaleSchema],

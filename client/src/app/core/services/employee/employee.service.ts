@@ -35,8 +35,4 @@ export class EmployeeService {
   getEmployee(id: string): Observable<getEmployee> {
     return this.http.get<getEmployee>(`${this.api}/employee/get/${id}`)
   }
-  
-  getEmployeeData(employeeId:string){
-    return this.http.get<getEmployeeObject>(`${this.api}/employee/getEmployeeData/${employeeId}`)
-  }
 }
