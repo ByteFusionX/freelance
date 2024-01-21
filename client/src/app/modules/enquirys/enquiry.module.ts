@@ -21,6 +21,7 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { UploadFileComponent } from 'src/app/shared/components/upload-file/uploa
     directiveSharedModule,
     FormsModule,
     SkeltonLoadingComponent,
-    UploadFileComponent
+    UploadFileComponent,
+    PaginationComponent
   ],
   providers: []
 })

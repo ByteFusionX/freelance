@@ -34,6 +34,11 @@ export interface getEnquiry {
     status: string;
 }
 
+export interface EnquiryTable{
+    total:number;
+    enquiry: getEnquiry[];
+}
+
 export interface TotalEnquiry {
     total: number;
     department: getDepartment[];
