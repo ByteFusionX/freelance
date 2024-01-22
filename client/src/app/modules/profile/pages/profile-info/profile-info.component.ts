@@ -28,12 +28,6 @@ export class ProfileInfoComponent implements AfterViewInit, OnDestroy {
      public dialog: MatDialog,
      private _employeeService:EmployeeService) { }
 
-  ngOnInit(){
-    // const employeeId=localStorage.getItem('employeeId') as string
-    this._employeeService.getEmployeeData('NT-1102').subscribe((res:getEmployeeObject)=>{
-    this.employeeData = res.employeeData
-    })
-  }
 
   ngAfterViewInit() {
     this.subscriptions.add(this._profileService.getDepartments().subscribe((data) => {

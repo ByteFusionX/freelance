@@ -26,6 +26,12 @@ export class EnquiryComponent implements OnInit {
   isEmpty: boolean = false
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
+  dataSource = new MatTableDataSource<getEnquiry>()
+  filteredData = new MatTableDataSource<getEnquiry>()
+  total!: number;
+  page: number = 1
+  row: number = 10
+  private subscriptions = new Subscription()
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row })
 
   constructor(

@@ -77,7 +77,7 @@
     <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
 
     <div class="m-8  overflow-y-auto">
-        <div *ngIf="!this.dataSource.data.length && !isLoading">
+        <div *ngIf="!this.dataSource && !isLoading">
             <p class="text-lg text-center ">No Data Available</p>
         </div>
         <table *ngIf="!isLoading && this.dataSource.data.length" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">

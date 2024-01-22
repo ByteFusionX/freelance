@@ -46,7 +46,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 }
             },
         ]);
-
+        console.log(enquiryData[0])
         if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
         return res.status(200).json(enquiryData[0])
     } catch (error) {

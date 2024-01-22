@@ -3,7 +3,10 @@ import { FormBuilder, FormControl } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NavigationExtras, Router } from '@angular/router';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
-import { quotatation, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
+import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { quotatation, quotatationForm, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-quotation-list',
@@ -60,7 +63,12 @@ export class QuotationListComponent {
     this._router.navigate(['/quotations/view'], navigationExtras);
   }
 
-  onQuoteEdit(data:quotatation){
+  onQuoteEdit(data:quotatationForm){
+    data.client = (data.client as getCustomer)._id
+    data.attention = (data.attention as ContactDetail)._id
+    data.department = (data.department as getDepartment)._id
+    data.createdBy = (data.createdBy as getEmployee)._id
+    
     const navigationExtras: NavigationExtras = {
       state: data
     };

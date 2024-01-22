@@ -23,11 +23,6 @@ export class NavBarComponent {
 
   constructor(private _employeeService:EmployeeService){}
 
-  ngOnInit(){
-    this._employeeService.getEmployeeData("NT-1102").subscribe((res:getEmployeeObject)=>{
-      this.employeeData=res.employeeData
-    })
-  }
 
   reduceSideBar() {
     this.showFullBar = !this.showFullBar

@@ -53,12 +53,12 @@ export class QuotationEditComponent {
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
-      client: ['', Validators.required],
-      attention: ['', Validators.required],
+      client: [undefined, Validators.required],
+      attention: [undefined, Validators.required],
       date: ['', Validators.required],
-      department: ['', Validators.required],
+      department: [undefined, Validators.required],
       subject: ['', Validators.required],
-      currency: ['', Validators.required],
+      currency: [undefined, Validators.required],
       items: this._fb.array([
         this._fb.group({
           detail: ['', Validators.required],
@@ -74,15 +74,11 @@ export class QuotationEditComponent {
       createdBy:['']
     })
 
-    this.quoteData.client = (this.quoteData.client as getCustomer)._id
-    this.onCustomerChange(this.quoteData.client)
-    this.quoteData.attention = (this.quoteData.attention as ContactDetail)._id
-    this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
-    this.quoteData.department = (this.quoteData.department as getDepartment)._id
-    this.quoteData.createdBy = (this.quoteData.createdBy as getEmployee)._id
-    
-    this.quoteForm.patchValue(this.quoteData)
-    console.log(this.quoteForm.get('client'));
+    if(this.quoteData){
+      this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
+      this.quoteForm.controls['client'].setValue(this.quoteData.client);
+      this.quoteForm.patchValue(this.quoteData)
+    }
   }
 
   getQuoteData(){
@@ -114,6 +110,9 @@ export class QuotationEditComponent {
   getCustomers() {
     this._customerService.getCustomers().subscribe((res) => {
       this.customers = res;
+      if(this.quoteData){
+        this.onCustomerChange(this.quoteData.client)
+      }
     })
   }
 
@@ -123,7 +122,7 @@ export class QuotationEditComponent {
     })
   }
 
-  onCustomerChange(event: string) {
+  onCustomerChange(event: string | getCustomer) {
     const customer: getCustomer | undefined = this.customers.find((value) => value._id == event)
     if (customer) {
       this.contacts = customer?.contactDetails;
