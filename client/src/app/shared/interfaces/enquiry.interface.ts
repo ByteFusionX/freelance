@@ -23,7 +23,7 @@ export interface getEnquiry {
     client: getCustomer;
     contact: string;
     department: getDepartment;
-    salesPerson: { _id: string, firstName: string, lastName: string };
+    salesPerson: { _id: string, firstName: string, lastName: string }[];
     title: string;
     date: string;
     attachments: File[];
@@ -34,8 +34,8 @@ export interface getEnquiry {
     status: string;
 }
 
-export interface EnquiryTable{
-    total:number;
+export interface EnquiryTable {
+    total: number;
     enquiry: getEnquiry[];
 }
 
@@ -51,4 +51,13 @@ export interface MonthlyEnquiry {
     enquiry?: getEnquiry[];
     year: number;
     month: number;
+}
+
+export interface FilterEnquiry {
+    page: number;
+    row: number;
+    salesPerson: string | null;
+    status: string | null;
+    fromDate: string | null;
+    toDate: string | null;
 }
