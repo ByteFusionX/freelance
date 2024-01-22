@@ -5,7 +5,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+<<<<<<< HEAD
 import { getEmployee, getEmployeeObject } from '../../interfaces/employee.interface';
+=======
+import { Observable } from 'rxjs';
+import { getEmployee } from '../../interfaces/employee.interface';
+import { Router } from '@angular/router';
+>>>>>>> 6446fb93056d7748203295213e65552eda04550f
 
 @Component({
   selector: 'app-nav-bar',
@@ -19,10 +25,18 @@ export class NavBarComponent {
   @Output() reduce = new EventEmitter<boolean>()
   showFullBar: boolean = true
   menuState: boolean = false
-  employeeData!:getEmployee
+  employee!:{id:string,employeeId:string}
+  employeeData$!:Observable<getEmployee|undefined>
 
-  constructor(private _employeeService:EmployeeService){}
+  constructor(private _employeeService:EmployeeService,
+              private _router:Router){}
 
+  ngOnInit(){
+    this.employee = this._employeeService.employeeToken()
+    const employeeId=this.employee.employeeId
+    this._employeeService.getEmployeeData(employeeId)
+    this.employeeData$=this._employeeService.employeeData$
+    }
 
   reduceSideBar() {
     this.showFullBar = !this.showFullBar
@@ -35,5 +49,10 @@ export class NavBarComponent {
 
   menuClosed() {
     this.menuState = !this.menuState
+  }
+
+  signOut(){
+    localStorage.removeItem('employeeToken')
+    this._router.navigate(['/login'])
   }
 }

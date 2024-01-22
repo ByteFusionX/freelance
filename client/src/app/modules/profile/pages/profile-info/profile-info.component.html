@@ -10,12 +10,12 @@
                     <i><ng-icon name="heroUser" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
                     <p class="font-medium text-orange-400 "> Profile info:</p>
                 </div>
-                <div class="mt-1 ml-1">
-                    <p class="text-lg">Mr.{{employeeData.firstName}} {{employeeData.lastName}}</p>
+                <div class="mt-1 ml-1" *ngIf="employeeData$ | async as employeeData">
+                    <p class="text-lg">{{employeeData.firstName}} {{employeeData.lastName}}</p>
                     <span class="text-sm">{{employeeData.designation}}</span>
                     <div class="mt-3">
-                        <p>Email : {{employeeData.email}}</p>
-                        <p>Contact No: {{employeeData.contactNo}}</p>
+                        <p>{{employeeData.email}}</p>
+                        <p>{{employeeData.contactNo}}</p>
                     </div>
                 </div>
             </div>
