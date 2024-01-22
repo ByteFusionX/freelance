@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express"
 import enquiryModel from "../models/enquiry.model"
+const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.body) return res.status(204).json({ err: 'No data' })
         const enquiryData = req.body
+        enquiryData.date = new Date(enquiryData.date)
         const preSaleData = new enquiryModel(enquiryData)
         const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
         if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
@@ -16,13 +18,54 @@ export const createEnquiry = async (req: Request, res: Response, next: NextFunct
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let pageNumber = Number(req.query.page)
-        let rowNumber = Number(req.query.row)
-        let index: number = (pageNumber - 1) * rowNumber
+        let { page, row, salesPerson, status, fromDate, toDate } = req.body;
+        let index: number = (page - 1) * row;
+        let isSalesPerson = salesPerson == null ? true : false;
+        let isStatus = status == null ? true : false;
+        let isDate = fromDate == null || toDate == null ? true : false;
+
+        let matchSalesPerson = {
+            $and: [
+                {
+                    $and: [
+                        { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
+                        { $or: [{ status: status }, { status: { $exists: isStatus } }] },
+                    ]
+                },
+                {
+                    $or: [
+                        { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
+                        { date: { $exists: isDate } }
+                    ]
+                }
+            ]
+        }
+
+        const enquiryTotal = await enquiryModel.aggregate([
+            {
+                $match: matchSalesPerson
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { total: 1, _id: 0 }
+            }
+        ])
+
 
         const enquiryData = await enquiryModel.aggregate([
             {
+                $match: matchSalesPerson
+            },
+            {
                 $sort: { createdDate: -1 }
+            },
+            {
+                $skip: index
+            },
+            {
+                $limit: row
             },
             {
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
@@ -33,22 +76,10 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
-            {
-                $group: { _id: null, total: { $sum: 1 }, enquiry: { $push: '$$ROOT' } }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    total: 1,
-                    enquiry: {
-                        $slice: ['$enquiry', index, index + rowNumber]
-                    }
-                }
-            },
         ]);
 
         if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
-        return res.status(200).json(enquiryData[0])
+        return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
     } catch (error) {
         next(error)
     }

@@ -15,7 +15,7 @@ export class PaginationComponent implements OnChanges {
   @Input() row!: number;
   @Output('pageNum') pageNum = new EventEmitter<{ page: number, row: number }>()
   maxPage!: number;
-  selectedPage!:number;
+  selectedPage!: number;
 
   ngOnChanges(changes: SimpleChanges): void {
     this.totalLinksArray()
@@ -33,17 +33,23 @@ export class PaginationComponent implements OnChanges {
     this.pageNum.emit({ page: page, row: this.row })
   }
 
-  onPreviousClick(){
-    if(this.selectedPage != 1){
+  onPreviousClick() {
+    if (this.selectedPage != 1) {
       --this.selectedPage
       this.onLinkClick(this.selectedPage)
     }
   }
 
-  onNextClick(){
-    if(this.selectedPage < this.maxPage){
+  onNextClick() {
+    if (this.selectedPage < this.maxPage) {
       ++this.selectedPage
       this.onLinkClick(this.selectedPage)
     }
+  }
+
+  onChangeSelect(event: Event) {
+    let selected = (event.target as HTMLSelectElement).value
+    this.row = Number(selected)
+    this.onLinkClick(this.selectedPage)
   }
 }
