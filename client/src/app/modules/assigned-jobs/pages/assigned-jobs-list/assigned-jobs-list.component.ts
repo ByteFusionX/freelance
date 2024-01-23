@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subscription } from 'rxjs';
@@ -9,7 +9,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 @Component({
   selector: 'app-assigned-jobs-list',
   templateUrl: './assigned-jobs-list.component.html',
-  styleUrls: ['./assigned-jobs-list.component.css'],
+  styleUrls: ['./assigned-jobs-list.component.css']
 })
 export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
@@ -19,7 +19,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isEmpty: boolean = false
 
-  selectedDocs: File[] = []
   subscriptions = new Subscription()
 
   page: number = 1;
@@ -53,21 +52,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe()
   }
 
-  onInputDoc(event: any) {
-    let files = event.target.files
-    for (let i = 0; i < files.length; i++) {
-      const newFile = files[i]
-      const exist = this.selectedDocs.some(file => file.name === newFile.name)
-      if (!exist) {
-        this.selectedDocs.push(files[i])
-      }
-    }
-  }
-
-  onFileRemoved(dataIndex: number, fileIndex: number) {
-    this.dataSource.data[dataIndex].preSale.presaleFile.splice(fileIndex, 1)
-  }
-
   onSendClicked(index: number) {
     let selectedEnquiry: { id: string, status: string } = {
       id: this.dataSource.data[index]._id,
@@ -97,5 +81,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   onDateChange(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  onClearFiles(index:number){
+    this.dataSource.data[index].preSale.presaleFile = null
   }
 }

@@ -12,6 +12,8 @@ import { UploadFileComponent } from 'src/app/shared/components/upload-file/uploa
 import { MatDialogModule } from '@angular/material/dialog';
 import { FileUploadComponent } from './pages/file-upload/file-upload.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { MatMenuModule } from '@angular/material/menu';
+import {MatDividerModule} from '@angular/material/divider';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     UploadFileComponent,
     MatDialogModule,
     PaginationComponent,
+    MatMenuModule,
+    MatDividerModule,
   ]
 })
 export class AssignedJobsModule { }
