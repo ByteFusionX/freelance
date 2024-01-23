@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { FileUploadComponent } from './pages/file-upload/file-upload.component';
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { FileUploadComponent } from './pages/file-upload/file-upload.component';
     SkeltonLoadingComponent,
     MatTooltipModule,
     UploadFileComponent,
-    MatDialogModule
+    MatDialogModule,
+    PaginationComponent,
   ]
 })
 export class AssignedJobsModule { }
