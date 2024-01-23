@@ -3,8 +3,6 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } fr
 
 export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const token = <string>localStorage.getItem('employeeToken')
-  console.log(token);
-
   const router: Router = inject(Router);
   if (!token) {
     router.navigate(['/login'])

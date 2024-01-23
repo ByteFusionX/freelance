@@ -29,7 +29,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     let token = this._employeeService.employeeToken()
-    this.userData$ = this._employeeService.getEmployee(token.id)
+    this.userData$ = this._employeeService.getEmployee(token.employeeId)
     this.enquiries$ = this.enquiryService.totalEnquiries()
     this.loading()
     this.dateCategories()

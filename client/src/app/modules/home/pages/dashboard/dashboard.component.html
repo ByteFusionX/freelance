@@ -3,10 +3,11 @@
         <div class="w-full bg-white rounded-md">
             <div class="flex p-10">
                 <div class="w-1/2">
-                    <div *ngIf="userData$ | async as user">
-                        <p class="text-3xl font-medium">Hey <span class="capitalize">{{user.firstName + ' '+ user.lastName}}</span> Welcome to
-                            <br>Neuron Technologies </p>
-                    </div>
+                    <p class="text-3xl font-medium">Hey
+                        <span class="capitalize" *ngIf="userData$ | async as user">{{user.firstName + ' '+
+                            user.lastName}}</span>,
+                        Welcome to <br>Neuron Technologies
+                    </p>
                     <div class="mt-5">
                         <p class="text-gray-800"> A versatile technology integrator with unparalleled array of products
                             and services to encompass every need an enterprise will endure in field of digital
