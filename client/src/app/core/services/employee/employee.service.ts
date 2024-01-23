@@ -28,15 +28,16 @@ export class EmployeeService {
     return this.http.post(`${this.api}/employee/login`, employeeData)
   }
 
-  employeeToken() {
-    let token = <string>localStorage.getItem('employeeToken')
-    const decodedToken = <{ id: string, employeeId: string }>jwtDecode(token);
-    return decodedToken
+  employeeToken() : any {
+    let token = <string | undefined>localStorage.getItem('employeeToken')
+    if(token){
+      const decodedToken = <{ id: string, employeeId: string }>jwtDecode(token);
+      return decodedToken
+    }
   }
 
   getEmployee(id: string) {
     return this.http.get<getEmployee>(`${this.api}/employee/get/${id}`)
-   
   }
 
   getEmployeeData(id:string){
