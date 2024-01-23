@@ -29,7 +29,7 @@ export interface getEnquiry {
     attachments: File[];
     preSale: {
         presalePerson: string;
-        presaleFile: File[];
+        presaleFile: File[] | null;
     };
     status: string;
 }

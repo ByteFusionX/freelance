@@ -13,7 +13,7 @@ export class PaginationComponent implements OnChanges {
   @Input() page!: number;
   @Input() total!: number;
   @Input() row!: number;
-  @Output('pageNum') pageNum = new EventEmitter<{ page: number, row: number }>()
+  @Output('changeData') changeData = new EventEmitter<{ page: number, row: number }>()
   maxPage!: number;
   selectedPage!: number;
 
@@ -30,7 +30,7 @@ export class PaginationComponent implements OnChanges {
 
   onLinkClick(page: number) {
     this.selectedPage = page
-    this.pageNum.emit({ page: page, row: this.row })
+    this.changeData.emit({ page: page, row: this.row })
   }
 
   onPreviousClick() {

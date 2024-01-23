@@ -131,7 +131,7 @@
         </section>
         <div class="w-full bg-white" *ngIf="!isEmpty">
             <app-pagination [page]="page" [row]="row" [total]="total"
-                (pageNum)="onPageNumberClick($event)"></app-pagination>
+                (changeData)="onPageNumberClick($event)"></app-pagination>
         </div>
     </div>
     <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
