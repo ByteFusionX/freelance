@@ -86,7 +86,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ _id: employeeId })
+        const employeeData = await Employee.findOne({ employeeId: employeeId })
         if(employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
