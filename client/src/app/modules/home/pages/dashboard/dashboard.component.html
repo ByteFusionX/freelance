@@ -3,7 +3,10 @@
         <div class="w-full bg-white rounded-md">
             <div class="flex p-10">
                 <div class="w-1/2">
-                    <p class="text-3xl font-medium">Hey User! Welcome to <br>Neuron Technologies </p>
+                    <div *ngIf="userData$ | async as user">
+                        <p class="text-3xl font-medium">Hey <span class="capitalize">{{user.firstName + ' '+ user.lastName}}</span> Welcome to
+                            <br>Neuron Technologies </p>
+                    </div>
                     <div class="mt-5">
                         <p class="text-gray-800"> A versatile technology integrator with unparalleled array of products
                             and services to encompass every need an enterprise will endure in field of digital
@@ -51,10 +54,7 @@
                             <p class="text-3xl font-bold mt-1">{{data.total}} <span
                                     class="text-xs text-gray-700">Nos</span></p>
                             <div class="text-sm text-gray-700 mt-2">
-                                <span class="text-green-500">
-                                    <ng-icon name="heroArrowUp" class="font-medium"></ng-icon> 20.5%
-                                </span>
-                                <span class="mx-1">since last month</span>
+                                <a class="text-blue-500 underline uppercase cursor-pointer">See all reports</a>
                             </div>
                         </div>
                     </div>
