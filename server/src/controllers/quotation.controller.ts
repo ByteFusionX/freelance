@@ -124,9 +124,9 @@ const generateQuoteId = async (departmentId: string, employeeId: string, date: s
 
 export const updateQuoteStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const {status} = req.body;
-        const {quoteId} = req.params;
-        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId,{status:status})
+        const { status } = req.body;
+        const { quoteId } = req.params;
+        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, { status: status })
 
         if (quoteUpdated) {
             return res.status(200).json(quoteUpdated.status)
@@ -140,12 +140,35 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
 export const updateQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const quoteData = req.body;
-        const {quoteId} = req.params;
-        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId,quoteData)
+        const { quoteId } = req.params;
+        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, quoteData)
 
         if (quoteUpdated) {
             return res.status(200).json(quoteUpdated)
         }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const totalQuotation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const totalQuotes = await Quotation.aggregate([
+            {
+                $group: {
+                    _id: null, total: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    total: 1
+                }
+            }
+        ])
+        
+        if (totalQuotes) return res.status(200).json(totalQuotes[0])
         return res.status(502).json()
     } catch (error) {
         next(error)

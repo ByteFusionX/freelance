@@ -1,7 +1,7 @@
 <div>
     <div class="p-10">
         <div class="w-full bg-white rounded-md">
-            <div class="flex p-10">
+            <!-- <div class="flex p-10">
                 <div class="w-1/2">
                     <p class="text-3xl font-medium">Hey
                         <span class="capitalize" *ngIf="userData$ | async as user">{{user.firstName + ' '+
@@ -24,14 +24,14 @@
                         <img src="assets/images/active-panel.png" alt="" width="450">
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="w-full bg-white rounded-md mt-5">
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
                 <div class="grid grid-cols-3 gap-10 mt-5">
-                    <app-skelton-loading [lineLength]="3" *ngIf="isLoading" class="col-span-3"></app-skelton-loading>
-                    <div class="col-span-1 flex" *ngFor="let data of enquiries$ | async; let i = index">
+                    <app-skelton-loading [lineLength]="3" *ngIf="isEnquiryLoading" class="col-span-3"></app-skelton-loading>
+                    <div class="col-span-1 flex" *ngFor="let data of enquiries$ | async; let i = index" @opacityTrigger>
                         <div [ngSwitch]="data.department[0].departmentName.toLowerCase().trim()">
                             <div class="w-20 h-20 flex justify-center items-center rounded-full bg-violet-100"
                                 *ngSwitchCase="'ict'">
@@ -66,24 +66,26 @@
             <div class="grid grid-cols-2 gap-10">
                 <div class="p-10 bg-white rounded-md">
                     <p class="text-md font-medium">Total No of Quote Submitted</p>
-                    <div class="mt-5 flex">
-                        <div class="w-20 h-20 flex justify-center items-center rounded-full bg-yellow-100">
-                            <ng-icon name="heroNewspaper" class="text-5xl text-yellow-700"></ng-icon>
-                        </div>
-                        <div class="mx-5">
-                            <p class="text-3xl font-bold mt-1">100 <span class="text-xs text-gray-700">Nos</span></p>
-                            <div class="text-sm text-gray-700 mt-2">
-                                <span class="text-green-500">
-                                    <ng-icon name="heroArrowUp" class="font-medium"></ng-icon> 13.8%
-                                </span>
-                                <span class="mx-1">since last month</span>
+                    <app-skelton-loading [lineLength]="1" *ngIf="isQuoteLoading;else quoteBlock" class="col-span-3"></app-skelton-loading>
+                    <ng-template #quoteBlock>
+                        <div class="mt-5 flex" @opacityTrigger>
+                            <div class="w-20 h-20 flex justify-center items-center rounded-full bg-yellow-100">
+                                <ng-icon name="heroNewspaper" class="text-5xl text-yellow-700"></ng-icon>
+                            </div>
+                            <div class="mx-5">
+                                <div *ngIf="quotations$ | async as quote">
+                                    <p class="text-3xl font-bold mt-1">{{quote.total}} <span class="text-xs text-gray-700">Nos</span></p>
+                                </div>
+                                <div class="text-sm text-gray-700 mt-2">
+                                    <a class="text-blue-500 underline uppercase cursor-pointer" [routerLink]="['/quotations']">See all reports</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </ng-template>
                 </div>
                 <div class="p-10 bg-white rounded-md">
                     <p class="text-md font-medium">Total No of Jobs Awarded</p>
-                    <div class="mt-5 flex">
+                    <div class="mt-5 flex" @opacityTrigger>
                         <div class="w-20 h-20 flex justify-center items-center rounded-full bg-rose-100">
                             <ng-icon name="heroBriefcase" class="text-5xl text-rose-700"></ng-icon>
                         </div>

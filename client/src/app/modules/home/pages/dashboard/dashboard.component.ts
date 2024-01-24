@@ -5,33 +5,46 @@ import { Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { opacityState } from 'src/app/shared/animations/animations.triggers';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  animations: [opacityState]
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  enquiries$!: Observable<TotalEnquiry[]>;
   quotes!: number;
   jobs!: number;
-  graphSeries: { name: string, data: number[] }[] = []
-  graphCategory: string[] = []
-  isLoading: boolean = true
+  graphSeries: { name: string, data: number[] }[] = [];
+  graphCategory: string[] = [];
+
+  isEnquiryLoading: boolean = true;
+  isQuoteLoading: boolean = true;
+
+  enquiries$!: Observable<TotalEnquiry[]>;
   userData$!: Observable<getEmployee>;
+  quotations$!: Observable<{ total: number }>;
 
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
 
-  constructor(private enquiryService: EnquiryService, private _employeeService: EmployeeService) { }
+  constructor(
+    private enquiryService: EnquiryService,
+    private _employeeService: EmployeeService,
+    private _quotationService: QuotationService
+  ) { }
 
   ngOnInit(): void {
     let token = this._employeeService.employeeToken()
     this.userData$ = this._employeeService.getEmployee(token.employeeId)
     this.enquiries$ = this.enquiryService.totalEnquiries()
-    this.loading()
+    this.quotations$ = this._quotationService.totalQuotations()
+    this.enquiryLoading()
+    this.quoteLoading()
     this.dateCategories()
     this.getChartDetails()
   }
@@ -40,12 +53,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe()
   }
 
-  loading() {
+  enquiryLoading() {
     this.subscriptions.add(
       this.enquiries$.subscribe((data) => {
         if (data) {
-          this.isLoading = false
+          this.isEnquiryLoading = false
         }
+      }, (error) => {
+        this.isEnquiryLoading = true
+      })
+    )
+  }
+
+  quoteLoading() {
+    this.subscriptions.add(
+      this.quotations$.subscribe((data) => {
+        if (data) {
+          this.isQuoteLoading = false
+        }
+      }, (error) => {
+        this.isQuoteLoading = true
       })
     )
   }
