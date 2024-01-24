@@ -12,6 +12,9 @@ export class EnquiryService {
   api: string = environment.api
   quoteSubject = new BehaviorSubject<getEnquiry | undefined>(undefined)
   enquiryData$ = this.quoteSubject.asObservable()
+
+  depSubject = new BehaviorSubject<string | null>(null)
+  departmentData$ = this.depSubject.asObservable()
   constructor(private http: HttpClient) { }
 
   createEnquiry(enquiry: Partial<Enquiry>): Observable<getEnquiry> {
@@ -40,5 +43,9 @@ export class EnquiryService {
 
   monthlyEnquiries(): Observable<MonthlyEnquiry[]> {
     return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly`)
+  }
+
+  selectedDepartment(departmentId: string) {
+    this.depSubject.next(departmentId)
   }
 }

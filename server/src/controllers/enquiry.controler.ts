@@ -18,32 +18,32 @@ export const createEnquiry = async (req: Request, res: Response, next: NextFunct
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, status, fromDate, toDate } = req.body;
+        let { page, row, salesPerson, status, fromDate, toDate, department } = req.body;
         let skipNum: number = (page - 1) * row;
         let isSalesPerson = salesPerson == null ? true : false;
         let isStatus = status == null ? true : false;
         let isDate = fromDate == null || toDate == null ? true : false;
+        let isDepartment = department == null ? true : false;
 
-        let matchSalesPerson = {
+        let matchFilters = {
             $and: [
-                {
-                    $and: [
-                        { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
-                        { $or: [{ status: status }, { status: { $exists: isStatus } }] },
-                    ]
-                },
+                { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
+                { $or: [{ status: status }, { status: { $exists: isStatus } }] },
                 {
                     $or: [
                         { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
                         { date: { $exists: isDate } }
                     ]
+                },
+                {
+                    $or: [{ department: new ObjectId(department) }, { department: { $exists: isDepartment } }]
                 }
             ]
         }
 
         const enquiryTotal = await enquiryModel.aggregate([
             {
-                $match: matchSalesPerson
+                $match: matchFilters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -56,7 +56,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
 
         const enquiryData = await enquiryModel.aggregate([
             {
-                $match: matchSalesPerson
+                $match: matchFilters
             },
             {
                 $sort: { createdDate: -1 }
@@ -77,7 +77,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
         ]);
-        console.log(enquiryData[0])
+
         if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
     } catch (error) {

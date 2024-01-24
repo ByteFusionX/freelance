@@ -14,7 +14,7 @@
                             information and technology.</p>
                     </div>
                     <div class="mt-5">
-                        <button class="py-3 px-5 bg-violet-600 text-white rounded hover:bg-violet-500"
+                        <button class="py-2 px-4 bg-violet-600 text-white rounded hover:bg-violet-500"
                             [routerLink]="['/profile']" routerLinkActive="router-link-active">Learn
                             More</button>
                     </div>
@@ -30,7 +30,8 @@
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
                 <div class="grid grid-cols-3 gap-10 mt-5">
-                    <app-skelton-loading [lineLength]="3" *ngIf="isEnquiryLoading" class="col-span-3"></app-skelton-loading>
+                    <app-skelton-loading [lineLength]="3" *ngIf="isEnquiryLoading"
+                        class="col-span-3"></app-skelton-loading>
                     <div class="col-span-1 flex" *ngFor="let data of enquiries$ | async; let i = index" @opacityTrigger>
                         <div [ngSwitch]="data.department[0].departmentName.toLowerCase().trim()">
                             <div class="w-20 h-20 flex justify-center items-center rounded-full bg-violet-100"
@@ -55,7 +56,8 @@
                             <p class="text-3xl font-bold mt-1">{{data.total}} <span
                                     class="text-xs text-gray-700">Nos</span></p>
                             <div class="text-sm text-gray-700 mt-2">
-                                <a class="text-blue-500 underline uppercase cursor-pointer">See all reports</a>
+                                <a class="text-blue-500 underline uppercase cursor-pointer"
+                                    (click)="onDepartmentSelect(data.department[0]._id)">See all reports</a>
                             </div>
                         </div>
                     </div>
@@ -66,7 +68,8 @@
             <div class="grid grid-cols-2 gap-10">
                 <div class="p-10 bg-white rounded-md">
                     <p class="text-md font-medium">Total No of Quote Submitted</p>
-                    <app-skelton-loading [lineLength]="1" *ngIf="isQuoteLoading;else quoteBlock" class="col-span-3"></app-skelton-loading>
+                    <app-skelton-loading [lineLength]="1" *ngIf="isQuoteLoading;else quoteBlock"
+                        class="col-span-3"></app-skelton-loading>
                     <ng-template #quoteBlock>
                         <div class="mt-5 flex" @opacityTrigger>
                             <div class="w-20 h-20 flex justify-center items-center rounded-full bg-yellow-100">
@@ -74,10 +77,12 @@
                             </div>
                             <div class="mx-5">
                                 <div *ngIf="quotations$ | async as quote">
-                                    <p class="text-3xl font-bold mt-1">{{quote.total}} <span class="text-xs text-gray-700">Nos</span></p>
+                                    <p class="text-3xl font-bold mt-1">{{quote.total}} <span
+                                            class="text-xs text-gray-700">Nos</span></p>
                                 </div>
                                 <div class="text-sm text-gray-700 mt-2">
-                                    <a class="text-blue-500 underline uppercase cursor-pointer" [routerLink]="['/quotations']">See all reports</a>
+                                    <a class="text-blue-500 underline uppercase cursor-pointer"
+                                        [routerLink]="['/quotations']">See all reports</a>
                                 </div>
                             </div>
                         </div>

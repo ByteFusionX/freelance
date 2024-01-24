@@ -7,6 +7,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,15 +34,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public chartOptions!: Partial<ChartOptions>;
 
   constructor(
-    private enquiryService: EnquiryService,
+    private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
-    private _quotationService: QuotationService
+    private _quotationService: QuotationService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     let token = this._employeeService.employeeToken()
     this.userData$ = this._employeeService.getEmployee(token.employeeId)
-    this.enquiries$ = this.enquiryService.totalEnquiries()
+    this.enquiries$ = this._enquiryService.totalEnquiries()
     this.quotations$ = this._quotationService.totalQuotations()
     this.enquiryLoading()
     this.quoteLoading()
@@ -88,9 +90,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDepartmentSelect(departmentId: string | undefined) {
+    if (departmentId) {
+      this._enquiryService.depSubject.next(departmentId)
+      this.router.navigate(['/enquiry'])
+    }
+  }
+
   getChartDetails() {
     this.subscriptions.add(
-      this.enquiryService.monthlyEnquiries().subscribe((data) => {
+      this._enquiryService.monthlyEnquiries().subscribe((data) => {
         data.map((item) => {
           const dateArray: number[] = new Array(12).fill(0)
           let depName = item.department[0].departmentName.toUpperCase()

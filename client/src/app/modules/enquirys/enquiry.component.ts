@@ -17,21 +17,27 @@ import { Router } from '@angular/router';
 })
 export class EnquiryComponent implements OnInit, OnDestroy {
 
-  selectedSalesPerson: string | null = null;
-  selectedStatus: string | null = null;
   enqId!: string;
   salesPerson$!: Observable<getEmployee[]>;
+
   isLoading: boolean = true;
   isEmpty: boolean = false;
+
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
+
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
+
   total!: number;
   page: number = 1;
   row: number = 10;
   fromDate: string | null = null
   toDate: string | null = null
+  selectedStatus: string | null = null;
+  selectedSalesPerson: string | null = null;
+  selectedDepartment: string | null = null;
+
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
@@ -50,6 +56,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.salesPerson$ = this._employeeService.getEmployees()
+    this._enquiryService.departmentData$.subscribe((data) => {
+      this.selectedDepartment = data
+    })
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -70,7 +79,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       salesPerson: this.selectedSalesPerson,
       status: this.selectedStatus,
       fromDate: this.fromDate,
-      toDate: this.toDate
+      toDate: this.toDate,
+      department: this.selectedDepartment
     }
 
     this.subscriptions.add(
