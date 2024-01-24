@@ -77,7 +77,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
         ]);
-
+        console.log(enquiryData[0])
         if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
     } catch (error) {
