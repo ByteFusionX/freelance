@@ -27,7 +27,7 @@ import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-c
     CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
-    ConfettiComponentComponent
+
   ],
   imports: [
     CommonModule,
@@ -43,6 +43,7 @@ import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-c
     NgSelectModule,
     SkeltonLoadingComponent,
     MatPaginatorModule,
+    ConfettiComponentComponent  
   ]
 })
 export class HomeModule { }

@@ -9,8 +9,8 @@ export class celebCheckService {
     constructor(private http: HttpClient) { }
     readonly apiUrl = environment.api
 
-    getCelebrationData(): Observable<announcementGetData[]> {
-        return this.http.get<announcementGetData[]>(`${this.apiUrl}\celebrationCheck`)
+    getCelebrationData(): Observable<announcementGetData[]> {        
+        return this.http.get<announcementGetData[]>(`${this.apiUrl}/celebrationCheck`)
     }
 
     markTodaysBirthdaysAsViewed(): void {

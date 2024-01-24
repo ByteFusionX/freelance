@@ -8,11 +8,15 @@ import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
 import { ToastrModule } from 'ngx-toastr';
 import { HttpClientModule } from '@angular/common/http';
+import { MatDialogModule } from '@angular/material/dialog';
+import { IconsModule } from './lib/icons/icons.module';
+import { componentModule } from './shared/components/component.module';
 
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
+        
   ],
   imports: [
     BrowserModule,
@@ -26,6 +30,11 @@ import { HttpClientModule } from '@angular/common/http';
       preventDuplicates: true,
     }),
     HttpClientModule,
+    IconsModule,
+    MatDialogModule,
+    componentModule
+    
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

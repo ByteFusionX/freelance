@@ -16,8 +16,9 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   constructor(public dialog: MatDialog, private _service: AnnouncementService) { }
   mySubscription!: Subscription
   announcementData: announcementGetData[] = []
-  recentData!:announcementGetData
-  isLoading:boolean = true
+  recentData!: announcementGetData
+  isLoading: boolean = true
+  isEmpty : boolean = false
 
   ngOnInit(): void {
     this.getAnnouncementData()
@@ -34,12 +35,13 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   getAnnouncementData() {
     this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
       if (res)
-      this.isLoading = false
+        this.isLoading = false
       this.announcementData = res
       this.recentData = this.announcementData.shift() as announcementGetData
-
-    
-    })
+    }, (error) => {
+      this.isEmpty = true
+    }
+    )
   }
 
   trackByIdFn(index: number, item: announcementGetData): string {

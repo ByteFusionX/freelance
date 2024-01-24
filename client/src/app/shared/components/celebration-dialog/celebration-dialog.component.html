@@ -1,0 +1,14 @@
+<div class="border bg-purple-700  p-3 px-6 flex justify-between">
+  <h3 class="text-md font-medium">Celebration</h3>
+  <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+    <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+  </button>
+</div>
+
+<div class="confetti-container">
+  <app-confetti-component></app-confetti-component>
+</div>
+
+<div class="bg-purple-700  h-full w-full" *ngFor="let item of celebData">
+  <p>{{ item.title }}</p>
+</div>

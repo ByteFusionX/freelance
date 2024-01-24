@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 
 @Component({
@@ -18,9 +19,11 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } fr
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 0; /* Set a z-index value appropriate for your layout */
+      z-index: 0; 
     }
-  `]
+  `],
+  standalone:true,
+  imports:[CommonModule]
 })
 export class ConfettiComponentComponent implements  AfterViewInit, OnDestroy {
   @ViewChild('confettiCanvas') confettiCanvasRef!: ElementRef<HTMLCanvasElement>;
@@ -36,6 +39,9 @@ export class ConfettiComponentComponent implements  AfterViewInit, OnDestroy {
     this.createParticles();
     this.draw();
     this.handleResizeEvent();
+    
+    
+    
   }
 
   ngOnDestroy() {

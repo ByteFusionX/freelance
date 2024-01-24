@@ -12,7 +12,7 @@
     </div>
     <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
 
-    <div *ngIf="recentData || announcementData.length;else noData">
+    <div *ngIf="recentData || announcementData.length">
         <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
             <div *ngIf="recentData.celeb" class="confetti-container">
                 <app-confetti-component></app-confetti-component>
@@ -63,7 +63,10 @@
 
 
     </div>
-    <ng-template #noData>
-        <p class="text-lg text-center mt-12">No data found</p>
-    </ng-template>
+    <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+        <div class="p-3">
+            <img src="assets/images/empty.png" alt="">
+            <p class="m-2 text-center text-gray-500">No Data</p>
+        </div>
+    </div>
 </div>
