@@ -11,7 +11,7 @@
                 <div class="cursor-pointer mt-2" (click)="onHomeClick()">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroHome" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Home</p>
                             <i>
                                 <ng-icon name="heroChevronUp" class="text-gray-600"
@@ -45,7 +45,7 @@
                     routerLink="/customers" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Customers</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
@@ -55,7 +55,7 @@
                     routerLink="/enquiry" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Enquiry</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
@@ -65,7 +65,7 @@
                 routerLink="/assigned-jobs" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroIdentification" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Assigned Jobs</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
@@ -75,7 +75,7 @@
                     routerLink="/quotations" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Quotations</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
@@ -85,7 +85,7 @@
                 routerLink="/job-sheet" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Jobs Sheet</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>

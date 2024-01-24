@@ -1,8 +1,8 @@
 <div>
-    <div class="p-10">
+    <div class="md:p-10 p-5">
         <div class="w-full bg-white rounded-md">
-            <div class="flex p-10">
-                <div class="w-1/2">
+            <div class="md:flex p-10">
+                <div class="md:w-1/2">
                     <p class="text-3xl font-medium">Hey
                         <span class="capitalize" *ngIf="userData$ | async as user">{{user.firstName + ' '+
                             user.lastName}}</span>,
@@ -19,9 +19,9 @@
                             More</button>
                     </div>
                 </div>
-                <div class="w-1/2">
+                <div class="md: w-1/2">
                     <div class="flex justify-center">
-                        <img src="assets/images/active-panel.png" alt="" width="450">
+                        <img src="assets/images/active-panel.png" alt="" width="" class="w-[450px]">
                     </div>
                 </div>
             </div>
@@ -29,10 +29,10 @@
         <div class="w-full bg-white rounded-md mt-5">
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
-                <div class="grid grid-cols-3 gap-10 mt-5">
+                <div class="md:grid grid-cols-3 gap-10 mt-5">
                     <app-skelton-loading [lineLength]="3" *ngIf="isEnquiryLoading"
                         class="col-span-3"></app-skelton-loading>
-                    <div class="col-span-1 flex" *ngFor="let data of enquiries$ | async; let i = index" @opacityTrigger>
+                    <div class="md:col-span-1 flex mb-5" *ngFor="let data of enquiries$ | async; let i = index" @opacityTrigger>
                         <div [ngSwitch]="data.department[0].departmentName.toLowerCase().trim()">
                             <div class="w-20 h-20 flex justify-center items-center rounded-full bg-violet-100"
                                 *ngSwitchCase="'ict'">
@@ -65,8 +65,8 @@
             </div>
         </div>
         <div class="w-full rounded-md mt-5">
-            <div class="grid grid-cols-2 gap-10">
-                <div class="p-10 bg-white rounded-md">
+            <div class="md:grid grid-cols-2 gap-10">
+                <div class="p-10 bg-white rounded-md mb-5">
                     <p class="text-md font-medium">Total No of Quote Submitted</p>
                     <app-skelton-loading [lineLength]="1" *ngIf="isQuoteLoading;else quoteBlock"
                         class="col-span-3"></app-skelton-loading>
@@ -88,7 +88,7 @@
                         </div>
                     </ng-template>
                 </div>
-                <div class="p-10 bg-white rounded-md">
+                <div class="p-10 bg-white rounded-md mb-5">
                     <p class="text-md font-medium">Total No of Jobs Awarded</p>
                     <div class="mt-5 flex" @opacityTrigger>
                         <div class="w-20 h-20 flex justify-center items-center rounded-full bg-rose-100">

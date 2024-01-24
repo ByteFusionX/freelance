@@ -13,15 +13,17 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
   standalone: true,
   imports: [CommonModule, IconsModule, AppRoutingModule]
 })
-export class SideBarComponent implements OnChanges, AfterViewInit {
+export class SideBarComponent implements AfterViewInit {
 
   @Input() showFullBar: boolean = true
-
   homeDropDown: boolean = false
 
   constructor(private eref: ElementRef, private router: Router) { }
 
-  ngOnChanges(): void {
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.showFullBar = window.innerWidth >= 767
+    this.homeDropDown = false
   }
 
   ngAfterViewInit(): void {
