@@ -37,7 +37,7 @@ input[type="number"] {
 }
 
 .mat-tooltip {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 @-webkit-keyframes rotating /* Safari and Chrome */ {

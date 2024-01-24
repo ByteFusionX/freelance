@@ -13,9 +13,9 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
             Client
           </label>
-          <ng-select id="client" class="form" placeholder="Customer" appendTo="body" (change)="onChange($event)"
+          <ng-select id="client" class="form capitalize" placeholder="Customer" appendTo="body" (change)="onChange($event)"
             formControlName="client">
-            <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id">{{customer.companyName}}</ng-option>
+            <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id" class="capitalize">{{customer.companyName}}</ng-option>
             <ng-template ng-footer-tmp>
               <a (click)="createCustomer()"
                 class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full" routerLink="/customers/create">
@@ -28,8 +28,8 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="contact">
             Point of Contact
           </label>
-          <ng-select id="contact" class="form" placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
-            <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.firstName}}
+          <ng-select id="contact" class="form capitalize" placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
+            <ng-option *ngFor="let contact of contacts" [value]="contact._id" class="capitalize">{{contact.firstName}}
               {{contact.lastName}}</ng-option>
           </ng-select>
         </div>

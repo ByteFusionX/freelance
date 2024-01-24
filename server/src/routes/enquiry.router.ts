@@ -10,7 +10,7 @@ import {
 const equiRouter = Router()
 
 equiRouter.post('/create', createEnquiry);
-equiRouter.get('/get', getEnquiries);
+equiRouter.post('/get', getEnquiries);
 equiRouter.get('/presales', getPreSaleJobs);
 equiRouter.put('/update', updateEnquiryStatus);
 equiRouter.get('/sum', totalEnquiries);
