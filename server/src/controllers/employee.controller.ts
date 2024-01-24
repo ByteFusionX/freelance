@@ -53,11 +53,9 @@ const generateEmployeeId = async () => {
         } else {
             return 'NT-1100'
         }
-
     } catch (error) {
         console.log(error)
     }
-
 }
 
 
