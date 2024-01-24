@@ -64,13 +64,14 @@ export class QuotationListComponent {
   }
 
   onQuoteEdit(data:quotatationForm){
-    data.client = (data.client as getCustomer)._id
-    data.attention = (data.attention as ContactDetail)._id
-    data.department = (data.department as getDepartment)._id
-    data.createdBy = (data.createdBy as getEmployee)._id
+    let quoteData = data;
+    quoteData.client = (quoteData.client as getCustomer)._id
+    quoteData.attention = (quoteData.attention as ContactDetail)._id
+    quoteData.department = (quoteData.department as getDepartment)._id
+    quoteData.createdBy = (quoteData.createdBy as getEmployee)._id
     
     const navigationExtras: NavigationExtras = {
-      state: data
+      state: quoteData
     };
     
     this._router.navigate(['/quotations/edit'], navigationExtras);

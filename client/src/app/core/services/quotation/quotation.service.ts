@@ -17,6 +17,10 @@ export class QuotationService {
     return this.http.post<quotatation>(`${this.api}/quotation`,quotationDetails)
   }
 
+  updateQuotation(quotationDetails:quotatation,quoteId:string|undefined): Observable<quotatation> {
+    return this.http.patch<quotatation>(`${this.api}/quotation/update/${quoteId}`,quotationDetails)
+  }
+
   getQuotation(): Observable<quotatation[]> {
     return this.http.get<quotatation[]>(`${this.api}/quotation`)
   }

@@ -263,11 +263,18 @@
                     Download (PDF)
                 </button>
             </div>
+            
+            
+            <div class="flex w-40">
 
-            <div class="flex w-60">
-
+                <button
+                  class=" hover:bg-gray-100 text-black font-medium py-2 px-4 rounded text-sm mr-3  border border-gray-300"
+                  routerLink="/quotations">
+                  Cancel
+                </button>
                 <button type="submit"
-                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full">
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2">
+                    <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
                     Save
                 </button>
             </div>

@@ -3,7 +3,7 @@
         <h3 class="text-md font-medium">Create Quote</h3>
 
     </div>
-    <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()">
+    <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSaveSubmit()">
         <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">
 
             <div class="w-full ">
@@ -13,7 +13,7 @@
                             for="grid-first-name">
                             Client
                         </label>
-                        <ng-select class="form" (change)="onCustomerChange($event)" formControlName="client">
+                        <ng-select class="form" (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
                             <ng-option *ngFor="let customer of customers"
                                 [value]="customer._id">{{customer.companyName}}</ng-option>
                             <ng-template ng-footer-tmp>
@@ -29,7 +29,7 @@
                             for="grid-last-name">
                             Attention
                         </label>
-                        <ng-select class="form" formControlName="attention">
+                        <ng-select class="form" formControlName="attention"  bindLabel="courtesyTitle">
                             <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.courtesyTitle +
                                 '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
                         </ng-select>
@@ -61,7 +61,7 @@
                             for="grid-last-name">
                             Department
                         </label>
-                        <ng-select id="department" class="form" placeholder="Department" appendTo="body" formControlName="department">
+                        <ng-select  bindLabel="departmentName" id="department" class="form" placeholder="Department" appendTo="body" formControlName="department">
                             <ng-option *ngFor="let department of departments"
                               [value]="department._id">{{department.departmentName}}</ng-option>
                           </ng-select>
@@ -71,7 +71,7 @@
                             for="grid-first-name">
                             Currency
                         </label>
-                        <ng-select class="form" formControlName="currency">
+                        <ng-select class="form" formControlName="currency" bindLabel="">
                             <ng-option value="QAR">QAR</ng-option>
                             <ng-option value="USD">USD</ng-option>
                         </ng-select>

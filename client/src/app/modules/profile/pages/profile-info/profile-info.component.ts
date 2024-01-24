@@ -3,15 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { CreateDepartmentDialog } from '../create-department/create-department.component';
-<<<<<<< HEAD
-import { Subscription } from 'rxjs';
-import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { getEmployee, getEmployeeObject } from 'src/app/shared/interfaces/employee.interface';
-=======
 import { Observable, Subscription } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
->>>>>>> 6446fb93056d7748203295213e65552eda04550f
 
 @Component({
   selector: 'app-profile-info',

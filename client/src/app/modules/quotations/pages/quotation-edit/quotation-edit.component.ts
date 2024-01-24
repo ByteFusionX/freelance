@@ -20,9 +20,6 @@ import { quotatation, quotatationForm } from 'src/app/shared/interfaces/quotatio
   styleUrls: ['./quotation-edit.component.css']
 })
 export class QuotationEditComponent {
-  selectedCustomer!: number;
-  selectedContact!:number;
-  selectedCurrency:string = "QAR";
   quoteData!: quotatationForm;
   quoteForm!: FormGroup;
   departments: getDepartment[] = [];
@@ -83,9 +80,9 @@ export class QuotationEditComponent {
 
   getQuoteData(){
     const navigation = this._router.getCurrentNavigation();
-
-    if (navigation && navigation.extras.state) {
-      this.quoteData = navigation.extras.state as quotatation
+    console.log(navigation)
+    if (navigation) {
+      this.quoteData = navigation.extras.state as quotatationForm
     } else {
       this._router.navigate(['/quotations']);
     }
@@ -175,9 +172,9 @@ export class QuotationEditComponent {
   }
 
 
-  onQuoteSubmit() {
+  onQuoteSaveSubmit() {
     if(this.quoteForm.valid){
-      this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res:quotatation)=>{
+      this._quoteService.updateQuotation(this.quoteForm.value,this.quoteData._id).subscribe((res:quotatation)=>{
         this._router.navigate(['/quotations'])
       })
     }

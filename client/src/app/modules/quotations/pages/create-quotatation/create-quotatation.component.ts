@@ -27,6 +27,7 @@ export class CreateQuotatationComponent {
   customers: getCustomer[] = [];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
+  isSaving: boolean = false;
 
   constructor(
     private config: NgSelectConfig,
@@ -35,7 +36,7 @@ export class CreateQuotatationComponent {
     private _profileService: ProfileService,
     private _quoteService: QuotationService,
     private _employeeService: EmployeeService,
-    private _router:Router
+    private _router: Router
   ) { }
 
   ngOnInit() {
@@ -63,12 +64,12 @@ export class CreateQuotatationComponent {
           availability: ['', Validators.required],
         })
       ]),
-      totalDiscount:['',Validators.required],
+      totalDiscount: ['', Validators.required],
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
-      createdBy:['']
+      createdBy: ['']
     })
-    this.quoteForm.patchValue({totalDiscount:'0',createdBy:this.tokenData.id})
+    this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
   }
 
   get itemDetails(): FormArray {
@@ -127,35 +128,37 @@ export class CreateQuotatationComponent {
     return this.calculateUnitPrice(i) * this.itemDetails.controls[i].get('quantity')?.value
   }
 
-  calculateAllTotalCost(){
+  calculateAllTotalCost() {
     let totalCost = 0;
-    this.itemDetails.controls.forEach((item,i)=>{
+    this.itemDetails.controls.forEach((item, i) => {
       totalCost += this.calculateTotalCost(i)
     })
     return totalCost;
   }
 
-  calculateSellingPrice():number{
+  calculateSellingPrice(): number {
     let totalCost = 0;
-    this.itemDetails.controls.forEach((item,i)=>{
+    this.itemDetails.controls.forEach((item, i) => {
       totalCost += this.calculateTotalPrice(i)
     })
     return totalCost;
-  } 
-
-  calculateTotalProfit():number{
-    return ((this.calculateSellingPrice()-this.calculateAllTotalCost())/this.calculateSellingPrice() * 100) || 0
   }
 
-  calculateDiscoutPrice():number{
+  calculateTotalProfit(): number {
+    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
+  }
+
+  calculateDiscoutPrice(): number {
     return this.calculateSellingPrice() - this.quoteForm.get('totalDiscount')?.value;
   }
 
 
   onQuoteSubmit() {
-    if(this.quoteForm.valid){
-      this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res:quotatation)=>{
-        this._router.navigate(['/quotations'])
+    if (this.quoteForm.valid) {
+      this.isSaving = true;
+      this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res: quotatation) => {
+        this.isSaving = false;
+        this._router.navigate(['/quotations']);
       })
     }
 

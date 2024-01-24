@@ -122,7 +122,7 @@ const generateQuoteId = async (departmentId: string, employeeId: string, date: s
 }
 
 
-export const updateQuotation = async (req: Request, res: Response, next: NextFunction) => {
+export const updateQuoteStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const {status} = req.body;
         const {quoteId} = req.params;
@@ -130,6 +130,21 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
 
         if (quoteUpdated) {
             return res.status(200).json(quoteUpdated.status)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const updateQuotation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const quoteData = req.body;
+        const {quoteId} = req.params;
+        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId,quoteData)
+
+        if (quoteUpdated) {
+            return res.status(200).json(quoteUpdated)
         }
         return res.status(502).json()
     } catch (error) {
