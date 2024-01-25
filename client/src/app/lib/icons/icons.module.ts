@@ -39,7 +39,8 @@ import {
   heroCloudArrowUp,
   heroRectangleStack,
   heroChevronLeft,
-
+  heroArrowPath,
+  heroPaperAirplane,
 } from '@ng-icons/heroicons/outline';
 
 
@@ -86,6 +87,8 @@ import {
       heroCloudArrowUp,
       heroRectangleStack,
       heroChevronLeft,
+      heroArrowPath,
+      heroPaperAirplane
     }),
   ],
   exports:[NgIconsModule]

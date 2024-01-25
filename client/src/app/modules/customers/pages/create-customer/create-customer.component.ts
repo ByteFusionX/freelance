@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
@@ -21,6 +22,7 @@ export class CreateCustomerDialog {
     private _fb: FormBuilder,
     private _profileService: ProfileService,
     private _customerService:CustomerService,
+    private _employeeService: EmployeeService,
     private _router:Router
   ) { }
 
@@ -84,7 +86,7 @@ export class CreateCustomerDialog {
 
   onSubmit(): void {
     this.isSubmitted = true;
-    let userId = localStorage.getItem('userId');
+    let userId = this._employeeService.employeeToken().id;
     this.customerForm.patchValue({createdBy:userId})
     if (this.customerForm.valid) {
       this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{

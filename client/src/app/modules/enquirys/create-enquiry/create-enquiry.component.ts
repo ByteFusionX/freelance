@@ -146,6 +146,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
+        console.log(data);
+        
         this.formData.controls.presale.setValue(data)
         this.formData.controls.status.setValue('Assigned To Presales')
       }

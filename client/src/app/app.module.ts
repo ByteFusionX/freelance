@@ -33,8 +33,6 @@ import { componentModule } from './shared/components/component.module';
     IconsModule,
     MatDialogModule,
     componentModule
-    
-    
   ],
   providers: [],
   bootstrap: [AppComponent]

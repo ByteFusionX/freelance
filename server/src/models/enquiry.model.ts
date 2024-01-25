@@ -47,7 +47,7 @@ const enquirySchema = new Schema<Enquiry>({
         required: true
     },
     date: {
-        type: Date || String,
+        type: Date,
         required: true
     },
     createdDate: {
