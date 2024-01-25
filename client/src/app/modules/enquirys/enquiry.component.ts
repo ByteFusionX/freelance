@@ -56,9 +56,11 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.salesPerson$ = this._employeeService.getEmployees()
-    this._enquiryService.departmentData$.subscribe((data) => {
-      this.selectedDepartment = data
-    })
+    this.subscriptions.add(
+      this._enquiryService.departmentData$.subscribe((data) => {
+        this.selectedDepartment = data
+      })
+    )
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -69,6 +71,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._enquiryService.depSubject.next(null)
     this.subscriptions.unsubscribe()
   }
 

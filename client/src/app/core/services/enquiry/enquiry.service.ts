@@ -33,7 +33,7 @@ export class EnquiryService {
     return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
-  emitToQuote(enquiry: getEnquiry) {
+  emitToQuote(enquiry: getEnquiry | undefined) {
     this.quoteSubject.next(enquiry)
   }
 

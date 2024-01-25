@@ -27,7 +27,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isQuoteLoading: boolean = true;
 
   enquiries$!: Observable<TotalEnquiry[]>;
-  userData$!: Observable<getEmployee>;
+  userData$!: Observable<getEmployee | undefined>;
   quotations$!: Observable<{ total: number }>;
 
   private subscriptions = new Subscription()
@@ -41,8 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    let token = this._employeeService.employeeToken()
-    this.userData$ = this._employeeService.getEmployee(token.employeeId)
+    this.userData$ = this._employeeService.employeeData$
     this.enquiries$ = this._enquiryService.totalEnquiries()
     this.quotations$ = this._quotationService.totalQuotations()
     this.enquiryLoading()

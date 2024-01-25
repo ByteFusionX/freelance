@@ -146,8 +146,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
-        console.log(data);
-        
         this.formData.controls.presale.setValue(data)
         this.formData.controls.status.setValue('Assigned To Presales')
       }
@@ -182,9 +180,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   getEmployee() {
-    this.tokenData = this._employeeService.employeeToken()
-    this._employeeService.getEmployee(this.tokenData.id).subscribe((data) => {
-      if (data) {
+    this._employeeService.employeeData$.subscribe(data=>{
+      if(data){
         this.formData.controls.salesPerson.setValue(data.firstName + ' ' + data.lastName)
       }
     })
