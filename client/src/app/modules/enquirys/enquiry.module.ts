@@ -7,7 +7,6 @@ import { MatTableModule } from '@angular/material/table';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CreateEnquiryDialog } from './create-enquiry/create-enquiry.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { NgIconsModule } from '@ng-icons/core';
@@ -19,7 +18,6 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
@@ -35,7 +33,6 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     MatTableModule,
     IconsModule,
     MatDialogModule,
-    MatDatepickerModule,
     MatFormFieldModule,
     MatNativeDateModule,
     NgIconsModule,

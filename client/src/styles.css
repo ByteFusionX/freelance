@@ -68,6 +68,7 @@ input[type="number"] {
     transform: rotate(360deg);
   }
 }
+
 .spin {
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;

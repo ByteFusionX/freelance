@@ -33,10 +33,10 @@ app.use(
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
-app.use('/announcement',annoRouter)
-app.use('/customer',cusRouter)
-app.use('/enquiry',equiRouter)
-app.use('/quotation',quoteRouter)
+app.use('/announcement', annoRouter)
+app.use('/customer', cusRouter)
+app.use('/enquiry', equiRouter)
+app.use('/quotation', quoteRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)
