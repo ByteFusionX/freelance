@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { announcementGetData } from '../../interfaces/announcement.interface';
 
@@ -10,15 +10,12 @@ import { announcementGetData } from '../../interfaces/announcement.interface';
 export class CelebrationDialogComponent implements OnInit {
   celebData: announcementGetData[] = [];
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: announcementGetData[],private dialogRef: MatDialogRef<CelebrationDialogComponent>,private cd: ChangeDetectorRef) {
-  
-    
+  constructor(@Inject(MAT_DIALOG_DATA) public data: announcementGetData[],private dialogRef: MatDialogRef<CelebrationDialogComponent>) {
+    this.celebData = this.data;
   }
-  
 
   ngOnInit(): void {
-    this.celebData = this.data;
-    this.cd.detectChanges();
+
   }
   onClose() {
     this.dialogRef.close();

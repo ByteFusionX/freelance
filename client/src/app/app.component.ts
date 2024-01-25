@@ -52,7 +52,7 @@ export class AppComponent {
   }
 
   openCelebrationDialog(data: announcementGetData[]): void {
-    const dialogRef = this.dialog.open(CelebrationDialogComponent, {
+    this.dialog.open(CelebrationDialogComponent, {
       data: data,
       width: '400px',
       height: '400px',
