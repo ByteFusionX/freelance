@@ -10,7 +10,10 @@ import empRouter from './routes/employee.router';
 import annoRouter from './routes/announcment.router';
 import cusRouter from './routes/customer.router';
 import equiRouter from './routes/enquiry.router';
+import celebRouter from './routes/celebrationCheck.router';
+const cronService = require('./service/cronService.ts');
 import quoteRouter from './routes/quotation.router';
+
 
 const app: express.Application = express();
 
@@ -18,6 +21,7 @@ app.use(morgan("tiny"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
+cronService.startCronJob();
 
 
 
@@ -35,8 +39,10 @@ app.use('/department', depRouter)
 app.use('/employee', empRouter)
 app.use('/announcement',annoRouter)
 app.use('/customer',cusRouter)
-app.use('/enquiry',equiRouter)
+app.use('/equiry',equiRouter)
+app.use('/celebrationCheck',celebRouter)
 app.use('/quotation',quoteRouter)
+
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)

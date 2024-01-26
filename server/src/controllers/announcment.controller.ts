@@ -8,7 +8,8 @@ export const createAnnouncement = async (req: Request, res: Response, next: Next
         const addAcnnouncement = new announcementModel({
             title,
             date,
-            description
+            description,
+            celeb:false
         })
         const saveAnnouncement = await addAcnnouncement.save()
         if (saveAnnouncement) return res.status(200).json(true)
