@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-prod": "nodemon ./dist/index.js",
     "start": "nodemon src/index.ts",
-    "build": "npm install && tsc",
+    "build": "tsc",
     "tsc": "tsc --watch"
   },
   "author": "",
