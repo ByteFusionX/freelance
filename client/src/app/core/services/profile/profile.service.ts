@@ -9,7 +9,7 @@ import { Department, getDepartment } from 'src/app/shared/interfaces/department.
 })
 export class ProfileService {
 
-  api: string = environment.api
+  readonly api: string = environment.api
   constructor(private http: HttpClient) { }
 
   getDepartments(): Observable<getDepartment[]> {

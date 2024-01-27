@@ -6,6 +6,9 @@ const { ObjectId } = require('mongodb')
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
 
+        console.log(req.files);
+        
+
         if (!req.files) return res.status(204).json({ err: 'No data' })
         const files = req.files
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
@@ -21,7 +24,6 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         enquiryData.date = new Date(enquiryData.date)
         const preSaleData = new enquiryModel(enquiryData)
-        console.log(preSaleData);
 
         // const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
         // if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
