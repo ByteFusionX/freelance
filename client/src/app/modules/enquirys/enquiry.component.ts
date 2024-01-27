@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
 })
 export class EnquiryComponent implements OnInit, OnDestroy {
 
-  enqId!: string;
+  enqId: string | null = null
   salesPerson$!: Observable<getEmployee[]>;
 
   isLoading: boolean = true;
@@ -100,22 +100,23 @@ export class EnquiryComponent implements OnInit, OnDestroy {
         }, (error) => {
           this.dataSource.data = []
           this.isEmpty = true
-          this.enqId = '000'
         })
     )
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open(CreateEnquiryDialog, { data: this.enqId })
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        result.client = [result.client]
-        result.department = [result.department]
-        result.salesPerson = [result.salesPerson]
-        this.dataSource.data = [result, ...this.dataSource.data]
-        this.enqId = result.enquiryId.slice(-3)
-      }
-    })
+    if (this.enqId != null) {
+      const dialogRef = this.dialog.open(CreateEnquiryDialog, { data: this.enqId })
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          result.client = [result.client]
+          result.department = [result.department]
+          result.salesPerson = [result.salesPerson]
+          this.dataSource.data = [result, ...this.dataSource.data]
+          this.enqId = result.enquiryId.slice(-3)
+        }
+      })
+    }
   }
 
   handleNotClose(event: MouseEvent) {

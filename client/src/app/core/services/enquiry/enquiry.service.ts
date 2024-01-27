@@ -17,8 +17,8 @@ export class EnquiryService {
   departmentData$ = this.depSubject.asObservable()
   constructor(private http: HttpClient) { }
 
-  createEnquiry(enquiry: Partial<Enquiry>): Observable<getEnquiry> {
-    return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, enquiry)
+  createEnquiry(formData: FormData): Observable<getEnquiry> {
+    return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, formData)
   }
 
   getEnquiry(filterData: FilterEnquiry): Observable<EnquiryTable> {

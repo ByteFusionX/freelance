@@ -31,19 +31,20 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   contacts: ContactDetail[] = []
   departments$!: Observable<getDepartment[]>;
   selectedDep!: string;
-  selectedFiles: File[] = []
+  selectedFiles: any[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
 
+  formData: FormData = new FormData()
   today = new Date().toISOString().substring(0, 10)
-  formData = this._fb.group({
+  enquiryForm = this._fb.group({
     client: [undefined, Validators.required],
     contact: [undefined, Validators.required],
     department: [undefined, Validators.required],
     salesPerson: ['', Validators.required],
     title: ['', Validators.required],
     date: [this.today, Validators.required],
-    attachments: new FormControl(this.selectedFiles),
+    attachments: [],
     presale: [],
     enquiryId: '',
     status: 'Work In Progress'
@@ -65,6 +66,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.tokenData = this._employeeService.employeeToken()
     this.getEmployee()
     this.getCustomers()
     this.getDepartments()
@@ -72,6 +74,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.createFormData()
     this.subscriptions.unsubscribe()
   }
 
@@ -85,7 +88,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
       }))
     } else {
       this.contacts = []
-      this.formData.controls.contact.setValue(undefined)
+      this.enquiryForm.controls.contact.setValue(undefined)
     }
   }
 
@@ -93,45 +96,53 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     let files = event.target.files
     for (let i = 0; i < files.length; i++) {
       const newFile = files[i]
-      const exist = this.selectedFiles.some(file => file.name === newFile.name)
+      const exist = (this.selectedFiles as File[]).some((file: File) => file.name === newFile.name)
       if (!exist) {
-        this.selectedFiles.push(files[i])
+        (this.selectedFiles as File[]).push(files[i])
       }
     }
   }
 
   onFileRemoved(index: number) {
-    this.selectedFiles.splice(index, 1)
+    (this.selectedFiles as File[]).splice(index, 1)
     this.fileInput.nativeElement.value = '';
   }
 
   onSubmit() {
-    if (this.formData.valid) {
+    if (this.enquiryForm.valid && this.selectedFiles.length) {
       this.generateId()
-      setTimeout(() => {
-        this.formData.controls.salesPerson.setValue(this.tokenData.id)
-        let data = this.formData.value as Partial<Enquiry>
-        this.subscriptions.add(
-          this._enquiryService.createEnquiry(data).subscribe((data) => {
-            if (data) {
-              this.dialogRef.close(data)
-            }
-          })
-        )
-      }, 300)
+      this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
+      let data = this.enquiryForm.value as Partial<Enquiry>
+
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        this.formData.append('attachments', (this.selectedFiles[i] as Blob))
+      }
+      this.formData.append('enquiryData', JSON.stringify(data))
+      this.subscriptions.add(
+        this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+          if (data) {
+            this.createFormData()
+            this.dialogRef.close(data)
+          }
+        })
+      )
     }
   }
 
+  createFormData() {
+    this.formData = new FormData()
+  }
+
   generateId() {
-    let contactId = this.formData.controls.contact.value
+    let contactId = this.enquiryForm.controls.contact.value
     let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
     let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
 
-    let formDate = <string>this.formData.controls.date.value
+    let formDate = <string>this.enquiryForm.controls.date.value
     const [year, month] = formDate.split('-');
     let date = `-${month}/${year.slice(2)}`
     let enqId = ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
-    this.formData.controls.enquiryId.setValue(enqId)
+    this.enquiryForm.controls.enquiryId.setValue(enqId)
   }
 
   onClose() {
@@ -146,27 +157,33 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
-        this.formData.controls.presale.setValue(data)
-        this.formData.controls.status.setValue('Assigned To Presales')
+        this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
+        for (let i = 0; i < data.presaleFile.length; i++) {
+          this.formData.append('attachments', (data.presaleFile[i] as Blob))
+        }
+        this.enquiryForm.controls.status.setValue('Assigned To Presales')
       }
     })
   }
 
   onClickQuote() {
-    if (this.formData.valid) {
+    if (this.enquiryForm.valid) {
       this.generateId()
       setTimeout(() => {
-        this.formData.controls.salesPerson.setValue(this.tokenData.id)
-        let data = this.formData.value as Partial<Enquiry>
-        this.subscriptions.add(
-          this._enquiryService.createEnquiry(data).subscribe((data) => {
-            if (data) {
-              this._enquiryService.emitToQuote(data)
-              this.dialogRef.close()
-              this.router.navigate(['/quotations/create'])
-            }
-          })
-        )
+        this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
+        let data = this.enquiryForm.value as Partial<Enquiry>
+        for (let i = 0; i < this.selectedFiles.length; i++) {
+          this.formData.append('attachments', (this.selectedFiles[i] as Blob))
+        }
+        // this.subscriptions.add(
+        //   this._enquiryService.createEnquiry(formData).subscribe((data) => {
+        //     if (data) {
+        //       this._enquiryService.emitToQuote(data)
+        //       this.dialogRef.close()
+        //       this.router.navigate(['/quotations/create'])
+        //     }
+        //   })
+        // )
       }, 300)
     }
   }
@@ -180,9 +197,9 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   getEmployee() {
-    this._employeeService.employeeData$.subscribe(data=>{
-      if(data){
-        this.formData.controls.salesPerson.setValue(data.firstName + ' ' + data.lastName)
+    this._employeeService.employeeData$.subscribe(data => {
+      if (data) {
+        this.enquiryForm.controls.salesPerson.setValue(data.firstName + ' ' + data.lastName)
       }
     })
   }

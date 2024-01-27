@@ -1,15 +1,30 @@
 import { NextFunction, Request, Response } from "express"
 import enquiryModel from "../models/enquiry.model"
+import { Enquiry } from "../interface/enquiry.interface"
 const { ObjectId } = require('mongodb')
 
-export const createEnquiry = async (req: Request, res: Response, next: NextFunction) => {
+export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
-        if (!req.body) return res.status(204).json({ err: 'No data' })
-        const enquiryData = req.body
+
+        if (!req.files) return res.status(204).json({ err: 'No data' })
+        const files = req.files
+        const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
+        enquiryData.attachments = []
+        for (let i = 0; i < files.length; i++) {
+            enquiryData.attachments.push(files[i].filename)
+        }
+
+        if (req.body.presalePerson) {
+            const presalePerson = JSON.parse(req.body.presalePerson)
+            enquiryData.presale = { presalePerson: presalePerson, presaleFile: [] }
+        }
+
         enquiryData.date = new Date(enquiryData.date)
         const preSaleData = new enquiryModel(enquiryData)
-        const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
-        if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
+        console.log(preSaleData);
+
+        // const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
+        // if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
         return res.status(200).json(preSaleData)
     } catch (error) {
         next(error)
@@ -78,7 +93,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             },
         ]);
 
-        if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
+        if (!enquiryData || !enquiryTotal) return res.status(504).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
     } catch (error) {
         next(error)
