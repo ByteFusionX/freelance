@@ -17,7 +17,7 @@ const processEmployeeEvent = async (element, eventType) => {
             const workAnniversary = new Date(today.getTime() - joinedDate.getTime());
             const yearsOfExperience = Math.abs(workAnniversary.getUTCFullYear() - 1970);
 
-            eventTitle = `Congratulations ${element.firstName} ${element.lastName} on ${yearsOfExperience} Years of Dedication and Success: Happy Work Anniversary!`;
+            eventTitle =`Congrats ${element.firstName} ${element.lastName} on ${yearsOfExperience} years! Happy Work Anniversary!`;
             eventDescription = 'Sending warm anniversary wishes to our valued employees! Thank you for your dedication and contributions to our success. Here\'s to many more years of collaboration and achievements. Happy Work Anniversary!';
         }
 

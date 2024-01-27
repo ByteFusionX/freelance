@@ -34,6 +34,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedFiles: File[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
+  submit:boolean = false
 
   today = new Date().toISOString().substring(0, 10)
   formData = this._fb.group({
@@ -100,12 +101,17 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     }
   }
 
+  get f() {
+    return this.formData.controls;
+  }
+
   onFileRemoved(index: number) {
     this.selectedFiles.splice(index, 1)
     this.fileInput.nativeElement.value = '';
   }
 
   onSubmit() {
+    this.submit = true
     if (this.formData.valid) {
       this.generateId()
       setTimeout(() => {

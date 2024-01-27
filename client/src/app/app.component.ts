@@ -40,7 +40,6 @@ export class AppComponent implements OnDestroy {
 
   getCelebData() {
     this.birthdaysViewed = this._service.hasTodaysBirthdaysBeenViewed();
-
     if (!this.birthdaysViewed) {
       this._service.getCelebrationData().subscribe((data) => {
         if (data && data.length > 0) {
@@ -66,7 +65,6 @@ export class AppComponent implements OnDestroy {
             }),
             takeUntil(this.destroy$)
           ).subscribe();
-
           this._service.markTodaysBirthdaysAsViewed();
         }
       });
