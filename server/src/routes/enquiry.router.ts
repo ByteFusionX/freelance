@@ -10,7 +10,7 @@ import {
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
-equiRouter.post('/create', upload.array('attachments', 12), createEnquiry);
+equiRouter.post('/create', upload.fields([{ name: 'attachments' }, { name: 'presaleFiles' }], 5), createEnquiry);
 equiRouter.post('/get', getEnquiries);
 equiRouter.get('/presales', getPreSaleJobs);
 equiRouter.put('/update', updateEnquiryStatus);

@@ -108,16 +108,31 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.fileInput.nativeElement.value = '';
   }
 
-  onSubmit() {
-    if (this.enquiryForm.valid && this.selectedFiles.length) {
-      this.generateId()
-      this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
-      let data = this.enquiryForm.value as Partial<Enquiry>
+  generateId(): string {
+    let contactId = this.enquiryForm.controls.contact.value
+    let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
+    let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
 
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        this.formData.append('attachments', (this.selectedFiles[i] as Blob))
-      }
-      this.formData.append('enquiryData', JSON.stringify(data))
+    let formDate = <string>this.enquiryForm.controls.date.value
+    const [year, month] = formDate.split('-');
+    let date = `-${month}/${year.slice(2)}`
+    return ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
+  }
+
+  setUpFormData() {
+    let enqId = this.generateId()
+    this.enquiryForm.controls.enquiryId.setValue(enqId)
+    this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
+    let data = this.enquiryForm.value as Partial<Enquiry>
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.formData.append('attachments', (this.selectedFiles[i] as Blob))
+    }
+    this.formData.append('enquiryData', JSON.stringify(data))
+  }
+
+  onSubmit() {
+    if (this.enquiryForm.valid) {
+      this.setUpFormData()
       this.subscriptions.add(
         this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
           if (data) {
@@ -133,18 +148,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.formData = new FormData()
   }
 
-  generateId() {
-    let contactId = this.enquiryForm.controls.contact.value
-    let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
-    let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
-
-    let formDate = <string>this.enquiryForm.controls.date.value
-    const [year, month] = formDate.split('-');
-    let date = `-${month}/${year.slice(2)}`
-    let enqId = ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
-    this.enquiryForm.controls.enquiryId.setValue(enqId)
-  }
-
   onClose() {
     this.dialogRef.close()
   }
@@ -154,37 +157,37 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onClickPresale() {
-    const presaleDialog = this.dialog.open(AssignPresaleComponent)
+    const presale = this.enquiryForm.controls.presale.value
+    const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: presale })
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
-        this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
-        for (let i = 0; i < data.presaleFile.length; i++) {
-          this.formData.append('attachments', (data.presaleFile[i] as Blob))
+        if (data.clear) {
+          this.enquiryForm.controls.status.setValue('Work In Progress')
+          this.enquiryForm.controls.presale.setValue(null)
+        } else {
+          this.enquiryForm.controls.presale.setValue(data)
+          this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
+          for (let i = 0; i < data.presaleFile.length; i++) {
+            this.formData.append('presaleFiles', (data.presaleFile[i] as Blob))
+          }
+          this.enquiryForm.controls.status.setValue('Assigned To Presales')
         }
-        this.enquiryForm.controls.status.setValue('Assigned To Presales')
       }
     })
   }
 
   onClickQuote() {
     if (this.enquiryForm.valid) {
-      this.generateId()
-      setTimeout(() => {
-        this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
-        let data = this.enquiryForm.value as Partial<Enquiry>
-        for (let i = 0; i < this.selectedFiles.length; i++) {
-          this.formData.append('attachments', (this.selectedFiles[i] as Blob))
-        }
-        // this.subscriptions.add(
-        //   this._enquiryService.createEnquiry(formData).subscribe((data) => {
-        //     if (data) {
-        //       this._enquiryService.emitToQuote(data)
-        //       this.dialogRef.close()
-        //       this.router.navigate(['/quotations/create'])
-        //     }
-        //   })
-        // )
-      }, 300)
+      this.setUpFormData()
+      this.subscriptions.add(
+        this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+          if (data) {
+            this._enquiryService.emitToQuote(data)
+            this.dialogRef.close()
+            this.router.navigate(['/quotations/create'])
+          }
+        })
+      )
     }
   }
 

@@ -7,25 +7,32 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
     try {
 
         if (!req.files) return res.status(204).json({ err: 'No data' })
-        const files = req.files
+        const enquiryFiles = req.files.attachments
+        const presaleFiles = req.files.presaleFiles
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
         enquiryData.attachments = []
-        for (let i = 0; i < files.length; i++) {
-            enquiryData.attachments.push(files[i].filename)
+        if (enquiryFiles) {
+            for (let i = 0; i < enquiryFiles.length; i++) {
+                enquiryData.attachments.push(enquiryFiles[i].filename)
+            }
         }
 
         if (req.body.presalePerson) {
             const presalePerson = JSON.parse(req.body.presalePerson)
-            enquiryData.presale = { presalePerson: presalePerson, presaleFile: [] }
+            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
+            if (presaleFiles) {
+                for (let i = 0; i < presaleFiles.length; i++) {
+                    enquiryData.preSale.presaleFiles.push(presaleFiles[i].filename)
+                }
+            }
         }
 
         enquiryData.date = new Date(enquiryData.date)
-        const preSaleData = new enquiryModel(enquiryData)
-        console.log(preSaleData);
+        const newEnquiry = new enquiryModel(enquiryData)
 
-        // const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
-        // if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
-        return res.status(200).json(preSaleData)
+        const saveEnquiryData = await (await newEnquiry.save()).populate(['client', 'department', 'salesPerson'])
+        if (!saveEnquiryData) return res.status(504).json({ err: 'Internal Error' })
+        return res.status(200).json(newEnquiry)
     } catch (error) {
         next(error)
     }

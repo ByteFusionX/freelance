@@ -7,9 +7,9 @@ export interface Enquiry {
     title: string;
     date: string | Date;
     attachments: string[];
-    presale: {
+    preSale: {
         presalePerson: string;
-        presaleFile: string[];
+        presaleFiles: string[];
     };
     status: string;
 }
