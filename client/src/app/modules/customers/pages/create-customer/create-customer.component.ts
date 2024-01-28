@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
@@ -23,7 +24,8 @@ export class CreateCustomerDialog {
     private _profileService: ProfileService,
     private _customerService:CustomerService,
     private _employeeService: EmployeeService,
-    private _router:Router
+    private _router:Router,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit() {
@@ -84,6 +86,10 @@ export class CreateCustomerDialog {
     return false;
   }
 
+  get f(){
+    return this.customerForm.controls
+  }
+
   onSubmit(): void {
     this.isSubmitted = true;
     let userId = this._employeeService.employeeToken().id;
@@ -92,7 +98,9 @@ export class CreateCustomerDialog {
       this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{
         this._router.navigate(['/customers'])
       })
-    } 
+    } else {
+      this.toastr.warning('Check the fields properly!', 'Warning !')
+    }
   }
 
 

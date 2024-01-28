@@ -13,6 +13,7 @@ import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-enquiry',
@@ -34,6 +35,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedFiles: File[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
+  submit:boolean = false
 
   today = new Date().toISOString().substring(0, 10)
   formData = this._fb.group({
@@ -43,7 +45,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     salesPerson: ['', Validators.required],
     title: ['', Validators.required],
     date: [this.today, Validators.required],
-    attachments: new FormControl(this.selectedFiles),
+    attachments: new FormControl(this.selectedFiles ,Validators.required),
     presale: [],
     enquiryId: '',
     status: 'Work In Progress'
@@ -60,6 +62,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
     private router: Router,
+    private toastr: ToastrService
   ) {
     this.config.notFoundText = 'Wait a few Sec';
   }
@@ -100,12 +103,17 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     }
   }
 
+  get f() {
+    return this.formData.controls;
+  }
+
   onFileRemoved(index: number) {
     this.selectedFiles.splice(index, 1)
     this.fileInput.nativeElement.value = '';
   }
 
   onSubmit() {
+    this.submit = true
     if (this.formData.valid) {
       this.generateId()
       setTimeout(() => {
@@ -119,6 +127,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
           })
         )
       }, 300)
+    }else{
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 

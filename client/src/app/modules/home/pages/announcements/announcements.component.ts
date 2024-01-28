@@ -4,6 +4,7 @@ import { AddAnnouncementComponent } from './add-announcement/add-announcement.co
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { Subscription } from 'rxjs';
 import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
+import { ToastrService } from 'ngx-toastr';
 
 
 
@@ -13,7 +14,7 @@ import { announcementGetData } from 'src/app/shared/interfaces/announcement.inte
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
-  constructor(public dialog: MatDialog, private _service: AnnouncementService) { }
+  constructor(public dialog: MatDialog, private _service: AnnouncementService,private toaster:ToastrService) { }
   mySubscription!: Subscription
   announcementData: announcementGetData[] = []
   recentData!: announcementGetData
@@ -29,6 +30,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
 
     this.mySubscription = dialogRef.afterClosed().subscribe(result => {
       this.getAnnouncementData()
+      this.toaster.success('Announcement added!','Success')
     });
   }
 
