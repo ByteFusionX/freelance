@@ -13,7 +13,7 @@
                             for="grid-first-name">
                             Client
                         </label>
-                        <ng-select class="form" (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
+                        <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border" (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
                             <ng-option *ngFor="let customer of customers"
                                 [value]="customer._id">{{customer.companyName}}</ng-option>
                             <ng-template ng-footer-tmp>
@@ -29,7 +29,7 @@
                             for="grid-last-name">
                             Attention
                         </label>
-                        <ng-select class="form" formControlName="attention"  bindLabel="courtesyTitle">
+                        <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border" formControlName="attention"  bindLabel="courtesyTitle">
                             <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.courtesyTitle +
                                 '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
                         </ng-select>
@@ -39,7 +39,7 @@
                             for="grid-last-name">
                             Quote Date
                         </label>
-                        <input appNoLeadingSpace formControlName="date"
+                        <input appNoLeadingSpace formControlName="date" [class.border-red-500]="f['date'].invalid && submit"
                             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="grid-last-name" type="date" placeholder="Email">
                     </div>
@@ -52,7 +52,7 @@
                             for="grid-last-name">
                             subject
                         </label>
-                        <input appNoLeadingSpace formControlName="subject"
+                        <input appNoLeadingSpace formControlName="subject" [class.border-red-500]="f['subject'].invalid && submit"
                             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="grid-last-name" type="text" placeholder="Subject">
                     </div>
@@ -61,7 +61,7 @@
                             for="grid-last-name">
                             Department
                         </label>
-                        <ng-select  bindLabel="departmentName" id="department" class="form" placeholder="Department" appendTo="body" formControlName="department">
+                        <ng-select  [class.border-red-500]="f['department'].invalid && submit" bindLabel="departmentName" id="department" class="form border" placeholder="Department" appendTo="body" formControlName="department">
                             <ng-option *ngFor="let department of departments"
                               [value]="department._id">{{department.departmentName}}</ng-option>
                           </ng-select>
@@ -71,7 +71,7 @@
                             for="grid-first-name">
                             Currency
                         </label>
-                        <ng-select class="form" formControlName="currency" bindLabel="">
+                        <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border" formControlName="currency" bindLabel="">
                             <ng-option value="QAR">QAR</ng-option>
                             <ng-option value="USD">USD</ng-option>
                         </ng-select>
@@ -82,83 +82,87 @@
             </div>
             <div class="relative overflow-x-auto mt-6">
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50  ">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 w-96 border">
+                            <th scope="col" class="px-6 py-3 w-96 border-l border-r border-t">
                                 Item Details
                             </th>
-                            <th scope="col" class="px-2 py-3 border">
+                            <th scope="col" class="px-2 py-3 border-l border-r border-t">
                                 Quantity
                             </th>
-                            <th scope="col" class="px-6 py-3 border">
+                            <th scope="col" class="px-6 py-3 border-l border-r border-t">
                                 Unit cost
                             </th>
-                            <th scope="col" class="px-6 py-3 border">
+                            <th scope="col" class="px-6 py-3 border-l border-r border-t">
                                 Total Cost
                             </th>
-                            <th scope="col" class="px-6 py-3 border">
+                            <th scope="col" class="px-6 py-3 border-l border-r border-t">
                                 Profit(%)
                             </th>
-                            <th scope="col" class="px-6 py-3 border">
+                            <th scope="col" class="px-6 py-3 border-l border-r border-t">
                                 Unit price
                             </th>
-                            <th scope="col" class="px-6 py-3 border">
-                                total price
+                            <th scope="col" class="px-6 py-3 border-l border-r border-t">
+                                Total price
                             </th>
-                            <th scope="col" class="px-2 py-3 border">
+                            <th scope="col" class="px-2 py-3 border-l border-r border-t">
                                 Availability
                             </th>
                         </tr>
                     </thead>
-                    <tbody formArrayName="items" >
-                        <tr class="bg-white border-b "
-                            *ngFor="let contact of itemDetails.controls; let i = index" [formGroupName]="i">
-                            <th scope="row" class=" border">
+                    <tbody formArrayName="items">
+                        <tr class="bg-white " *ngFor="let contact of itemDetails.controls; let i = index"
+                            [formGroupName]="i">
+                            <td [class.border-red-500]="quoteForm.get('items.' + i + '.detail')?.invalid && submit"
+                                class="border px-6 py-3 w-96">
                                 <textarea appNoLeadingSpace formControlName="detail"
-                                    class="font-normal appearance-none block w-full    rounded py-3 px-5  leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    class="font-normal appearance-none block w-full rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                     id="grid-last-name" type="text" placeholder="Type / copy the item here."></textarea>
-                            </th>
-                            <td class="px-2 py-2 border text-center">
+                            </td>
+                            <td [class.border-red-500]="quoteForm.get('items.' + i + '.quantity')?.invalid && submit"
+                                class="border px-2 py-2 text-center">
                                 <input appNoLeadingSpace formControlName="quantity"
-                                    class="font-normal appearance-none block w-full text-center   rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="grid-last-name" type="text" placeholder="00">
+                                    class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="grid-last-name" type="number" placeholder="00">
                             </td>
-                            <td class="px-2  border ">
+                            <td [class.border-red-500]="quoteForm.get('items.' + i + '.unitCost')?.invalid && submit"
+                                class="border px-6 py-3">
                                 <input appNoLeadingSpace formControlName="unitCost"
-                                    class="font-normal appearance-none block w-full text-center   rounded py-5  leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="grid-last-name" type="text" placeholder="00.00">
+                                    class="font-normal appearance-none block w-full text-center rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="grid-last-name" type="number" placeholder="00.00">
                             </td>
-                            <td class="px-2 py-2 border text-center">
-                                <p>{{calculateTotalCost(i)}}</p>
+                            <td class="px-6 py-3 border-l border-b border-t text-center">
+                                <p>{{ calculateTotalCost(i) }}</p>
                             </td>
-                            <td class=" py-2  text-center ">
-                                <div class="flex justify-center items-center"><input appNoLeadingSpace formControlName="profit"
-                                        class="font-normal appearance-none block w-6 text-right   rounded py-5  leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                        id="grid-last-name" type="text" placeholder="00">
+                            <td [class.border-red-500]="quoteForm.get('items.' + i + '.profit')?.invalid && submit"
+                                class="border py-2 px-6 text-center">
+                                <div class="flex justify-center items-center">
+                                    <input appNoLeadingSpace formControlName="profit"
+                                        class="font-normal appearance-none block w-6 text-right rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        id="grid-last-name" type="number" placeholder="00">
                                     <p class="ml-0.5 mb-0.5">%</p>
                                 </div>
                             </td>
-                            <td class="px-2 py-2 border text-center">
-                                <p>{{calculateUnitPrice(i).toFixed(2)}}</p>
+                            <td class="px-6 py-3 border-l border-b border-t text-center">
+                                <p>{{ calculateUnitPrice(i).toFixed(2) }}</p>
                             </td>
-                            <td class="px-2 py-2 border text-center">
-                                <p>{{calculateTotalPrice(i).toFixed(2)}}</p>
+                            <td class="px-6 py-3 border-l border-b border-t text-center">
+                                <p>{{ calculateTotalPrice(i).toFixed(2) }}</p>
                             </td>
-                            <td class="px-2 py-2 border text-center">
+                            <td [class.border-red-500]="quoteForm.get('items.' + i + '.availability')?.invalid && submit"
+                                class="border px-2 py-2 text-center">
                                 <input appNoLeadingSpace formControlName="availability"
-                                    class="font-normal appearance-none block w-full text-center   rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                    id="grid-last-name" type="text" placeholder="00">
+                                    class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                    id="grid-last-name" type="number" placeholder="00">
                             </td>
-
-                            <td class="px-2 py-2 border text-center"  *ngIf="i!==0">
-                                <ng-icon name="heroXMark"
-                                class="text-md p-0 m-0 cursor-pointer  text-red-600 mx-2 "
-                                (click)="onRemoveItem(i)"></ng-icon>
+                            <td class="px-2 py-2 border text-center" *ngIf="i!==0">
+                                <ng-icon name="heroXMark" class="text-md p-0 m-0 cursor-pointer text-red-600 mx-2"
+                                    (click)="onRemoveItem(i)"></ng-icon>
                             </td>
                         </tr>
-
                     </tbody>
                 </table>
+                
                 <div class="w-full flex justify-start items-center mt-3 gap-3">
                     <button type="button" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
                         (click)="addItemFormGroup()">
@@ -173,7 +177,7 @@
                         for="grid-last-name">
                         Customer Notes
                     </label>
-                    <textarea appNoLeadingSpace formControlName="customerNote"
+                    <textarea [class.border-red-500]="f['customerNote'].invalid && submit" appNoLeadingSpace formControlName="customerNote"
                         class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id="grid-last-name" placeholder="Customer Note"></textarea>
                 </div>
@@ -182,7 +186,7 @@
                         for="grid-last-name">
                         Terms and Conditions
                     </label>
-                    <textarea appNoLeadingSpace formControlName="termsAndCondition"
+                    <textarea [class.border-red-500]="f['termsAndCondition'].invalid && submit" appNoLeadingSpace formControlName="termsAndCondition"
                         class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id="grid-last-name" placeholder="Terms and Conditions"></textarea>
                 </div>
@@ -234,7 +238,7 @@
                                 Discount
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                <input type="text" name="" id="" class="text-center border-none outline-none px-2 py-2 w-4/5" formControlName="totalDiscount">
+                                <input [class.border-red-500]="f['totalDiscount'].invalid && submit" type="text" name="" id="" class="text-center border outline-none px-2 py-2 w-4/5" formControlName="totalDiscount">
                             </td>
                         </tr>
                         <tr class=" border-b ">

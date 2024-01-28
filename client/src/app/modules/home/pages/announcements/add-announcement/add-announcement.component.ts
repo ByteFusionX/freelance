@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder,  FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 import {  Subscription } from 'rxjs';
 
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
@@ -18,7 +19,7 @@ import { announcementPostData } from 'src/app/shared/interfaces/announcement.int
   imports: [CommonModule, IconsModule, directiveSharedModule, ReactiveFormsModule, FormsModule],
 })
 export class AddAnnouncementComponent implements OnDestroy {
-  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>, private fb: FormBuilder, private _service: AnnouncementService) { }
+  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>, private fb: FormBuilder, private _service: AnnouncementService ,  private toastr: ToastrService) { }
 
 
   private mySubscription!: Subscription;
@@ -49,7 +50,13 @@ export class AddAnnouncementComponent implements OnDestroy {
           this.dialogRef.close()
         }
       })
+    }else {
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
+  }
+
+  get f() {
+    return this.formData.controls;
   }
 
 
