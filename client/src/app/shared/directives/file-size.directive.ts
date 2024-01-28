@@ -2,11 +2,11 @@ import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 @Directive({
-  selector: '[appFileValidator]'
+  selector: '[appFileSizeValidator]'
 })
-export class appFileValidator {
+export class appFileSizeValidator {
 
-  @Input() allowedExtensions: string[] = ['.jpg','.jpeg','.png','.pdf','.doc','.docx'];
+  @Input() maxSize: number = 5;
 
   constructor(private el: ElementRef, private toast: ToastrService) {}
 
@@ -17,13 +17,15 @@ export class appFileValidator {
     if (!files) return;
 
     for (const file of files) {
-     
-      const isValidExtension = this.allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
-      if (!isValidExtension) {
+      const fileSizeInMB = file.size / (1024 * 1024);
+
+      if (fileSizeInMB > this.maxSize) {
         fileInput.value = '';
-        this.toast.warning(' Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx,', "Warning");
+        this.toast.warning(' The attachment size should be less than 5MB.', "Warning");
         return;
       }
+
+      
     }
   }
 }

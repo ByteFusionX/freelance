@@ -88,8 +88,12 @@
               </ng-icon>
               Select Files
             </div>
-            <input appFileValidator type="file" multiple hidden #fileInput (change)="onFileSelected($event)">
+
+            <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
+              (change)="onFileSelected($event)">
+
           </div>
+          
           <div *ngIf="selectedFiles" class="overflow-hidden">
             <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
               <div class="flex justify-between items-center">
