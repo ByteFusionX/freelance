@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
 import { QuotationsRoutingModule } from './quotations-routing.module';
 import { QuotationsComponent } from './quotations.component';
@@ -15,6 +15,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { QuotationViewComponent } from './pages/quotation-view/quotation-view.component';
 import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 @NgModule({
@@ -23,7 +25,8 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     CreateQuotatationComponent,
     QuotationListComponent,
     QuotationViewComponent,
-    QuotationEditComponent
+    QuotationEditComponent,
+    
   ],
   imports: [
     CommonModule,
@@ -36,7 +39,10 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     MatMenuModule,
     FormsModule,
     ReactiveFormsModule,
-    directiveSharedModule
-  ]
+    directiveSharedModule,
+    SkeltonLoadingComponent,
+    MatPaginatorModule,
+  ],
+  providers:[DatePipe]
 })
 export class QuotationsModule { }

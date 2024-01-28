@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddAnnouncementComponent } from './add-announcement/add-announcement.component';
+import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
+import { Subscription } from 'rxjs';
+import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
+
 
 
 @Component({
@@ -8,23 +12,45 @@ import { AddAnnouncementComponent } from './add-announcement/add-announcement.co
   templateUrl: './announcements.component.html',
   styleUrls: ['./announcements.component.css']
 })
-export class AnnouncementsComponent {
-  constructor(public dialog: MatDialog) { }
+export class AnnouncementsComponent implements OnDestroy, OnInit {
+  constructor(public dialog: MatDialog, private _service: AnnouncementService) { }
+  mySubscription!: Subscription
+  announcementData: announcementGetData[] = []
+  recentData!: announcementGetData
+  isLoading: boolean = true
+  isEmpty : boolean = false
+
+  ngOnInit(): void {
+    this.getAnnouncementData()
+  }
 
   openDialog() {
     const dialogRef = this.dialog.open(AddAnnouncementComponent);
 
-    dialogRef.afterClosed().subscribe(result => {
-      // console.log(`Dialog result: ${result}`);
+    this.mySubscription = dialogRef.afterClosed().subscribe(result => {
+      this.getAnnouncementData()
     });
   }
 
-  announcementData: any = [
-    { title: 'Onam Holidays', description: 'In this example, the removeTimeFromDate function sets the hours, minutes, seconds, and milliseconds to zero, effectively removing the time component from the date. Then, you can use the getTime() method to get the timestamp for each date and compare them. If the timestamps are equal, the dates are considered equal', date: '12-12-2023', postedDate: new Date() },
-    { title: 'Christmas Holidays', description: 'In this example, the removeTimeFromDate function sets the hours, minutes, seconds, and milliseconds to zero, effectively removing the time component from the date. Then, you can use the getTime() method to get the timestamp for each date and compare them. If the timestamps are equal, the dates are considered equal', date: '12-12-2023', postedDate: new Date() },
-    { title: 'Holi Holidays', description: 'In this example, the removeTimeFromDate function sets the hours, minutes, seconds, and milliseconds to zero, effectively removing the time component from the date. Then, you can use the getTime() method to get the timestamp for each date and compare them. If the timestamps are equal, the dates are considered equal', date: '12-12-2023', postedDate: new Date() },
-  ]
-  recentData = this.announcementData.shift()
+  getAnnouncementData() {
+    this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
+      if (res)
+        this.isLoading = false
+      this.announcementData = res
+      this.recentData = this.announcementData.shift() as announcementGetData
+    }, (error) => {
+      this.isEmpty = true
+    }
+    )
+  }
 
+  trackByIdFn(index: number, item: announcementGetData): string {
+    return item._id;
+  }
+
+
+  ngOnDestroy(): void {
+    this.mySubscription.unsubscribe()
+  }
 
 }

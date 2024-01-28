@@ -14,6 +14,10 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
 import { NgApexchartsModule } from "ng-apexcharts";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 
 
 @NgModule({
@@ -23,6 +27,7 @@ import { HttpClientModule } from '@angular/common/http';
     CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
+
   ],
   imports: [
     CommonModule,
@@ -34,7 +39,11 @@ import { HttpClientModule } from '@angular/common/http';
     directiveSharedModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    NgSelectModule,
+    SkeltonLoadingComponent,
+    MatPaginatorModule,
+    ConfettiComponentComponent  
   ]
 })
 export class HomeModule { }

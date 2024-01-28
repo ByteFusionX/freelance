@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { CreateCustomerDialog } from '../create-customer/create-customer.component';
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { MatTableDataSource } from '@angular/material/table';
+import { CustomerService } from 'src/app/core/services/customer/customer.service';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'app-customers-list',
@@ -8,30 +11,36 @@ import { CreateCustomerDialog } from '../create-customer/create-customer.compone
   styleUrls: ['./customers-list.component.css']
 })
 export class CustomersListComponent {
-
-  constructor(public dialog: MatDialog) { }
+  customers:getCustomer[] = []
   displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
-  dataSource = [
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-    { name: 'Basim', creator: 'Mhd Shamil', department: 'department#1' },
-  ];
+  isLoading:boolean = true;
 
-  openDialog() {
-    const dialogRef = this.dialog.open(CreateCustomerDialog);
+  dataSource!: MatTableDataSource<getCustomer>;
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
-    });
+  constructor(
+    private _customerService:CustomerService,
+    private _router:Router
+  ) { }
+
+  ngOnInit(){
+    this.getCustomers()
   }
 
+  ngDoCheck() {
+    this.dataSource = new MatTableDataSource(this.customers);
+  }
+
+  getCustomers(){
+    this._customerService.getCustomers().subscribe((res: getCustomer[]) => {
+      this.customers = res;
+      this.isLoading = false;
+    })
+  }
+
+  onCustomer(data: any){
+    const navigationExtras: NavigationExtras = {
+      state: data
+    };
+    this._router.navigate(['/customers/view'], navigationExtras);
+  }
 }

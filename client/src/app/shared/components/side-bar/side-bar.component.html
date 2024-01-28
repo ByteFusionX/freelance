@@ -62,21 +62,21 @@
                     </div>
                 </div>
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
-                    routerLink="/quotations" routerLinkActive="active">
-                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
-                        <div class="w-48 flex justify-between ml-3">
-                            <p class="">Quotations</p>
-                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                 routerLink="/assigned-jobs" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                         <i><ng-icon name="heroIdentification" class="text-xl text-gray-600"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3">
                             <p class="">Assigned Jobs</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                    routerLink="/quotations" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3">
+                            <p class="">Quotations</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                         </div>
                     </div>

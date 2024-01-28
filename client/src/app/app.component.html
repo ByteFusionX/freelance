@@ -1,4 +1,4 @@
-<div class="w-full flex">
+<div class="w-full flex" *ngIf="!isLoginRoute()">
     <div class="h-screen">
         <app-side-bar [showFullBar]="reduceSate"></app-side-bar>
     </div>
@@ -10,3 +10,8 @@
         </div>
     </div>
 </div>
+
+<div class="w-full" *ngIf="isLoginRoute()">
+    <router-outlet></router-outlet> 
+</div>
+

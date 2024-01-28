@@ -1,0 +1,37 @@
+<div class="w-[500px]">
+    <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+        <h3 class="text-md font-medium">Assign To Presale</h3>
+        <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+            <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow">
+        <form action="">
+            <div class="w-full px-5 py-2">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
+                    Presale Person
+                </label>
+                <ng-select id="saleperson" class="form" placeholder="Sales Person" appendTo="body" (change)="onChange($event)">
+                    <ng-option *ngFor="let employee of employees$ | async"
+                        [value]="employee._id">{{employee.firstName}} {{employee.lastName}}</ng-option>
+                </ng-select>
+            </div>
+
+            <div class="w-full">
+                <app-upload-file (fileUpload)="onFileUpload($event)"></app-upload-file>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-end gap-2">
+        <button class="border text-black font-medium py-2 px-4 rounded text-sm"
+            (click)="onClose()">
+            Close
+        </button>
+        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+            (click)="onSubmit()">
+            Submit
+        </button>
+    </div>
