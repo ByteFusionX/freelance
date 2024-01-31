@@ -38,6 +38,7 @@ export class AppComponent implements OnDestroy {
     return this.route.snapshot.firstChild?.routeConfig?.path === 'login';
   }
 
+
   getCelebData() {
     this.birthdaysViewed = this._service.hasTodaysBirthdaysBeenViewed();
     if (!this.birthdaysViewed) {
@@ -48,7 +49,7 @@ export class AppComponent implements OnDestroy {
               return interval(1000 * index).pipe(
                 take(1),
                 switchMap(() => {
-                  if (this.dialogRef) {
+                  if (this.dialogRef && this.dialogRef.componentInstance) {
                     return this.dialogRef.afterClosed().pipe(
                       takeUntil(this.destroy$),
                       switchMap(() => {
@@ -69,15 +70,8 @@ export class AppComponent implements OnDestroy {
         }
       });
     }
-
-    interval(1000 * 60).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      const now = new Date();
-      if (now.getHours() === 0 && now.getMinutes() === 0) {
-        this._service.clearTodaysBirthdaysViewedFlag();
-        this.birthdaysViewed = false;
-      }
-    });
   }
+  
 
   openCelebrationDialog(data: announcementGetData): MatDialogRef<CelebrationDialogComponent, any> {
     return this.dialog.open(CelebrationDialogComponent, {
@@ -86,8 +80,5 @@ export class AppComponent implements OnDestroy {
     });
   }
 
-  clearTodaysBirthdaysViewedFlag() {
-    this._service.clearTodaysBirthdaysViewedFlag();
-    this.birthdaysViewed = false;
-  }
+  
 }
