@@ -6,7 +6,7 @@
         </div>
     </div>
 
-    <div class="m-8  overflow-y-auto">
+    <div class="m-8  overflow-y-auto overflow-x-auto">
         <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
         <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
             <table mat-table *ngIf="!isLoading" [dataSource]="dataSource" class="rounded-lg table-fixed">
@@ -54,10 +54,15 @@
                         class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
                         Download </th>
                     <td mat-cell *matCellDef="let element">
-                        <button
-                            class="w-8 h-8 ms-2 bg-blue-500 hover:bg-blue-400 rounded-full flex justify-center items-center">
-                            <ng-icon class="text-white" name="heroInboxArrowDown"></ng-icon>
-                        </button>
+                        <div class="flex gap-2" *ngIf="element.preSale.length">
+                            <div *ngFor="let file of element.preSale[0].presaleFiles; let i=index">
+                                <p class="w-fit m-w-32 truncate ..." matTooltip="{{file.originalname}}"
+                                matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
+                            </div>
+                            <button class="w-5 h-5 border rounded-full flex justify-center items-center">
+                                <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
+                            </button>
+                        </div>
                     </td>
                 </ng-container>
 
@@ -74,13 +79,13 @@
                             </button>
                             <button
                                 class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
-                                [matMenuTriggerFor]="menu" *ngIf="element.preSale.presaleFile" matTooltip="View Files"
+                                [matMenuTriggerFor]="menu" *ngIf="element.assignedFiles.length" matTooltip="View Files"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip">
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <div *ngFor="let file of element.preSale.presaleFile; let i=index">
-                                    <p class="text-sm p-2 w-40">{{file.name}}</p>
+                                <div *ngFor="let file of element.assignedFiles; let i=index">
+                                    <p class="text-sm p-2 w-40">{{file.originalname}}</p>
                                     <mat-divider></mat-divider>
                                 </div>
                                 <button class="px-2 text-blue-500 underline" (click)="onClearFiles(i)">clear</button>

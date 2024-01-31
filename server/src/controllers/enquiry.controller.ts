@@ -12,18 +12,14 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
         enquiryData.attachments = []
         if (enquiryFiles) {
-            for (let i = 0; i < enquiryFiles.length; i++) {
-                enquiryData.attachments.push(enquiryFiles[i].filename)
-            }
+            enquiryData.attachments = enquiryFiles
         }
 
         if (req.body.presalePerson) {
             const presalePerson = JSON.parse(req.body.presalePerson)
             enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
             if (presaleFiles) {
-                for (let i = 0; i < presaleFiles.length; i++) {
-                    enquiryData.preSale.presaleFiles.push(presaleFiles[i].filename)
-                }
+                enquiryData.preSale.presaleFiles = presaleFiles
             }
         }
 
@@ -113,7 +109,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
 
-        const totalPresale = await enquiryModel.aggregate([
+        const totalPresale: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: { status: 'Assigned To Presales' }
+            },
             {
                 $group: { _id: null, total: { $sum: 1 } }
             },
@@ -143,8 +142,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             }
         ])
-
-        if (preSaleData) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
+        if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -237,6 +235,21 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
 
         if (result) return res.status(200).json(result)
         return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let files = req.files
+        let enquiryId = req.body.enquiryId
+        let uploadData = files
+        const enquiryData = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { assignedFiles: uploadData } }, { upsert: true })
+            .populate(['client', 'department', 'salesPerson'])
+        enquiryData.assignedFiles = uploadData
+        if (!enquiryData) return res.status(502).json()
+        return res.status(200).json(enquiryData)
     } catch (error) {
         next(error)
     }

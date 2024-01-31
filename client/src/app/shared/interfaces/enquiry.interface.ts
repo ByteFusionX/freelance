@@ -26,11 +26,12 @@ export interface getEnquiry {
     salesPerson: { _id: string, firstName: string, lastName: string }[];
     title: string;
     date: string;
-    attachments: File[];
+    attachments: Files[];
     preSale: {
         presalePerson: string;
-        presaleFile: File[] | null;
+        presaleFile: Files[] | null;
     };
+    assingedFiles: [Files];
     status: string;
 }
 
@@ -60,4 +61,15 @@ export interface FilterEnquiry {
     status: string | null;
     fromDate: string | null;
     toDate: string | null;
+}
+
+export interface Files {
+    fieldname: string,
+    originalname: string,
+    encoding: string,
+    mimetype: string,
+    destination: string,
+    filename: string,
+    path: string,
+    size: number,
 }
