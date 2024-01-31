@@ -85,5 +85,4 @@ const startCronJob = () => {
     }).start();
 };
 
-
-module.exports = { startCronJob };
+export default startCronJob
