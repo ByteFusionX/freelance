@@ -22,6 +22,7 @@
 
             <div class="w-full mb-5">
                 <app-upload-file (fileUpload)="onFileUpload($event)" [selectedFiles]="selectedFiles"></app-upload-file>
+                <p class="px-5 text-sm italic text-red-500" *ngIf="fileError">Choose files</p>
             </div>
 
         </form>
@@ -29,7 +30,8 @@
 
     <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-between gap-2">
         <div>
-            <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm" *ngIf="isClear" (click)="onClear()">
+            <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm"
+                *ngIf="isClear" (click)="onClear()">
                 Clear
             </button>
         </div>

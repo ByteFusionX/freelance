@@ -5,7 +5,6 @@ const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
-
         if (!req.files) return res.status(204).json({ err: 'No data' })
         const enquiryFiles = req.files.attachments
         const presaleFiles = req.files.presaleFiles
@@ -15,8 +14,8 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
             enquiryData.attachments = enquiryFiles
         }
 
-        if (req.body.presalePerson) {
-            const presalePerson = JSON.parse(req.body.presalePerson)
+        const presalePerson = JSON.parse(req.body.presalePerson)
+        if (presalePerson) {
             enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
@@ -25,7 +24,6 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         enquiryData.date = new Date(enquiryData.date)
         const newEnquiry = new enquiryModel(enquiryData)
-
         const saveEnquiryData = await (await newEnquiry.save()).populate(['client', 'department', 'salesPerson'])
         if (!saveEnquiryData) return res.status(504).json({ err: 'Internal Error' })
         return res.status(200).json(newEnquiry)
@@ -59,7 +57,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             ]
         }
 
-        const enquiryTotal = await enquiryModel.aggregate([
+        const enquiryTotal: { total: number }[] = await enquiryModel.aggregate([
             {
                 $match: matchFilters
             },
@@ -69,8 +67,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             {
                 $project: { total: 1, _id: 0 }
             }
-        ])
-
+        ]).exec()
 
         const enquiryData = await enquiryModel.aggregate([
             {
@@ -96,8 +93,9 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             },
         ]);
 
-        if (!enquiryData || !enquiryTotal) return res.status(504).json({ err: 'No enquiry data found' })
-        return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
+        if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
+        return res.status(504).json({ err: 'No enquiry data found' })
+
     } catch (error) {
         next(error)
     }

@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   jobs!: number;
   graphSeries: { name: string, data: number[] }[] = [];
   graphCategory: string[] = [];
+  showChart: boolean = false
 
   isEnquiryLoading: boolean = true;
   isQuoteLoading: boolean = true;
@@ -56,24 +57,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   enquiryLoading() {
     this.subscriptions.add(
-      this.enquiries$.subscribe((data) => {
-        if (data) {
-          this.isEnquiryLoading = false
-        }
-      }, (error) => {
-        this.isEnquiryLoading = true
+      this.enquiries$.subscribe({
+        next: ((data) => {
+          if (data) {
+            this.isEnquiryLoading = false
+          }
+        }),
+        error: ((err) => {
+          this.isEnquiryLoading = true
+        })
       })
     )
   }
 
   quoteLoading() {
     this.subscriptions.add(
-      this.quotations$.subscribe((data) => {
-        if (data) {
-          this.isQuoteLoading = false
-        }
-      }, (error) => {
-        this.isQuoteLoading = true
+      this.quotations$.subscribe({
+        next: ((data) => {
+          if (data) {
+            this.isQuoteLoading = false
+          }
+        }),
+        error: ((err) => {
+          this.isQuoteLoading = true
+        })
       })
     )
   }
@@ -145,5 +152,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       }
     };
+    this.showChart = true;
   }
 }

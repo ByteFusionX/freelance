@@ -4,6 +4,7 @@ import { fileEnterState } from '../enquiry-animations';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Observable } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { TitleStrategy } from '@angular/router';
 
 @Component({
   selector: 'app-assign-presale',
@@ -18,7 +19,8 @@ export class AssignPresaleComponent implements OnInit {
   selectedFiles: File[] = []
   employees$!: Observable<getEmployee[]>
   selectedEmployee!: string | undefined;
-  employeeError: boolean = false
+  employeeError: boolean = false;
+  fileError: boolean = false;
   isClear: boolean = false
 
   constructor(
@@ -49,7 +51,7 @@ export class AssignPresaleComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.selectedEmployee) {
+    if (this.selectedEmployee && this.selectedFiles.length) {
       let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles }
       this.dialogRef.close(presale)
     } else {
@@ -64,9 +66,15 @@ export class AssignPresaleComponent implements OnInit {
   }
 
   Error() {
-    this.employeeError = true
+    if (this.selectedFiles.length == 0) {
+      this.fileError = true
+    }
+    if (!this.selectedEmployee) {
+      this.employeeError = true
+    }
     setTimeout(() => {
       this.employeeError = false
+      this.fileError = false
     }, 1000)
   }
 }

@@ -68,7 +68,7 @@
     <div class="m-8 overflow-y-auto overflow-x-auto">
         <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
         <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
-            <table mat-table *ngIf="!isLoading" [dataSource]="dataSource" class="rounded-lg table-fixed">
+            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
                 <ng-container matColumnDef="enquiryId">
                     <th *matHeaderCellDef
                         class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
@@ -78,7 +78,6 @@
                     </td>
                 </ng-container>
 
-                <!-- Name Column -->
                 <ng-container matColumnDef="customerName">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
@@ -86,7 +85,6 @@
                     <td mat-cell *matCellDef="let element"> {{element.client[0].companyName}}</td>
                 </ng-container>
 
-                <!-- Weight Column -->
                 <ng-container matColumnDef="enquiryDescription">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
@@ -94,7 +92,6 @@
                     <td mat-cell *matCellDef="let element"> {{element.title}} </td>
                 </ng-container>
 
-                <!-- Symbol Column -->
                 <ng-container matColumnDef="salesPersonName">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">

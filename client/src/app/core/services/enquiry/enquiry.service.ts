@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 })
 export class EnquiryService {
 
-  api: string = environment.api
+  readonly api: string = environment.api
   quoteSubject = new BehaviorSubject<getEnquiry | undefined>(undefined)
   enquiryData$ = this.quoteSubject.asObservable()
 

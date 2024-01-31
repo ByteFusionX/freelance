@@ -1,8 +1,4 @@
 /node_modules
 *.env
-<<<<<<< HEAD
 /uploads
-=======
-
 /dist
->>>>>>> 00796363e17e0366960bac2576745c855cd74bd8

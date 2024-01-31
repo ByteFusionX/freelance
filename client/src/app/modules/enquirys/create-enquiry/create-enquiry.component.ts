@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
@@ -73,7 +73,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.getEmployee()
     this.getCustomers()
     this.getDepartments()
-    this.data = String(Number(this.data) + 1).padStart(3, '0')
   }
 
   ngOnDestroy(): void {
@@ -115,26 +114,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.fileInput.nativeElement.value = '';
   }
 
-  // onSubmit() {
-  //   this.submit = true
-  //   if (this.enquiryForm.valid) {
-  //     setTimeout(() => {
-  //       this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
-  //       let data = this.enquiryForm.value as Partial<Enquiry>
-  //       this.subscriptions.add(
-  //         this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
-  //           if (data) {
-  //             this.dialogRef.close(data)
-  //           }
-  //         })
-  //       )
-  //     }, 300)
-  //   } else {
-  //     this.toastr.warning('Check the fields properly!', 'Warning !')
-  //   }
-  // }
-
   generateId() {
+    this.data = String(Number(this.data) + 1).padStart(3, '0')
     let contactId = this.enquiryForm.controls.contact.value
     let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
     let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
