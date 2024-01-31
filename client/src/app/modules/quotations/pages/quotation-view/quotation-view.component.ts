@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { quotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-quotation-view',
@@ -8,7 +8,7 @@ import { quotatation } from 'src/app/shared/interfaces/quotation.interface';
   styleUrls: ['./quotation-view.component.css']
 })
 export class QuotationViewComponent {
-  quoteData!: quotatation;
+  quoteData!: Quotatation;
 
   constructor(
     private _router: Router
@@ -20,7 +20,7 @@ export class QuotationViewComponent {
     const navigation = this._router.getCurrentNavigation();
 
     if (navigation && navigation.extras.state) {
-      this.quoteData = navigation.extras.state as quotatation
+      this.quoteData = navigation.extras.state as Quotatation
     } else {
       this._router.navigate(['/quotations']);
     }

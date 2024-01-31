@@ -84,10 +84,9 @@ export class EmployeesComponent {
 
   openDialog() {
     const dialogRef = this.dialog.open(CreateEmployeeDialog);
-
     dialogRef.afterClosed().subscribe((data) => {
       if (data) {
-        this.dataSource.data.push(data)
+        this.getEmployees()
         this._toast.success('Employee Created Successfully')
       }
     });

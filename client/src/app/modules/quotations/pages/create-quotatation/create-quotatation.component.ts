@@ -9,7 +9,7 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import { quotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -45,7 +45,7 @@ export class CreateQuotatationComponent {
     this.config.appendTo = 'body';
     this.config.bindValue = 'value';
 
-    this.getCustomers();
+    this.getAllCustomers();
     this.getDepartment();
     this.tokenData = this._employeeService.employeeToken();
 
@@ -89,8 +89,8 @@ export class CreateQuotatationComponent {
   }
 
 
-  getCustomers() {
-    this._customerService.getCustomers().subscribe((res) => {
+  getAllCustomers() {
+    this._customerService.getAllCustomers().subscribe((res) => {
       this.customers = res;
     })
   }
@@ -162,7 +162,7 @@ export class CreateQuotatationComponent {
     this.submit = true
     if (this.quoteForm.valid) {
       this.isSaving = true;
-      this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res: quotatation) => {
+      this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res: Quotatation) => {
         this.isSaving = false;
         this._router.navigate(['/quotations']);
       })

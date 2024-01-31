@@ -3,7 +3,8 @@ import Quotation from '../models/quotation.model';
 import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
-import { Customer } from "../models/customer.model";
+const { ObjectId } = require('mongodb')
+
 
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,7 +29,60 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
 export const getQuotations = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let { page, row, salesPerson, customer, fromDate, toDate, department } = req.body;
+        let skipNum: number = (page - 1) * row;
+        let isSalesPerson = salesPerson == null ? true : false;
+        let isCustomer = customer == null ? true : false;
+        let isDate = fromDate == null || toDate == null ? true : false;
+        let isDepartment = department == null ? true : false;
+
+        let matchFilters = {
+            $and: [
+                { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
+                { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
+                {
+                    $or: [
+                        { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
+                        { date: { $exists: isDate } }
+                    ]
+                },
+                {
+                    $or: [{ department: new ObjectId(department) }, { department: { $exists: isDepartment } }]
+                }
+            ]
+        }
+
+        let total: number = 0;
+        await Quotation.aggregate([
+            {
+                $match: matchFilters
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { total: 1, _id: 0 }
+            }
+        ]).exec()
+            .then((result: { total: number }[]) => {
+                if (result && result.length > 0) {
+                    total = result[0].total
+                }
+            })
+
         let quoteData = await Quotation.aggregate([
+            {
+                $match: matchFilters,
+            },
+            {
+                $sort: { createdDate: 1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
             {
                 $lookup: {
                     from: 'customers',
@@ -81,9 +135,10 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 }
             }
         ]);
-        if (!quoteData.length) return res.status(504).json({ err: 'No quote data found' })
 
-        return res.status(200).json(quoteData)
+        if (!quoteData || !total) return res.status(204).json({ err: 'No Quoatation data found' })
+        return res.status(200).json({ total: total, quotations : quoteData })
+
     } catch (error) {
         console.log(error)
     }
@@ -154,14 +209,14 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
 }
 
 export const uploadLpo = async (req: any, res: Response, next: NextFunction) => {
-    try {    
+    try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
         console.log(req.files)
-        const jobId = await generateJobId() 
+        const jobId = await generateJobId()
 
         const lpoFiles = req.files;
         const files = lpoFiles.map((file: any) => file.filename);
-        
+
         const jobData = {
             quoteId: req.body.quoteId,
             jobId: jobId,

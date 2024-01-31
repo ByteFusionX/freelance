@@ -16,7 +16,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
@@ -43,7 +42,6 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     HttpClientModule,
     NgSelectModule,
     SkeltonLoadingComponent,
-    MatPaginatorModule,
     ConfettiComponentComponent,
     PaginationComponent
   ]

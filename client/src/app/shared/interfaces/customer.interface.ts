@@ -16,3 +16,16 @@ export interface getCustomer {
     customerEmailId: string;
     contactNo: number;
 }
+
+export interface getFilteredCustomer {
+    total:number,
+    customers:getCustomer[]
+}
+
+
+
+export interface FilterCustomer {
+    page: number;
+    row: number;
+    createdBy: string | null;
+}

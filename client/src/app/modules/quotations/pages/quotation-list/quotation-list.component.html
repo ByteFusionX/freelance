@@ -5,7 +5,7 @@
             <h3>Quotations</h3>
 
             <div class="flex justify-end gap-4 items-center">
-
+                
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-1"
                     [matMenuTriggerFor]="beforeMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
@@ -16,25 +16,25 @@
                 </div>
                 <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  w-96">
                     <div class="p-4" (click)="handleNotClose($event)">
-                        <form [formGroup]="formData" (submit)="onSubmit()">
+                        <form [formGroup]="formData" (ngSubmit)="onSubmit()">
                             <div class="flex justify-between items-center mb-2">
                                 <label for="fromDate" class="font-medium"> From:</label>
                                 <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
-                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]" required="true">
                             </div>
-                            <div class="text-red-700 ml-3" *ngIf="formData.get('fromDate')?.hasError('futureDate')">
-                                Date must be in the past.
+                            <div class="text-orange-500 text-sm"
+                                *ngIf="formData.get('fromDate')?.hasError('futureDate')">
+                                Please choose a date on or before today's date.
                             </div>
                             <div class="flex justify-between  items-center">
                                 <label for="toDate" class="font-medium"> To:</label>
                                 <input dateFutureDirective type="date" id="toDate" formControlName="toDate"
-                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]">
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]" required="true">
                             </div>
-                            <div class="text-red-700 ml-3" *ngIf="formData.get('toDate')?.hasError('futureDate')">
-                                Date must be in the past.
+                            <div class="text-orange-500 text-sm" *ngIf="formData.get('toDate')?.hasError('futureDate')">
+                                Please choose a date on or before today's date.
                             </div>
-                            <div *ngIf="dateError" class="text-red-700">ToDate must be greater than FromDate</div>
-                            <button type="submit"
+                            <button
                                 class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3">
                                 Submit
                             </button>
@@ -42,29 +42,34 @@
                         <div class="mb-2">
                             <label for="salesPerson" class="font-medium">Sales Person:</label>
                             <ng-select id="salesPerson" [(ngModel)]="selectedSalesPerson" class=" filter"
-                                placeholder="Sales Person" appendTo="body">
-                                <ng-option *ngFor="let person of salesPerson"
-                                    [value]="person.id">{{person.name}}</ng-option>
+                                placeholder="Sales Person" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let person of salesPerson$ | async"
+                                    [value]="person._id">{{person.firstName+' '+person.lastName}}</ng-option>
                             </ng-select>
                         </div>
                         <div class="mb-2">
                             <label for="customer" class="font-medium">Customer:</label>
-                            <ng-select id="customer" [(ngModel)]="selectedSalesPerson" class=" filter"
-                                placeholder="Sales Person" appendTo="body">
-                                <ng-option *ngFor="let person of salesPerson"
-                                    [value]="person.id">{{person.name}}</ng-option>
+                            <ng-select id="customer" [(ngModel)]="selectedCustomer" class=" filter"
+                                placeholder="Sales Person" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let customer of customers$ | async"
+                                    [value]="customer._id">{{customer.companyName}}</ng-option>
                             </ng-select>
                         </div>
-                        <div>
+                        <div class="mb-2">
                             <label for="department" class="font-medium">Department:</label>
                             <ng-select dropdownPosition="top" id="department" [(ngModel)]="selectedDepartment"
-                                class=" filter" placeholder="Department" appendTo="body">
-                                <ng-option *ngFor="let department of departments"
-                                    [value]="department.id">{{department.name}}</ng-option>
+                                class=" filter" placeholder="Department" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let department of departments$ | async"
+                                    [value]="department._id">{{department.departmentName}}</ng-option>
                             </ng-select>
                         </div>
+                        <button *ngIf="isFiltered" class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs"
+                    (click)="onClear()">
+                    x Clear All Filter
+                </button>
                     </div>
                 </mat-menu>
+                
                 <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     routerLink="/quotations/create">
                     + Create Quote
@@ -77,13 +82,13 @@
     <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
 
     <div class="m-8  overflow-y-auto">
-        <div *ngIf="!this.dataSource && !isLoading" class="w-full flex justify-center items-center pb-8">
+        <div *ngIf="isEmpty && !isLoading" class="w-full flex justify-center items-center pb-8">
             <div class="p-3">
                 <img src="assets/images/empty.png" alt="">
                 <p class="m-2 text-center text-gray-500">No Data</p>
             </div>
         </div>
-        <table *ngIf="!isLoading && this.dataSource.data.length" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+        <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
 
             <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row definition" -->
@@ -173,11 +178,12 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+        <div class="w-full bg-white" *ngIf="!isEmpty && !isLoading">
+            <app-pagination [page]="page" [row]="row" [total]="total"
+                (changeData)="onPageNumberClick($event)"></app-pagination>
+        </div>
     </div>
     <div>
-        <div class="border-t border-t-gray-300" *ngIf="!isLoading">
-            <mat-paginator></mat-paginator>
-        </div>
     </div>
     
 </div>

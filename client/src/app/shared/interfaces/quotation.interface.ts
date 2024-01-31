@@ -10,7 +10,7 @@ export interface quoteItem {
     availability: string;
 }
 
-export interface quotatation {
+export interface Quotatation {
     _id?: string;
     quoteId?: string;
     client: getCustomer;
@@ -24,7 +24,12 @@ export interface quotatation {
     customerNote: string;
     termsAndCondition: string;
     createdBy: getEmployee;
-    status:QuoteStatus;
+    status: QuoteStatus;
+}
+
+export interface getQuotation {
+    quotations: Quotatation[];
+    total:number;
 }
 
 export interface quotatationForm {
@@ -33,7 +38,7 @@ export interface quotatationForm {
     client: string | getCustomer;
     attention: string | ContactDetail | undefined;
     date: string | null;
-    department: string | getDepartment  | undefined;
+    department: string | getDepartment | undefined;
     subject: string;
     currenct: string;
     items: quoteItem[];
@@ -41,7 +46,7 @@ export interface quotatationForm {
     customerNote: string;
     termsAndCondition: string;
     createdBy: string | getEmployee | undefined;
-    status:QuoteStatus;
+    status: QuoteStatus;
 }
 
 export enum QuoteStatus {
@@ -52,4 +57,14 @@ export enum QuoteStatus {
     ReadyForSubmission = 'Ready for submission',
     Won = 'Won',
     Lost = 'Lost',
+}
+
+
+export interface FilterQuote {
+    page: number;
+    row: number;
+    salesPerson: string | null;
+    customer: string | null;
+    fromDate: string | null;
+    toDate: string | null;
 }

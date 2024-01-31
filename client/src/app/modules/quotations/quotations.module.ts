@@ -16,9 +16,9 @@ import { QuotationViewComponent } from './pages/quotation-view/quotation-view.co
 import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
-import { MatPaginatorModule } from '@angular/material/paginator';
 import { UploadLpoComponent } from './pages/upload-lpo/upload-lpo.component';
 import { UploadFileComponent } from "../../shared/components/upload-file/upload-file.component";
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
 
 @NgModule({
@@ -44,8 +44,8 @@ import { UploadFileComponent } from "../../shared/components/upload-file/upload-
         ReactiveFormsModule,
         directiveSharedModule,
         SkeltonLoadingComponent,
-        MatPaginatorModule,
-        UploadFileComponent
+        UploadFileComponent,
+        PaginationComponent
     ]
 })
 export class QuotationsModule { }
