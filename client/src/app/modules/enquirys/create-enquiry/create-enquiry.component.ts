@@ -13,6 +13,7 @@ import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-enquiry',
@@ -34,6 +35,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedFiles: any[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
+  submit: boolean = false
 
   formData: FormData = new FormData()
   today = new Date().toISOString().substring(0, 10)
@@ -61,6 +63,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
     private router: Router,
+    private toastr: ToastrService
   ) {
     this.config.notFoundText = 'Wait a few Sec';
   }
@@ -103,12 +106,35 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     }
   }
 
+  get f() {
+    return this.enquiryForm.controls;
+  }
+
   onFileRemoved(index: number) {
     (this.selectedFiles as File[]).splice(index, 1)
     this.fileInput.nativeElement.value = '';
   }
 
-  generateId(): string {
+  // onSubmit() {
+  //   this.submit = true
+  //   if (this.enquiryForm.valid) {
+  //     setTimeout(() => {
+  //       this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
+  //       let data = this.enquiryForm.value as Partial<Enquiry>
+  //       this.subscriptions.add(
+  //         this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+  //           if (data) {
+  //             this.dialogRef.close(data)
+  //           }
+  //         })
+  //       )
+  //     }, 300)
+  //   } else {
+  //     this.toastr.warning('Check the fields properly!', 'Warning !')
+  //   }
+  // }
+
+  generateId() {
     let contactId = this.enquiryForm.controls.contact.value
     let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
     let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
@@ -131,6 +157,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.submit = true
     if (this.enquiryForm.valid) {
       this.setUpFormData()
       this.subscriptions.add(
@@ -141,6 +168,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
           }
         })
       )
+    }else{
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 

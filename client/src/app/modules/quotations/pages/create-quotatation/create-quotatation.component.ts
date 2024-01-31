@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
-import { Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
@@ -28,6 +27,7 @@ export class CreateQuotatationComponent {
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
   isSaving: boolean = false;
+  submit: boolean = false
 
   constructor(
     private config: NgSelectConfig,
@@ -36,7 +36,8 @@ export class CreateQuotatationComponent {
     private _profileService: ProfileService,
     private _quoteService: QuotationService,
     private _employeeService: EmployeeService,
-    private _router: Router
+    private _router: Router,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit() {
@@ -100,6 +101,10 @@ export class CreateQuotatationComponent {
     })
   }
 
+  get f() {
+    return this.quoteForm.controls;
+  }
+
   onCustomerChange(event: string) {
     const customer: getCustomer | undefined = this.customers.find((value) => value._id == event)
     if (customer) {
@@ -154,12 +159,15 @@ export class CreateQuotatationComponent {
 
 
   onQuoteSubmit() {
+    this.submit = true
     if (this.quoteForm.valid) {
       this.isSaving = true;
       this._quoteService.saveQuotation(this.quoteForm.value).subscribe((res: quotatation) => {
         this.isSaving = false;
         this._router.navigate(['/quotations']);
       })
+    } else {
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
 
   }

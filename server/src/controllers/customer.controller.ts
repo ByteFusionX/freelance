@@ -18,7 +18,6 @@ export const getCustomers = async (req: Request, res: Response, next: NextFuncti
 export const createCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const customerData = req.body
-        console.log(customerData)
         const customer = new Customer(customerData)
         const saveCustomer = await customer.save()
 

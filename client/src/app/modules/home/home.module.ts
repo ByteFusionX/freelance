@@ -17,6 +17,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
+
   ],
   imports: [
     CommonModule,
@@ -41,6 +43,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     NgSelectModule,
     SkeltonLoadingComponent,
     MatPaginatorModule,
+    ConfettiComponentComponent  
   ]
 })
 export class HomeModule { }
