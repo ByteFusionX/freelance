@@ -1,5 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import Quotation from '../models/quotation.model';
+import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import { Customer } from "../models/customer.model";
@@ -152,6 +153,33 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
     }
 }
 
+export const uploadLpo = async (req: any, res: Response, next: NextFunction) => {
+    try {    
+        if (!req.files) return res.status(204).json({ err: 'No data' })
+    
+        const jobId = await generateJobId() 
+
+        const lpoFiles = req.files;
+        const files = lpoFiles.map((file: any) => file.filename);
+        
+        const jobData = {
+            quoteId: req.body.quoteId,
+            jobId: jobId,
+            files: files
+        }
+
+        const job = new Job(jobData)
+        const saveJob = await (await job.save()).populate('quoteId')
+
+        if (saveJob) {
+            return res.status(200).json(saveJob)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const totalQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const totalQuotes = await Quotation.aggregate([
@@ -167,10 +195,41 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
                 }
             }
         ])
-        
+
         if (totalQuotes) return res.status(200).json(totalQuotes[0])
         return res.status(502).json()
     } catch (error) {
         next(error)
+    }
+}
+
+
+const generateJobId = async () => {
+    try {
+        const lastJob = await Job.findOne({}, {}, { sort: { jobId: -1 } });
+        let lastJobId: String;
+        let jobId: string;
+
+        if (lastJob) {
+            lastJobId = lastJob.jobId
+        }
+        const today = new Date();
+
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}/${month}`;
+
+        if (lastJob && lastJobId) {
+            const IdNumber = lastJobId.split('-')
+            const incrementedNum = parseInt(IdNumber[1]) + 1;
+            const formattedIncrementedNum = incrementedNum.toString().padStart(4, '0');
+            jobId = `${formattedDate}-${formattedIncrementedNum}`
+        } else {
+            jobId = `${formattedDate}-0100`
+        }
+        return jobId;
+    } catch (error) {
+        console.log(error)
     }
 }

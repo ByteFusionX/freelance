@@ -32,4 +32,8 @@ export class QuotationService {
   totalQuotations(): Observable<{ total: number }> {
     return this.http.get<{ total: number }>(`${this.api}/quotation/total`)
   }
+
+  uploadLpo(lpoData:FormData):Observable<any>{
+    return this.http.post<any>(`${this.api}/quotation/lpo`,lpoData)
+  }
 }

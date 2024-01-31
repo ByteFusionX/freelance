@@ -17,32 +17,35 @@ import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.co
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { UploadLpoComponent } from './pages/upload-lpo/upload-lpo.component';
+import { UploadFileComponent } from "../../shared/components/upload-file/upload-file.component";
 
 
 @NgModule({
-  declarations: [
-    QuotationsComponent,
-    CreateQuotatationComponent,
-    QuotationListComponent,
-    QuotationViewComponent,
-    QuotationEditComponent,
-    
-  ],
-  imports: [
-    CommonModule,
-    QuotationsRoutingModule,
-    MatTableModule,
-    MatDialogModule,
-    NgSelectModule,
-    FormsModule,
-    IconsModule,
-    MatMenuModule,
-    FormsModule,
-    ReactiveFormsModule,
-    directiveSharedModule,
-    SkeltonLoadingComponent,
-    MatPaginatorModule,
-  ],
-  providers:[DatePipe]
+    declarations: [
+        QuotationsComponent,
+        CreateQuotatationComponent,
+        QuotationListComponent,
+        QuotationViewComponent,
+        QuotationEditComponent,
+        UploadLpoComponent,
+    ],
+    providers: [DatePipe],
+    imports: [
+        CommonModule,
+        QuotationsRoutingModule,
+        MatTableModule,
+        MatDialogModule,
+        NgSelectModule,
+        FormsModule,
+        IconsModule,
+        MatMenuModule,
+        FormsModule,
+        ReactiveFormsModule,
+        directiveSharedModule,
+        SkeltonLoadingComponent,
+        MatPaginatorModule,
+        UploadFileComponent
+    ]
 })
 export class QuotationsModule { }

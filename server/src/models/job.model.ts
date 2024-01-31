@@ -5,6 +5,7 @@ interface Job extends Document {
     jobId: string;
     status: string;
     createdDate: Date;
+    files:[];
 }
 
 export enum jobStatus {
@@ -20,7 +21,7 @@ export enum jobStatus {
 const jobSchema = new Schema<Job>({
     quoteId: {
         type: Schema.Types.ObjectId,
-        ref: 'Department',
+        ref: 'Quotation',
         required: true,
     },
     jobId: {
@@ -36,7 +37,8 @@ const jobSchema = new Schema<Job>({
     createdDate: {
         type: Date,
         default: Date.now
-    }
+    },
+    files:[]
 });
 
 export default model<Job>("Job", jobSchema);

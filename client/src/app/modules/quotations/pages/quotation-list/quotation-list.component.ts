@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { NavigationExtras, Router } from '@angular/router';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
@@ -7,6 +8,7 @@ import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.i
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { quotatation, quotatationForm, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
+import { UploadLpoComponent } from '../upload-lpo/upload-lpo.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -27,7 +29,8 @@ export class QuotationListComponent {
   constructor(
     private _fb: FormBuilder,
     private _quoteService: QuotationService,
-    private _router:Router
+    private _router:Router,
+    private _dialog: MatDialog,
   ) { }
 
   ngOnInit(){
@@ -107,5 +110,9 @@ export class QuotationListComponent {
     this._quoteService.updateQuoteStatus(quoteId,selectedValue).subscribe((res)=>{
       
     })
+  }
+
+  onClickPresale(id:string) {
+    const presaleDialog = this._dialog.open(UploadLpoComponent,{data:id})
   }
 }
