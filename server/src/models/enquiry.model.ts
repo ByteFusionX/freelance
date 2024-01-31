@@ -1,4 +1,6 @@
 import { Schema, Document, model, Types } from "mongoose";
+import { File } from "../interface/enquiry.interface";
+import FilesSchema from "./files.model";
 
 interface Enquiry extends Document {
     enquiryId: String
@@ -10,6 +12,7 @@ interface Enquiry extends Document {
     date: string | number | Date;
     createdDate: Date;
     preSale: { presalePerson: Types.ObjectId, presaleFiles: [] };
+    assignedFiles: []
     status: string;
     attachments: []
 }
@@ -20,6 +23,7 @@ const preSaleSchema = new Schema({
     },
     presaleFiles: []
 })
+
 
 const enquirySchema = new Schema<Enquiry>({
     client: {
@@ -52,10 +56,11 @@ const enquirySchema = new Schema<Enquiry>({
     },
     createdDate: {
         type: Date,
-        default : Date.now()
+        default: Date.now()
     },
-    attachments: [],
+    attachments: [FilesSchema],
     preSale: [preSaleSchema],
+    assignedFiles: [FilesSchema],
     enquiryId: {
         type: String,
         unique: true,
@@ -66,7 +71,6 @@ const enquirySchema = new Schema<Enquiry>({
         required: true
     },
 });
-
 
 export default model<Enquiry>("Enquiry", enquirySchema);
 

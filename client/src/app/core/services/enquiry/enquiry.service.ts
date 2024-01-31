@@ -48,4 +48,8 @@ export class EnquiryService {
   selectedDepartment(departmentId: string) {
     this.depSubject.next(departmentId)
   }
+
+  uploadAssignedFiles(formData: FormData): Observable<getEnquiry> {
+    return this.http.post<getEnquiry>(`${this.api}/enquiry/assign-files`, formData)
+  }
 }

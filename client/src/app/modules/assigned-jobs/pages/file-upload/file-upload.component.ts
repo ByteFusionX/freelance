@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 
 @Component({
   selector: 'app-file-upload',
@@ -9,15 +10,29 @@ import { MatDialogRef } from '@angular/material/dialog';
 export class FileUploadComponent {
 
   selectedFiles: File[] = []
-  constructor(private dialogRef: MatDialogRef<FileUploadComponent>) { }
+  constructor(
+    private dialogRef: MatDialogRef<FileUploadComponent>,
+    private _enquiryService: EnquiryService,
+    @Inject(MAT_DIALOG_DATA) public data: string,
+  ) { }
 
   onClose() {
     this.dialogRef.close()
   }
 
   onUpload() {
-    if(this.selectedFiles.length){
-      this.dialogRef.close(this.selectedFiles)
+    let totalFiles = this.selectedFiles.length
+    if (totalFiles > 0) {
+      let formData = new FormData()
+      formData.append('enquiryId', this.data)
+      for (let i = 0; i < totalFiles; i++) {
+        formData.append('assignFiles', this.selectedFiles[i])
+      }
+      this._enquiryService.uploadAssignedFiles(formData).subscribe((data) => {
+        if (data) {
+          this.dialogRef.close(data)
+        }
+      })
     }
   }
 
