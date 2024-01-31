@@ -156,7 +156,7 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
 export const uploadLpo = async (req: any, res: Response, next: NextFunction) => {
     try {    
         if (!req.files) return res.status(204).json({ err: 'No data' })
-    
+        console.log(req.files)
         const jobId = await generateJobId() 
 
         const lpoFiles = req.files;

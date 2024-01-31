@@ -17,3 +17,10 @@ export interface getEmployee {
 export interface getEmployeeObject{
     employeeData:getEmployee
 }
+
+
+export interface FilterEmployee {
+    page: number;
+    row: number;
+    search : string;
+}

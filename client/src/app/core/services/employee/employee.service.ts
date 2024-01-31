@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { FilterEmployee, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
@@ -16,8 +16,12 @@ export class EmployeeService {
   employeeData$ = this.employeeSubject.asObservable()
   constructor(private http: HttpClient) { }
 
-  getEmployees(): Observable<getEmployee[]> {
+  getAllEmployees(): Observable<getEmployee[]> {
     return this.http.get<getEmployee[]>(`${this.api}/employee`)
+  }
+
+  getEmployees(filterData: FilterEmployee): Observable<{total:number,employees:getEmployee[]}> {
+    return this.http.post<{total:number,employees:getEmployee[]}>(`${this.api}/employee/get`,filterData)
   }
 
   createEmployees(employeeData: getEmployee) {

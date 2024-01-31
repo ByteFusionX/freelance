@@ -18,6 +18,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-c
     NgSelectModule,
     SkeltonLoadingComponent,
     MatPaginatorModule,
-    ConfettiComponentComponent  
+    ConfettiComponentComponent,
+    PaginationComponent
   ]
 })
 export class HomeModule { }
