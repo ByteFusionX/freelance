@@ -18,7 +18,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<getEnquiry>();
   isLoading: boolean = true;
   isEmpty: boolean = false
-
   subscriptions = new Subscription()
 
   page: number = 1;
@@ -62,7 +61,12 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
       this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
         if (data) {
           this.dataSource.data.splice(index, 1)
-          this.dataSource.data = [...this.dataSource.data]
+          if (this.dataSource.data.length) {
+            this.dataSource.data = [...this.dataSource.data]
+          } else {
+            this.dataSource.data = []
+            this.isEmpty = true
+          }
         }
       })
     )
@@ -70,11 +74,16 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   onUploadClicks(index: number) {
     let dialog = this.dialog.open(FileUploadComponent, {
-      width: '500px'
+      width: '500px',
+      data: this.dataSource.data[index]._id
     })
     dialog.afterClosed().subscribe((data) => {
       if (data) {
-        this.dataSource.data[index].preSale.presaleFile = data
+        data.client = [data.client]
+        data.department = [data.department]
+        data.salesPerson = [data.salesPerson]
+        this.dataSource.data[index] = data
+        this.dataSource.data = [...this.dataSource.data]
       }
     })
   }
@@ -83,7 +92,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this.subject.next(event)
   }
 
-  onClearFiles(index:number){
+  onClearFiles(index: number) {
     this.dataSource.data[index].preSale.presaleFile = null
   }
 }

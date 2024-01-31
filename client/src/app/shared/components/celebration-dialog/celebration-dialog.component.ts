@@ -10,7 +10,7 @@ import { interval, Subscription } from 'rxjs';
 })
 export class CelebrationDialogComponent implements OnInit {
   celebData!: announcementGetData;
-  countdown: number = 5; // Initial countdown value
+  countdown: number = 5; 
   private countdownSubscription: Subscription | undefined;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: announcementGetData, private dialogRef: MatDialogRef<CelebrationDialogComponent>) {
@@ -26,7 +26,6 @@ export class CelebrationDialogComponent implements OnInit {
       if (this.countdown > 0) {
         this.countdown--;
       } else {
-        // When the countdown reaches 0, close the dialog
         this.dialogRef.close();
         if (this.countdownSubscription) {
           this.countdownSubscription.unsubscribe();

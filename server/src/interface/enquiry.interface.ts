@@ -7,9 +7,20 @@ export interface Enquiry {
     title: string;
     date: string | Date;
     attachments: string[];
-    presale: {
+    preSale: {
         presalePerson: string;
-        presaleFile: string[];
+        presaleFiles: string[];
     };
     status: string;
+}
+
+export interface File {
+    fieldname: string,
+    originalname: string,
+    encoding: string,
+    mimetype: string,
+    destination: string,
+    filename: string,
+    path: string,
+    size: number,
 }

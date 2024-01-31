@@ -6,7 +6,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { EnquiryTable, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 
@@ -29,7 +29,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
 
-  total!: number;
+  total: number = 0;
   page: number = 1;
   row: number = 10;
   fromDate: string | null = null
@@ -88,27 +88,32 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this._enquiryService.getEnquiry(filterData)
-        .subscribe((data) => {
-          this.dataSource.data = [...data.enquiry];
-          this.filteredData.data = data.enquiry;
-          this.total = data.total
-          this.isLoading = false
-          this.isEmpty = false
-          if (!this.enqId) {
-            this.enqId = this.total.toString()
-          }
-        }, (error) => {
-          this.dataSource.data = []
-          this.isEmpty = true
+        .subscribe({
+          next: (data: EnquiryTable) => {
+            this.dataSource.data = [...data.enquiry];
+            this.filteredData.data = data.enquiry;
+            this.total = data.total
+            this.isLoading = false
+            this.isEmpty = false
+            this.enqId = this.total.toString().padStart(3, '0')
+          },
+          error: ((error) => {
+            if (error.status == 504) this.enqId = '000'
+            this.dataSource.data = []
+            this.isEmpty = true
+          })
         })
     )
   }
 
   openDialog() {
-    if (this.enqId != null) {
+    if (this.enqId) {
       const dialogRef = this.dialog.open(CreateEnquiryDialog, { data: this.enqId })
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
+          this.total++
+          this.isEmpty = false
+          this.isLoading = false
           result.client = [result.client]
           result.department = [result.department]
           result.salesPerson = [result.salesPerson]

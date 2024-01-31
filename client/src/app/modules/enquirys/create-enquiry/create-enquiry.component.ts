@@ -13,6 +13,7 @@ import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-enquiry',
@@ -34,6 +35,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedFiles: any[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
+  submit: boolean = false
 
   formData: FormData = new FormData()
   today = new Date().toISOString().substring(0, 10)
@@ -61,6 +63,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
     private router: Router,
+    private toastr: ToastrService
   ) {
     this.config.notFoundText = 'Wait a few Sec';
   }
@@ -70,7 +73,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.getEmployee()
     this.getCustomers()
     this.getDepartments()
-    this.data = String(Number(this.data) + 1).padStart(3, '0')
   }
 
   ngOnDestroy(): void {
@@ -103,21 +105,42 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     }
   }
 
+  get f() {
+    return this.enquiryForm.controls;
+  }
+
   onFileRemoved(index: number) {
     (this.selectedFiles as File[]).splice(index, 1)
     this.fileInput.nativeElement.value = '';
   }
 
-  onSubmit() {
-    if (this.enquiryForm.valid && this.selectedFiles.length) {
-      this.generateId()
-      this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
-      let data = this.enquiryForm.value as Partial<Enquiry>
+  generateId() {
+    this.data = String(Number(this.data) + 1).padStart(3, '0')
+    let contactId = this.enquiryForm.controls.contact.value
+    let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
+    let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
 
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        this.formData.append('attachments', (this.selectedFiles[i] as Blob))
-      }
-      this.formData.append('enquiryData', JSON.stringify(data))
+    let formDate = <string>this.enquiryForm.controls.date.value
+    const [year, month] = formDate.split('-');
+    let date = `-${month}/${year.slice(2)}`
+    return ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
+  }
+
+  setUpFormData() {
+    let enqId = this.generateId()
+    this.enquiryForm.controls.enquiryId.setValue(enqId)
+    this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
+    let data = this.enquiryForm.value as Partial<Enquiry>
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      this.formData.append('attachments', (this.selectedFiles[i] as Blob))
+    }
+    this.formData.append('enquiryData', JSON.stringify(data))
+  }
+
+  onSubmit() {
+    this.submit = true
+    if (this.enquiryForm.valid) {
+      this.setUpFormData()
       this.subscriptions.add(
         this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
           if (data) {
@@ -126,23 +149,13 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
           }
         })
       )
+    }else{
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 
   createFormData() {
     this.formData = new FormData()
-  }
-
-  generateId() {
-    let contactId = this.enquiryForm.controls.contact.value
-    let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
-    let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
-
-    let formDate = <string>this.enquiryForm.controls.date.value
-    const [year, month] = formDate.split('-');
-    let date = `-${month}/${year.slice(2)}`
-    let enqId = ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
-    this.enquiryForm.controls.enquiryId.setValue(enqId)
   }
 
   onClose() {
@@ -154,37 +167,37 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onClickPresale() {
-    const presaleDialog = this.dialog.open(AssignPresaleComponent)
+    const presale = this.enquiryForm.controls.presale.value
+    const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: presale })
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
-        this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
-        for (let i = 0; i < data.presaleFile.length; i++) {
-          this.formData.append('attachments', (data.presaleFile[i] as Blob))
+        if (data.clear) {
+          this.enquiryForm.controls.status.setValue('Work In Progress')
+          this.enquiryForm.controls.presale.setValue(null)
+        } else {
+          this.enquiryForm.controls.presale.setValue(data)
+          this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
+          for (let i = 0; i < data.presaleFile.length; i++) {
+            this.formData.append('presaleFiles', (data.presaleFile[i] as Blob))
+          }
+          this.enquiryForm.controls.status.setValue('Assigned To Presales')
         }
-        this.enquiryForm.controls.status.setValue('Assigned To Presales')
       }
     })
   }
 
   onClickQuote() {
     if (this.enquiryForm.valid) {
-      this.generateId()
-      setTimeout(() => {
-        this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
-        let data = this.enquiryForm.value as Partial<Enquiry>
-        for (let i = 0; i < this.selectedFiles.length; i++) {
-          this.formData.append('attachments', (this.selectedFiles[i] as Blob))
-        }
-        // this.subscriptions.add(
-        //   this._enquiryService.createEnquiry(formData).subscribe((data) => {
-        //     if (data) {
-        //       this._enquiryService.emitToQuote(data)
-        //       this.dialogRef.close()
-        //       this.router.navigate(['/quotations/create'])
-        //     }
-        //   })
-        // )
-      }, 300)
+      this.setUpFormData()
+      this.subscriptions.add(
+        this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+          if (data) {
+            this._enquiryService.emitToQuote(data)
+            this.dialogRef.close()
+            this.router.navigate(['/quotations/create'])
+          }
+        })
+      )
     }
   }
 
