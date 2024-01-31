@@ -13,19 +13,23 @@ export class QuotationService {
   api: string = environment.api
   constructor(private http: HttpClient) { }
 
-  saveQuotation(quotationDetails:quotatation): Observable<quotatation> {
-    return this.http.post<quotatation>(`${this.api}/quotation`,quotationDetails)
+  saveQuotation(quotationDetails: quotatation): Observable<quotatation> {
+    return this.http.post<quotatation>(`${this.api}/quotation`, quotationDetails)
   }
 
-  updateQuotation(quotationDetails:quotatation,quoteId:string|undefined): Observable<quotatation> {
-    return this.http.patch<quotatation>(`${this.api}/quotation/update/${quoteId}`,quotationDetails)
+  updateQuotation(quotationDetails: quotatation, quoteId: string | undefined): Observable<quotatation> {
+    return this.http.patch<quotatation>(`${this.api}/quotation/update/${quoteId}`, quotationDetails)
   }
 
   getQuotation(): Observable<quotatation[]> {
     return this.http.get<quotatation[]>(`${this.api}/quotation`)
   }
 
-  updateQuoteStatus(quoteId:string,status:QuoteStatus): Observable<string> {
-    return this.http.patch<string>(`${this.api}/quotation/status/${quoteId}`,{status})
+  updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<string> {
+    return this.http.patch<string>(`${this.api}/quotation/status/${quoteId}`, { status })
+  }
+
+  totalQuotations(): Observable<{ total: number }> {
+    return this.http.get<{ total: number }>(`${this.api}/quotation/total`)
   }
 }

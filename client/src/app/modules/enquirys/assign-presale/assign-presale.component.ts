@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, ElementRef, Inject, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { fileEnterState } from '../enquiry-animations';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Observable } from 'rxjs';
@@ -15,18 +15,25 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 })
 export class AssignPresaleComponent implements OnInit {
 
-  @ViewChild('fileInput') fileInput!: ElementRef;
   selectedFiles: File[] = []
   employees$!: Observable<getEmployee[]>
-  selectedEmployee!: string;
+  selectedEmployee!: string | undefined;
+  employeeError: boolean = false
+  isClear: boolean = false
 
   constructor(
     public dialogRef: MatDialogRef<AssignPresaleComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[] },
     private _employeeService: EmployeeService,
   ) { }
 
   ngOnInit(): void {
     this.employees$ = this._employeeService.getEmployees()
+    if (this.data) {
+      this.selectedEmployee = this.data.presalePerson
+      this.selectedFiles = this.data.presaleFile
+      this.isClear = true
+    }
   }
 
   onClose() {
@@ -37,14 +44,29 @@ export class AssignPresaleComponent implements OnInit {
     this.selectedEmployee = change
   }
 
-  onFileUpload(event:File[]){
+  onFileUpload(event: File[]) {
     this.selectedFiles = event
   }
 
   onSubmit() {
-    if (this.selectedFiles && this.selectedEmployee) {
+    if (this.selectedEmployee) {
       let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles }
       this.dialogRef.close(presale)
+    } else {
+      this.Error()
     }
+  }
+
+  onClear() {
+    this.selectedEmployee = undefined
+    this.selectedFiles = []
+    this.dialogRef.close({ clear: true })
+  }
+
+  Error() {
+    this.employeeError = true
+    setTimeout(() => {
+      this.employeeError = false
+    }, 1000)
   }
 }

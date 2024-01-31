@@ -23,8 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 startCronJob();
 
-
-
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(

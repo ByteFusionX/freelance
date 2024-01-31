@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgIconsModule } from '@ng-icons/core';
 
@@ -15,7 +15,7 @@ export class UploadFileComponent {
   @Output() fileUpload = new EventEmitter<File[]>()
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  selectedFiles: File[] = []
+  @Input() selectedFiles: File[] = []
 
   onFileSelected(event: any) {
     let files = event.target.files
