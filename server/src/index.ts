@@ -39,7 +39,7 @@ app.use('/department', depRouter)
 app.use('/employee', empRouter)
 app.use('/announcement',annoRouter)
 app.use('/customer',cusRouter)
-app.use('/equiry',equiRouter)
+app.use('/enquiry',equiRouter)
 app.use('/celebrationCheck',celebRouter)
 app.use('/quotation',quoteRouter)
 
