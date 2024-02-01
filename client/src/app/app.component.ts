@@ -22,14 +22,7 @@ export class AppComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(private route: ActivatedRoute, private _service: celebCheckService, private dialog: MatDialog, private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.loginRouter = this.isLoginRoute(); // Check if the current route is the login route
-        if (!this.loginRouter) {
-          this.getCelebData();
-        }
-      }
-    });
+
   }
 
   ngOnDestroy() {
@@ -38,7 +31,15 @@ export class AppComponent implements OnDestroy {
   }
 
   ngOnInit() {
-    this.isUserThere();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.loginRouter = this.isLoginRoute();
+        if (!this.loginRouter) {
+          this.isUserThere();
+        }
+      }
+    });
+
   }
 
   reduceSideBar(event: boolean) {
