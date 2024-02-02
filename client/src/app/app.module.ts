@@ -11,7 +11,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { IconsModule } from './lib/icons/icons.module';
 import { componentModule } from './shared/components/component.module';
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
 
 
 @NgModule({
