@@ -50,7 +50,5 @@ export class LoginPageComponent {
         this.passwordNotMatchError = true
       }
     })
-
-
   }
 }

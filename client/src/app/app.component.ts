@@ -1,8 +1,8 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { celebCheckService } from './core/services/celebrationCheck/celebCheck.service';
 import { announcementGetData } from './shared/interfaces/announcement.interface';
-import { concatMap, from, interval, take, switchMap, takeUntil } from 'rxjs';
+import { concatMap, from, interval, take, switchMap, takeUntil, Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CelebrationDialogComponent } from './shared/components/celebration-dialog/celebration-dialog.component';
 import { Subject } from 'rxjs';
@@ -12,22 +12,31 @@ import { Subject } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnDestroy {
+export class AppComponent implements OnDestroy, OnInit {
   title = 'client';
   birthdaysViewed!: boolean;
   reduceSate: boolean = true;
   dialogRef: MatDialogRef<CelebrationDialogComponent, any> | undefined;
   private destroy$ = new Subject<void>();
+  private subscriptions: Subscription = new Subscription()
 
-  constructor(private route: ActivatedRoute, private _service: celebCheckService, private dialog: MatDialog) { }
+  constructor(
+    private route: ActivatedRoute,
+    private _service: celebCheckService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.subscriptions.unsubscribe()
   }
 
   ngOnInit() {
-    this.getCelebData();
+    let token: string = <string>localStorage.getItem('employeeToken')
+    if (token) {
+      this.getCelebData();
+    }
   }
 
   reduceSideBar(event: boolean) {
@@ -41,33 +50,35 @@ export class AppComponent implements OnDestroy {
   getCelebData() {
     this.birthdaysViewed = this._service.hasTodaysBirthdaysBeenViewed();
     if (!this.birthdaysViewed) {
-      this._service.getCelebrationData().subscribe((data) => {
-        if (data && data.length > 0) {
-          from(data).pipe(
-            concatMap((item, index) => {
-              return interval(1000 * index).pipe(
-                take(1),
-                switchMap(() => {
-                  if (this.dialogRef) {
-                    return this.dialogRef.afterClosed().pipe(
-                      takeUntil(this.destroy$),
-                      switchMap(() => {
-                        this.dialogRef = this.openCelebrationDialog(item);
-                        return [];
-                      })
-                    );
-                  } else {
-                    this.dialogRef = this.openCelebrationDialog(item);
-                    return [];
-                  }
-                })
-              );
-            }),
-            takeUntil(this.destroy$)
-          ).subscribe();
-          this._service.markTodaysBirthdaysAsViewed();
-        }
-      });
+      this.subscriptions.add(
+        this._service.getCelebrationData().subscribe((data) => {
+          if (data && data.length > 0) {
+            from(data).pipe(
+              concatMap((item, index) => {
+                return interval(1000 * index).pipe(
+                  take(1),
+                  switchMap(() => {
+                    if (this.dialogRef) {
+                      return this.dialogRef.afterClosed().pipe(
+                        takeUntil(this.destroy$),
+                        switchMap(() => {
+                          this.dialogRef = this.openCelebrationDialog(item);
+                          return [];
+                        })
+                      );
+                    } else {
+                      this.dialogRef = this.openCelebrationDialog(item);
+                      return [];
+                    }
+                  })
+                );
+              }),
+              takeUntil(this.destroy$)
+            ).subscribe();
+            this._service.markTodaysBirthdaysAsViewed();
+          }
+        })
+      )
     }
 
     interval(1000 * 60).pipe(takeUntil(this.destroy$)).subscribe(() => {
