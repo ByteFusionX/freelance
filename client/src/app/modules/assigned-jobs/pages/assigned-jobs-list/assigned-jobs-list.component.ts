@@ -1,10 +1,12 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
+import { HttpClient } from '@angular/common/http';
+import { saveAs } from 'file-saver'
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -25,7 +27,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   total!: number;
   subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 })
 
-  constructor(private _enquiryService: EnquiryService, private dialog: MatDialog) { }
+  constructor(private _enquiryService: EnquiryService, private dialog: MatDialog, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -95,4 +97,17 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   onClearFiles(index: number) {
     this.dataSource.data[index].preSale.presaleFile = null
   }
+
+  onDownloadClicks(file: any) {
+    this._enquiryService.downloadFile(file.filename)
+    .subscribe({
+      next: (event) => {
+        saveAs(event['body'], file.originalname)
+      },
+      error:(error)=>{
+        console.log(error);
+      }
+    })
+  }
 }
+
