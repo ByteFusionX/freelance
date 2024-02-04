@@ -30,6 +30,14 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+export const editCustomer=async (req:Request,res:Response,next:NextFunction)=>{
+try {
+    const customerData = req.body
+    console.log(customerData)
+} catch (error) {
+    next(error)
+}
+}
 // export const updateDepartment = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
 //         const data = req.body

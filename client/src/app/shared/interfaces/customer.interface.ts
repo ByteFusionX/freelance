@@ -16,3 +16,12 @@ export interface getCustomer {
     customerEmailId: string;
     contactNo: number;
 }
+
+export interface customerForm {
+    _id: string;
+    department: getDepartment;
+    contactDetails: ContactDetail[];
+    companyName: string;
+    customerEmailId: string;
+    contactNo: number;
+}

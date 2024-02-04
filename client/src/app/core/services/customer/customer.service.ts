@@ -20,4 +20,8 @@ export class CustomerService {
     return this.http.get<getCustomer[]>(`${this.apiUrl}/customer`)
   }
 
+  editCustomer(data: getCustomer):{} {
+    return this.http.patch<getCustomer>(`${this.apiUrl}/customer/edit`, data)
+  }
+
 }

@@ -4,6 +4,7 @@ import { CustomersComponent } from './customers.component';
 import { CustomersListComponent } from './pages/customers-list/customers-list.component';
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
 import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
+import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
 
 const routes: Routes = [
   {
@@ -11,7 +12,9 @@ const routes: Routes = [
     children: [
       { path: '', component: CustomersListComponent },
       { path:'create',component:CreateCustomerDialog},
-      { path:'view',component:CustomerViewComponent}
+      { path:'view',component:CustomerViewComponent},
+      { path:'edit',component:CustomerEditComponent}
+
     ]
   }
 ];

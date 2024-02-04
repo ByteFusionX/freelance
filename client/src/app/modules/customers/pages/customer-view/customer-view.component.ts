@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 
 @Component({
@@ -12,12 +12,19 @@ export class CustomerViewComponent {
 
   constructor(private _router: Router) {
     const navigation = this._router.getCurrentNavigation();
-
     if (navigation && navigation.extras.state) {
       this.customerData = navigation.extras.state as getCustomer
     } else {
       this._router.navigate(['/customers'])
     }
+  }
+
+  onCustomerEdit(){
+    const navigationExtras: NavigationExtras = {
+      state: this.customerData
+    };
+    this._router.navigate(['/customers/edit'], navigationExtras);
+  
   }
 
 }

@@ -13,6 +13,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { CustomersComponent } from './customers.component';
+import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { CustomersComponent } from './customers.component';
     CustomersComponent,
     CustomersListComponent,
     CreateCustomerDialog,
-    CustomerViewComponent
+    CustomerViewComponent,
+    CustomerEditComponent
   ],
   imports: [
     CommonModule,
