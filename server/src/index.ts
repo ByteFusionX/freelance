@@ -14,12 +14,12 @@ import celebRouter from './routes/celebrationCheck.router';
 import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
 import downRouter from './routes/downloader.router'
+import TokenLogger from './common/middlewares/jwt.middleware';
 
 
 const app: express.Application = express();
 
 app.use(morgan("tiny"));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 startCronJob();
@@ -33,6 +33,7 @@ app.use(
 	})
 );
 
+app.use(TokenLogger)	
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
