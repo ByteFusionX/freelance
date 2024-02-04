@@ -28,9 +28,13 @@ export class EmployeeService {
     return this.http.post(`${this.api}/employee/login`, employeeData)
   }
 
-  employeeToken() : any {
-    let token = <string | undefined>localStorage.getItem('employeeToken')
-    if(token){
+  getToken(): string | null {
+    return <string | null>localStorage.getItem('employeeToken')
+  }
+
+  employeeToken(): any {
+    let token = this.getToken()
+    if (token) {
       const decodedToken = <{ id: string, employeeId: string }>jwtDecode(token);
       return decodedToken
     }
@@ -40,7 +44,7 @@ export class EmployeeService {
     return this.http.get<getEmployee>(`${this.api}/employee/get/${id}`)
   }
 
-  getEmployeeData(id:string){
+  getEmployeeData(id: string) {
     this.getEmployee(id).subscribe(
       (employeeData: getEmployee) => {
         this.employeeSubject.next(employeeData);
