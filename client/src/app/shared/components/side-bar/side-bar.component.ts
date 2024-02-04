@@ -4,6 +4,7 @@ import { NavigationEnd, NavigationError, NavigationStart, Router } from '@angula
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from 'src/app/app-routing.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-side-bar',
@@ -11,7 +12,7 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
   styleUrls: ['./side-bar.component.css'],
   animations: [sideBarState, dropDownMenuSate, buttonSlideState],
   standalone: true,
-  imports: [CommonModule, IconsModule, AppRoutingModule]
+  imports: [CommonModule, IconsModule, AppRoutingModule, MatTooltipModule]
 })
 export class SideBarComponent implements AfterViewInit {
 
