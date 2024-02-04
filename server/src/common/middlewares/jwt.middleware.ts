@@ -6,8 +6,9 @@ const TokenLogger = (req: any, res: any, next: NextFunction) => {
 
         if (req.headers.authorization) {
             next()
+        }else{
+            return res.status(403).json({ error: 'Access Forbidden' })
         }
-        return res.status(403).json({ error: 'Access Forbidden' })
     } catch (error) {
         next(error)
     }
