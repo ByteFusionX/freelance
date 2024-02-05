@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,6 +13,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -28,6 +29,7 @@ export class QuotationListComponent {
   isLoading: boolean = true;
   isEmpty: boolean = false;
   isFiltered: boolean = false;
+  lastStatus!: QuoteStatus;
 
   quoteStatuses = Object.values(QuoteStatus);
   displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
@@ -63,6 +65,7 @@ export class QuotationListComponent {
   })
 
   ngOnInit() {
+
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.customers$ = this._customerService.getAllCustomers()
     this.departments$ = this._departetmentService.getDepartments()
@@ -159,11 +162,32 @@ export class QuotationListComponent {
     this.getQuotations()
   }
 
+  onStatus(status: QuoteStatus) {
+    this.lastStatus = status
+    console.log(this.lastStatus)
+  }
 
-  updateStatus(i: number, quoteId: string) {
-    const selectedValue = this.dataSource.data[i].status;
-    this._quoteService.updateQuoteStatus(quoteId, selectedValue).subscribe((res) => {
+  updateStatus(i: number, quoteId: string, status: QuoteStatus) {
+    this.dataSource.data[i].status = this.lastStatus;
+    this.filteredData.data[i].status = this.lastStatus;
 
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+      {
+        data: {
+          title: `Are you absolutely sure?`,
+          description: `This action cannot be undone. This will permanently change the status to ${status}.`
+        }
+      });
+
+    dialogRef.afterClosed().subscribe((approved: boolean) => {
+      if (approved) {
+        console.log(approved)
+        this._quoteService.updateQuoteStatus(quoteId, status).subscribe((res: QuoteStatus) => {
+          console.log(res)
+          this.dataSource.data[i].status = res;
+          this.filteredData.data[i].status = res;
+        })
+      }
     })
   }
 
@@ -172,9 +196,14 @@ export class QuotationListComponent {
     this.getQuotations()
   }
 
-  onClickPresale(id: string) {
-    const presaleDialog = this._dialog.open(UploadLpoComponent, { data: id })
+  onClickLpo(data: Quotatation) {
+    const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data })
+    lpoDialog.afterClosed().subscribe((quote:Quotatation)=>{
+      this.getQuotations()
+    })
   }
+
+
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)

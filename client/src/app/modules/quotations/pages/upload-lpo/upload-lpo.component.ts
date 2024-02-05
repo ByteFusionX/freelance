@@ -5,6 +5,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { Observable } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-upload-lpo',
@@ -17,16 +18,19 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 export class UploadLpoComponent implements OnInit {
 
   selectedFiles: File[] = []
+  lpoFiles = []
   isClear: boolean = false
-  error:boolean = false;
+  error: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<UploadLpoComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: string,
+    @Inject(MAT_DIALOG_DATA) public data: Quotatation,
     private _quoationService: QuotationService
   ) { }
 
   ngOnInit(): void {
+    this.lpoFiles = this.data.lpoFiles
+    console.log(this.lpoFiles) 
     if (this.data) {
       this.isClear = true
     }
@@ -39,23 +43,24 @@ export class UploadLpoComponent implements OnInit {
 
   onFileUpload(event: File[]) {
     this.selectedFiles = event
-    if(this.selectedFiles.length){
+    if (this.selectedFiles.length) {
       this.error = false
     }
   }
 
-  onSubmit() {
+  onSubmit(isSubmitted: boolean) {
     if (this.selectedFiles.length && this.data) {
       let formData = new FormData();
-      formData.append('quoteId', this.data)
+      formData.append('quoteId', this.data._id as string)
+      formData.append('isSubmitted', isSubmitted as unknown as string)
       for (let i = 0; i < this.selectedFiles.length; i++) {
-        console.log(this.selectedFiles[i])
         formData.append('files', this.selectedFiles[i] as Blob)
       }
-      this._quoationService.uploadLpo(formData).subscribe((res) => {
-        if(res){
-          console.log(res)
-          this.dialogRef.close()
+      this._quoationService.uploadLpo(formData).subscribe((quote:Quotatation) => {
+        if (quote) {
+          if (isSubmitted) {
+            this.dialogRef.close(quote)
+          }
         }
       })
     } else {

@@ -3,6 +3,7 @@ import Quotation from '../models/quotation.model';
 import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
+import { getPreSaleJobs } from "./enquiry.controller";
 const { ObjectId } = require('mongodb')
 
 
@@ -137,7 +138,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
         ]);
 
         if (!quoteData || !total) return res.status(204).json({ err: 'No Quoatation data found' })
-        return res.status(200).json({ total: total, quotations : quoteData })
+        return res.status(200).json({ total: total, quotations: quoteData })
 
     } catch (error) {
         console.log(error)
@@ -185,7 +186,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, { status: status })
 
         if (quoteUpdated) {
-            return res.status(200).json(quoteUpdated.status)
+            return res.status(200).json(status)
         }
         return res.status(502).json()
     } catch (error) {
@@ -211,24 +212,33 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
 export const uploadLpo = async (req: any, res: Response, next: NextFunction) => {
     try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
-        console.log(req.files)
-        const jobId = await generateJobId()
 
         const lpoFiles = req.files;
-        const files = lpoFiles.map((file: any) => file.filename);
+        const files = lpoFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
 
-        const jobData = {
-            quoteId: req.body.quoteId,
-            jobId: jobId,
-            files: files
+        if (req.body.isSubmitted == 'true') {
+            const jobId = await generateJobId()
+
+            const jobData = {
+                quoteId: req.body.quoteId,
+                jobId: jobId,
+                files: files
+            }
+
+            const job = new Job(jobData)
+            const saveJob = await (await job.save()).populate('quoteId')
+
+            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId,{lpoSubmitted:true})
+            console.log(quote)
+            if (quote) {
+                return res.status(200).json(quote)
+            }
+        } else {
+            const quoteId = req.body.quoteId;
+            await Quotation.findByIdAndUpdate(quoteId, { $push: { lpoFiles: { $each: files } } })
+
         }
 
-        const job = new Job(jobData)
-        const saveJob = await (await job.save()).populate('quoteId')
-
-        if (saveJob) {
-            return res.status(200).json(saveJob)
-        }
         return res.status(502).json()
     } catch (error) {
         next(error)

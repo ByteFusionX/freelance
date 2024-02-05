@@ -25,8 +25,8 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`,filterData)
   }
 
-  updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<string> {
-    return this.http.patch<string>(`${this.api}/quotation/status/${quoteId}`, { status })
+  updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
+    return this.http.patch<QuoteStatus>(`${this.api}/quotation/status/${quoteId}`, { status })
   }
 
   totalQuotations(): Observable<{ total: number }> {

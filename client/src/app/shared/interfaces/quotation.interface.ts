@@ -25,6 +25,8 @@ export interface Quotatation {
     termsAndCondition: string;
     createdBy: getEmployee;
     status: QuoteStatus;
+    lpoFiles:[];
+    lpoSubmitted:boolean;
 }
 
 export interface getQuotation {
