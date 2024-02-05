@@ -4,7 +4,9 @@ export const DownloadFile = async (req: Request, res: Response, next: NextFuncti
     try {
         const fileUrl = req.query.file
         res.download(`uploads/${fileUrl}`, (error) => {
-            next(error)
+            if (error) {
+                return res.status(404).json({ mesage: 'file not found' })
+            }
         });
     } catch (error) {
         next(error)

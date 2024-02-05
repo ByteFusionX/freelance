@@ -7,6 +7,7 @@ import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver'
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -27,7 +28,10 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   total!: number;
   subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 })
 
-  constructor(private _enquiryService: EnquiryService, private dialog: MatDialog, private http: HttpClient) { }
+  constructor(
+    private _enquiryService: EnquiryService,
+    private dialog: MatDialog,
+    private toast: ToastrService) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -39,12 +43,15 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   getJobsData() {
     this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row).subscribe((data) => {
-        this.dataSource.data = data.enquiry;
-        this.total = data.total;
-        this.isLoading = false;
-      }, (error) => {
-        this.isEmpty = true
+      this._enquiryService.getPresale(this.page, this.row).subscribe({
+        next: (data) => {
+          this.dataSource.data = data.enquiry;
+          this.total = data.total;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.isEmpty = true
+        }
       })
     )
   }
@@ -100,14 +107,17 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   onDownloadClicks(file: any) {
     this._enquiryService.downloadFile(file.filename)
-    .subscribe({
-      next: (event) => {
-        saveAs(event['body'], file.originalname)
-      },
-      error:(error)=>{
-        console.log(error);
-      }
-    })
+      .subscribe({
+        next: (event) => {
+          const fileContent: Blob = new Blob([event['body']])
+          saveAs(fileContent, file.originalname)
+        },
+        error: (error) => {
+          if (error.status == 404) {
+            this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+          }
+        }
+      })
   }
 }
 
