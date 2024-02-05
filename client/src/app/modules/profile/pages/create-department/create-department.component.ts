@@ -40,7 +40,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
       this.name.setValue(this.data.departmentName)
       this.head.setValue(fullName)
     }
-    this.employeesList$ = this._employeeService.getEmployees()
+    this.employeesList$ = this._employeeService.getAllEmployees()
   }
 
   onCloseClicked() {

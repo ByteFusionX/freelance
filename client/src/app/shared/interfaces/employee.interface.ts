@@ -1,5 +1,5 @@
 export interface getEmployee {
-    _id?:string;
+    _id?: string;
     employeeId: string;
     firstName: string;
     lastName: string;
@@ -7,13 +7,25 @@ export interface getEmployee {
     designation: string;
     dob: string;
     department: string;
-    contactNo:number | string;
+    contactNo: number | string;
     category: string;
     dateOfJoining: string;
     reportingTo: string | null | undefined;
     userRole: string;
 }
 
-export interface getEmployeeObject{
-    employeeData:getEmployee
+export interface getCreators {
+    _id:string,
+    fullName:string
+}
+
+export interface getEmployeeObject {
+    employeeData: getEmployee
+}
+
+
+export interface FilterEmployee {
+    page: number;
+    row: number;
+    search: string;
 }

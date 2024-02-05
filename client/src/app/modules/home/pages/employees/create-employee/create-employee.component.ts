@@ -18,6 +18,7 @@ export class CreateEmployeeDialog implements OnInit {
   showPassword: boolean = false;
   passwordType: string = this.showPassword ? 'text' : 'password';
   showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+  isSaving: boolean = false;
 
   employeeForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -31,7 +32,7 @@ export class CreateEmployeeDialog implements OnInit {
     dateOfJoining: ['', Validators.required],
     reportingTo: [''],
     userRole: ['', Validators.required],
-    password: ['',[Validators.required,Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
+    password: ['', [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
   })
 
   constructor(
@@ -53,13 +54,14 @@ export class CreateEmployeeDialog implements OnInit {
   }
 
   getEmployee() {
-    this._employeeService.getEmployees().subscribe((res: getEmployee[]) => {
+    this._employeeService.getAllEmployees().subscribe((res: getEmployee[]) => {
       this.employees = res;
     })
   }
 
   onSubmit() {
     if (this.employeeForm.valid) {
+      this.isSaving = true;
       const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
 
       const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
@@ -69,6 +71,7 @@ export class CreateEmployeeDialog implements OnInit {
       employeeData.reportingTo = reportingToValue;
 
       this._employeeService.createEmployees(employeeData).subscribe((data) => {
+        this.isSaving = false;
         this.dialogRef.close(data)
       })
     }
