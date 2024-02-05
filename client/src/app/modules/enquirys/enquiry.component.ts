@@ -55,7 +55,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   })
 
   ngOnInit(): void {
-    this.salesPerson$ = this._employeeService.getEmployees()
+    this.salesPerson$ = this._employeeService.getAllEmployees()
     this.subscriptions.add(
       this._enquiryService.departmentData$.subscribe((data) => {
         this.selectedDepartment = data

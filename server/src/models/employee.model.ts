@@ -81,4 +81,5 @@ const employeeSchema = new Schema<Employee>({
     },
 });
 
+employeeSchema.index({ firstName: 1, lastName: 1 })
 export default model<Employee>("Employee", employeeSchema);
