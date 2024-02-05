@@ -10,7 +10,7 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import { quotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
+import { Quotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-quotation-edit',
@@ -45,7 +45,7 @@ export class QuotationEditComponent {
     this.config.appendTo = 'body';
     this.config.bindValue = 'value';
 
-    this.getCustomers();
+    this.getAllCustomers();
     this.getDepartment();
     this.tokenData = this._employeeService.employeeToken();
 
@@ -104,8 +104,8 @@ export class QuotationEditComponent {
   }
 
 
-  getCustomers() {
-    this._customerService.getCustomers().subscribe((res) => {
+  getAllCustomers() {
+    this._customerService.getAllCustomers().subscribe((res) => {
       this.customers = res;
       if(this.quoteData){
         this.onCustomerChange(this.quoteData.client)
@@ -179,7 +179,7 @@ export class QuotationEditComponent {
   onQuoteSaveSubmit() {
     this.submit = true
     if(this.quoteForm.valid){
-      this._quoteService.updateQuotation(this.quoteForm.value,this.quoteData._id).subscribe((res:quotatation)=>{
+      this._quoteService.updateQuotation(this.quoteForm.value,this.quoteData._id).subscribe((res:Quotatation)=>{
         this._router.navigate(['/quotations'])
       })
     }else {

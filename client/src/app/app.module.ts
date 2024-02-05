@@ -12,6 +12,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { IconsModule } from './lib/icons/icons.module';
 import { componentModule } from './shared/components/component.module';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.interceptor';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.intercep
     componentModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })
