@@ -30,13 +30,23 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
     }
 }
 
-export const editCustomer=async (req:Request,res:Response,next:NextFunction)=>{
-try {
-    const customerData = req.body
-    console.log(customerData)
-} catch (error) {
-    next(error)
-}
+export const editCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy } = req.body
+        const updatedCustomer = await Customer.findOneAndUpdate({ _id: id }, {
+            $set: {
+                department: department,
+                contactDetails: contactDetails,
+                companyName: companyName,
+                customerEmailId: customerEmailId,
+                contactNo: contactNo,
+                createdBy: createdBy
+            }
+        })
+        return res.status(200).json(updatedCustomer)
+    } catch (error) {
+        next(error)
+    }
 }
 // export const updateDepartment = async (req: Request, res: Response, next: NextFunction) => {
 //     try {

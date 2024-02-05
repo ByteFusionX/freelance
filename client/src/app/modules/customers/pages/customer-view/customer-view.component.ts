@@ -14,6 +14,7 @@ export class CustomerViewComponent {
     const navigation = this._router.getCurrentNavigation();
     if (navigation && navigation.extras.state) {
       this.customerData = navigation.extras.state as getCustomer
+      console.log(this.customerData)
     } else {
       this._router.navigate(['/customers'])
     }

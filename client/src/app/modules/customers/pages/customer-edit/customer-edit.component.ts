@@ -16,57 +16,59 @@ import { customerForm, getCustomer } from 'src/app/shared/interfaces/customer.in
 export class CustomerEditComponent {
   departments: getDepartment[] = [];
   customerForm!: FormGroup;
-  isSubmitted:boolean = false;
-  customerData!:customerForm
+  isSubmitted: boolean = false;
+  customerData!: customerForm
 
 
 
   constructor(private _fb: FormBuilder,
     private _profileService: ProfileService,
-    private _customerService:CustomerService,
+    private _customerService: CustomerService,
     private _employeeService: EmployeeService,
-    private _router:Router,
-    private toastr: ToastrService){ 
-      this.getCustomerData()
-      this.getDepartment()
+    private _router: Router,
+    private toastr: ToastrService) {
+    this.getCustomerData()
+    this.getDepartment()
 
-     }
+  }
 
-    
-      ngOnInit() {
-        this.customerForm = this._fb.group({
-          department: ['', Validators.required],
-          contactDetails: this._fb.array([
-            this._fb.group({
-              courtesyTitle: ['', Validators.required],
-              firstName: ['', Validators.required],
-              lastName: ['', Validators.required],
-              email: ['', [Validators.required, Validators.email]]
-            })
-          ]),
-          companyName: ['', Validators.required],
-          customerEmailId: ['', [Validators.required, Validators.email]],
-          contactNo: ['', Validators.required],
-          createdBy:['',Validators.required]
-        });
-        if(this.customerData&&this.departments){
 
-          console.log(this.customerData)
-          this.customerForm.get('department')?.patchValue(this.customerData.department._id)
-        this.customerForm.patchValue(this.customerData)
-
-        }
+  ngOnInit() {
+    this.customerForm = this._fb.group({
+      department: ['', Validators.required],
+      contactDetails: this._fb.array([
+        this._fb.group({
+          courtesyTitle: ['', Validators.required],
+          firstName: ['', Validators.required],
+          lastName: ['', Validators.required],
+          email: ['', [Validators.required, Validators.email]]
+        })
+      ]),
+      companyName: ['', Validators.required],
+      customerEmailId: ['', [Validators.required, Validators.email]],
+      contactNo: ['', Validators.required],
+      createdBy: ['', Validators.required]
+    });
+    if (this.customerData && this.departments) {
+      for (let i = 1; i < this.customerData.contactDetails.length; i++) {
+        this.addContactFormGroup()
       }
-    
-      getCustomerData(){
-        const navigation = this._router.getCurrentNavigation();
-        if (navigation) {
-          this.customerData = navigation.extras.state as customerForm
-          console.log(this.customerData.department._id)
-        } else {
-          this._router.navigate(['/customer']);
-        }
-      }
+      this.customerForm.patchValue(this.customerData)
+
+      this.customerForm.get('department')?.patchValue(this.customerData.department._id)
+
+    }
+  }
+
+  getCustomerData() {
+    const navigation = this._router.getCurrentNavigation();
+    if (navigation) {
+      this.customerData = navigation.extras.state as customerForm
+      console.log(this.customerData)
+    } else {
+      this._router.navigate(['/customers']);
+    }
+  }
 
   getDepartment() {
     this._profileService.getDepartments().subscribe((res: getDepartment[]) => {
@@ -83,20 +85,23 @@ export class CustomerEditComponent {
     this.contactDetails.removeAt(index);
   }
 
-  get f(){
+  get f() {
     return this.customerForm.controls
   }
 
   onSubmit(): void {
     this.isSubmitted = true;
-    console.log(this.customerForm.value)
     let userId = this._employeeService.employeeToken().id;
-    this.customerForm.patchValue({createdBy:userId})
+    this.customerForm.patchValue({ createdBy: userId })
     if (this.customerForm.valid) {
-      // this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{
-      //   this._router.navigate(['/customers'])
-      // })
-      console.log("All correct")
+
+      const customer = this.customerForm.value
+      customer.id = this.customerData._id
+
+      this._customerService.editCustomer(customer).subscribe((res: getCustomer) => {
+        this._router.navigate(['/customers'])
+        console.log(res)
+      })
     } else {
       this.toastr.warning('Check the fields properly!', 'Warning !')
     }
@@ -112,16 +117,16 @@ export class CustomerEditComponent {
   }
 
   hasContactDetailsErrors(): boolean {
-  
+
     for (let i = 0; i < this.contactDetails.length; i++) {
       const contactDetailGroup = this.contactDetails.at(i) as FormGroup;
-  
+
       if (contactDetailGroup && contactDetailGroup.invalid && (contactDetailGroup?.touched || this.isSubmitted)) {
-        
+
         return true;
       }
     }
-  
+
     return false;
   }
 }

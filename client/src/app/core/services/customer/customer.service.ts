@@ -20,7 +20,7 @@ export class CustomerService {
     return this.http.get<getCustomer[]>(`${this.apiUrl}/customer`)
   }
 
-  editCustomer(data: getCustomer):{} {
+  editCustomer(data: getCustomer): Observable<getCustomer> {
     return this.http.patch<getCustomer>(`${this.apiUrl}/customer/edit`, data)
   }
 
