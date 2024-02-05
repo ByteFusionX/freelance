@@ -30,7 +30,7 @@
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
                 <div class="md:grid grid-cols-3 gap-10 mt-5">
-                    <app-skelton-loading [lineLength]="3" *ngIf="isEnquiryLoading"
+                    <app-skelton-loading [lineLength]="1" *ngIf="isEnquiryLoading"
                         class="col-span-3"></app-skelton-loading>
                     <div class="md:col-span-1 flex mb-5" *ngFor="let data of enquiries$ | async; let i = index"
                         @opacityTrigger>
