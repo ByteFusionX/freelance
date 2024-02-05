@@ -52,4 +52,9 @@ export class EnquiryService {
   uploadAssignedFiles(formData: FormData): Observable<getEnquiry> {
     return this.http.post<getEnquiry>(`${this.api}/enquiry/assign-files`, formData)
   }
+
+  downloadFile(fileName: string): Observable<any> {
+    return this.http.get(`${this.api}/download?file=${fileName}`,
+      { responseType: 'blob'})
+  }
 }

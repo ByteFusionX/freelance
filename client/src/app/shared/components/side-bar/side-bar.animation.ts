@@ -9,8 +9,8 @@ export const sideBarState = trigger('sideBarTrigger', [
     state('reduce', style({
         width: '2.1rem',
     })),
-    transition('default => reduce', animate('300ms')),
-    transition('reduce => default', animate('300ms')),
+    transition('default => reduce', animate('200ms')),
+    transition('reduce => default', animate('200ms')),
 ])
 
 export const dropDownMenuSate = trigger('dropDownTrigger', [
