@@ -13,12 +13,12 @@ import equiRouter from './routes/enquiry.router';
 import celebRouter from './routes/celebrationCheck.router';
 import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
+import TokenLogger from './common/middlewares/jwt.middleware';
 
 
 const app: express.Application = express();
 
 app.use(morgan("tiny"));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 startCronJob();
@@ -32,14 +32,15 @@ app.use(
 	})
 );
 
+app.use(TokenLogger)	
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
-app.use('/announcement',annoRouter)
-app.use('/customer',cusRouter)
-app.use('/enquiry',equiRouter)
-app.use('/celebrationCheck',celebRouter)
-app.use('/quotation',quoteRouter)
+app.use('/announcement', annoRouter)
+app.use('/customer', cusRouter)
+app.use('/enquiry', equiRouter)
+app.use('/celebrationCheck', celebRouter)
+app.use('/quotation', quoteRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)

@@ -13,12 +13,10 @@ import { AnnouncementsComponent } from './pages/announcements/announcements.comp
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { NgApexchartsModule } from "ng-apexcharts";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
-
 
 @NgModule({
   declarations: [
@@ -39,7 +37,6 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     directiveSharedModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule,
     NgSelectModule,
     SkeltonLoadingComponent,
     ConfettiComponentComponent,

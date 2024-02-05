@@ -14,14 +14,16 @@ export class celebCheckService {
     }
 
     markTodaysBirthdaysAsViewed(): void {
-        localStorage.setItem('todaysBirthdaysViewed', 'true');
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        localStorage.setItem('todaysBirthdaysViewed', formattedDate);
     }
-
+    
     hasTodaysBirthdaysBeenViewed(): boolean {
-        return localStorage.getItem('todaysBirthdaysViewed') === 'true';
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        const storedDate = localStorage.getItem('todaysBirthdaysViewed');
+        return storedDate === formattedDate;
     }
 
-    clearTodaysBirthdaysViewedFlag(): void {
-        localStorage.removeItem('todaysBirthdaysViewed');
-    }
 }
