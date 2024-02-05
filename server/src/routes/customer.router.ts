@@ -3,6 +3,7 @@ import { createCustomer, editCustomer, getCustomers } from "../controllers/custo
 const cusRouter = Router()
 
 cusRouter.get('/', getCustomers)
+cusRouter.post('/', createCustomer)
 cusRouter.patch('/edit', editCustomer)
 
 export default cusRouter;
