@@ -1,6 +1,7 @@
 import { NextFunction } from "express";
+import { Request, Response } from "express";
 
-const TokenLogger = (req: any, res: any, next: NextFunction) => {
+const TokenLogger = (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.originalUrl.includes('login') || req.headers.authorization) {
             next()
