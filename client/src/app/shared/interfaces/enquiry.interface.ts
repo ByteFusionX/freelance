@@ -1,4 +1,4 @@
-import { getCustomer } from "./customer.interface";
+import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 
 export interface Enquiry {
@@ -21,7 +21,7 @@ export interface getEnquiry {
     _id: string;
     enquiryId: string;
     client: getCustomer;
-    contact: string;
+    contact: ContactDetail;
     department: getDepartment;
     salesPerson: { _id: string, firstName: string, lastName: string }[];
     title: string;

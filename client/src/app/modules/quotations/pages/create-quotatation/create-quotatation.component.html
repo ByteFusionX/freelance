@@ -1,6 +1,7 @@
 <div class="bg-white m-6 rounded-2xl">
     <div class="  border-b p-3 px-9 flex justify-between">
-        <h3 class="text-md font-medium">Create Quote</h3>
+        <h3 class="text-md font-medium">Create Quote <span class="text-orange-600 text-sm"
+                *ngIf="enquiryData$ | async as enquiryData">- {{enquiryData.enquiryId}}</span></h3>
 
     </div>
     <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()">
@@ -13,28 +14,39 @@
                             for="grid-first-name">
                             Client
                         </label>
-                        <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border"
-                            (change)="onCustomerChange($event)" formControlName="client">
-                            <ng-option *ngFor="let customer of customers"
-                                [value]="customer._id">{{customer.companyName}}</ng-option>
-                            <ng-template ng-footer-tmp>
-                                <a (click)="createCustomer()"
-                                    class="text-violet-700 cursor-pointer  flex justify-center items-center h-full w-full">
-                                    + Create Customer
-                                </a>
-                            </ng-template>
-                        </ng-select>
+                        <p *ngIf="enquiryData$ | async as enquiryData ;else clientBlock" class="border py-[11px] px-2">
+                            {{enquiryData.client.companyName}}</p>
+                        <ng-template #clientBlock>
+                            <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border"
+                                (change)="onChange($event)" formControlName="client">
+                                <ng-option *ngFor="let customer of customers$ | async"
+                                    [value]="customer._id">{{customer.companyName}}</ng-option>
+                                <ng-template ng-footer-tmp>
+                                    <a (click)="createCustomer()"
+                                        class="text-violet-700 cursor-pointer  flex justify-center items-center h-full w-full">
+                                        + Create Customer
+                                    </a>
+                                </ng-template>
+                            </ng-select>
+                        </ng-template>
                     </div>
                     <div class="w-full md:w-1/3 px-3">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                             for="grid-last-name">
                             Attention
                         </label>
-                        <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border"
-                            formControlName="attention">
-                            <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.courtesyTitle +
-                                '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
-                        </ng-select>
+                        <p *ngIf="enquiryData$ | async as enquiryData ;else attentionBlock"
+                            class="border py-[11px] px-2">
+                            {{enquiryData.contact.courtesyTitle + '.' + enquiryData.contact.firstName + ' ' +
+                            enquiryData.contact.lastName}}</p>
+                        <ng-template #attentionBlock>
+                            <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border"
+                                formControlName="attention">
+                                <ng-option *ngFor="let contact of contacts"
+                                    [value]="contact._id">{{contact.courtesyTitle +
+                                    '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
+                            </ng-select>
+                        </ng-template>
                     </div>
                     <div class="w-full md:w-1/3 px-3">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -65,11 +77,18 @@
                             for="grid-last-name">
                             Department
                         </label>
-                        <ng-select [class.border-red-500]="f['department'].invalid && submit" id="department"
-                            class="form border" placeholder="Department" appendTo="body" formControlName="department">
-                            <ng-option *ngFor="let department of departments"
-                                [value]="department._id">{{department.departmentName}}</ng-option>
-                        </ng-select>
+                        <p *ngIf="enquiryData$ | async as enquiryData ;else departemntBlock"
+                            class="border py-[11px] px-2">
+                        {{enquiryData.department.departmentName}}</p>
+                        <ng-template #departemntBlock>
+                            <ng-select [class.border-red-500]="f['department'].invalid && submit" id="department"
+                                class="form border" placeholder="Department" appendTo="body"
+                                formControlName="department">
+                                <ng-option *ngFor="let department of departments"
+                                    [value]="department._id">{{department.departmentName}}</ng-option>
+                            </ng-select>
+                        </ng-template>
+
                     </div>
                     <div class="w-full md:w-1/4 px-3 mb-6 md:mb-0">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -248,7 +267,8 @@
                                 Discount
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                <input type="number" placeholder="0" appNoLeadingSpace [class.border-red-500]="f['totalDiscount'].invalid && submit"
+                                <input type="number" placeholder="0" appNoLeadingSpace
+                                    [class.border-red-500]="f['totalDiscount'].invalid && submit"
                                     class="text-center border  outline-none px-2 py-2 w-4/5"
                                     formControlName="totalDiscount">
                             </td>

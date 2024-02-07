@@ -3,12 +3,15 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, Subscription } from 'rxjs';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
@@ -18,16 +21,19 @@ import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateQuotatationComponent {
+  customers$!: Observable<getCustomer[]>;
+  enquiryData$!: Observable<getEnquiry | undefined>;
   selectedCustomer!: number;
   selectedContact!: number;
   selectedCurrency: string = "QAR";
   quoteForm!: FormGroup;
   departments: getDepartment[] = [];
-  customers: getCustomer[] = [];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
   isSaving: boolean = false;
-  submit: boolean = false
+  submit: boolean = false;
+
+  private subscriptions = new Subscription();
 
   constructor(
     private config: NgSelectConfig,
@@ -37,13 +43,15 @@ export class CreateQuotatationComponent {
     private _quoteService: QuotationService,
     private _employeeService: EmployeeService,
     private _router: Router,
-    private toastr: ToastrService
+    private _enquiryService: EnquiryService,
+    private toastr: ToastrService,
   ) { }
 
   ngOnInit() {
     this.config.notFoundText = 'Custom not found';
     this.config.appendTo = 'body';
     this.config.bindValue = 'value';
+
 
     this.getAllCustomers();
     this.getDepartment();
@@ -71,6 +79,14 @@ export class CreateQuotatationComponent {
       createdBy: ['']
     })
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
+    this.enquiryData$ = this._enquiryService.enquiryData$;
+    console.log(this.enquiryData$)
+    //   this._enquiryService.enquiryData$.subscribe(data => {
+
+    //   this.quoteForm.patchValue({client:data?.client._id})
+    //   this.onChange(data?.client._id as string)
+    // }))
+
   }
 
   get itemDetails(): FormArray {
@@ -90,9 +106,7 @@ export class CreateQuotatationComponent {
 
 
   getAllCustomers() {
-    this._customerService.getAllCustomers().subscribe((res) => {
-      this.customers = res;
-    })
+    this.customers$ = this._customerService.getAllCustomers()
   }
 
   getDepartment() {
@@ -105,10 +119,17 @@ export class CreateQuotatationComponent {
     return this.quoteForm.controls;
   }
 
-  onCustomerChange(event: string) {
-    const customer: getCustomer | undefined = this.customers.find((value) => value._id == event)
-    if (customer) {
-      this.contacts = customer?.contactDetails;
+  onChange(change: string) {
+    if (change && this.customers$) {
+      this.subscriptions.add(this.customers$.subscribe((data) => {
+        let customer = data.find((contact) => contact._id == change)
+        if (customer) {
+          this.contacts = customer.contactDetails
+        }
+      }))
+    } else {
+      this.contacts = []
+      this.quoteForm.controls['attention'].setValue(undefined)
     }
   }
 
@@ -170,5 +191,10 @@ export class CreateQuotatationComponent {
       this.toastr.warning('Check the fields properly!', 'Warning !')
     }
 
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe()
+    this._enquiryService.quoteSubject.next(undefined)
   }
 }

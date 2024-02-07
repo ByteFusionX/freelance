@@ -86,11 +86,35 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
             },
             {
+                $unwind: '$client'
+            },
+            {
                 $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $unwind: '$department'
             },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
+            {
+                $addFields: {
+                    contact: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$client.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$contact']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
         ]);
 
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
