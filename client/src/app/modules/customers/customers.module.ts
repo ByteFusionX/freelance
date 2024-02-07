@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
 import { CustomersComponent } from './customers.component';
+import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
@@ -21,7 +22,8 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     CustomersComponent,
     CustomersListComponent,
     CreateCustomerDialog,
-    CustomerViewComponent
+    CustomerViewComponent,
+    CustomerEditComponent
   ],
   imports: [
     CommonModule,
