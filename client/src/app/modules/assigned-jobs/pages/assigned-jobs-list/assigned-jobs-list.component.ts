@@ -5,9 +5,9 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
-import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -28,6 +28,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   total!: number;
   subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 })
 
+  progress: number = 0
+  selectedFile!: string | undefined;
   constructor(
     private _enquiryService: EnquiryService,
     private dialog: MatDialog,
@@ -106,18 +108,35 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onDownloadClicks(file: any) {
-    this._enquiryService.downloadFile(file.filename)
-      .subscribe({
-        next: (event) => {
-          const fileContent: Blob = new Blob([event['body']])
-          saveAs(fileContent, file.originalname)
-        },
-        error: (error) => {
-          if (error.status == 404) {
-            this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+    this.selectedFile = file.filename
+    this.subscriptions.add(
+      this._enquiryService.downloadFile(file.filename)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              this.progress = Math.round(100 * event.loaded / event.total);
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+              this.clearProgress()
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
           }
-        }
-      })
+        })
+    )
+
   }
+
+  clearProgress() {
+    setTimeout(() => {
+      this.selectedFile = undefined;
+      this.progress = 0
+    }, 1000)
+  }
+
 }
 

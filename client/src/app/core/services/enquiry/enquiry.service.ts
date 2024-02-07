@@ -55,6 +55,6 @@ export class EnquiryService {
 
   downloadFile(fileName: string): Observable<any> {
     return this.http.get(`${this.api}/download?file=${fileName}`,
-      { responseType: 'blob'})
+      { responseType: 'blob', observe: 'events', reportProgress: true })
   }
 }

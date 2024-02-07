@@ -155,7 +155,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
     }else{
-      this.toaster.warning('Soory, This enquiry assinged to presales')
+      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
     }
   }
 
