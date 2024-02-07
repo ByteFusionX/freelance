@@ -123,6 +123,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             if (error.status == 404) {
+              this.selectedFile = undefined
               this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
             }
           }
