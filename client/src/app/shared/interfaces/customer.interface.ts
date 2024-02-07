@@ -22,8 +22,6 @@ export interface getFilteredCustomer {
     customers:getCustomer[]
 }
 
-
-
 export interface FilterCustomer {
     page: number;
     row: number;
