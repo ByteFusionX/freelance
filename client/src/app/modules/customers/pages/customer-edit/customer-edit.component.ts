@@ -6,7 +6,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ToastrService } from 'ngx-toastr';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import { customerForm, getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import {  getCustomer } from 'src/app/shared/interfaces/customer.interface';
 
 @Component({
   selector: 'app-customer-edit',
@@ -17,19 +17,19 @@ export class CustomerEditComponent {
   departments: getDepartment[] = [];
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
-  customerData!: customerForm
+  customerData!: getCustomer;
+  initalLength:number = 0;
 
-
-
-  constructor(private _fb: FormBuilder,
+  constructor(
+    private _fb: FormBuilder,
     private _profileService: ProfileService,
     private _customerService: CustomerService,
     private _employeeService: EmployeeService,
     private _router: Router,
-    private toastr: ToastrService) {
+    private toastr: ToastrService
+  ) { 
     this.getCustomerData()
     this.getDepartment()
-
   }
 
 
@@ -49,22 +49,21 @@ export class CustomerEditComponent {
       contactNo: ['', Validators.required],
       createdBy: ['', Validators.required]
     });
+
     if (this.customerData && this.departments) {
       for (let i = 1; i < this.customerData.contactDetails.length; i++) {
-        this.addContactFormGroup()
+        this.addContactFormGroup();
       }
-      this.customerForm.patchValue(this.customerData)
-
-      this.customerForm.get('department')?.patchValue(this.customerData.department._id)
-
+      this.customerForm.patchValue(this.customerData);
+      this.customerForm.get('department')?.patchValue(this.customerData.department._id);
+      this.initalLength = this.customerData.contactDetails.length - 1;
     }
   }
 
   getCustomerData() {
     const navigation = this._router.getCurrentNavigation();
     if (navigation) {
-      this.customerData = navigation.extras.state as customerForm
-      console.log(this.customerData)
+      this.customerData = navigation.extras.state as getCustomer
     } else {
       this._router.navigate(['/customers']);
     }
@@ -73,7 +72,6 @@ export class CustomerEditComponent {
   getDepartment() {
     this._profileService.getDepartments().subscribe((res: getDepartment[]) => {
       this.departments = res;
-      console.log(this.departments)
     })
   }
 
@@ -100,7 +98,6 @@ export class CustomerEditComponent {
 
       this._customerService.editCustomer(customer).subscribe((res: getCustomer) => {
         this._router.navigate(['/customers'])
-        console.log(res)
       })
     } else {
       this.toastr.warning('Check the fields properly!', 'Warning !')
@@ -117,7 +114,6 @@ export class CustomerEditComponent {
   }
 
   hasContactDetailsErrors(): boolean {
-
     for (let i = 0; i < this.contactDetails.length; i++) {
       const contactDetailGroup = this.contactDetails.at(i) as FormGroup;
 

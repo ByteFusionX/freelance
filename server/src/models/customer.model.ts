@@ -15,6 +15,7 @@ export interface Customer extends Document {
   customerEmailId: string;
   contactNo: number;
   createdBy: Types.ObjectId;
+  createdDate: Date;
 }
 
 const contactDetailSchema = new Schema({
@@ -65,6 +66,10 @@ const customerSchema = new Schema<Customer>({
     ref: 'Employee',
     required: true,
   },
+  createdDate: {
+    type: Date,
+    default: Date.now
+}
 });
 
 export default model<Customer>("Customer", customerSchema);

@@ -10,8 +10,8 @@ interface QuoteItem {
 }
 
 interface Quotation extends Document {
-    quoteId:string;
-    client: Types.ObjectId ;
+    quoteId: string;
+    client: Types.ObjectId;
     attention: Types.ObjectId;
     date: Date;
     department: Types.ObjectId;
@@ -23,6 +23,8 @@ interface Quotation extends Document {
     termsAndCondition: string;
     status: string;
     createdBy: Types.ObjectId;
+    lpoFiles: [];
+    lpoSubmitted: boolean;
 }
 
 export enum quoteStatus {
@@ -116,6 +118,11 @@ const quotationSchema = new Schema<Quotation>({
         ref: 'Employee',
         required: true,
     },
+    lpoFiles: [],
+    lpoSubmitted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 export default model<Quotation>("Quotation", quotationSchema);

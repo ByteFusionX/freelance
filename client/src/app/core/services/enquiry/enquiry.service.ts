@@ -9,13 +9,16 @@ import { environment } from 'src/environments/environment';
 })
 export class EnquiryService {
 
-  api: string = environment.api
+  readonly api: string = environment.api
   quoteSubject = new BehaviorSubject<getEnquiry | undefined>(undefined)
   enquiryData$ = this.quoteSubject.asObservable()
+
+  depSubject = new BehaviorSubject<string | null>(null)
+  departmentData$ = this.depSubject.asObservable()
   constructor(private http: HttpClient) { }
 
-  createEnquiry(enquiry: Partial<Enquiry>): Observable<getEnquiry> {
-    return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, enquiry)
+  createEnquiry(formData: FormData): Observable<getEnquiry> {
+    return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, formData)
   }
 
   getEnquiry(filterData: FilterEnquiry): Observable<EnquiryTable> {
@@ -30,7 +33,7 @@ export class EnquiryService {
     return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
-  emitToQuote(enquiry: getEnquiry) {
+  emitToQuote(enquiry: getEnquiry | undefined) {
     this.quoteSubject.next(enquiry)
   }
 
@@ -40,5 +43,18 @@ export class EnquiryService {
 
   monthlyEnquiries(): Observable<MonthlyEnquiry[]> {
     return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly`)
+  }
+
+  selectedDepartment(departmentId: string) {
+    this.depSubject.next(departmentId)
+  }
+
+  uploadAssignedFiles(formData: FormData): Observable<getEnquiry> {
+    return this.http.post<getEnquiry>(`${this.api}/enquiry/assign-files`, formData)
+  }
+
+  downloadFile(fileName: string): Observable<any> {
+    return this.http.get(`${this.api}/download?file=${fileName}`,
+      { responseType: 'blob'})
   }
 }

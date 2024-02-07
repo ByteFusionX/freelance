@@ -25,6 +25,11 @@ body,td,th { margin: 0; font-family: "Jost, sans-serif"; }
     height: 40px;
 }
 
+.ng-select.filter-createdby .ng-select-container {
+    height: 40px;
+    font-size: 16px;
+}
+
 /* CSS to hide spin buttons */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -68,6 +73,7 @@ input[type="number"] {
     transform: rotate(360deg);
   }
 }
+
 .spin {
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;
