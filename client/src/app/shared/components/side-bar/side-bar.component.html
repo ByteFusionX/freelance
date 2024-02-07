@@ -1,0 +1,103 @@
+<div class="h-screen bg-white">
+    <div class="flex flex-col">
+        <div class="py-2 px-4">
+            <div class="w-60 overflow-hidden" [@sideBarTrigger]="showFullBar? 'default':'reduce'">
+                <div class="w-60 h-14 overflow-hidden">
+                    <div class="w-full h-full flex justify-start items-center" >
+                        <img src="assets/images/logo.webp" alt="" class="me-3 w-9  transition-all" [ngClass]="{'ml-6':showFullBar}">
+                        <img src="assets/images/company.jpg" alt="" class="me-2 w-28">
+                    </div>
+                </div>
+                <div class="cursor-pointer mt-2" (click)="onHomeClick()">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroHome" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Home'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Home</p>
+                            <i>
+                                <ng-icon name="heroChevronUp" class="text-gray-600"
+                                    *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
+                                <ng-template #homeDropDownMenu>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </ng-template>
+                            </i>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden" *ngIf="homeDropDown" [ngClass]="{dropDown: !showFullBar }">
+                    <div class="" @dropDownTrigger>
+                        <ul class="">
+                            <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/home"
+                                routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+                                <button class="mx-6">Dashboard</button>
+                            </li>
+                            <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/home/employees"
+                                routerLinkActive="active">
+                                <button class="mx-6">Employees</button>
+                            </li>
+                            <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/home/announcements"
+                                routerLinkActive="active">
+                                <button class="mx-6">Announcements</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                    routerLink="/customers" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Customers'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Customers</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                    routerLink="/enquiry" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Enquiry'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Enquiry</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/assigned-jobs" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroIdentification" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Assigned Jobs'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Assigned Jobs</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                    routerLink="/quotations" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Quotations'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Quotations</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
+                routerLink="/job-sheet" routerLinkActive="active">
+                    <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
+                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Jobs Sheet'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                        <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                            <p class="">Jobs Sheet</p>
+                            <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

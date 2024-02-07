@@ -1,0 +1,23 @@
+:host {
+    display: block;
+}
+
+.dropDown {
+    position: absolute;
+    background-color: white;
+    margin-top: -50px;
+    margin-left: 55px;
+    padding: 10px 0px 10px 0px;
+}
+
+.active {
+    background: #f5f3ff;
+    border: 0px;
+    border-radius: 6px;
+    color: #4c1d95;
+}
+
+ng-icon {
+    color: rgb(109, 109, 109);
+}
+
