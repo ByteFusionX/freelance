@@ -57,7 +57,7 @@
                         <div class="flex flex-col gap-2" *ngIf="element.preSale.length">
                             <div *ngFor="let file of element.preSale[0].presaleFiles; let i=index">
                                 <div class="flex" *ngIf="file.filename">
-                                    <p class="w-28 truncate ..." matTooltip="{{file.originalname}}"
+                                    <p class="w-24 truncate ..." matTooltip="{{file.originalname}}"
                                         matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}
                                     </p>
                                     <button class="w-5 h-5 border rounded-full flex justify-center items-center"
@@ -65,7 +65,7 @@
                                         <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
                                     </button>
                                 </div>
-                                <div class="w-28" *ngIf="file.filename && file.filename === selectedFile">
+                                <div class="w-24" *ngIf="file.filename && file.filename === selectedFile">
                                     <mat-progress-bar mode="determinate" value="{{progress}}"></mat-progress-bar>
                                 </div>
                             </div>
@@ -92,10 +92,8 @@
                             </button>
                             <mat-menu #menu="matMenu">
                                 <div *ngFor="let file of element.assignedFiles; let i=index">
-                                    <p class="text-sm p-2 w-40">{{file.originalname}}</p>
-                                    <mat-divider></mat-divider>
+                                    <button class="text-sm p-1 w-40 hover:bg-gray-100" (click)="onOpenClicks(file)">{{file.originalname}}</button>
                                 </div>
-                                <button class="px-2 text-blue-500 underline" (click)="onClearFiles(i)">clear</button>
                             </mat-menu>
                         </div>
                     </td>

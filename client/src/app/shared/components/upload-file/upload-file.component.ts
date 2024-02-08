@@ -2,13 +2,15 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgIconsModule } from '@ng-icons/core';
+import { appFileValidator } from '../../directives/file-validator.directive';
 
 @Component({
   selector: 'app-upload-file',
   templateUrl: './upload-file.component.html',
   styleUrls: ['./upload-file.component.css'],
   standalone: true,
-  imports: [CommonModule, NgIconsModule, MatTooltipModule]
+  imports: [CommonModule, NgIconsModule, MatTooltipModule],
+  providers: [appFileValidator]
 })
 export class UploadFileComponent {
 
