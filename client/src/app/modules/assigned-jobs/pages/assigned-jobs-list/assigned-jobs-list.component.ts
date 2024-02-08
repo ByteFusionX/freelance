@@ -8,6 +8,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { HttpEventType } from '@angular/common/http';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -63,24 +64,37 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onSendClicked(index: number) {
-    let selectedEnquiry: { id: string, status: string } = {
-      id: this.dataSource.data[index]._id,
-      status: 'Work In Progress'
-    }
-    Object.seal(selectedEnquiry)
-    this.subscriptions.add(
-      this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
-        if (data) {
-          this.dataSource.data.splice(index, 1)
-          if (this.dataSource.data.length) {
-            this.dataSource.data = [...this.dataSource.data]
-          } else {
-            this.dataSource.data = []
-            this.isEmpty = true
-          }
+    let dialog = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Are you sure?',
+        description: 'This action will send the assigned task back to the salesperson. Please confirm that you want to proceed.',
+        icon: 'heroExclamationCircle',
+        IconColor: 'orange'
+      }
+    })
+    dialog.afterClosed().subscribe((data) => {
+      if (data == true) {
+        let selectedEnquiry: { id: string, status: string } = {
+          id: this.dataSource.data[index]._id,
+          status: 'Work In Progress'
         }
-      })
-    )
+        Object.seal(selectedEnquiry)
+        this.subscriptions.add(
+          this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
+            if (data) {
+              this.dataSource.data.splice(index, 1)
+              if (this.dataSource.data.length) {
+                this.dataSource.data = [...this.dataSource.data]
+              } else {
+                this.dataSource.data = []
+                this.isEmpty = true
+              }
+              this.toast.success('Enquiry send successfully')
+            }
+          })
+        )
+      }
+    })
   }
 
   onUploadClicks(index: number) {
@@ -129,7 +143,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
           }
         })
     )
-
   }
 
   clearProgress() {
@@ -137,6 +150,35 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
       this.selectedFile = undefined;
       this.progress = 0
     }, 1000)
+  }
+
+  onOpenClicks(file: { filename: string, originalname: string }) {
+    this.subscriptions.add(
+      this._enquiryService.getFile(file.filename).subscribe({
+        next: (blob) => {
+          const contentType = <string>this.chooseType(file.originalname)
+          const fileUrl = new Blob([blob], { type: contentType })
+          const url = URL.createObjectURL(fileUrl);
+          window.open(url);
+        },
+        error: (error) => {
+          this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+        }
+      })
+    )
+  }
+
+  chooseType(file: any): string {
+    const contentTypes: any = {
+      'pdf': 'application/pdf',
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    }
+    const extension: string = <string>file.split('.').pop().toLowerCase();
+    return contentTypes[extension]
   }
 
 }

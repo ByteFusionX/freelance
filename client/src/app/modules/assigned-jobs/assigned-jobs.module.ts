@@ -13,7 +13,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { FileUploadComponent } from './pages/file-upload/file-upload.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { MatMenuModule } from '@angular/material/menu';
-import {MatDividerModule} from '@angular/material/divider';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
@@ -33,7 +32,6 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     MatDialogModule,
     PaginationComponent,
     MatMenuModule,
-    MatDividerModule,
     MatProgressBarModule
   ]
 })
