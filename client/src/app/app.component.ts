@@ -18,7 +18,7 @@ export class AppComponent implements OnDestroy, OnInit {
   birthdaysViewed!: boolean;
   reduceState: boolean = true;
   loginRouter: boolean = false;
-  dialogRef: MatDialogRef<CelebrationDialogComponent, any> | undefined;
+  dialogRef: MatDialogRef<CelebrationDialogComponent> | undefined;
   employeeToken: string | null = null;
   private destroy$ = new Subject<void>();
   private subscriptions: Subscription = new Subscription()
@@ -29,7 +29,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private dialog: MatDialog,
     private router: Router
   ) { }
-
+  
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -44,7 +44,8 @@ export class AppComponent implements OnDestroy, OnInit {
           this.isUserThere();
         }
       }
-    })
+    });
+
   }
 
   reduceSideBar(event: boolean) {
@@ -97,7 +98,7 @@ export class AppComponent implements OnDestroy, OnInit {
     }
   }
 
-  openCelebrationDialog(data: announcementGetData): MatDialogRef<CelebrationDialogComponent, any> {
+  openCelebrationDialog(data: announcementGetData): MatDialogRef<CelebrationDialogComponent> {
     return this.dialog.open(CelebrationDialogComponent, {
       data: data,
       width: '400px',
