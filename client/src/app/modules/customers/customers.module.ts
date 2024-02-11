@@ -8,12 +8,22 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CustomersListComponent } from './pages/customers-list/customers-list.component';
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
+import { CustomersComponent } from './customers.component';
+import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 
 
 @NgModule({
   declarations: [
+    CustomersComponent,
     CustomersListComponent,
-    CreateCustomerDialog
+    CreateCustomerDialog,
+    CustomerViewComponent,
+    CustomerEditComponent
   ],
   imports: [
     CommonModule,
@@ -21,7 +31,12 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
     NgIconsModule, 
     MatTableModule,
     MatDialogModule,
-    directiveSharedModule
+    directiveSharedModule,
+    ReactiveFormsModule,
+    SkeltonLoadingComponent,
+    FormsModule,
+    NgSelectModule,
+    PaginationComponent
   ]
 })
 export class CustomersModule { }

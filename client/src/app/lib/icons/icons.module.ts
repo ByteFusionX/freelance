@@ -2,18 +2,18 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { NgIconsModule } from '@ng-icons/core';
-import { 
-  heroBars3, 
-  heroMagnifyingGlass, 
-  heroUserCircle, 
-  heroChevronDown, 
-  heroHome, 
-  heroChevronUp, 
-  heroUserGroup, 
-  heroChevronRight, 
-  heroQuestionMarkCircle, 
+import {
+  heroBars3,
+  heroMagnifyingGlass,
+  heroUserCircle,
+  heroChevronDown,
+  heroHome,
+  heroChevronUp,
+  heroUserGroup,
+  heroChevronRight,
+  heroQuestionMarkCircle,
   heroBriefcase,
-  heroNewspaper, 
+  heroNewspaper,
   heroBars3CenterLeft,
   heroXMark,
   heroUser,
@@ -31,7 +31,17 @@ import {
   heroBuildingOffice,
   heroMapPin,
   heroBuildingLibrary,
-  heroPencilSquare
+  heroPencilSquare,
+  heroInboxArrowDown,
+  heroDocumentArrowUp,
+  heroEye,
+  heroEyeSlash,
+  heroCloudArrowUp,
+  heroRectangleStack,
+  heroChevronLeft,
+  heroArrowPath,
+  heroPaperAirplane,
+  heroExclamationCircle,
 } from '@ng-icons/heroicons/outline';
 
 
@@ -41,17 +51,17 @@ import {
   imports: [
     CommonModule,
     NgIconsModule,
-    NgIconsModule.withIcons({ 
-      heroBars3, 
-      heroMagnifyingGlass, 
-      heroUserCircle, 
-      heroChevronDown, 
-      heroHome, 
-      heroChevronUp, 
-      heroUserGroup, 
-      heroChevronRight, 
-      heroQuestionMarkCircle, 
-      heroBriefcase, 
+    NgIconsModule.withIcons({
+      heroBars3,
+      heroMagnifyingGlass,
+      heroUserCircle,
+      heroChevronDown,
+      heroHome,
+      heroChevronUp,
+      heroUserGroup,
+      heroChevronRight,
+      heroQuestionMarkCircle,
+      heroBriefcase,
       heroNewspaper,
       heroBars3CenterLeft,
       heroXMark,
@@ -70,10 +80,20 @@ import {
       heroBuildingOffice,
       heroMapPin,
       heroBuildingLibrary,
-      heroPencilSquare
+      heroPencilSquare,
+      heroInboxArrowDown,
+      heroDocumentArrowUp,
+      heroEye,
+      heroEyeSlash,
+      heroCloudArrowUp,
+      heroRectangleStack,
+      heroChevronLeft,
+      heroArrowPath,
+      heroPaperAirplane,
+      heroExclamationCircle,
     }),
   ],
-  exports:[NgIconsModule]
+  exports: [NgIconsModule]
 })
 
 export class IconsModule { }

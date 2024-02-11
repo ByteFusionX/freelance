@@ -1,1 +1,131 @@
-<p>assigned-jobs-list works!</p>
+<div class="bg-white m-6 rounded-2xl">
+    <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
+
+        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+            <h3>Assigned Jobs</h3>
+        </div>
+    </div>
+
+    <div class="m-8  overflow-y-auto overflow-x-auto">
+        <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
+        <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
+            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
+
+                <ng-container matColumnDef="enqId">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Enquiry ID </th>
+                    <td mat-cell *matCellDef="let element">
+                        <p class="text-violet-500">{{element.enquiryId}}</p>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerName">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Customer Name </th>
+                    <td mat-cell *matCellDef="let element"> {{element.client[0].companyName}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Description </th>
+                    <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="assignedBy">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Assigned By </th>
+                    <td mat-cell *matCellDef="let element"> {{element.salesPerson[0].firstName}}
+                        {{element.salesPerson.lastName}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="department">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department </th>
+                    <td mat-cell *matCellDef="let element"> {{element.department[0].departmentName}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="download">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
+                        Download </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="flex flex-col gap-2" *ngIf="element.preSale.length">
+                            <div *ngFor="let file of element.preSale[0].presaleFiles; let i=index">
+                                <div class="flex" *ngIf="file.filename">
+                                    <p class="w-24 truncate ..." matTooltip="{{file.originalname}}"
+                                        matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}
+                                    </p>
+                                    <button class="w-5 h-5 border rounded-full flex justify-center items-center"
+                                        (click)="onDownloadClicks(file)">
+                                        <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
+                                    </button>
+                                </div>
+                                <div class="w-24" *ngIf="file.filename && file.filename === selectedFile">
+                                    <mat-progress-bar mode="determinate" value="{{progress}}"></mat-progress-bar>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="upload">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
+                        Upload </th>
+                    <td mat-cell *matCellDef="let element; let i = index">
+                        <div class="flex gap-1">
+                            <button
+                                class="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-400 flex justify-center items-center"
+                                (click)="onUploadClicks(i)">
+                                <ng-icon name="heroDocumentArrowUp" class="text-white"></ng-icon>
+                            </button>
+                            <button
+                                class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
+                                [matMenuTriggerFor]="menu" *ngIf="element.assignedFiles.length" matTooltip="View Files"
+                                matTooltipPosition="above" matTooltipClass="mat-tooltip">
+                                <ng-icon name="heroEye" class="text-black"></ng-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <div *ngFor="let file of element.assignedFiles; let i=index">
+                                    <button class="text-sm p-1 w-40 hover:bg-gray-100" (click)="onOpenClicks(file)">{{file.originalname}}</button>
+                                </div>
+                            </mat-menu>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="send">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Send
+                    </th>
+                    <td mat-cell *matCellDef="let element; let i = index">
+                        <button
+                            class="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex justify-center items-center"
+                            (click)="onSendClicked(i)">
+                            <ng-icon name="heroPaperAirplane" class="text-white"></ng-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </section>
+        <div class="w-full bg-white" *ngIf="!isEmpty">
+            <app-pagination [page]="page" [row]="row" [total]="total"
+                (changeData)="onDateChange($event)"></app-pagination>
+        </div>
+    </div>
+    <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+        <div class="p-3">
+            <img src="assets/images/empty.png" alt="">
+            <p class="m-2 text-center text-gray-500">No Data</p>
+        </div>
+    </div>
+</div>

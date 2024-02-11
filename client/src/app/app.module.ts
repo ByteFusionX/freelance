@@ -6,19 +6,24 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavBarComponent } from './shared/components/nav-bar/nav-bar.component';
 import { SideBarComponent } from './shared/components/side-bar/side-bar.component';
-import { CustomersComponent } from './modules/customers/customers.component';
 import { ToastrModule } from 'ngx-toastr';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { MatDialogModule } from '@angular/material/dialog';
+import { IconsModule } from './lib/icons/icons.module';
+import { componentModule } from './shared/components/component.module';
+import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.interceptor';
 
 
 @NgModule({
   declarations: [
-    AppComponent,
-    CustomersComponent,
+    AppComponent
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     BrowserAnimationsModule,
     NavBarComponent,
     SideBarComponent,
@@ -27,10 +32,14 @@ import { HttpClientModule } from '@angular/common/http';
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
-    HttpClientModule
-
+    IconsModule,
+    MatDialogModule,
+    componentModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,23 +1,5 @@
-import { animate, animation, state, style, transition, trigger, useAnimation } from "@angular/animations"
-
-
-const moveDown = animation([
-    style({
-        transform: 'translateY(-100%)'
-    }),
-    animate('300ms',
-        style({
-            transform: 'translateY(0)'
-        })
-    )
-])
-const moveUp = animation([
-    animate('300ms',
-        style({
-            transform: 'translateY(0%)'
-        })
-    )
-])
+import { animate, state, style, transition, trigger, useAnimation } from "@angular/animations"
+import { moveDown, moveUp } from "../../animations/animations"
 
 export const sideBarState = trigger('sideBarTrigger', [
     state('default', style({
@@ -27,8 +9,8 @@ export const sideBarState = trigger('sideBarTrigger', [
     state('reduce', style({
         width: '2.1rem',
     })),
-    transition('default => reduce', animate('300ms')),
-    transition('reduce => default', animate('300ms')),
+    transition('default => reduce', animate('200ms')),
+    transition('reduce => default', animate('200ms')),
 ])
 
 export const dropDownMenuSate = trigger('dropDownTrigger', [

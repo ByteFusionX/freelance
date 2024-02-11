@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CreateEnquiryComponent } from './create-enquiry.component';
+import { CreateEnquiryDialog } from './create-enquiry.component';
 
-describe('CreateEnquiryComponent', () => {
-  let component: CreateEnquiryComponent;
-  let fixture: ComponentFixture<CreateEnquiryComponent>;
+describe('CreateEnquiryDialog', () => {
+  let component: CreateEnquiryDialog;
+  let fixture: ComponentFixture<CreateEnquiryDialog>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CreateEnquiryComponent]
+      declarations: [CreateEnquiryDialog]
     });
-    fixture = TestBed.createComponent(CreateEnquiryComponent);
+    fixture = TestBed.createComponent(CreateEnquiryDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

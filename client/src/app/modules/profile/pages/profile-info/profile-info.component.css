@@ -1,3 +1,17 @@
-th,td{
-    text-align: center;
+td,th{
+  text-align: center;
 }
+
+.example::-webkit-scrollbar {
+    width: 8px;
+    background-color: #f3f4f6;
+}
+
+.example::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.example::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 5px;
+  }
