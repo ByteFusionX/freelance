@@ -30,7 +30,7 @@ export class AssignPresaleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.employees$ = this._employeeService.getEmployees()
+    this.employees$ = this._employeeService.getAllEmployees()
     if (this.data) {
       this.selectedEmployee = this.data.presalePerson
       this.selectedFiles = this.data.presaleFile
@@ -52,7 +52,7 @@ export class AssignPresaleComponent implements OnInit {
 
   onSubmit() {
     if (this.selectedEmployee && this.selectedFiles.length) {
-      let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles }
+      let presale = { presalePerson: this.selectedEmployee, presaleFile: [] }
       this.dialogRef.close(presale)
     } else {
       this.Error()

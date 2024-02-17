@@ -10,7 +10,8 @@
                 </div>
                 <div class="cursor-pointer mt-2" (click)="onHomeClick()">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroHome" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroHome" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Home'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Home</p>
                             <i>
@@ -44,7 +45,8 @@
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                     routerLink="/customers" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Customers'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Customers</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -54,7 +56,8 @@
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                     routerLink="/enquiry" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Enquiry'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Enquiry</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -64,7 +67,8 @@
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                 routerLink="/assigned-jobs" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroIdentification" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroIdentification" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Assigned Jobs'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Assigned Jobs</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -74,7 +78,8 @@
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                     routerLink="/quotations" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Quotations'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Quotations</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -84,7 +89,8 @@
                 <div class="my-3 cursor-pointer" [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'"
                 routerLink="/job-sheet" routerLinkActive="active">
                     <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
-                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600"></ng-icon></i>
+                        <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Jobs Sheet'"
+                            matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
                         <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                             <p class="">Jobs Sheet</p>
                             <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>

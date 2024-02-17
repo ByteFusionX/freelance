@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ChartOptions } from './dashboard.chart';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { Observable, Subscription } from 'rxjs';
@@ -13,7 +13,8 @@ import { Router } from '@angular/router';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  animations: [opacityState]
+  animations: [opacityState],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {

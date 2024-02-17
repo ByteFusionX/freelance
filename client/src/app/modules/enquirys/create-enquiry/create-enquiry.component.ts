@@ -71,7 +71,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tokenData = this._employeeService.employeeToken()
     this.getEmployee()
-    this.getCustomers()
+    this.getAllCustomers()
     this.getDepartments()
   }
 
@@ -201,8 +201,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     }
   }
 
-  getCustomers() {
-    this.customers$ = this._customerService.getCustomers()
+  getAllCustomers() {
+    this.customers$ = this._customerService.getAllCustomers()
   }
 
   getDepartments() {
