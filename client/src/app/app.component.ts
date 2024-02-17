@@ -23,20 +23,14 @@ export class AppComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
   private subscriptions: Subscription = new Subscription()
 
-<<<<<<< HEAD
-  constructor(private route: ActivatedRoute, private _service: celebCheckService, private dialog: MatDialog, private router: Router) {
-     
-  }
 
-=======
   constructor(
     private route: ActivatedRoute,
     private _service: celebCheckService,
     private dialog: MatDialog,
     private router: Router
   ) { }
-  
->>>>>>> b2bfc65a8c8fae0cf9c3b983febe700305c5d73b
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
