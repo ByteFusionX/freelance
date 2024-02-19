@@ -104,6 +104,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  onClickLearnButton() {
+    window.open('https://neuron.com.qa/')
+  }
+
   getChartDetails() {
     this.subscriptions.add(
       this._enquiryService.monthlyEnquiries().subscribe((data) => {
