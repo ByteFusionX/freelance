@@ -49,12 +49,12 @@
         </div>
     </div>
     <div class="w-full h-full bg-white p-10 m-2 rounded-md">
-        <div class="mb-5">
+        <div class="mb-3 flex justify-between">
             <div class="flex gap-1">
                 <i><ng-icon name="heroBuildingLibrary" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
                 <p class="font-medium text-orange-400">Department:</p>
             </div>
-            <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md mt-3 text-sm"
+            <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md text-sm"
                 (click)="onCreateClicks()" *ngIf="!openCreateForm">+ Add
                 Department</button>
         </div>

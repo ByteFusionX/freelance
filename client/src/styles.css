@@ -8,7 +8,7 @@
 
 @font-face{
     font-family: 'Jost, sans-serif';
-    src: url('./assets/font/static/Jost-Medium.ttf');
+    src: url('./assets/font/static/Jost-Medium.ttf'); 
 }
 
 html, body { height: 100%; }
