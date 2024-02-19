@@ -52,7 +52,7 @@ export class AssignPresaleComponent implements OnInit {
 
   onSubmit() {
     if (this.selectedEmployee && this.selectedFiles.length) {
-      let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles }
+      let presale = { presalePerson: this.selectedEmployee, presaleFile: [] }
       this.dialogRef.close(presale)
     } else {
       this.Error()

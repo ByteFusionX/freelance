@@ -113,9 +113,9 @@
                         Status </th>
                     <td mat-cell *matCellDef="let element">
                         <div [ngSwitch]="element.status">
-                            <p class="w-fit bg-orange-100 rounded-full px-2 text-orange-600"
+                            <p class="w-fit bg-orange-100 rounded-full px-2 text-orange-600 whitespace-nowrap"
                                 *ngSwitchCase="'Work In Progress'">{{element.status}}</p>
-                            <p class="w-fit bg-red-100 rounded-full px-2 text-red-600"
+                            <p class="w-fit bg-red-100 rounded-full px-2 text-red-600 whitespace-nowrap"
                                 *ngSwitchCase="'Assigned To Presales'">{{element.status}}</p>
                         </div>
                     </td>

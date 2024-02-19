@@ -12,6 +12,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CreateDepartmentDialog } from './pages/create-department/create-department.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 
 
 
@@ -30,6 +31,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTableModule,
     MatDialogModule,
     NgSelectModule,
+    SkeltonLoadingComponent,
   ],
   providers: [ProfileService, EmployeeService]
 })
