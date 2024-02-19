@@ -18,30 +18,31 @@ export class ProfileInfoComponent implements AfterViewInit, OnDestroy {
   depHead!: string;
   optionSelected!: string;
   openCreateForm: boolean = false
-  employee!:{id:string,employeeId:string}
-  employeeData$!:Observable<getEmployee|undefined>
-
+  employee!: { id: string, employeeId: string }
+  employeeData$!: Observable<getEmployee | undefined>
+  isLoading: boolean = true
 
   displayedColumns: string[] = ['position', 'name', 'head', 'date', 'action'];
   dataSource: any = new MatTableDataSource()
   private subscriptions = new Subscription();
 
   constructor(private _profileService: ProfileService,
-              public dialog: MatDialog,
-              private _employeeService:EmployeeService) { }
+    public dialog: MatDialog,
+    private _employeeService: EmployeeService) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.employee = this._employeeService.employeeToken()
-    const employeeId=this.employee.employeeId
+    const employeeId = this.employee.employeeId
     this._employeeService.getEmployeeData(employeeId)
-    this.employeeData$=this._employeeService.employeeData$
- 
+    this.employeeData$ = this._employeeService.employeeData$
+
   }
 
   ngAfterViewInit() {
     this.subscriptions.add(this._profileService.getDepartments().subscribe((data) => {
       if (data) {
         this.dataSource.data = data
+        this.isLoading = false
       }
     }))
   }
@@ -70,7 +71,7 @@ export class ProfileInfoComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.subscriptions.unsubscribe()
   }
 }

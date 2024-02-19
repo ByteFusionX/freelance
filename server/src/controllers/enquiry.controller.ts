@@ -8,18 +8,15 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         if (!req.files) return res.status(204).json({ err: 'No data' })
         const enquiryFiles = req.files.attachments
         const presaleFiles = req.files.presaleFiles
+
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
         enquiryData.attachments = []
         if (enquiryFiles) {
             enquiryData.attachments = enquiryFiles
         }
 
-        const presalePerson = JSON.parse(req.body.presalePerson)
-        if (presalePerson) {
-            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
-            if (presaleFiles) {
-                enquiryData.preSale.presaleFiles = presaleFiles
-            }
+        if (presaleFiles) {
+            enquiryData.preSale.presaleFiles = presaleFiles
         }
 
         enquiryData.date = new Date(enquiryData.date)

@@ -13,7 +13,7 @@ import equiRouter from './routes/enquiry.router';
 import celebRouter from './routes/celebrationCheck.router';
 import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
-import downRouter from './routes/downloader.router'
+import fileRouter from './routes/file.router'
 import TokenLogger from './common/middlewares/jwt.middleware';
 
 
@@ -42,7 +42,7 @@ app.use('/customer', cusRouter)
 app.use('/enquiry', equiRouter)
 app.use('/celebrationCheck', celebRouter)
 app.use('/quotation', quoteRouter)
-app.use('/download', downRouter)
+app.use('/file', fileRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)
