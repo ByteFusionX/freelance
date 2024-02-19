@@ -72,8 +72,9 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
             Date
           </label>
-          <input  [class.border-red-500]="f.date.invalid&&submit"
-          formControlName="date" type="date"  id="grid-password" placeholder="Title" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white">
+          <input [class.border-red-500]="f.date.invalid&&submit" formControlName="date" type="date" id="grid-password"
+            placeholder="Title"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white">
         </div>
 
         <div class="w-full md:w-1/2 m-2">
@@ -91,7 +92,7 @@
             <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
               (change)="onFileSelected($event)">
           </div>
-          
+
           <div *ngIf="selectedFiles" class="overflow-hidden">
             <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
               <div class="flex justify-between items-center">
@@ -107,7 +108,9 @@
             </div>
           </div>
         </div>
+
       </div>
+
     </form>
   </div>
 
