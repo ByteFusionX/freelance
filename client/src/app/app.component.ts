@@ -90,11 +90,12 @@ export class AppComponent implements OnDestroy, OnInit {
                 }),
                 takeUntil(this.destroy$)
               ).subscribe();
-              this._service.markTodaysBirthdaysAsViewed();
+
             }
           })
         )
       }
+      this._service.markTodaysBirthdaysAsViewed();
     }
   }
 
