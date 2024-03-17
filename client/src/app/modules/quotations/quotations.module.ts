@@ -19,6 +19,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { UploadLpoComponent } from './pages/upload-lpo/upload-lpo.component';
 import { UploadFileComponent } from "../../shared/components/upload-file/upload-file.component";
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { pipeModule } from 'src/app/shared/pipes/pipe.module';
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
         directiveSharedModule,
         SkeltonLoadingComponent,
         UploadFileComponent,
-        PaginationComponent
+        PaginationComponent,
+        pipeModule
     ]
 })
 export class QuotationsModule { }

@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
@@ -28,6 +28,8 @@ export class CreateQuotatationComponent {
   tokenData!: { id: string, employeeId: string };
   isSaving: boolean = false;
   submit: boolean = false
+  @ViewChild('inputTextArea') inputTextArea!: ElementRef;
+
 
   constructor(
     private config: NgSelectConfig,
@@ -78,7 +80,6 @@ export class CreateQuotatationComponent {
   }
 
   addItemFormGroup() {
-    console.log(this.itemDetails)
     this.itemDetails.push(this._fb.group({
       detail: ['', Validators.required],
       quantity: ['', Validators.required],
@@ -171,4 +172,27 @@ export class CreateQuotatationComponent {
     }
 
   }
+
+  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
+    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+    const currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    // Apply bold formatting to the selected text
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+    const formattedText = `**${selectedText}**`;
+
+    // Replace the selected text with the formatted text
+    const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+
+    // Update the form control value
+    control.setValue(newText);
+
+    // Set the HTML content of the textarea to render bold text
+    textarea.innerHTML = newText;
+}
+
+
+
 }
