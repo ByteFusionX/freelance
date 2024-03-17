@@ -1,0 +1,16 @@
+<div class="p-6">
+    <div class="flex flex-col space-y-2 text-center sm:text-left">
+        <div class="flex items-center gap-2">
+            <ng-icon name="{{data.icon}}" class="text-2xl" [class]="textColor"></ng-icon>
+            <h2 id="radix-:r47:" class="text-lg font-medium capitalize">{{data.title}}</h2>
+        </div>
+        <p id="radix-:r48:" class="text-sm text-gray-500 max-w-[400px] font-thin tracking-wide ms-8">
+            {{data.description}}</p>
+    </div>
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">
+        <button type="button" (click)="onClose()"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-gray-200 hover:text-accent-foreground h-9 px-3  mt-2 sm:mt-0">Cancel</button><button
+            type="button" (click)="onApproved()"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-violet-600 text-white hover:bg-violet-500 h-9 px-3">Confirm</button>
+    </div>
+</div>

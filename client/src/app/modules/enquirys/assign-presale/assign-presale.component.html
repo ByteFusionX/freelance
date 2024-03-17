@@ -12,26 +12,36 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
                     Presale Person
                 </label>
-                <ng-select id="saleperson" class="form" placeholder="Sales Person" appendTo="body" (change)="onChange($event)">
-                    <ng-option *ngFor="let employee of employees$ | async"
-                        [value]="employee._id">{{employee.firstName}} {{employee.lastName}}</ng-option>
+                <ng-select id="saleperson" class="form" placeholder="Sales Person" appendTo="body" name="salesperson"
+                    (change)="onChange($event)" [(ngModel)]="selectedEmployee">
+                    <ng-option *ngFor="let employee of employees$ | async" [value]="employee._id">{{employee.firstName}}
+                        {{employee.lastName}}</ng-option>
                 </ng-select>
+                <p class="text-sm italic text-red-500" *ngIf="employeeError">Select Sales Person</p>
             </div>
 
-            <div class="w-full">
-                <app-upload-file (fileUpload)="onFileUpload($event)"></app-upload-file>
+            <div class="w-full mb-5">
+                <app-upload-file (fileUpload)="onFileUpload($event)" [selectedFiles]="selectedFiles"></app-upload-file>
+                <p class="px-5 text-sm italic text-red-500" *ngIf="fileError">Choose files</p>
             </div>
 
         </form>
     </div>
 
-    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-end gap-2">
-        <button class="border text-black font-medium py-2 px-4 rounded text-sm"
-            (click)="onClose()">
-            Close
-        </button>
-        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
-            (click)="onSubmit()">
-            Submit
-        </button>
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-between gap-2">
+        <div>
+            <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm"
+                *ngIf="isClear" (click)="onClear()">
+                Clear
+            </button>
+        </div>
+        <div>
+            <button class="border text-black font-medium py-2 px-4 rounded text-sm" (click)="onClose()">
+                Close
+            </button>
+            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+                (click)="onSubmit()">
+                Submit
+            </button>
+        </div>
     </div>

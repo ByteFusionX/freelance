@@ -21,18 +21,22 @@ export class NavBarComponent {
   @Output() reduce = new EventEmitter<boolean>()
   showFullBar: boolean = true
   menuState: boolean = false
-  employee!:{id:string,employeeId:string}
-  employeeData$!:Observable<getEmployee|undefined>
+  employee!: { id: string, employeeId: string };
+  employeeData$!: Observable<getEmployee | undefined>
 
-  constructor(private _employeeService:EmployeeService,
-              private _router:Router){}
+  constructor(
+    private _employeeService: EmployeeService,
+    private _router: Router
+  ) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.employee = this._employeeService.employeeToken()
-    const employeeId=this.employee.employeeId
-    this._employeeService.getEmployeeData(employeeId)
-    this.employeeData$=this._employeeService.employeeData$
+    if(this.employee){
+      const employeeId = this.employee.employeeId
+      this._employeeService.getEmployeeData(employeeId)
+      this.employeeData$ = this._employeeService.employeeData$
     }
+  }
 
   reduceSideBar() {
     this.showFullBar = !this.showFullBar
@@ -47,7 +51,7 @@ export class NavBarComponent {
     this.menuState = !this.menuState
   }
 
-  signOut(){
+  signOut() {
     localStorage.removeItem('employeeToken')
     this._router.navigate(['/login'])
   }

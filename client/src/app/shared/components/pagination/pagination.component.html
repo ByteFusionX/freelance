@@ -40,8 +40,8 @@
                 <a aria-current="page"
                     class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
                     *ngIf="selectedPage == 1 && maxPage > 2 ">{{selectedPage + 2}}</a>
-
-                <!-- <div *ngFor="let page of totalLinksArray(); let i=index" class="flex">
+<!-- 
+                <div *ngFor="let page of totalLinksArray(); let i=index" class="flex">
                     <a aria-current="page" *ngIf="page > maxPage - 2 && maxPage > 4"
                         class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
                         (click)="onLinkClick(page)" [class.active]="page == selectedPage">{{page}}</a>
@@ -55,7 +55,7 @@
                 <div>
                     <select
                         class="py-2 px-1 block w-full border border-gray-200 rounded ms-1 text-sm outline-none ring-1 ring-inset ring-gray-200 focus:border-none focus:ring-violet-500 disabled:opacity-50 disabled:pointer-events-none"
-                        (change)="onChangeSelect($event)">
+                        (change)="onChangeSelect($event)" [disabled]="total<=6">
                         <option value="5">5 / Pages</option>
                         <option value="10" selected>10 / Pages</option>
                         <option value="15">15 / Pages</option>

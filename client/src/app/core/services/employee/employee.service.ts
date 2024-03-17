@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { FilterEmployee, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
@@ -16,8 +16,12 @@ export class EmployeeService {
   employeeData$ = this.employeeSubject.asObservable()
   constructor(private http: HttpClient) { }
 
-  getEmployees(): Observable<getEmployee[]> {
+  getAllEmployees(): Observable<getEmployee[]> {
     return this.http.get<getEmployee[]>(`${this.api}/employee`)
+  }
+
+  getEmployees(filterData: FilterEmployee): Observable<{total:number,employees:getEmployee[]}> {
+    return this.http.post<{total:number,employees:getEmployee[]}>(`${this.api}/employee/get`,filterData)
   }
 
   createEmployees(employeeData: getEmployee) {
@@ -28,18 +32,23 @@ export class EmployeeService {
     return this.http.post(`${this.api}/employee/login`, employeeData)
   }
 
-  employeeToken() {
-    let token = <string>localStorage.getItem('employeeToken')
-    const decodedToken = <{ id: string, employeeId: string }>jwtDecode(token);
-    return decodedToken
+  getToken(): string | null {
+    return <string | null>localStorage.getItem('employeeToken')
+  }
+
+  employeeToken(): any {
+    let token = this.getToken()
+    if (token) {
+      const decodedToken = <{ id: string, employeeId: string }>jwtDecode(token);
+      return decodedToken
+    }
   }
 
   getEmployee(id: string) {
     return this.http.get<getEmployee>(`${this.api}/employee/get/${id}`)
-   
   }
 
-  getEmployeeData(id:string){
+  getEmployeeData(id: string) {
     this.getEmployee(id).subscribe(
       (employeeData: getEmployee) => {
         this.employeeSubject.next(employeeData);

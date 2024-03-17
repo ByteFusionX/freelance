@@ -8,7 +8,7 @@
 
 @font-face{
     font-family: 'Jost, sans-serif';
-    src: url('./assets/font/static/Jost-Medium.ttf');
+    src: url('./assets/font/static/Jost-Medium.ttf'); 
 }
 
 html, body { height: 100%; }
@@ -23,6 +23,11 @@ body,td,th { margin: 0; font-family: "Jost, sans-serif"; }
 
 .ng-select.filter .ng-select-container {
     height: 40px;
+}
+
+.ng-select.filter-createdby .ng-select-container {
+    height: 40px;
+    font-size: 16px;
 }
 
 /* CSS to hide spin buttons */
@@ -68,6 +73,7 @@ input[type="number"] {
     transform: rotate(360deg);
   }
 }
+
 .spin {
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;

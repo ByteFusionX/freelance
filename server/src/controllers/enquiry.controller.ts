@@ -1,16 +1,29 @@
 import { NextFunction, Request, Response } from "express"
 import enquiryModel from "../models/enquiry.model"
+import { Enquiry } from "../interface/enquiry.interface"
 const { ObjectId } = require('mongodb')
 
-export const createEnquiry = async (req: Request, res: Response, next: NextFunction) => {
+export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
-        if (!req.body) return res.status(204).json({ err: 'No data' })
-        const enquiryData = req.body
+        if (!req.files) return res.status(204).json({ err: 'No data' })
+        const enquiryFiles = req.files.attachments
+        const presaleFiles = req.files.presaleFiles
+
+        const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
+        enquiryData.attachments = []
+        if (enquiryFiles) {
+            enquiryData.attachments = enquiryFiles
+        }
+
+        if (presaleFiles) {
+            enquiryData.preSale.presaleFiles = presaleFiles
+        }
+
         enquiryData.date = new Date(enquiryData.date)
-        const preSaleData = new enquiryModel(enquiryData)
-        const savePreSaleData = await (await preSaleData.save()).populate(['client', 'department', 'salesPerson'])
-        if (!savePreSaleData) return res.status(504).json({ err: 'Internal Error' })
-        return res.status(200).json(preSaleData)
+        const newEnquiry = new enquiryModel(enquiryData)
+        const saveEnquiryData = await (await newEnquiry.save()).populate(['client', 'department', 'salesPerson'])
+        if (!saveEnquiryData) return res.status(504).json({ err: 'Internal Error' })
+        return res.status(200).json(newEnquiry)
     } catch (error) {
         next(error)
     }
@@ -18,32 +31,32 @@ export const createEnquiry = async (req: Request, res: Response, next: NextFunct
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, status, fromDate, toDate } = req.body;
+        let { page, row, salesPerson, status, fromDate, toDate, department } = req.body;
         let skipNum: number = (page - 1) * row;
         let isSalesPerson = salesPerson == null ? true : false;
         let isStatus = status == null ? true : false;
         let isDate = fromDate == null || toDate == null ? true : false;
+        let isDepartment = department == null ? true : false;
 
-        let matchSalesPerson = {
+        let matchFilters = {
             $and: [
-                {
-                    $and: [
-                        { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
-                        { $or: [{ status: status }, { status: { $exists: isStatus } }] },
-                    ]
-                },
+                { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
+                { $or: [{ status: status }, { status: { $exists: isStatus } }] },
                 {
                     $or: [
                         { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
                         { date: { $exists: isDate } }
                     ]
+                },
+                {
+                    $or: [{ department: new ObjectId(department) }, { department: { $exists: isDepartment } }]
                 }
             ]
         }
 
-        const enquiryTotal = await enquiryModel.aggregate([
+        const enquiryTotal: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: matchSalesPerson
+                $match: matchFilters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -51,12 +64,11 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             {
                 $project: { total: 1, _id: 0 }
             }
-        ])
-
+        ]).exec()
 
         const enquiryData = await enquiryModel.aggregate([
             {
-                $match: matchSalesPerson
+                $match: matchFilters
             },
             {
                 $sort: { createdDate: -1 }
@@ -77,9 +89,10 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
         ]);
-        console.log(enquiryData[0])
-        if (!enquiryData.length) return res.status(504).json({ err: 'No enquiry data found' })
-        return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
+
+        if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
+        return res.status(504).json({ err: 'No enquiry data found' })
+
     } catch (error) {
         next(error)
     }
@@ -91,7 +104,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
 
-        const totalPresale = await enquiryModel.aggregate([
+        const totalPresale: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: { status: 'Assigned To Presales' }
+            },
             {
                 $group: { _id: null, total: { $sum: 1 } }
             },
@@ -121,8 +137,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             }
         ])
-
-        if (preSaleData) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
+        if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -215,6 +230,21 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
 
         if (result) return res.status(200).json(result)
         return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let files = req.files
+        let enquiryId = req.body.enquiryId
+        let uploadData = files
+        const enquiryData = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { assignedFiles: uploadData } }, { upsert: true })
+            .populate(['client', 'department', 'salesPerson'])
+        enquiryData.assignedFiles = uploadData
+        if (!enquiryData) return res.status(502).json()
+        return res.status(200).json(enquiryData)
     } catch (error) {
         next(error)
     }

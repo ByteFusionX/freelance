@@ -7,24 +7,24 @@
                 <div class="h-full w-full text-center flex flex-col items-center justify-center items-center">
                     <ng-icon name="heroCloudArrowUp" class="text-5xl text-violet-500 mb-2"></ng-icon>
                     <p class="pointer-none text-gray-500 "><span class="text-sm">Drop</span> files here
-                        <br /> or <a href="" id="" class="text-violet-500 hover:underline">select a file</a> from
+                        <br /> or <a id="" class="text-violet-500 hover:underline">select a file</a> from
                         your device
                     </p>
                     <p class="text-sm text-gray-500">
                         <span>File type: doc,pdf,types of images</span>
                     </p>
                 </div>
-                <input type="file" class="hidden" multiple (input)="onFileSelected($event)" #fileInput>
+                <input type="file" class="hidden" multiple (input)="onFileSelected($event)" #fileInput appFileValidator accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
             </label>
         </div>
     </div>
 
     <div class="px-5" *ngIf="selectedFiles">
         <div class="" *ngFor="let file of selectedFiles; let i = index">
-            <div class="flex justify-center">
+            <div class="flex justify-center items-center mb-5">
                 <ng-icon name="heroXMark" class="text-orange-500 text-lg cursor-pointer"
                     (click)="onFileRemoved(i)"></ng-icon>
-                <p class="text-sm text-gray-500 px-2 w-40 truncate ..." matTooltip="{{file.name}}"
+                <p class="text-base text-gray-500 px-1 w-40 truncate ..." matTooltip="{{file.name}}"
                     matTooltipPosition="above" matTooltipClass="mat-tooltip"> {{file.name}}</p>
             </div>
         </div>

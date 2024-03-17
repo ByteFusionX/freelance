@@ -15,6 +15,69 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { page, row, search } = req.body;
+        let skipNum: number = (page - 1) * row;
+        
+
+        let searchRegex = search.split('').join('\\s*');
+        let fullNameRegex = new RegExp(searchRegex, 'i');
+
+        let matchFilters = {
+            $or: [
+                { $expr: { $regexMatch: { input: { $concat: ["$firstName", " ", "$lastName"] }, regex: fullNameRegex } } },
+                { firstName: { $regex: search, $options: 'i' } },
+                { lastName: { $regex: search, $options: 'i' } },
+            ]
+        }
+
+        let total: number = 0;
+        await Employee.aggregate([
+            {
+                $match: matchFilters
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { total: 1, _id: 0 }
+            }
+        ]).exec()
+            .then((result: { total: number }[]) => {
+                if (result && result.length > 0) {
+                    total = result[0].total
+                }
+            })
+
+        const employeeData = await Employee.aggregate([
+            {
+                $match: matchFilters,
+            },
+            {
+                $sort: { employeeId: 1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
+            {
+                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $unwind: "$department"
+            },
+        ]);
+        if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
+        return res.status(200).json({ total: total, employees: employeeData })
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let employeeId: string = await generateEmployeeId();
@@ -84,7 +147,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ employeeId: employeeId })
+        const employeeData = await Employee.findOne({ employeeId: employeeId });
         if(employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {

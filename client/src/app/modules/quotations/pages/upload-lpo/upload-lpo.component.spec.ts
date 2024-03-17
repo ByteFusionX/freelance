@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AccordionComponent } from './accordion.component';
+import { UploadLpoComponent } from './upload-lpo.component';
 
-describe('AccordionComponent', () => {
-  let component: AccordionComponent;
-  let fixture: ComponentFixture<AccordionComponent>;
+describe('UploadLpoComponent', () => {
+  let component: UploadLpoComponent;
+  let fixture: ComponentFixture<UploadLpoComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AccordionComponent]
+      declarations: [UploadLpoComponent]
     });
-    fixture = TestBed.createComponent(AccordionComponent);
+    fixture = TestBed.createComponent(UploadLpoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

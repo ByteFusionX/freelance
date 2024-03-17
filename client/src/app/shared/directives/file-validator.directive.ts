@@ -12,13 +12,18 @@ export class appFileValidator {
 
   @HostListener('change') onChange() {
     const fileInput = this.el.nativeElement;
-    const filePath = fileInput.value;
+    const files: File[] = fileInput.files;
 
-    const isValid = this.allowedExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
+    if (!files) return;
 
-    if (!isValid) {
-      fileInput.value = '';
-      this.toast.warning('Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx.', "Warning")
+    for (const file of files) {
+     
+      const isValidExtension = this.allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+      if (!isValidExtension) {
+        fileInput.value = '';
+        this.toast.warning(' Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx,', "Warning");
+        return;
+      }
     }
   }
 }

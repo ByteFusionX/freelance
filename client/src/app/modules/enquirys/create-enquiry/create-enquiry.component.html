@@ -5,20 +5,22 @@
       <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
     </button>
   </div>
-  
+
   <div class="flex flex-col p-6 mx-auto text-gray-900 bg-white rounded-lg shadow">
-    <form class="" [formGroup]="formData">
+    <form class="" [formGroup]="enquiryForm">
       <div class="w-full flex mb-2">
         <div class="w-1/2 m-2">
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
             Client
           </label>
-          <ng-select id="client" class="form capitalize" placeholder="Customer" appendTo="body" (change)="onChange($event)"
-            formControlName="client">
-            <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id" class="capitalize">{{customer.companyName}}</ng-option>
+          <ng-select [class.border-red-500]="f.client.invalid&&submit" id="client" class="form capitalize border"
+            placeholder="Customer" appendTo="body" (change)="onChange($event)" formControlName="client">
+            <ng-option *ngFor="let customer of customers$ | async" [value]="customer._id"
+              class="capitalize">{{customer.companyName}}</ng-option>
             <ng-template ng-footer-tmp>
               <a (click)="createCustomer()"
-                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full" routerLink="/customers/create">
+                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full"
+                routerLink="/customers/create">
                 + Create Customer
               </a>
             </ng-template>
@@ -28,7 +30,8 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="contact">
             Point of Contact
           </label>
-          <ng-select [class.border-red-500]="f.contact.invalid&&submit" id="contact" class="form capitalize border" placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
+          <ng-select [class.border-red-500]="f.contact.invalid&&submit" id="contact" class="form capitalize border"
+            placeholder="Contact" appendTo="body" notFoundText="Select Client" formControlName="contact">
             <ng-option *ngFor="let contact of contacts" [value]="contact._id" class="capitalize">{{contact.firstName}}
               {{contact.lastName}}</ng-option>
           </ng-select>
@@ -39,7 +42,8 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="department">
             Department
           </label>
-          <ng-select id="department" class="form" placeholder="Department" appendTo="body" formControlName="department" (change)="getDepartment($event)">
+          <ng-select [class.border-red-500]="f.department.invalid&&submit" id="department" class="form border"
+            placeholder="Department" appendTo="body" formControlName="department" (change)="getDepartment($event)">
             <ng-option *ngFor="let department of departments$ | async"
               [value]="department._id">{{department.departmentName}}</ng-option>
           </ng-select>
@@ -68,26 +72,27 @@
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-city">
             Date
           </label>
-          <div class="">
-            <input formControlName="date" type="date"
-              class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white">
-          </div>
+          <input [class.border-red-500]="f.date.invalid&&submit" formControlName="date" type="date" id="grid-password"
+            placeholder="Title"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white">
         </div>
 
         <div class="w-full md:w-1/2 m-2">
           <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold " for="grid-zip">
             Attachment
           </label>
-          <div class="flex items-center justify-start px-3 mt-2 bg-gray-200 py-2 cursor-pointer"
+          <div [class.border-red-500]="f.attachments.invalid&&submit"
+            class="flex border items-center justify-start px-3 mt-2 bg-gray-200 py-2 cursor-pointer"
             (click)="fileInput.click()">
             <div class="font-medium flex items-center text-sm py-1">
               <ng-icon name="heroPaperClip" class="text-xl text-gray-600 mr-2">
               </ng-icon>
               Select Files
             </div>
-            <input appFileValidator type="file" multiple hidden #fileInput
+            <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
               (change)="onFileSelected($event)">
           </div>
+
           <div *ngIf="selectedFiles" class="overflow-hidden">
             <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
               <div class="flex justify-between items-center">
@@ -103,7 +108,9 @@
             </div>
           </div>
         </div>
+
       </div>
+
     </form>
   </div>
 
@@ -113,7 +120,8 @@
         (click)="onClickPresale()">
         Assign to Presale
       </button>
-      <button class="bg-transparent border hover:bg-gray-200 text-black font-medium py-2 px-4 rounded text-sm" (click)="onClickQuote()">
+      <button class="bg-transparent border hover:bg-gray-200 text-black font-medium py-2 px-4 rounded text-sm"
+        (click)="onClickQuote()">
         Create Quote
       </button>
     </div>
