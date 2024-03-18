@@ -175,22 +175,19 @@ export class CreateQuotatationComponent {
 
   applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
     const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
-    const currentValue = control.value;
+    let currentValue = control.value;
     const selectionStart = textarea.selectionStart;
     const selectionEnd = textarea.selectionEnd;
 
-    // Apply bold formatting to the selected text
     const selectedText = currentValue.substring(selectionStart, selectionEnd);
-    const formattedText = `**${selectedText}**`;
+    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
+    let formattedText = `**${escapedText}**`;
 
-    // Replace the selected text with the formatted text
+    formattedText = formattedText.replace(/\n/g, ' ');
+
     const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
 
-    // Update the form control value
     control.setValue(newText);
-
-    // Set the HTML content of the textarea to render bold text
-    textarea.innerHTML = newText;
 }
 
 

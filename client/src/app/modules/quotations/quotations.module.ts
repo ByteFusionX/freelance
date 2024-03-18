@@ -47,7 +47,8 @@ import { pipeModule } from 'src/app/shared/pipes/pipe.module';
         SkeltonLoadingComponent,
         UploadFileComponent,
         PaginationComponent,
-        pipeModule
+        pipeModule,
+         
     ]
 })
 export class QuotationsModule { }

@@ -98,9 +98,7 @@
                 </thead>
                 <tbody>
                     <tr class="bg-white border-b " *ngFor="let item of quoteData.items">
-                        <th scope="row" class="px-6 border font-normal py-2">
-                            {{item.detail}}
-                        </th>
+                        <th scope="row" class="px-6 border font-normal py-2" [innerHTML]="item.detail | parseBoldText"></th>
                         <td class="px-2  border text-center">
                             {{item.quantity}}
                         </td>
