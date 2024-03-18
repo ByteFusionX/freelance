@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
-import {  Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
@@ -25,6 +25,7 @@ export class QuotationEditComponent {
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
   submit: boolean = false
+  @ViewChild('inputTextArea') inputTextArea!: ElementRef;
 
   constructor(
     private config: NgSelectConfig,
@@ -37,7 +38,7 @@ export class QuotationEditComponent {
     private _datePipe: DatePipe,
     private toastr: ToastrService
   ) {
-    this.getQuoteData();    
+    this.getQuoteData();
   }
 
   ngOnInit() {
@@ -65,20 +66,20 @@ export class QuotationEditComponent {
           availability: ['', Validators.required],
         })
       ]),
-      totalDiscount:['',Validators.required],
+      totalDiscount: ['', Validators.required],
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
-      createdBy:['']
+      createdBy: ['']
     })
 
-    if(this.quoteData){
+    if (this.quoteData) {
       this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
       this.quoteForm.controls['client'].setValue(this.quoteData.client);
       this.quoteForm.patchValue(this.quoteData)
     }
   }
 
-  getQuoteData(){
+  getQuoteData() {
     const navigation = this._router.getCurrentNavigation();
     console.log(navigation)
     if (navigation) {
@@ -87,7 +88,7 @@ export class QuotationEditComponent {
       this._router.navigate(['/quotations']);
     }
   }
-  
+
   get itemDetails(): FormArray {
     return this.quoteForm.get('items') as FormArray;
   }
@@ -107,7 +108,7 @@ export class QuotationEditComponent {
   getAllCustomers() {
     this._customerService.getAllCustomers().subscribe((res) => {
       this.customers = res;
-      if(this.quoteData){
+      if (this.quoteData) {
         this.onCustomerChange(this.quoteData.client)
       }
     })
@@ -151,40 +152,62 @@ export class QuotationEditComponent {
     return this.calculateUnitPrice(i) * this.itemDetails.controls[i].get('quantity')?.value
   }
 
-  calculateAllTotalCost(){
+  calculateAllTotalCost() {
     let totalCost = 0;
-    this.itemDetails.controls.forEach((item,i)=>{
+    this.itemDetails.controls.forEach((item, i) => {
       totalCost += this.calculateTotalCost(i)
     })
     return totalCost;
   }
 
-  calculateSellingPrice():number{
+  calculateSellingPrice(): number {
     let totalCost = 0;
-    this.itemDetails.controls.forEach((item,i)=>{
+    this.itemDetails.controls.forEach((item, i) => {
       totalCost += this.calculateTotalPrice(i)
     })
     return totalCost;
-  } 
-
-  calculateTotalProfit():number{
-    return ((this.calculateSellingPrice()-this.calculateAllTotalCost())/this.calculateSellingPrice() * 100) || 0
   }
 
-  calculateDiscoutPrice():number{
+  calculateTotalProfit(): number {
+    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
+  }
+
+  calculateDiscoutPrice(): number {
     return this.calculateSellingPrice() - this.quoteForm.get('totalDiscount')?.value;
   }
 
 
   onQuoteSaveSubmit() {
     this.submit = true
-    if(this.quoteForm.valid){
-      this._quoteService.updateQuotation(this.quoteForm.value,this.quoteData._id).subscribe((res:Quotatation)=>{
+    if (this.quoteForm.valid) {
+      this._quoteService.updateQuotation(this.quoteForm.value, this.quoteData._id).subscribe((res: Quotatation) => {
         this._router.navigate(['/quotations'])
       })
-    }else {
+    } else {
       this.toastr.warning('Check the fields properly!', 'Warning !')
     }
 
   }
+
+
+  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
+    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+    let currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
+    let formattedText = `**${escapedText}**`;
+
+    formattedText = formattedText.replace(/\n/g, ' ');
+
+ 
+    const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+
+  
+    control.setValue(newText);
+}
+
+  
 }

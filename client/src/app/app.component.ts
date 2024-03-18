@@ -89,7 +89,7 @@ export class AppComponent implements OnDestroy, OnInit {
                   );
                 }),
                 takeUntil(this.destroy$)
-              ).subscribe();        
+              ).subscribe();
             }
           })
         )
