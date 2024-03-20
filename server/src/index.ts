@@ -15,11 +15,12 @@ import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
 import downRouter from './routes/downloader.router'
 import TokenLogger from './common/middlewares/jwt.middleware';
+import catRouter from './routes/category.router';
 
 
 const app: express.Application = express();
 
-app.use(morgan("tiny"));
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 startCronJob();
@@ -42,6 +43,7 @@ app.use('/customer', cusRouter)
 app.use('/enquiry', equiRouter)
 app.use('/celebrationCheck', celebRouter)
 app.use('/quotation', quoteRouter)
+app.use('/category', catRouter)
 app.use('/download', downRouter)
 
 mongoose

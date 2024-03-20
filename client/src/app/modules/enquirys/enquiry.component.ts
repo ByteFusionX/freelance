@@ -22,6 +22,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
@@ -55,6 +56,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   })
 
   ngOnInit(): void {
+    this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.subscriptions.add(
       this._enquiryService.departmentData$.subscribe((data) => {
@@ -76,6 +78,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   }
 
   getEnquiries() {
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.enquiry.viewReport
+      userId = employee?._id
+    })
+
     let filterData = {
       page: this.page,
       row: this.row,
@@ -83,7 +92,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       status: this.selectedStatus,
       fromDate: this.fromDate,
       toDate: this.toDate,
-      department: this.selectedDepartment
+      department: this.selectedDepartment,
+      access: access,
+      userId: userId
     }
 
     this.subscriptions.add(
@@ -152,6 +163,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
     }
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createEnquiry = data?.category.privileges.enquiry.create
+    })
   }
 
   onPageNumberClick(event: { page: number, row: number }) {

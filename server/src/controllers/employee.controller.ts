@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
 var jwt = require('jsonwebtoken');
+const { ObjectId } = require('mongodb');
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,25 +18,50 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
 
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, search } = req.body;
+        let { page, row, search, access, userId } = req.body;
+
         let skipNum: number = (page - 1) * row;
-        
 
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
+        let total: number = 0;
 
         let matchFilters = {
             $or: [
                 { $expr: { $regexMatch: { input: { $concat: ["$firstName", " ", "$lastName"] }, regex: fullNameRegex } } },
                 { firstName: { $regex: search, $options: 'i' } },
                 { lastName: { $regex: search, $options: 'i' } },
+                { employeeId: { $regex: search, $options: 'i' } },
             ]
         }
 
-        let total: number = 0;
+        let accessFilter = {};
+
+        switch (access) {
+            case 'reported':
+                accessFilter = { reportingTo: new ObjectId(userId) };
+                break;
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { reportingTo: new ObjectId(userId) },
+                        { createdBy: new ObjectId(userId) }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = {$and:[matchFilters,accessFilter]}
+
         await Employee.aggregate([
             {
-                $match: matchFilters
+                $match: filters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -45,6 +71,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             }
         ]).exec()
             .then((result: { total: number }[]) => {
+                console.log(result)
                 if (result && result.length > 0) {
                     total = result[0].total
                 }
@@ -52,7 +79,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
 
         const employeeData = await Employee.aggregate([
             {
-                $match: matchFilters,
+                $match: filters,
             },
             {
                 $sort: { employeeId: 1 }
@@ -85,13 +112,13 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
         employeeData.employeeId = employeeId;
 
         const password = employeeData.password;
-        employeeData.password = await bcrypt.hash(password, 10)
+        employeeData.password = await bcrypt.hash(password, 10);
 
-        const employee = new Employee(employeeData)
+        const employee = new Employee(employeeData);
 
-        const saveEmployee = await (await employee.save()).populate('department')
+        const saveEmployee = await (await employee.save()).populate('department');
         if (saveEmployee) {
-            return res.status(200).json(saveEmployee)
+            return res.status(200).json(saveEmployee);
         }
         return res.status(502).json()
     } catch (error) {
@@ -147,8 +174,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ employeeId: employeeId });
-        if(employeeData) return res.status(200).json(employeeData)
+        const employeeData = await Employee.findOne({ employeeId: employeeId }).populate('category');
+        if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
         next(error)

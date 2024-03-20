@@ -25,8 +25,8 @@ export class EnquiryService {
     return this.http.post<EnquiryTable>(`${this.api}/enquiry/get`, filterData)
   }
 
-  getPresale(page: number, row: number): Observable<EnquiryTable> {
-    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?page=${page}&row=${row}`)
+  getPresale(page: number, row: number,access?:string,userId?:string): Observable<EnquiryTable> {
+    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
   updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {

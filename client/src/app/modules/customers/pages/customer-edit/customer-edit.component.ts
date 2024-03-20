@@ -41,7 +41,8 @@ export class CustomerEditComponent {
           courtesyTitle: ['', Validators.required],
           firstName: ['', Validators.required],
           lastName: ['', Validators.required],
-          email: ['', [Validators.required, Validators.email]]
+          email: ['', [Validators.required, Validators.email]],
+          phoneNo: ['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
@@ -109,7 +110,8 @@ export class CustomerEditComponent {
       courtesyTitle: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      phoneNo: ['', [Validators.required]]
     }));
   }
 

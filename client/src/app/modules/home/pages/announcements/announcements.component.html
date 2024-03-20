@@ -1,9 +1,9 @@
 <div class="m-6  ">
-    <div class="text-lg bg-white font-medium p-4 border border-b-gray-300 px-8 rounded-md">
+    <div class="text-lg bg-white font-medium p-4 border border-b-gray-300 px-8 ">
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <h3>Announcement</h3>
             <div class="flex justify-end gap-4 h-10">
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+                <button *ngIf="createAnnouncement" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
                     (click)="openDialog()">
                     + Create Announcement
                 </button>
@@ -13,7 +13,7 @@
     <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
 
     <div *ngIf="recentData || announcementData.length">
-        <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
+        <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 ">
             <div *ngIf="recentData.celeb" class="confetti-container">
                 <app-confetti-component></app-confetti-component>
             </div>
@@ -40,7 +40,7 @@
 
 
         <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
-            <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" style="position: relative;">
+            <div class="h-fit w-full bg-white mt-5 font-medium p-4 " style="position: relative;">
                 <div *ngIf="item.celeb" class="confetti-container">
                     <app-confetti-component></app-confetti-component>
                 </div>

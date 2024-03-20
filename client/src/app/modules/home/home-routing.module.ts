@@ -4,6 +4,7 @@ import { EmployeesComponent } from './pages/employees/employees.component';
 import { HomeComponent } from './home.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
+import { RoleGuard } from 'src/app/core/guards/role/role.guard';
 
 const routes: Routes = [
   {
@@ -11,8 +12,8 @@ const routes: Routes = [
     component: HomeComponent,
     children: [
       { path: '', component: DashboardComponent },
-      { path: 'employees', component: EmployeesComponent },
-      { path: 'announcements', component: AnnouncementsComponent }
+      { path: 'employees', canActivate:[RoleGuard], component: EmployeesComponent },
+      { path: 'announcements', canActivate:[RoleGuard], component: AnnouncementsComponent }
     ]
   }
 ];

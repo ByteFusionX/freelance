@@ -1,4 +1,4 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
   <div class="  border-b p-3 px-9 flex justify-between">
     <h3 class="text-md font-medium">Create Customer</h3>
   </div>
@@ -16,12 +16,13 @@
                   Customer Type
                 </label>
                 <div class="md:flex w-full">
+                  <div *ngIf="!departments.length" class="h-4 bg-gray-100 animate-pulse rounded-full w-full mt-2"></div>
+
                   <div class="md:w-1/5" *ngFor="let department of departments">
-                    <input type="radio"
-                      formControlName="department" [value]="department._id" [id]="department._id">
+                    <input type="radio" formControlName="department" [value]="department._id" [id]="department._id">
                     <label [for]="department._id" class="pl-2">{{ department.departmentName }}</label>
                   </div>
-                 
+
 
                 </div>
                 <div class="mb-2 text-red-700 text-sm" *ngIf="f['department'].invalid && isSubmitted">
@@ -59,23 +60,30 @@
                 <div class="px-3 w-full">
                   <label for="" class="uppercase text-xs mb-4 font-semibold text-gray-600">First Name :</label>
                   <input formControlName="firstName"
-                    [ngClass]="{'border-red-500 border':contact.get('firstName')?.hasError('required') && (contact.get('firstName')?.touched || isSubmitted)}"
-                    class="w-full mb-3 md:mb-0 appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    [ngClass]="{'border-red-500':contact.get('firstName')?.hasError('required') && (contact.get('firstName')?.touched || isSubmitted)}"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     type="text" placeholder="First Name">
                 </div>
                 <div class="px-3 w-full">
                   <label for="" class="uppercase text-xs mb-4 font-semibold text-gray-600">Last Name :</label>
                   <input formControlName="lastName"
-                    [ngClass]="{'border-red-500 border':contact.get('lastName')?.hasError('required') && (contact.get('lastName')?.touched || isSubmitted)}"
-                    class="w-full mb-3 md:mb-0 appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    [ngClass]="{'border-red-500':contact.get('lastName')?.hasError('required') && (contact.get('lastName')?.touched || isSubmitted)}"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     type="text" placeholder="Last Name">
                 </div>
                 <div class="px-3 w-full">
                   <label for="" class="uppercase text-xs mb-4 font-semibold text-gray-600">Email :</label>
                   <input formControlName="email"
-                    [ngClass]="{'border-red-500 border':(contact.get('email')?.hasError('required') || contact.get('email')?.hasError('email')) && (contact.get('email')?.touched || isSubmitted)}"
-                    class="w-full mb-3 md:mb-0 appearance-none block bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    [ngClass]="{'border-red-500':(contact.get('email')?.hasError('required') || contact.get('email')?.hasError('email')) && (contact.get('email')?.touched || isSubmitted)}"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     type="email" placeholder="Email">
+                </div>
+                <div class="px-3 w-full">
+                  <label for="" class="uppercase text-xs mb-4 font-semibold text-gray-600">Phone No. :</label>
+                  <input formControlName="phoneNo"
+                    [ngClass]="{'border-red-500':contact.get('phoneNo')?.hasError('required') && (contact.get('phoneNo')?.touched || isSubmitted)}"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    type="number" placeholder="Phone Number">
                 </div>
 
 
@@ -98,10 +106,10 @@
                   for="grid-company-name">
                   Company Name
                 </label>
-                <input formControlName="companyName"  [class.border-red-500]="f['companyName'].invalid && isSubmitted"
+                <input formControlName="companyName" [class.border-red-500]="f['companyName'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="text" placeholder="Company Name">
-                
+
               </div>
             </div>
 
@@ -112,7 +120,8 @@
                   for="grid-customer-email">
                   Customer Email Id
                 </label>
-                <input formControlName="customerEmailId"  [class.border-red-500]="f['customerEmailId'].invalid && isSubmitted"
+                <input formControlName="customerEmailId"
+                  [class.border-red-500]="f['customerEmailId'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="text" placeholder="Customer Email Id">
                 <div class="text-red-700 text-sm mt-1"
@@ -125,10 +134,10 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2" for="grid-contact-no">
                   Contact No
                 </label>
-                <input formControlName="contactNo"  [class.border-red-500]="f['contactNo'].invalid && isSubmitted"
+                <input formControlName="contactNo" [class.border-red-500]="f['contactNo'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="number" placeholder="Contact No">
-               
+
               </div>
             </div>
 
@@ -144,7 +153,8 @@
             Cancel
           </button>
           <button type="submit"
-            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4  rounded text-sm  disabled:bg-violet-500 disabled:cursor-not-allowed">
+            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  flex justify-center items-center gap-2 disabled:bg-violet-400 disabled:cursor-not-allowed">
+            <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
             Create
           </button>
         </div>

@@ -8,13 +8,13 @@
 <form class="w-full max-w-lg" (submit)="onSubmit()" [formGroup]="formData">
   <div class="flex flex-col p-6 mx-auto max-w-lg  text-gray-900 bg-white rounded-lg  shadow px-9">
 
-    <div class="flex flex-wrap -mx-3 mb-6">
+    <div class="flex flex-wrap -mx-3 mb-2">
       <div class="w-full md:w-full px-3 mb-3 md:mb-0">
         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
           Title
         </label>
         <input appNoLeadingSpace formControlName="title"  [class.border-red-500]="f.title.invalid&&submit"
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-2 leading-tight focus:outline-none focus:bg-white"
+          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-4 leading-tight focus:outline-none focus:bg-white"
           id="grid-first-name" type="text" placeholder="Title">
       </div>
       <div class="w-full md:w-full px-3">
@@ -48,7 +48,8 @@
       class="bg-gray-300 hover:bg-gray-400 text-black font-medium py-2 px-4 rounded text-sm">
       Cancel
     </button>
-    <button type="submit" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm ">
+    <button type="submit" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  flex justify-center items-center gap-2 disabled:bg-violet-400 disabled:cursor-not-allowed">
+      <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
       Create
     </button>
   </div>

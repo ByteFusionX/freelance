@@ -1,7 +1,14 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="  border-b p-3 px-9 flex justify-between">
         <h3 class="text-md font-medium">Create Quote <span class="text-orange-600 text-sm"
                 *ngIf="enquiryData$ | async as enquiryData">- {{enquiryData.enquiryId}}</span></h3>
+        <button (click)="onQuoteEdit()" *ngIf="(enquiryData$ | async) && !isEdit"
+            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm">
+            <div class="flex justify-center items-center gap-2">
+                <ng-icon name="heroPencilSquare"></ng-icon>
+                Edit
+            </div>
+        </button>
 
     </div>
     <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()">
@@ -14,8 +21,13 @@
                             for="grid-first-name">
                             Client
                         </label>
-                        <p *ngIf="enquiryData$ | async as enquiryData ;else clientBlock" class="border py-[11px] px-2">
-                            {{enquiryData.client.companyName}}</p>
+                        <ng-container *ngIf="!isEdit ;else clientBlock">
+
+                            <ng-container *ngIf="enquiryData$ | async as enquiryData ;else clientBlock">
+                                <p class="border py-[11px] px-2">
+                                    {{enquiryData.client.companyName}}</p>
+                            </ng-container>
+                        </ng-container>
                         <ng-template #clientBlock>
                             <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border"
                                 (change)="onChange($event)" formControlName="client">
@@ -35,10 +47,14 @@
                             for="grid-last-name">
                             Attention
                         </label>
-                        <p *ngIf="enquiryData$ | async as enquiryData ;else attentionBlock"
-                            class="border py-[11px] px-2">
-                            {{enquiryData.contact.courtesyTitle + '.' + enquiryData.contact.firstName + ' ' +
-                            enquiryData.contact.lastName}}</p>
+                        <ng-container *ngIf="!isEdit ;else attentionBlock">
+
+                            <ng-container *ngIf="enquiryData$ | async as enquiryData ;else attentionBlock">
+                                <p class="border py-[11px] px-2">
+                                    {{enquiryData.contact.courtesyTitle + '.' + enquiryData.contact.firstName + ' ' +
+                                    enquiryData.contact.lastName}}</p>
+                            </ng-container>
+                        </ng-container>
                         <ng-template #attentionBlock>
                             <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border"
                                 formControlName="attention">
@@ -79,7 +95,7 @@
                         </label>
                         <p *ngIf="enquiryData$ | async as enquiryData ;else departemntBlock"
                             class="border py-[11px] px-2">
-                        {{enquiryData.department.departmentName}}</p>
+                            {{enquiryData.department.departmentName}}</p>
                         <ng-template #departemntBlock>
                             <ng-select [class.border-red-500]="f['department'].invalid && submit" id="department"
                                 class="form border" placeholder="Department" appendTo="body"

@@ -30,7 +30,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
 export const getQuotations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, customer, fromDate, toDate, department } = req.body;
+        let { page, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
         let isSalesPerson = salesPerson == null ? true : false;
         let isCustomer = customer == null ? true : false;
@@ -53,10 +53,37 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             ]
         }
 
+        let accessFilter = {};
+        
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+
         let total: number = 0;
         await Quotation.aggregate([
             {
-                $match: matchFilters
+                $match: filters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -73,7 +100,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
         let quoteData = await Quotation.aggregate([
             {
-                $match: matchFilters,
+                $match: filters,
             },
             {
                 $sort: { createdDate: 1 }

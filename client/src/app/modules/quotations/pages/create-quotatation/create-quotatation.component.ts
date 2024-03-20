@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, QueryList, ViewChildren } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgSelectConfig } from '@ng-select/ng-select';
+import { NgSelectComponent, NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
@@ -23,15 +23,20 @@ import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
 export class CreateQuotatationComponent {
   customers$!: Observable<getCustomer[]>;
   enquiryData$!: Observable<getEnquiry | undefined>;
+
   selectedCustomer!: number;
   selectedContact!: number;
   selectedCurrency: string = "QAR";
+
   quoteForm!: FormGroup;
   departments: getDepartment[] = [];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
+
+  isEdit:boolean = false;
   isSaving: boolean = false;
   submit: boolean = false;
+  @ViewChildren(NgSelectComponent) ngSelects!: QueryList<NgSelectComponent>;
 
   private subscriptions = new Subscription();
 
@@ -58,12 +63,12 @@ export class CreateQuotatationComponent {
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
-      client: ['', Validators.required],
-      attention: ['', Validators.required],
+      client: [null, Validators.required],
+      attention: [null, Validators.required],
       date: ['', Validators.required],
-      department: ['', Validators.required],
+      department: [null, Validators.required],
       subject: ['', Validators.required],
-      currency: ['', Validators.required],
+      currency: [null, Validators.required],
       items: this._fb.array([
         this._fb.group({
           detail: ['', Validators.required],
@@ -80,13 +85,14 @@ export class CreateQuotatationComponent {
     })
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
-    console.log(this.enquiryData$)
-    //   this._enquiryService.enquiryData$.subscribe(data => {
-
-    //   this.quoteForm.patchValue({client:data?.client._id})
-    //   this.onChange(data?.client._id as string)
-    // }))
-
+    this.subscriptions.add(
+      this.enquiryData$.subscribe((data) => {
+        this.quoteForm.patchValue({ client: data?.client._id , department:data?.department._id})
+        this.onChange(data?.client._id as string);
+        this.quoteForm.patchValue({attention:data?.contact._id})
+      })
+    )
+    console.log(this.quoteForm.value)
   }
 
   get itemDetails(): FormArray {
@@ -120,6 +126,7 @@ export class CreateQuotatationComponent {
   }
 
   onChange(change: string) {
+    
     if (change && this.customers$) {
       this.subscriptions.add(this.customers$.subscribe((data) => {
         let customer = data.find((contact) => contact._id == change)
@@ -131,9 +138,16 @@ export class CreateQuotatationComponent {
       this.contacts = []
       this.quoteForm.controls['attention'].setValue(undefined)
     }
+    console.log(this.quoteForm.value)
   }
 
   createCustomer() {
+    console.log(this.ngSelects)
+    this.ngSelects.forEach((item,i)=>{
+      if(i=0){
+        item.writeValue("Tiny Grad")
+      }
+    })
     console.log("asdffffff");
   }
 
@@ -196,5 +210,10 @@ export class CreateQuotatationComponent {
   ngOnDestroy() {
     this.subscriptions.unsubscribe()
     this._enquiryService.quoteSubject.next(undefined)
+  }
+
+  onQuoteEdit(){
+    this.isEdit = true;
+    console.log(this.quoteForm.value)
   }
 }

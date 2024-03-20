@@ -1,4 +1,4 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
@@ -11,7 +11,7 @@
                         appendTo="body" (change)="onfilterApplied()">
                         <ng-option *ngFor="let employee of employees$ | async" [value]="employee._id">{{employee.fullName}}</ng-option>
                     </ng-select>
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
+                <button *ngIf="createCustomer" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     routerLink="/customers/create">
                     + Create Customer
                 </button>

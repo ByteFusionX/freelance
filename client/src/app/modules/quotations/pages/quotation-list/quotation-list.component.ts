@@ -30,6 +30,7 @@ export class QuotationListComponent {
   isEmpty: boolean = false;
   isFiltered: boolean = false;
   lastStatus!: QuoteStatus;
+  createQuotation:boolean | undefined = false;
 
   quoteStatuses = Object.values(QuoteStatus);
   displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
@@ -65,7 +66,7 @@ export class QuotationListComponent {
   })
 
   ngOnInit() {
-
+    this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.customers$ = this._customerService.getAllCustomers()
     this.departments$ = this._departetmentService.getDepartments()
@@ -84,6 +85,13 @@ export class QuotationListComponent {
   }
 
   getQuotations() {
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.quotation.viewReport
+      userId = employee?._id
+    })
+
     let filterData = {
       page: this.page,
       row: this.row,
@@ -91,7 +99,9 @@ export class QuotationListComponent {
       customer: this.selectedCustomer,
       fromDate: this.fromDate,
       toDate: this.toDate,
-      department: this.selectedDepartment
+      department: this.selectedDepartment,
+      access: access,
+      userId:userId
     }
     this.subscriptions.add(
       this._quoteService.getQuotation(filterData)
@@ -203,7 +213,11 @@ export class QuotationListComponent {
     })
   }
 
-
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createQuotation = data?.category.privileges.quotation.create
+    })
+  }
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)

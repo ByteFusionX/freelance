@@ -8,6 +8,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -31,7 +32,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   constructor(
     private _enquiryService: EnquiryService,
     private dialog: MatDialog,
-    private toast: ToastrService) { }
+    private toast: ToastrService,
+    private _employeeService:EmployeeService) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -42,8 +44,15 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   getJobsData() {
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.assignedJob.viewReport
+      userId = employee?._id
+    })
+
     this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row).subscribe({
+      this._enquiryService.getPresale(this.page, this.row,access,userId).subscribe({
         next: (data) => {
           this.dataSource.data = data.enquiry;
           this.total = data.total;

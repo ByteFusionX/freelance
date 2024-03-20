@@ -17,6 +17,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
+    CreateCategoryComponent,
 
   ],
   imports: [

@@ -12,7 +12,7 @@
                 </div>
                 <div class="mt-1 ml-1" *ngIf="employeeData$ | async as employeeData">
                     <p class="text-lg">{{employeeData.firstName}} {{employeeData.lastName}}</p>
-                    <span class="text-sm">{{employeeData.designation}}</span>
+                    <span class="text-sm">{{employeeData.category.categoryName}} - {{employeeData.category.role | titlecase}}</span>
                     <div class="mt-3">
                         <p>{{employeeData.email}}</p>
                         <p>{{employeeData.contactNo}}</p>

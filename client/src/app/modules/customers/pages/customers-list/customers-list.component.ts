@@ -6,6 +6,7 @@ import { CustomerService } from 'src/app/core/services/customer/customer.service
 import { NavigationExtras, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { getCreators, getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-customers-list',
@@ -18,6 +19,7 @@ export class CustomersListComponent {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  createCustomer:boolean | undefined = false;
 
   displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
 
@@ -34,10 +36,12 @@ export class CustomersListComponent {
 
   constructor(
     private _customerService: CustomerService,
-    private _router: Router
+    private _router: Router,
+    private _employeeService: EmployeeService,
   ) { }
 
   ngOnInit() {
+    this.checkPermission()
     this.employees$ = this._customerService.getCustomerCreators()
     this.getAllCustomers()
   }
@@ -47,10 +51,20 @@ export class CustomersListComponent {
   }
 
   getAllCustomers() {
+    this.isLoading = true;
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.customer.viewReport
+      userId = employee?._id
+    })
+    
     let filterData = {
       page: this.page,
       row: this.row,
-      createdBy: this.selectedEmployee
+      createdBy: this.selectedEmployee,
+      access: access,
+      userId:userId
     }
 
     this.subscriptions.add(
@@ -79,6 +93,12 @@ export class CustomersListComponent {
       state: data
     };
     this._router.navigate(['/customers/view'], navigationExtras);
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createCustomer = data?.category.privileges.customer.create
+    })
   }
 
   onPageNumberClick(event: { page: number, row: number }) {
