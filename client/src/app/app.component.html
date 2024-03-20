@@ -2,14 +2,14 @@
     <router-outlet></router-outlet> 
 </div>
 
-<div class="w-full flex" *ngIf="!isLoginRoute()">
+<div class="w-full h-screen flex" *ngIf="!isLoginRoute()">
     <div class="h-screen">
         <app-side-bar [showFullBar]="reduceState"></app-side-bar>
     </div>
 
-    <div class="w-full h-screen bg-gray-100 overflow-y-auto flex flex-col">
+    <div class="w-full h-screen bg-gray-100 overflow-y-auto flex flex-col ">
         <app-nav-bar (reduce)="reduceSideBar($event)"></app-nav-bar>
-        <div class="overflow-x-auto">
+        <div class="max-h-[calc(100vh-65px)]">
             <router-outlet></router-outlet>
         </div>
     </div>

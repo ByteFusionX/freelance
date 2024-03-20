@@ -1,0 +1,15 @@
+th[columnResize], td[columnResize] {
+    position: relative;
+  }
+  
+  th[columnResize]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px; /* Adjust the handle width */
+    height: 100%;
+    cursor: col-resize;
+    background-color: #f0f0f0; /* Handle background color */
+  }
+  

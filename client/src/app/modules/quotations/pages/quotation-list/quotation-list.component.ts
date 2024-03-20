@@ -33,7 +33,7 @@ export class QuotationListComponent {
   createQuotation:boolean | undefined = false;
 
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = ['slNo', 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
+  displayedColumns: string[] = [ 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()
@@ -121,7 +121,8 @@ export class QuotationListComponent {
 
   }
 
-  onQuote(data: Quotatation) {
+  onRowClicks(index:number) {
+    let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data
     };

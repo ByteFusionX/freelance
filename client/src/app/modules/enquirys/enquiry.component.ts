@@ -22,6 +22,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  isFiltered: boolean = false;
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
@@ -78,6 +79,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   }
 
   getEnquiries() {
+    this.isLoading = true;
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
@@ -135,6 +137,16 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
   }
 
+  onClear() {
+    this.isFiltered = false;
+    this.fromDate = null
+    this.toDate = null
+    this.selectedSalesPerson = null;
+    this.selectedDepartment = null;
+    this.selectedStatus = null;
+    this.getEnquiries()
+  }
+
   handleNotClose(event: MouseEvent) {
     event.stopPropagation();
   }
@@ -150,10 +162,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this.fromDate = from
       this.toDate = to
     }
+    this.isFiltered = true;
     this.getEnquiries()
   }
 
   onfilterApplied() {
+    this.isFiltered = true;
     this.getEnquiries()
   }
 
