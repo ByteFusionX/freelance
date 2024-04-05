@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { DownloadFile } from "../controllers/downloader.controller";
+import { downloadFile, clearAllPresaleFiles, deleteFile } from "../controllers/downloader.controller";
 const downRouter = Router()
 
-downRouter.get('/', DownloadFile)
+downRouter.get('/', downloadFile)
+downRouter.delete('/', deleteFile)
+downRouter.delete('/clearAll', clearAllPresaleFiles)
 
 export default downRouter

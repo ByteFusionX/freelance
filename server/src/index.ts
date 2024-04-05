@@ -34,7 +34,7 @@ app.use(
 	})
 );
 
-app.use(TokenLogger)	
+app.use(TokenLogger)
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
@@ -51,6 +51,8 @@ mongoose
 	.then(() => {
 		console.log("Database connected and Working  ");
 	});
+
+app.use('/uploads', express.static(__dirname + '/upload'));
 
 const port = process.env.PORT;
 app.listen(port, () => {

@@ -21,7 +21,8 @@ export class AssignPresaleComponent implements OnInit {
   selectedEmployee!: string | undefined;
   employeeError: boolean = false;
   fileError: boolean = false;
-  isClear: boolean = false
+  isClear: boolean = false;
+  isSaving: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<AssignPresaleComponent>,
@@ -51,12 +52,23 @@ export class AssignPresaleComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.selectedEmployee && this.selectedFiles.length) {
-      let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles }
-      this.dialogRef.close(presale)
-    } else {
-      this.Error()
-    }
+    let presalePersonName: String;
+    this.isSaving = true;
+    this.employees$.subscribe((employees) => {
+      employees.forEach((employee) => {
+        if (this.selectedEmployee == employee._id) {
+          presalePersonName = `${employee.firstName} ${employee.lastName}`
+        }
+      })
+      if (this.selectedEmployee && this.selectedFiles.length && presalePersonName) {
+        let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles, presalePersonName: presalePersonName }
+        this.isSaving = false;
+        this.dialogRef.close(presale)
+      } else {
+        this.isSaving = false;
+        this.Error()
+      }
+    })
   }
 
   onClear() {

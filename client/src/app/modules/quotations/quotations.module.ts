@@ -19,6 +19,9 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { UploadLpoComponent } from './pages/upload-lpo/upload-lpo.component';
 import { UploadFileComponent } from "../../shared/components/upload-file/upload-file.component";
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { ResizableModule } from 'src/app/shared/components/resizable/resizable.module';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { QuotationPreviewComponent } from './pages/quotation-preview/quotation-preview.component';
 
 
 @NgModule({
@@ -29,6 +32,7 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
         QuotationViewComponent,
         QuotationEditComponent,
         UploadLpoComponent,
+        QuotationPreviewComponent,
     ],
     providers: [DatePipe],
     imports: [
@@ -45,7 +49,9 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
         directiveSharedModule,
         SkeltonLoadingComponent,
         UploadFileComponent,
-        PaginationComponent
+        PaginationComponent,
+        ResizableModule,
+        NgxExtendedPdfViewerModule
     ]
 })
 export class QuotationsModule { }

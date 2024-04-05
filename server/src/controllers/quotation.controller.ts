@@ -3,6 +3,7 @@ import Quotation from '../models/quotation.model';
 import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
+import Enquiry from "../models/enquiry.model";
 import { getPreSaleJobs } from "./enquiry.controller";
 const { ObjectId } = require('mongodb')
 
@@ -13,11 +14,15 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
         const quoteData = req.body;
         let quoteId: string = await generateQuoteId(quoteData.department, quoteData.createdBy, quoteData.date);
         quoteData.quoteId = quoteId;
-        console.log(quoteId, quoteData);
 
         const quote = new Quotation(quoteData)
 
         const saveQuote = await (await quote.save()).populate('department')
+
+        if(quoteData.enqId){
+            await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
+        }
+
         if (saveQuote) {
             return res.status(200).json(saveQuote)
         }
@@ -54,10 +59,10 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
         }
 
         let accessFilter = {};
-        
+
         let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
         let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
-        
+
         switch (access) {
             case 'created':
                 accessFilter = { createdBy: new ObjectId(userId) };
@@ -145,6 +150,20 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 $unwind: '$createdBy',
             },
             {
+                $lookup: {
+                    from: 'enquiries',
+                    localField: 'enqId',
+                    foreignField: '_id',
+                    as: 'enqId'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$enqId',
+                    preserveNullAndEmptyArrays: true  
+                }
+            },
+            {
                 $addFields: {
                     attention: {
                         $arrayElemAt: [
@@ -174,15 +193,30 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
 const generateQuoteId = async (departmentId: string, employeeId: string, date: string) => {
     try {
-        const lastQuote = await Quotation.findOne({}, {}, { sort: { quoteId: -1 } });
+        const lastQuote = await Quotation.aggregate([
+            {
+                $match: {
+                    quoteId: { $exists: true }
+                }
+            },
+            {
+                $addFields: {
+                    lastNumber: {
+                        $toInt: { $arrayElemAt: [{ $split: ["$quoteId", "-"] }, -1] }
+                    }
+                }
+            },
+            {
+                $sort: { lastNumber: -1 }
+            },
+            {
+                $limit: 1
+            }
+        ])
         const department = await Department.findById(departmentId);
         const employee = await Employee.findById(employeeId);
-        let lastQuoteId: String;
         let quoteId: string;
 
-        if (lastQuote) {
-            lastQuoteId = lastQuote.quoteId
-        }
         if (employee && department) {
             const salesId = `${employee.firstName[0]}${employee.lastName[0]}`;
             const departmentName = department.departmentName.split(' ')[0].replace(/\s/g, "").toUpperCase().slice(0, 4);
@@ -190,9 +224,9 @@ const generateQuoteId = async (departmentId: string, employeeId: string, date: s
             const [year, month] = date.split('-');
             const formatedDate = `${month}/${year.substring(2)}`;
 
-            if (lastQuote && lastQuoteId) {
-                const IdNumber = lastQuoteId.split('-')
-                const incrementedNum = parseInt(IdNumber[3]) + 1;
+            if (lastQuote.length) {
+                const lastNumber = lastQuote[0].lastNumber;
+                const incrementedNum = parseInt(lastNumber) + 1;
                 const formattedIncrementedNum = String(incrementedNum).padStart(3, '0');
                 quoteId = `QN-NT/${salesId}/${departmentName}-${formatedDate}-${formattedIncrementedNum}`
             } else {
@@ -255,7 +289,7 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
             const job = new Job(jobData)
             const saveJob = await (await job.save()).populate('quoteId')
 
-            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId,{lpoSubmitted:true})
+            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true })
             console.log(quote)
             if (quote) {
                 return res.status(200).json(quote)
@@ -274,7 +308,37 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
 
 export const totalQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let { access, userId } = req.query;
+
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
         const totalQuotes = await Quotation.aggregate([
+            {
+                $match: accessFilter
+            },
             {
                 $group: {
                     _id: null, total: { $sum: 1 }
@@ -288,7 +352,12 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
             }
         ])
 
+        if (totalQuotes.length === 0) {
+            totalQuotes.push({ total: 0 });
+        }
+
         if (totalQuotes) return res.status(200).json(totalQuotes[0])
+
         return res.status(502).json()
     } catch (error) {
         next(error)

@@ -6,6 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subscription, filter } from 'rxjs';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'app-employees',
@@ -19,7 +20,7 @@ export class EmployeesComponent {
   isEmpty: boolean = false;
   createEmployee: boolean | undefined = false;
 
-  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'privilage'];
+  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo'];
 
   dataSource = new MatTableDataSource<getEmployee>()
   filteredData = new MatTableDataSource<getEmployee>()
@@ -35,7 +36,8 @@ export class EmployeesComponent {
   constructor(
     public dialog: MatDialog,
     private _employeeService: EmployeeService,
-    private _toast: ToastrService
+    private _toast: ToastrService,
+    private _router: Router,
   ) { }
 
   ngOnInit() {
@@ -112,6 +114,14 @@ export class EmployeesComponent {
         this._toast.success('Employee Created Successfully')
       }
     });
+  }
+
+  onRowClicks(index:number){
+    let data = this.dataSource.data[index]
+    const navigationExtras: NavigationExtras = {
+      state: data
+    };
+    this._router.navigate(['/home', 'employees', 'view'],navigationExtras);
   }
 
   checkPermission() {

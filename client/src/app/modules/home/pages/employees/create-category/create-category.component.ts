@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { GetCategory } from 'src/app/shared/interfaces/employee.interface';
+import { GetCategory, Privileges } from 'src/app/shared/interfaces/employee.interface';
 
 @Component({
   selector: 'app-create-category',
@@ -12,7 +12,7 @@ import { GetCategory } from 'src/app/shared/interfaces/employee.interface';
 
 export class CreateCategoryComponent {
   isSaving: boolean = false;
-  error!:string;
+  error!: string;
 
   dashboardChecked: boolean = false;
   employeeChecked: boolean = false;

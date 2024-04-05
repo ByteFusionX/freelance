@@ -146,17 +146,17 @@
                         class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
                         Status </th>
                     <td mat-cell *matCellDef="let element;let i= index" class="">
-                        <div (click)="onStatus(element.status)" *ngIf="element.status !== 'Won' && element.status !== 'Lost'" class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit"
+                        <div (click)="onStatus($event,element.status)" *ngIf="element.status !== 'Won' && element.status !== 'Lost'" class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
                             [matMenuTriggerFor]="beforeMenu" mat-button>
                             <p class="mx-2 text-sm whitespace-nowrap">{{element.status}}</p>
                             <div class="mt-1">
                                 <ng-icon name="heroChevronDown"></ng-icon>
                             </div>
                         </div>
-                        <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  ">
+                        <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto mat-elevation-z0 border">
                             <div class="" >
-                                <div  *ngFor="let status of quoteStatuses">
-                                <p  class="p-2 hover:bg-violet-200 cursor-pointer" *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
+                                <div  *ngFor="let status of filteredStatuses(element.status)">
+                                <p  class="p-2 hover:bg-violet-200 cursor-pointer   px-[12px]  text-dark  text-[15px] font-medium" *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
                                     {{status}}</p>
                                 </div>
                                 
@@ -179,12 +179,12 @@
                         Action </th>
                     <td mat-cell *matCellDef="let element;" class="">
                         <div class="flex justify-end items-center gap-2">
-                            <div (click)="onClickLpo(element)" *ngIf="element.status == 'Won' && !element.lpoSubmitted "
+                            <div (click)="onClickLpo(element,$event)" *ngIf="element.status == 'Won' && !element.lpoSubmitted "
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroDocumentArrowUp"></ng-icon>
                             </div>
-                            <div (click)="onQuoteEdit(element)"
-                                class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-gray-200">
+                            <div (click)="onQuoteEdit(element,$event)"
+                                class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-white">
                                 <ng-icon name="heroPencilSquare"></ng-icon>
                             </div>
                         </div>
@@ -195,7 +195,7 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index" class="cursor-pointer hover:bg-gray-100"  (click)="onRowClicks(i)"></tr>
             </table>
         </section>
-        <div class="w-full bg-white" *ngIf="!isEmpty && !isLoading">
+        <div class="w-full bg-white" *ngIf="!isEmpty">
             <app-pagination [page]="page" [row]="row" [total]="total"
                 (changeData)="onPageNumberClick($event)"></app-pagination>
         </div>

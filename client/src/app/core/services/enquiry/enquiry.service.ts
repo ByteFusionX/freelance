@@ -37,12 +37,12 @@ export class EnquiryService {
     this.quoteSubject.next(enquiry)
   }
 
-  totalEnquiries(): Observable<TotalEnquiry[]> {
-    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum`)
+  totalEnquiries(access?:string,userId?:string): Observable<TotalEnquiry[]> {
+    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum?access=${access}&userId=${userId}`)
   }
 
-  monthlyEnquiries(): Observable<MonthlyEnquiry[]> {
-    return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly`)
+  monthlyEnquiries(access?:string,userId?:string): Observable<MonthlyEnquiry[]> {
+    return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly?access=${access}&userId=${userId}`)
   }
 
   selectedDepartment(departmentId: string) {
@@ -57,4 +57,14 @@ export class EnquiryService {
     return this.http.get(`${this.api}/download?file=${fileName}`,
       { responseType: 'blob'})
   }
+
+  deleteFile(fileName: string, enquiryId: string) {
+    return this.http.delete(`${this.api}/download`, { params: { file: fileName, enquiryId: enquiryId } });
+  }
+  
+  clearAllPresaleFiles(enquiryId:string){
+    return this.http.delete(`${this.api}/download/clearAll?enquiryId=${enquiryId}`)
+  }
+
+  
 }

@@ -9,6 +9,7 @@ import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EnquiryTable, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-enquiry',
@@ -48,7 +49,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private _employeeService: EmployeeService,
     private _enquiryService: EnquiryService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService,
   ) { }
 
   formData = this.fb.group({
@@ -127,9 +129,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           this.total++
           this.isEmpty = false
           this.isLoading = false
-          result.client = [result.client]
-          result.department = [result.department]
-          result.salesPerson = [result.salesPerson]
+          result.client = result.client
+          result.department = result.department
+          result.salesPerson = result.salesPerson
           this.dataSource.data = [result, ...this.dataSource.data]
           this.enqId = result.enquiryId.slice(-3)
         }
@@ -176,6 +178,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     if (enqData.status != 'Assigned To Presales') {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
+    }else{
+      this.toastr.warning('Enquiry is Assigned to Presales', 'Cannot Quote this Enquiry')
     }
   }
 

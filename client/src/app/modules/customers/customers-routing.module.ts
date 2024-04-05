@@ -15,7 +15,6 @@ const routes: Routes = [
       { path: 'create', canActivate: [RoleGuard], component: CreateCustomerDialog },
       { path: 'view', canActivate: [RoleGuard], component: CustomerViewComponent },
       { path: 'edit', canActivate: [RoleGuard], component: CustomerEditComponent }
-
     ]
   }
 ];

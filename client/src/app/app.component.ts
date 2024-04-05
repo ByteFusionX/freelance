@@ -7,6 +7,7 @@ import { concatMap, from, interval, take, switchMap, takeUntil, Subscription } f
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CelebrationDialogComponent } from './shared/components/celebration-dialog/celebration-dialog.component';
 import { Subject } from 'rxjs';
+import { EmployeeService } from './core/services/employee/employee.service';
 
 @Component({
   selector: 'app-root',
@@ -20,10 +21,13 @@ export class AppComponent implements OnDestroy, OnInit {
   loginRouter: boolean = false;
   dialogRef: MatDialogRef<CelebrationDialogComponent, any> | undefined;
   employeeToken: string | null = null;
+  employee!: { id: string, employeeId: string };
+
   private destroy$ = new Subject<void>();
   private subscriptions: Subscription = new Subscription()
 
   constructor(
+    private _employeeService: EmployeeService,
     private route: ActivatedRoute,
     private _service: celebCheckService,
     private dialog: MatDialog,
@@ -37,6 +41,7 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.loginRouter = this.isLoginRoute();

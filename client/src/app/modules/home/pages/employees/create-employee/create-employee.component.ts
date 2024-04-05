@@ -24,6 +24,8 @@ export class CreateEmployeeDialog implements OnInit {
   passwordType: string = this.showPassword ? 'text' : 'password';
   showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
   isSaving: boolean = false;
+  canCreateCategory: boolean = false;
+  userRole: string = 'user';
 
   employeeForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -52,11 +54,28 @@ export class CreateEmployeeDialog implements OnInit {
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.userRole = data?.category.role as string;
+      if (data?.category.role == 'superAdmin') {
+        this.canCreateCategory = true;
+      }
+    })
   }
 
   getCategory() {
     this._employeeService.getCategory().subscribe(data => {
-      this.category$.next(data);
+      console.log(this.userRole)
+      let categories = data;
+      if (this.userRole == 'admin') {
+        categories = data.filter((value) => {
+          return value.role == 'admin' || value.role == 'user';
+        });
+      }else if(this.userRole == 'user'){
+        categories = data.filter((value) => {
+          return value.role == 'user'
+        })
+      }
+      this.category$.next(categories);
     });
   }
 
@@ -65,7 +84,7 @@ export class CreateEmployeeDialog implements OnInit {
       this.isSaving = true;
 
       let userId;
-      this._employeeService.employeeData$.subscribe((employee)=>{
+      this._employeeService.employeeData$.subscribe((employee) => {
         userId = employee?._id
       })
 
@@ -94,7 +113,6 @@ export class CreateEmployeeDialog implements OnInit {
         this.category$.next(updatedCategories);
 
         this._toast.success('Category Created Successfully')
-
       }
     });
   }

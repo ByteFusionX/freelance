@@ -5,7 +5,6 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
-import { HttpClient } from '@angular/common/http';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -33,7 +32,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private dialog: MatDialog,
     private toast: ToastrService,
-    private _employeeService:EmployeeService) { }
+    private _employeeService: EmployeeService) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -52,8 +51,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     })
 
     this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row,access,userId).subscribe({
+      this._enquiryService.getPresale(this.page, this.row, access, userId).subscribe({
         next: (data) => {
+          console.log(data)
           this.dataSource.data = data.enquiry;
           this.total = data.total;
           this.isLoading = false;
@@ -111,15 +111,37 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onClearFiles(index: number) {
-    this.dataSource.data[index].preSale.presaleFile = null
-  }
+    this.dataSource.data[index].preSale.presaleFile = null;
 
-  onDownloadClicks(file: any) {
-    this._enquiryService.downloadFile(file.filename)
+    const enquiryId = this.dataSource.data[index]._id;
+    this._enquiryService.clearAllPresaleFiles(enquiryId)
       .subscribe({
         next: (event) => {
-          const fileContent: Blob = new Blob([event['body']])
-          saveAs(fileContent, file.originalname)
+          console.log(event)
+          this.dataSource.data[index].assignedFiles = [];
+        },
+        error: (error) => {
+          if (error.status == 404) {
+            this.toast.warning('Something went wrong')
+          }
+        }
+      })
+  }
+
+  onRemoveItem(event: Event, index: number, file: any) {
+    event.stopPropagation()
+
+    const enquiry = this.dataSource.data[index];
+    const enquiryId = enquiry._id;
+    const fileName = file.filename;
+
+    this._enquiryService.deleteFile(fileName, enquiryId)
+      .subscribe({
+        next: (event) => {
+          console.log(event)
+          this.dataSource.data[index].assignedFiles = enquiry.assignedFiles.filter((data) => {
+            return data.filename !== fileName
+          })
         },
         error: (error) => {
           if (error.status == 404) {
@@ -127,6 +149,30 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
           }
         }
       })
+  }
+
+  onDownloadClicks(file: any) {
+    console.log(file)
+    this._enquiryService.downloadFile(file.filename)
+      .subscribe({
+        next: (blob) => {
+          console.log(blob)
+          saveAs(blob, file.originalname);
+        },
+        error: (error) => {
+          if (error.status === 404) {
+            console.error('File not found on the server');
+            // Handle error (e.g., show error message to user)
+          } else {
+            console.error('An error occurred while downloading the file:', error);
+            // Handle other errors (e.g., show error message to user)
+          }
+        }
+      });
+  }
+
+  handleNotClose(event: MouseEvent) {
+    event.stopPropagation();
   }
 }
 

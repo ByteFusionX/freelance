@@ -1,3 +1,5 @@
+import { Department } from "./department.interface";
+
 export interface getEmployee {
     _id?: string;
     employeeId: string;
@@ -11,6 +13,21 @@ export interface getEmployee {
     category: GetCategory;
     dateOfJoining: string;
     reportingTo: string | null | undefined;
+}
+
+export interface getEmployeeDetails {
+    _id?: string;
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    designation: string;
+    dob: string;
+    department: Department;
+    contactNo: number | string;
+    category: GetCategory;
+    dateOfJoining: string;
+    reportingTo: getEmployee;
 }
 
 export interface CreateEmployee {

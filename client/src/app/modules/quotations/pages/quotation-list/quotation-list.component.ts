@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-quotation-list',
@@ -30,10 +31,10 @@ export class QuotationListComponent {
   isEmpty: boolean = false;
   isFiltered: boolean = false;
   lastStatus!: QuoteStatus;
-  createQuotation:boolean | undefined = false;
+  createQuotation: boolean | undefined = false;
 
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = [ 'date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
+  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()
@@ -101,7 +102,7 @@ export class QuotationListComponent {
       toDate: this.toDate,
       department: this.selectedDepartment,
       access: access,
-      userId:userId
+      userId: userId
     }
     this.subscriptions.add(
       this._quoteService.getQuotation(filterData)
@@ -121,7 +122,26 @@ export class QuotationListComponent {
 
   }
 
-  onRowClicks(index:number) {
+  filteredStatuses(selectedStatus: string): QuoteStatus[] {
+    const allStatuses = Object.values(QuoteStatus);
+    let filteredStatuses: QuoteStatus[] = [];
+  
+    let statusReached = false;
+    
+    allStatuses.forEach((status) => {
+      if (status === selectedStatus) {
+        statusReached = true;
+      }
+      if (statusReached) {
+        filteredStatuses.push(status);
+      }
+    });
+  
+    return filteredStatuses;
+  }
+  
+
+  onRowClicks(index: number) {
     let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data
@@ -130,12 +150,9 @@ export class QuotationListComponent {
     this._router.navigate(['/quotations/view'], navigationExtras);
   }
 
-  onQuoteEdit(data: quotatationForm) {
+  onQuoteEdit(data: quotatationForm, event: Event) {
+    event.stopPropagation()
     let quoteData = data;
-    quoteData.client = (quoteData.client as getCustomer)._id
-    quoteData.attention = (quoteData.attention as ContactDetail)._id
-    quoteData.department = (quoteData.department as getDepartment)._id
-    quoteData.createdBy = (quoteData.createdBy as getEmployee)._id
 
     const navigationExtras: NavigationExtras = {
       state: quoteData
@@ -173,9 +190,9 @@ export class QuotationListComponent {
     this.getQuotations()
   }
 
-  onStatus(status: QuoteStatus) {
+  onStatus(event: Event, status: QuoteStatus) {
+    event.stopPropagation()
     this.lastStatus = status
-    console.log(this.lastStatus)
   }
 
   updateStatus(i: number, quoteId: string, status: QuoteStatus) {
@@ -192,9 +209,7 @@ export class QuotationListComponent {
 
     dialogRef.afterClosed().subscribe((approved: boolean) => {
       if (approved) {
-        console.log(approved)
         this._quoteService.updateQuoteStatus(quoteId, status).subscribe((res: QuoteStatus) => {
-          console.log(res)
           this.dataSource.data[i].status = res;
           this.filteredData.data[i].status = res;
         })
@@ -207,9 +222,10 @@ export class QuotationListComponent {
     this.getQuotations()
   }
 
-  onClickLpo(data: Quotatation) {
+  onClickLpo(data: Quotatation, event: Event) {
+    event.stopPropagation()
     const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data })
-    lpoDialog.afterClosed().subscribe((quote:Quotatation)=>{
+    lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
       this.getQuotations()
     })
   }

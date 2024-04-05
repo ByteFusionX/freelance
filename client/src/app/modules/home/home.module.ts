@@ -18,6 +18,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-component/confetti-component.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
+import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { CreateCategoryComponent } from './pages/employees/create-category/creat
     DashboardComponent,
     AnnouncementsComponent,
     CreateCategoryComponent,
+    ViewEmployeeComponent,
 
   ],
   imports: [

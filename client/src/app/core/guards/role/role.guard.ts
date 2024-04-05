@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ActivatedRoute, ActivatedRouteSnapshot, CanActivateFn, NavigationStart, Router, RouterStateSnapshot } from '@angular/router';
 import { EmployeeService } from '../../services/employee/employee.service';
-import { Observable, filter, take } from 'rxjs';
+import { Observable, filter, map, take } from 'rxjs';
 import { Privileges, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 
 export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
@@ -11,10 +11,16 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
     const employeeService = inject(EmployeeService)
 
-    employeeService.employeeData$.subscribe((data) => {
-        privileges = data?.category.privileges;
-        return checkPermission()
-    })
+
+    const employee = employeeService.employeeToken()
+    const employeeId = employee.employeeId
+    return employeeService.getEmployee(employeeId).pipe(
+        map((data) => {
+            employeeService.employeeSubject.next(data);
+            privileges = data?.category.privileges;
+            return checkPermission()
+        })
+    );
 
     function checkPermission() {
         const url = state.url;
@@ -87,11 +93,10 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                 break;
         }
         if (!privileges) {
-            router.navigate(['/home']);
+            // router.navigate(['/home']);
             return false;
         }
         return true;
     }
 
-    return checkPermission();
 };

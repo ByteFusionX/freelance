@@ -13,6 +13,7 @@ import { IconsModule } from './lib/icons/icons.module';
 import { componentModule } from './shared/components/component.module';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.interceptor';
+import { ResizableModule } from './shared/components/resizable/resizable.module';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.in
     }),
     IconsModule,
     MatDialogModule,
-    componentModule
+    componentModule,
+    ResizableModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

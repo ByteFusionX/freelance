@@ -71,7 +71,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             }
         ]).exec()
             .then((result: { total: number }[]) => {
-                console.log(result)
                 if (result && result.length > 0) {
                     total = result[0].total
                 }
@@ -94,7 +93,19 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
             },
             {
+                $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'reportingTo', foreignField: '_id', as: 'reportingTo' }
+            },
+            {
                 $unwind: "$department"
+            },
+            {
+                $unwind: "$reportingTo"
+            },
+            {
+                $unwind: "$category"
             },
         ]);
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })

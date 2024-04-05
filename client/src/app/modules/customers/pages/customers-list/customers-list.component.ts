@@ -42,8 +42,14 @@ export class CustomersListComponent {
 
   ngOnInit() {
     this.checkPermission()
-    this.employees$ = this._customerService.getCustomerCreators()
-    this.getAllCustomers()
+    this.employees$ = this._customerService.getCustomerCreators();
+    this.subscriptions.add(
+      this.subject.subscribe((data) => {
+        this.page = data.page
+        this.row = data.row
+        this.getAllCustomers()
+      })
+    )
   }
 
   ngOnDestroy(): void {
@@ -88,7 +94,8 @@ export class CustomersListComponent {
     this.getAllCustomers()
   }
 
-  onCustomer(data: any) {
+  onRowClicks(index:number) {
+    let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data
     };

@@ -54,8 +54,8 @@
                         class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
                         Download </th>
                     <td mat-cell *matCellDef="let element">
-                        <div class="flex flex-col gap-2" *ngIf="element.preSale.length">
-                            <div class="flex" *ngFor="let file of element.preSale[0].presaleFiles; let i=index">
+                        <div class="flex flex-col gap-2" *ngIf="element.preSale">
+                            <div class="flex" *ngFor="let file of element.preSale.presaleFiles; let i=index">
                                 <p class="w-28 truncate ..." matTooltip="{{file.originalname}}"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
                                 <button class="w-5 h-5 border rounded-full flex justify-center items-center" (click)="onDownloadClicks(file)">
@@ -84,11 +84,13 @@
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <div *ngFor="let file of element.assignedFiles; let i=index">
-                                    <p class="text-sm p-2 w-40">{{file.originalname}}</p>
+                                <div (click)="handleNotClose($event)" *ngFor="let file of element.assignedFiles">
+                                    <p class="text-sm p-2 w-64 flex justify-between items-center"><span  (click)="onDownloadClicks(file)" class="hover:underline hover:text-purple-600 hover:cursor-pointer max-w-[13rem] truncate" [matTooltip]="'Download File'"
+                                        matTooltipPosition="below" matTooltipClass="mat-tooltip">{{file.originalname}}</span> <ng-icon name="heroXMark" class="text-md m-0 p-0 mx-2 cursor-pointer text-red-600  hover:bg-red-100 rounded-full"
+                                        (click)="onRemoveItem($event,i,file)"></ng-icon></p>
                                     <mat-divider></mat-divider>
                                 </div>
-                                <button class="px-2 text-blue-500 underline" (click)="onClearFiles(i)">clear</button>
+                                <button class="px-2 text-blue-500 underline py-1" (click)="onClearFiles(i)">Clear All</button>
                             </mat-menu>
                         </div>
                     </td>

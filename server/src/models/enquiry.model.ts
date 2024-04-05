@@ -70,6 +70,7 @@ const enquirySchema = new Schema<Enquiry>({
         type: String,
         required: true
     },
+
 });
 
 export default model<Enquiry>("Enquiry", enquirySchema);

@@ -10,10 +10,7 @@ export interface Enquiry {
     title: string;
     date: string;
     attachments: File[];
-    presale: {
-        presalePerson: string;
-        presaleFile: File[];
-    };
+    presale: Presale;
     status: string;
 }
 
@@ -31,7 +28,7 @@ export interface getEnquiry {
         presalePerson: string;
         presaleFile: Files[] | null;
     };
-    assingedFiles: [Files];
+    assignedFiles: Files[];
     status: string;
 }
 
@@ -73,3 +70,9 @@ export interface Files {
     path: string,
     size: number,
 }
+
+export interface Presale {
+    presalePerson: string;
+    presaleFile: File[];
+    presalePersonName:string;
+};
