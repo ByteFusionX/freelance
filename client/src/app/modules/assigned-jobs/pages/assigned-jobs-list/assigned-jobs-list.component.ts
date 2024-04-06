@@ -8,6 +8,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -30,7 +31,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   constructor(
     private _enquiryService: EnquiryService,
-    private dialog: MatDialog,
+    private _dialog: MatDialog,
     private toast: ToastrService,
     private _employeeService: EmployeeService) { }
 
@@ -70,28 +71,40 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onSendClicked(index: number) {
-    let selectedEnquiry: { id: string, status: string } = {
-      id: this.dataSource.data[index]._id,
-      status: 'Work In Progress'
-    }
-    Object.seal(selectedEnquiry)
-    this.subscriptions.add(
-      this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
-        if (data) {
-          this.dataSource.data.splice(index, 1)
-          if (this.dataSource.data.length) {
-            this.dataSource.data = [...this.dataSource.data]
-          } else {
-            this.dataSource.data = []
-            this.isEmpty = true
-          }
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+      {
+        data: {
+          title: `Are you absolutely sure?`,
+          description: `This action is irreversible. Please ensure all files are selected before proceeding.`
         }
-      })
-    )
+      });
+
+    dialogRef.afterClosed().subscribe((approved: boolean) => {
+      if (approved) {
+        let selectedEnquiry: { id: string, status: string } = {
+          id: this.dataSource.data[index]._id,
+          status: 'Work In Progress'
+        }
+        Object.seal(selectedEnquiry)
+        this.subscriptions.add(
+          this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
+            if (data) {
+              this.dataSource.data.splice(index, 1)
+              if (this.dataSource.data.length) {
+                this.dataSource.data = [...this.dataSource.data]
+              } else {
+                this.dataSource.data = []
+                this.isEmpty = true
+              }
+            }
+          })
+        )
+      }
+    })
   }
 
   onUploadClicks(index: number) {
-    let dialog = this.dialog.open(FileUploadComponent, {
+    let dialog = this._dialog.open(FileUploadComponent, {
       width: '500px',
       data: this.dataSource.data[index]._id
     })

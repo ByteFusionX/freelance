@@ -14,22 +14,21 @@ export class LoginPageComponent {
   submit: boolean = false
   employeeNotFoundError: boolean = false
   passwordNotMatchError: boolean = false
+  isSaving: boolean = false;
 
+  showPassword: boolean = false;
+  passwordType: string = this.showPassword ? 'text' : 'password';
+  showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
 
   constructor(
     private employeeService: EmployeeService,
     private _fb: FormBuilder,
     private router: Router) { }
 
-
   loginForm = this._fb.group({
     employeeId: ['', Validators.required],
     password: ['', Validators.required]
   })
-
-  showPassword: boolean = false;
-  passwordType: string = this.showPassword ? 'text' : 'password';
-  showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
 
   passwordShow() {
     this.showPassword = !this.showPassword
@@ -39,16 +38,21 @@ export class LoginPageComponent {
 
   onSubmit() {
     this.submit = true
-    this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
-      if (res.employeeData && res.token) {
-        localStorage.setItem('employeeToken', res.token)
-        this.router.navigate(['/home'])
-      }
-      else if (res.employeeNotFoundError) {
-        this.employeeNotFoundError = true
-      } else if (res.passwordNotMatchError) {
-        this.passwordNotMatchError = true
-      }
-    })
+    if (this.loginForm.valid) {
+      this.isSaving = true;
+      this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
+        if (res.employeeData && res.token) {
+          localStorage.setItem('employeeToken', res.token)
+          this.router.navigate(['/home'])
+        }
+        else if (res.employeeNotFoundError) {
+          this.isSaving = false;
+          this.employeeNotFoundError = true
+        } else if (res.passwordNotMatchError) {
+          this.isSaving = false;
+          this.passwordNotMatchError = true
+        }
+      })
+    }
   }
 }

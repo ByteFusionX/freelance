@@ -63,7 +63,7 @@ export class CreateQuotatationComponent {
   ) { }
 
   ngOnInit() {
-    this.config.notFoundText = 'Custom not found';
+    this.config.notFoundText = 'Select a client first..';
     this.config.appendTo = 'body';
     this.config.bindValue = 'value';
 
@@ -177,7 +177,8 @@ export class CreateQuotatationComponent {
   }
 
   onChange(change: string) {
-
+    this.contacts = []
+    this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {
       this.subscriptions.add(this.customers$.subscribe((data) => {
         let customer = data.find((contact) => contact._id == change)
@@ -186,6 +187,7 @@ export class CreateQuotatationComponent {
         }
       }))
     } else {
+      this.config.notFoundText = 'Select a client first..';
       this.contacts = []
       this.quoteForm.controls['attention'].setValue(undefined)
     }

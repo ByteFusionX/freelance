@@ -57,12 +57,12 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   isLoginRoute(): boolean {
-    return this.route.snapshot.firstChild?.routeConfig?.path === 'login';
+    const employeeToken = localStorage.getItem('employeeToken');
+    return (employeeToken === null || employeeToken === undefined) || this.route.snapshot.firstChild?.routeConfig?.path === 'login';
   }
 
   isUserThere() {
     this.employeeToken = localStorage.getItem('employeeToken');
-    // this.getCelebData();
   }
 
   getCelebData() {

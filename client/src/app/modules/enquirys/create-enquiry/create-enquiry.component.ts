@@ -69,7 +69,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) {
-    this.config.notFoundText = 'Wait a few Sec';
+    this.config.notFoundText = 'Select a client first..';
   }
 
   ngOnInit(): void {
@@ -84,6 +84,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onChange(change: string) {
+    this.contacts = []
+    this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {
       this.subscriptions.add(this.customers$.subscribe((data) => {
         let customer = data.find((contact) => contact._id == change)
@@ -92,6 +94,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
         }
       }))
     } else {
+      this.config.notFoundText = 'Select a client first..';
       this.contacts = []
       this.enquiryForm.controls.contact.setValue(undefined)
     }

@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { LoadingBarService } from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'app-upload-lpo',
@@ -15,26 +16,19 @@ import { Quotatation } from 'src/app/shared/interfaces/quotation.interface';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UploadLpoComponent implements OnInit {
-
+export class UploadLpoComponent {
+  lpoValue!: number;
   selectedFiles: File[] = []
-  lpoFiles = []
-  isClear: boolean = false
+  lpoFiles = [];
+
   error: boolean = false;
+  isSaving: boolean = false;
+  submit: boolean = false
 
   constructor(
     public dialogRef: MatDialogRef<UploadLpoComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Quotatation,
-    private _quoationService: QuotationService
-  ) { }
-
-  ngOnInit(): void {
-    this.lpoFiles = this.data.lpoFiles
-    console.log(this.lpoFiles) 
-    if (this.data) {
-      this.isClear = true
-    }
-  }
+    private _quoationService: QuotationService) { }
 
   onClose() {
     this.dialogRef.close()
@@ -49,22 +43,28 @@ export class UploadLpoComponent implements OnInit {
   }
 
   onSubmit(isSubmitted: boolean) {
+    this.submit = true;
     if (this.selectedFiles.length && this.data) {
-      let formData = new FormData();
-      formData.append('quoteId', this.data._id as string)
-      formData.append('isSubmitted', isSubmitted as unknown as string)
-      for (let i = 0; i < this.selectedFiles.length; i++) {
-        formData.append('files', this.selectedFiles[i] as Blob)
-      }
-      this._quoationService.uploadLpo(formData).subscribe((quote:Quotatation) => {
-        if (quote) {
-          if (isSubmitted) {
-            this.dialogRef.close(quote)
-          }
+      if (this.lpoValue) {
+        this.isSaving = true;
+        let formData = new FormData();
+        formData.append('quoteId', this.data._id as string)
+        formData.append('isSubmitted', isSubmitted as unknown as string)
+        formData.append('lpoValue', this.lpoValue as unknown as string)
+        for (let i = 0; i < this.selectedFiles.length; i++) {
+          formData.append('files', this.selectedFiles[i] as Blob)
         }
-      })
+        this._quoationService.uploadLpo(formData).subscribe((quote: Quotatation) => {
+          if (quote) {
+            if (isSubmitted) {
+              this.isSaving = false;
+              this.dialogRef.close(quote)
+            }
+          }
+        })
+      }
     } else {
-      this.error = true
+      this.error = true;
     }
   }
 

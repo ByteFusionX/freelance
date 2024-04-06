@@ -14,6 +14,8 @@ import { componentModule } from './shared/components/component.module';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.interceptor';
 import { ResizableModule } from './shared/components/resizable/resizable.module';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 
 
 @NgModule({
@@ -36,7 +38,9 @@ import { ResizableModule } from './shared/components/resizable/resizable.module'
     IconsModule,
     MatDialogModule,
     componentModule,
-    ResizableModule
+    ResizableModule,
+    LoadingBarModule,
+    LoadingBarRouterModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

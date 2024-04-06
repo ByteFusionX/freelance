@@ -15,6 +15,7 @@ import { CustomerService } from 'src/app/core/services/customer/customer.service
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { LoadingBarService } from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'app-quotation-list',
@@ -22,7 +23,6 @@ import { MatMenuTrigger } from '@angular/material/menu';
   styleUrls: ['./quotation-list.component.css']
 })
 export class QuotationListComponent {
-
   customers$!: Observable<getCustomer[]>;
   salesPerson$!: Observable<getEmployee[]>;
   departments$!: Observable<getDepartment[]>;
@@ -32,6 +32,7 @@ export class QuotationListComponent {
   isFiltered: boolean = false;
   lastStatus!: QuoteStatus;
   createQuotation: boolean | undefined = false;
+  loader = this.loadingBar.useRef();
 
   quoteStatuses = Object.values(QuoteStatus);
   displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
@@ -59,6 +60,7 @@ export class QuotationListComponent {
     private _employeeService: EmployeeService,
     private _customerService: CustomerService,
     private _departetmentService: ProfileService,
+    private loadingBar: LoadingBarService
   ) { }
 
   formData = this._fb.group({
@@ -86,6 +88,7 @@ export class QuotationListComponent {
   }
 
   getQuotations() {
+    this.isLoading = true;
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
@@ -226,7 +229,9 @@ export class QuotationListComponent {
     event.stopPropagation()
     const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data })
     lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
+      this.loader.start()
       this.getQuotations()
+      this.loader.complete()
     })
   }
 

@@ -8,7 +8,34 @@
 
 @font-face {
   font-family: 'Jost, sans-serif';
+  src: url('./assets/font/static/Jost-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Jost-semibold, sans-serif';
+  src: url('./assets/font/static/Jost-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: 'Jost-bold, sans-serif';
+  src: url('./assets/font/static/Jost-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Jost-medium, sans-serif';
   src: url('./assets/font/static/Jost-Medium.ttf');
+}
+
+.font-semibold{
+  font-family: "Jost-semibold, sans-serif";
+}
+
+.font-bold{
+  font-family: "Jost-bold, sans-serif";
+}
+
+.font-medium{
+  font-family: "Jost-medium, sans-serif";
 }
 
 html,
