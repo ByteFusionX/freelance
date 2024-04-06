@@ -340,24 +340,24 @@ export class QuotationEditComponent {
   }
 
 
-  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
-    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+  applyFormatting(i: number,j:number, textarea: HTMLTextAreaElement): void {
+    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
     let currentValue = control.value;
     const selectionStart = textarea.selectionStart;
     const selectionEnd = textarea.selectionEnd;
 
     const selectedText = currentValue.substring(selectionStart, selectionEnd);
-    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
+    const escapedText = selectedText.replace(/\\/g, '\\\\');
     let formattedText = `**${escapedText}**`;
 
     formattedText = formattedText.replace(/\n/g, ' ');
 
- 
+
     const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
 
-  
-    control.setValue(newText);
-}
 
-  
+    control.setValue(newText);
+  }
+
+
 }

@@ -69,7 +69,6 @@ export class QuotationService {
   async generatePDF(quoteData: getQuotatation) {
     const items = quoteData.items
 
-    console.log(quoteData)
     // Table header
     const tableHeader = [
       { text: 'Sl.\nNo', style: 'tableSlNo' },
@@ -132,7 +131,6 @@ export class QuotationService {
       termsAndConditions += `${quoteData.termsAndCondition.text}`;
     }
 
-    // Notes
     let customerNotes = '';
     if (quoteData.customerNote.defaultNote) {
       customerNotes += `${quoteData.customerNote.defaultNote}\n`;

@@ -353,8 +353,8 @@ export class CreateQuotatationComponent {
     console.log(this.quoteForm.value)
   }
 
-  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
-    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+  applyFormatting(i: number,j:number, textarea: HTMLTextAreaElement): void {
+    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
     let currentValue = control.value;
     const selectionStart = textarea.selectionStart;
     const selectionEnd = textarea.selectionEnd;

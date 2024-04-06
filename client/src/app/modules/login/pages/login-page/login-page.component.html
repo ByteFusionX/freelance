@@ -29,7 +29,7 @@
                                 <label for="id" class="block mb-2 text-sm font-medium text-gray-900 ">Employee
                                     ID</label>
                                 <input formControlName="employeeId" type="text" name="id" id="email" appNoLeadingSpace
-                                    [class.border-red-500]="submit&&loginForm.controls['employeeId'].hasError('required')"
+                                    [class.border-red-500]="submit&&(loginForm.controls['employeeId'].hasError('required')||employeeNotFoundError)"
                                     class="bg-gray-50 border outline-none border-gray-300 text-gray-900 sm:text-sm rounded-lg  block w-full p-2.5 "
                                     placeholder="NT-1100" required="">
 
@@ -53,7 +53,7 @@
                             </div>
                             <div class="text-sm">
                                 <div *ngIf="loginForm.controls['employeeId'].errors">
-                                    <p *ngIf="submit&&loginForm.controls['employeeId'].hasError('required')"
+                                    <p *ngIf="submit&&(loginForm.controls['employeeId'].hasError('required'))"
                                         class="text-red-500">Employee id required</p>
                                 </div>
                                 <p *ngIf="employeeNotFoundError" class="text-red-500">Employee not found.</p>

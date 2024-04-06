@@ -47,7 +47,8 @@ export class LoginPageComponent {
         }
         else if (res.employeeNotFoundError) {
           this.isSaving = false;
-          this.employeeNotFoundError = true
+          this.employeeNotFoundError = true;
+
         } else if (res.passwordNotMatchError) {
           this.isSaving = false;
           this.passwordNotMatchError = true

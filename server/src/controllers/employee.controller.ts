@@ -174,7 +174,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
                 res.send({ passwordNotMatchError: true })
             }
         } else {
-            res.status(502).json({ employeeNotFoundError: true })
+            res.send({ employeeNotFoundError: true })
         }
     } catch (error) {
         next(error)

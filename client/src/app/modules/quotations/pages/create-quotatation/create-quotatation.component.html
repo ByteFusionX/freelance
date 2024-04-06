@@ -197,10 +197,7 @@
                                                 class="w-full font-normal appearance-none block  rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-last-name" type="text" placeholder="Type / copy the item here."
                                                 #inputTextArea></textarea>
-                                            <button type="button" (click)="applyFormatting(i, inputTextArea)"
-                                                class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg">B</button>
-
-                                            <button type="button" (click)="applyFormatting(i, inputTextArea)"
+                                            <button type="button" (click)="applyFormatting(i,j, inputTextArea)"
                                                 class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg">B</button>
                                         </td>
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && submit"
