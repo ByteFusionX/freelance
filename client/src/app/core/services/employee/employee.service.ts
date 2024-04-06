@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { FilterEmployee, getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { CreateEmployee, FilterEmployee, GetCategory, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -20,12 +21,20 @@ export class EmployeeService {
     return this.http.get<getEmployee[]>(`${this.api}/employee`)
   }
 
-  getEmployees(filterData: FilterEmployee): Observable<{total:number,employees:getEmployee[]}> {
-    return this.http.post<{total:number,employees:getEmployee[]}>(`${this.api}/employee/get`,filterData)
+  getEmployees(filterData: FilterEmployee): Observable<{ total: number, employees: getEmployee[] }> {
+    return this.http.post<{ total: number, employees: getEmployee[] }>(`${this.api}/employee/get`, filterData)
   }
 
-  createEmployees(employeeData: getEmployee) {
+  createEmployees(employeeData: CreateEmployee) {
     return this.http.post(`${this.api}/employee`, employeeData)
+  }
+
+  createCategory(categroyData: GetCategory) {
+    return this.http.post(`${this.api}/category`, categroyData)
+  }
+
+  getCategory():Observable<GetCategory[]> {
+    return this.http.get<GetCategory[]>(`${this.api}/category`)
   }
 
   employeeLogin(employeeData: Object): Observable<login> {

@@ -5,6 +5,8 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { Privileges } from '../../interfaces/employee.interface';
 
 @Component({
   selector: 'app-side-bar',
@@ -17,9 +19,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class SideBarComponent implements AfterViewInit {
 
   @Input() showFullBar: boolean = true
-  homeDropDown: boolean = false
+  homeDropDown: boolean = false;
 
-  constructor(private eref: ElementRef, private router: Router) { }
+  showTabs: boolean = false;
+  privileges!:Privileges | undefined;
+
+  constructor(
+    private eref: ElementRef,
+    private router: Router,
+    private _employeeService: EmployeeService,
+  ) { }
+
+  ngOnInit(){
+    this.checkPermission()
+    setTimeout(() => {
+      this.showTabs = true;
+    }, 1000);
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
@@ -43,6 +59,12 @@ export class SideBarComponent implements AfterViewInit {
     if (!(this.eref.nativeElement.contains(event)) && !this.showFullBar) {
       this.homeDropDown = false;
     }
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.privileges = data?.category.privileges
+    })
   }
 
   onHomeClick() {

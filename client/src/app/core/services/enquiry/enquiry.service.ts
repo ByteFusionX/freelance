@@ -25,8 +25,8 @@ export class EnquiryService {
     return this.http.post<EnquiryTable>(`${this.api}/enquiry/get`, filterData)
   }
 
-  getPresale(page: number, row: number): Observable<EnquiryTable> {
-    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?page=${page}&row=${row}`)
+  getPresale(page: number, row: number,access?:string,userId?:string): Observable<EnquiryTable> {
+    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
   updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
@@ -37,12 +37,12 @@ export class EnquiryService {
     this.quoteSubject.next(enquiry)
   }
 
-  totalEnquiries(): Observable<TotalEnquiry[]> {
-    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum`)
+  totalEnquiries(access?:string,userId?:string): Observable<TotalEnquiry[]> {
+    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum?access=${access}&userId=${userId}`)
   }
 
-  monthlyEnquiries(): Observable<MonthlyEnquiry[]> {
-    return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly`)
+  monthlyEnquiries(access?:string,userId?:string): Observable<MonthlyEnquiry[]> {
+    return this.http.get<MonthlyEnquiry[]>(`${this.api}/enquiry/monthly?access=${access}&userId=${userId}`)
   }
 
   selectedDepartment(departmentId: string) {
@@ -61,4 +61,14 @@ export class EnquiryService {
   getFile(fileName: string): Observable<any> {
     return this.http.get(`${this.api}/file/${fileName}`, { responseType: 'blob' })
   }
+
+  deleteFile(fileName: string, enquiryId: string) {
+    return this.http.delete(`${this.api}/file`, { params: { file: fileName, enquiryId: enquiryId } });
+  }
+  
+  clearAllPresaleFiles(enquiryId:string){
+    return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
+  }
+
+  
 }

@@ -17,14 +17,15 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 export class CreateCustomerDialog {
   departments: getDepartment[] = [];
   customerForm!: FormGroup;
-  isSubmitted:boolean = false;
+  isSubmitted: boolean = false;
+  isSaving: boolean = false;
 
   constructor(
     private _fb: FormBuilder,
     private _profileService: ProfileService,
-    private _customerService:CustomerService,
+    private _customerService: CustomerService,
     private _employeeService: EmployeeService,
-    private _router:Router,
+    private _router: Router,
     private toastr: ToastrService
   ) { }
 
@@ -37,13 +38,14 @@ export class CreateCustomerDialog {
           courtesyTitle: ['', Validators.required],
           firstName: ['', Validators.required],
           lastName: ['', Validators.required],
-          email: ['', [Validators.required, Validators.email]]
+          email: ['', [Validators.required, Validators.email]],
+          phoneNo: ['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
       customerEmailId: ['', [Validators.required, Validators.email]],
       contactNo: ['', Validators.required],
-      createdBy:['',Validators.required]
+      createdBy: ['', Validators.required]
     });
   }
 
@@ -58,7 +60,8 @@ export class CreateCustomerDialog {
       courtesyTitle: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      phoneNo: ['', [Validators.required]]
     }));
   }
 
@@ -73,33 +76,36 @@ export class CreateCustomerDialog {
   }
 
   hasContactDetailsErrors(): boolean {
-  
+
     for (let i = 0; i < this.contactDetails.length; i++) {
       const contactDetailGroup = this.contactDetails.at(i) as FormGroup;
-  
+
       if (contactDetailGroup && contactDetailGroup.invalid && (contactDetailGroup?.touched || this.isSubmitted)) {
-        
+
         return true;
       }
     }
-  
+
     return false;
   }
 
-  get f(){
+  get f() {
     return this.customerForm.controls
   }
 
   onSubmit(): void {
     this.isSubmitted = true;
+    this.isSaving = true;
     let userId = this._employeeService.employeeToken().id;
-    this.customerForm.patchValue({createdBy:userId})
+    this.customerForm.patchValue({ createdBy: userId })
     if (this.customerForm.valid) {
-      this._customerService.createCustomer(this.customerForm.value).subscribe((res:getCustomer)=>{
-        this._router.navigate(['/customers'])
+      this._customerService.createCustomer(this.customerForm.value).subscribe((res: getCustomer) => {
+        this.toastr.success('Customer added!', 'Success')
+        this._router.navigate(['/customers']);
       })
     } else {
-      this.toastr.warning('Check the fields properly!', 'Warning !')
+      this.toastr.warning('Check the fields properly!', 'Warning !');
+      this.isSaving = false;
     }
   }
 

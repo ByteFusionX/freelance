@@ -7,6 +7,7 @@ import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { HttpEventType } from '@angular/common/http';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
@@ -33,8 +34,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   selectedFile!: string | undefined;
   constructor(
     private _enquiryService: EnquiryService,
-    private dialog: MatDialog,
-    private toast: ToastrService) { }
+    private _dialog: MatDialog,
+    private toast: ToastrService,
+    private _employeeService: EmployeeService) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -45,9 +47,17 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   getJobsData() {
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.assignedJob.viewReport
+      userId = employee?._id
+    })
+
     this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row).subscribe({
+      this._enquiryService.getPresale(this.page, this.row, access, userId).subscribe({
         next: (data) => {
+          console.log(data)
           this.dataSource.data = data.enquiry;
           this.total = data.total;
           this.isLoading = false;
@@ -64,16 +74,18 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onSendClicked(index: number) {
-    let dialog = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        title: 'Are you sure?',
-        description: 'This action will send the assigned task back to the salesperson. Please confirm that you want to proceed.',
-        icon: 'heroExclamationCircle',
-        IconColor: 'orange'
-      }
-    })
-    dialog.afterClosed().subscribe((data) => {
-      if (data == true) {
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+      {
+        data: {
+          title: `Are you absolutely sure?`,
+          description: `This action is irreversible and send the assigned task back to the salesperson. Please ensure all files are selected before proceeding.`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'orange'
+        }
+      });
+
+    dialogRef.afterClosed().subscribe((approved: boolean) => {
+      if (approved) {
         let selectedEnquiry: { id: string, status: string } = {
           id: this.dataSource.data[index]._id,
           status: 'Work In Progress'
@@ -98,7 +110,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onUploadClicks(index: number) {
-    let dialog = this.dialog.open(FileUploadComponent, {
+    let dialog = this._dialog.open(FileUploadComponent, {
       width: '500px',
       data: this.dataSource.data[index]._id
     })
@@ -118,7 +130,42 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onClearFiles(index: number) {
-    this.dataSource.data[index].preSale.presaleFile = null
+    this.dataSource.data[index].preSale.presaleFile = null;
+
+    const enquiryId = this.dataSource.data[index]._id;
+    this._enquiryService.clearAllPresaleFiles(enquiryId)
+      .subscribe({
+        next: (event) => {
+          console.log(event)
+          this.dataSource.data[index].assignedFiles = [];
+        },
+        error: (error) => {
+          if (error.status == 404) {
+            this.toast.warning('Something went wrong')
+          }
+        }
+      })
+  }
+
+  onRemoveItem(event: Event, index: number, file: any) {
+    event.stopPropagation()
+
+    const enquiry = this.dataSource.data[index];
+    const enquiryId = enquiry._id;
+    const fileName = file.filename;
+
+    this._enquiryService.deleteFile(fileName, enquiryId)
+      .subscribe({
+        next: (event) => {
+          console.log(event)
+          this.dataSource.data[index].assignedFiles = enquiry.assignedFiles.filter((data) => {
+            return data.filename !== fileName
+          })
+        },
+        error: (error) => {
+          this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+        }
+      })
   }
 
   onDownloadClicks(file: any) {
@@ -152,22 +199,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     }, 1000)
   }
 
-  onOpenClicks(file: { filename: string, originalname: string }) {
-    this.subscriptions.add(
-      this._enquiryService.getFile(file.filename).subscribe({
-        next: (blob) => {
-          const contentType = <string>this.chooseType(file.originalname)
-          const fileUrl = new Blob([blob], { type: contentType })
-          const url = URL.createObjectURL(fileUrl);
-          window.open(url);
-        },
-        error: (error) => {
-          this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
-        }
-      })
-    )
+  handleNotClose(event: MouseEvent) {
+    event.stopPropagation();
   }
-
   chooseType(file: any): string {
     const contentTypes: any = {
       'pdf': 'application/pdf',

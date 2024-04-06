@@ -5,14 +5,15 @@ import { QuotationListComponent } from './pages/quotation-list/quotation-list.co
 import { CreateQuotatationComponent } from './pages/create-quotatation/create-quotatation.component';
 import { QuotationEditComponent } from './pages/quotation-edit/quotation-edit.component';
 import { QuotationViewComponent } from './pages/quotation-view/quotation-view.component';
+import { RoleGuard } from 'src/app/core/guards/role/role.guard';
 
 const routes: Routes = [
   {
     path: '', component: QuotationsComponent, children: [
-      { path: '', component: QuotationListComponent },
-      { path: 'create', component:CreateQuotatationComponent},
-      { path: 'edit', component:QuotationEditComponent},
-      { path: 'view', component:QuotationViewComponent}
+      { path: '',canActivate:[RoleGuard], component: QuotationListComponent },
+      { path: 'create',canActivate:[RoleGuard],  component:CreateQuotatationComponent},
+      { path: 'edit',canActivate:[RoleGuard],  component:QuotationEditComponent},
+      { path: 'view',canActivate:[RoleGuard],  component:QuotationViewComponent}
     ]
   }
 ];

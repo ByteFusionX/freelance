@@ -1,0 +1,102 @@
+<div class="bg-white m-6">
+    <div class="  border-b p-3 px-9 py-6 flex justify-between items-center">
+        <h3 class="text-lg font-medium">Employee Details - {{employeeData.employeeId}}</h3>
+        
+        <!-- <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
+        (click)="onCustomerEdit()">
+        <div class="flex justify-center items-center gap-2">
+            <ng-icon  name="heroPencilSquare"></ng-icon>
+            Edit
+        </div>
+    </button> -->
+    </div>
+
+    <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">
+
+        <div class="w-full ">
+            <div class="relative overflow-x-auto  w-full flex gap-6">
+                <table class="w-full text-md text-left rtl:text-right text-black border ">
+                    <tbody>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-left font-medium bg-gray-50">
+                                First Name
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.firstName}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Last Name
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.lastName}}
+                            </td>
+                        </tr>
+                        <tr class=" border-b ">
+                            
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Email Address
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.email}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Contact No.
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.contactNo}}
+                            </td>
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Department
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.department.departmentName}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                designation
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.designation}}
+                            </td>
+                           
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Category
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.category.categoryName}} - {{employeeData.category.role | titlecase}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                DOB
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.dob | date}}
+                            </td>
+                           
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Date Of Joining
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.dateOfJoining | date}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Reporting To
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{employeeData.reportingTo.firstName + ' ' + employeeData.reportingTo.lastName}}
+                            </td>
+                           
+                        </tr>
+                        
+                        
+                    </tbody>
+                </table>
+                </div>
+
+        </div>
+      
+</div>

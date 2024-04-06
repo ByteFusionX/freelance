@@ -25,6 +25,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   graphCategory: string[] = [];
   showChart: boolean = false
 
+  userId!: string | undefined;
+  enquiryAccess!: string | undefined;
+  quoteAccess!: string | undefined;
+
   isEnquiryLoading: boolean = true;
   isQuoteLoading: boolean = true;
 
@@ -43,13 +47,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // this._employeeService.employeeData$.subscribe((employee) => {
+
+
+    // })
     this.userData$ = this._employeeService.employeeData$
-    this.enquiries$ = this._enquiryService.totalEnquiries()
-    this.quotations$ = this._quotationService.totalQuotations()
-    this.enquiryLoading()
-    this.quoteLoading()
+    this.userData$.subscribe((employee) => {
+      if (employee) {
+        this.enquiryAccess = employee?.category.privileges.enquiry.viewReport
+        this.quoteAccess = employee?.category.privileges.quotation.viewReport
+        this.userId = employee?._id;
+        this.enquiries$ = this._enquiryService.totalEnquiries(this.enquiryAccess, this.userId);
+        this.enquiryLoading()
+
+        console.log(this.userId)
+        this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
+        this.quoteLoading();
+
+        this.getChartDetails()
+      }
+    })
+
     this.dateCategories()
-    this.getChartDetails()
   }
 
   ngOnDestroy(): void {
@@ -110,7 +129,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getChartDetails() {
     this.subscriptions.add(
-      this._enquiryService.monthlyEnquiries().subscribe((data) => {
+      this._enquiryService.monthlyEnquiries(this.enquiryAccess, this.userId).subscribe((data) => {
         data.map((item) => {
           const dateArray: number[] = new Array(12).fill(0)
           let depName = item.department[0].departmentName.toUpperCase()

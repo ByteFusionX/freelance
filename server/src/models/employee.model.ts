@@ -9,11 +9,12 @@ interface Employee extends Document {
     designation: string;
     dob: Date;
     department: Types.ObjectId;
-    category: string;
+    category: Types.ObjectId;
     dateOfJoining: Date;
     reportingTo: Types.ObjectId;
     userRole: string;
     password: string;
+    createdBy: Types.ObjectId;
 }
 
 enum UserRole {
@@ -58,7 +59,8 @@ const employeeSchema = new Schema<Employee>({
         required: true,
     },
     category: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
         required: true,
     },
     dateOfJoining: {
@@ -70,15 +72,15 @@ const employeeSchema = new Schema<Employee>({
         ref: 'Employee',
         default: null,
     },
-    userRole: {
-        type: String,
-        enum: UserRole,
-        required: true,
-    },
     password: {
         type: String,
         required: true,
     },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+        required:true
+    }
 });
 
 employeeSchema.index({ firstName: 1, lastName: 1 })
