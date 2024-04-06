@@ -19,7 +19,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
         const saveQuote = await (await quote.save()).populate('department')
 
-        if(quoteData.enqId){
+        if (quoteData.enqId) {
             await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
         }
 
@@ -160,7 +160,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             {
                 $unwind: {
                     path: '$enqId',
-                    preserveNullAndEmptyArrays: true  
+                    preserveNullAndEmptyArrays: true
                 }
             },
             {
@@ -278,21 +278,22 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
         const files = lpoFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
 
         if (req.body.isSubmitted == 'true') {
+            const lpoValue = req.body.lpoValue;
             const jobId = await generateJobId()
 
             const jobData = {
                 quoteId: req.body.quoteId,
                 jobId: jobId,
-                files: files
+                files: files,
+                lpoValue: lpoValue
             }
 
             const job = new Job(jobData)
             const saveJob = await (await job.save()).populate('quoteId')
 
-            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true })
-            console.log(quote)
+            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true });
             if (quote) {
-                return res.status(200).json(quote)
+                return res.status(200).json(quote);
             }
         } else {
             const quoteId = req.body.quoteId;
