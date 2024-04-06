@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
-import { Component } from '@angular/core';
-import { AbstractControlOptions, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
@@ -37,6 +37,8 @@ export class QuotationEditComponent {
   isSaving: boolean = false;
   isDownloading: boolean = false;
   isPreviewing: boolean = false;
+
+  @ViewChild('inputTextArea') inputTextArea!: ElementRef;
 
   constructor(
     private config: NgSelectConfig,
@@ -336,4 +338,26 @@ export class QuotationEditComponent {
     }
 
   }
+
+
+  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
+    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+    let currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
+    let formattedText = `**${escapedText}**`;
+
+    formattedText = formattedText.replace(/\n/g, ' ');
+
+ 
+    const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+
+  
+    control.setValue(newText);
+}
+
+  
 }

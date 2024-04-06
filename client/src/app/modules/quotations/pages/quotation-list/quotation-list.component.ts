@@ -206,7 +206,9 @@ export class QuotationListComponent {
       {
         data: {
           title: `Are you absolutely sure?`,
-          description: `This action cannot be undone. This will permanently change the status to ${status}.`
+          description: `This action cannot be undone. This will permanently change the status to ${status}.`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'orange'
         }
       });
 

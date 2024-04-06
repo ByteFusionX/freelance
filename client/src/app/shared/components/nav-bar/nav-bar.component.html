@@ -19,8 +19,7 @@
                 <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="beforeMenu"
                     (menuOpened)="menuOpened()" (menuClosed)="menuClosed()">
                     <div class="w-8 rounded-full overflow-hidden">
-                        <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
-                            alt="">
+                        <img src="assets/images/avatar.avif" alt="">
                     </div>
                     
                     <div class="flex items-center" *ngIf="employeeData$ | async as employeeData">
@@ -39,8 +38,7 @@
                     <div class="p-3">
                         <div class="bg-gray-100 p-5 flex items-center">
                             <div class="w-10 rounded-full overflow-hidden">
-                                <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?w=740&t=st=1702958509~exp=1702959109~hmac=2fc43302208cd7b1afb5fb1bc57913ac8beee6e0282fbd8141fb835b0cc19cd2"
-                                    alt="">
+                                <img src="assets/images/avatar.avif" alt="">
                             </div>
                             <div class="mx-3"  *ngIf="employeeData$ | async as employeeData">
                                 <p class="text-sm leading-3 font-medium">{{employeeData.firstName}} {{employeeData.lastName}}</p>

@@ -1,3 +1,4 @@
+import { IfStmt } from '@angular/compiler';
 import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -18,6 +19,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   employeesList$!: Observable<getEmployee[]>
   enableSubmit: boolean = false
   newDepartment: boolean = true
+  nameError: boolean = false
 
   private subscriptions = new Subscription();
 
@@ -48,6 +50,11 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (!this.name.value) {
+      this.nameError = true
+      this.errorTimeout()
+    }
+
     if (this.name.value && this.head.value) {
       this.subscriptions.add(this._profileService.setDepartment(
         { departmentName: this.name.value, departmentHead: this.head.value, createdDate: Date.now() })
@@ -70,6 +77,12 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
           }
         }))
     }
+  }
+
+  errorTimeout(){
+    setTimeout(()=>{
+      this.nameError = false
+    },3000)
   }
 
   ngOnDestroy(): void {

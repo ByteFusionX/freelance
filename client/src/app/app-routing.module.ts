@@ -5,8 +5,7 @@ import { RoleGuard } from './core/guards/role/role.guard';
 import { LoginGuard } from './core/guards/login/login.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', canActivate: [AuthGuard], loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule) },
+  { path: '', canActivate: [AuthGuard], loadChildren: () => import('./modules/home/home.module').then((m) => m.HomeModule) },
   { path: 'customers', canActivate: [AuthGuard], loadChildren: () => import('./modules/customers/customers.module').then((m) => m.CustomersModule) },
   { path: 'enquiry', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/enquirys/enquiry.module').then((m) => m.EnquiryModule) },
   { path: 'assigned-jobs', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/assigned-jobs/assigned-jobs.module').then((m) => m.AssignedJobsModule) },

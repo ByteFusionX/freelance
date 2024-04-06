@@ -22,6 +22,7 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
 import { ResizableModule } from 'src/app/shared/components/resizable/resizable.module';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { QuotationPreviewComponent } from './pages/quotation-preview/quotation-preview.component';
+import { pipeModule } from 'src/app/shared/pipes/pipe.module';
 
 
 @NgModule({
@@ -51,7 +52,9 @@ import { QuotationPreviewComponent } from './pages/quotation-preview/quotation-p
         UploadFileComponent,
         PaginationComponent,
         ResizableModule,
-        NgxExtendedPdfViewerModule
+        NgxExtendedPdfViewerModule,
+        pipeModule,
+         
     ]
 })
 export class QuotationsModule { }

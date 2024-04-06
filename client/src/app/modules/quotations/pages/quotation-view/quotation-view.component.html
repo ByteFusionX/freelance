@@ -123,9 +123,7 @@
                         </tr>
                         <ng-container *ngFor="let itemsDetail of item.itemDetails">
                             <tr class="bg-white border-b ">
-                                <th scope="row" class="px-6 border font-normal py-2">
-                                    {{itemsDetail.detail}}
-                                </th>
+                                <th scope="row" class="px-6 border font-normal py-2" [innerHTML]="itemsDetail.detail | parseBoldText"></th>
                                 <td class="px-2  border text-center">
                                     {{itemsDetail.quantity}}
                                 </td>

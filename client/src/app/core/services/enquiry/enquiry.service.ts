@@ -54,16 +54,20 @@ export class EnquiryService {
   }
 
   downloadFile(fileName: string): Observable<any> {
-    return this.http.get(`${this.api}/download?file=${fileName}`,
-      { responseType: 'blob'})
+    return this.http.get(`${this.api}/file/download?file=${fileName}`,
+      { responseType: 'blob', observe: 'events', reportProgress: true })
+  }
+
+  getFile(fileName: string): Observable<any> {
+    return this.http.get(`${this.api}/file/${fileName}`, { responseType: 'blob' })
   }
 
   deleteFile(fileName: string, enquiryId: string) {
-    return this.http.delete(`${this.api}/download`, { params: { file: fileName, enquiryId: enquiryId } });
+    return this.http.delete(`${this.api}/file`, { params: { file: fileName, enquiryId: enquiryId } });
   }
   
   clearAllPresaleFiles(enquiryId:string){
-    return this.http.delete(`${this.api}/download/clearAll?enquiryId=${enquiryId}`)
+    return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
   }
 
   

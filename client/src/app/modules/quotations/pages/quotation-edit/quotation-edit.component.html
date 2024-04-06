@@ -148,7 +148,9 @@
                                             <textarea appNoLeadingSpace formControlName="detail"
                                                 class="w-full font-normal appearance-none block  rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-last-name" type="text"
-                                                placeholder="Type / copy the item here."></textarea>
+                                                placeholder="Type / copy the item here." #inputTextArea></textarea>
+                                                <button type="button" (click)="applyFormatting(i, inputTextArea)"
+                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg">B</button>
                                         </td>
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && submit"
                                             class="border px-2 py-2 text-center">
@@ -283,8 +285,8 @@
                             <td class="px-2 py-3  border text-center font-medium text-xl ">
                                 Discount
                             </td>
-                            <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                <input [class.border-red-500]="f['totalDiscount'].invalid && submit" type="text" name="" id="" class="text-center border outline-none px-2 py-2 w-4/5" formControlName="totalDiscount">
+                            <td class="px-2 py-2 border text-center uppercase text-xl">
+                                <input [class.border-red-500]="f['totalDiscount'].invalid && submit" type="number" appNegativeNumber appNoLeadingSpace name="" id="" class="text-center border outline-none px-2 py-2 w-4/5" formControlName="totalDiscount">
                             </td>
                         </tr>
                         <tr class=" border-b ">

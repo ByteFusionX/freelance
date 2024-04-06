@@ -5,12 +5,13 @@ import { appFileValidator } from './file-validator.directive';
 import { dateFutureDirective } from './date-future.directive';
 import { appFileSizeValidator } from './file-size.directive';
 import { ResizableDirective } from '../components/resizable/resizable.directive';
+import { NegativeNumberDirective } from './negative-validator.directive';
 
 
 @NgModule({
     imports: [],
-    exports: [appNoLeadingSpace, datePastDirective, appFileValidator,dateFutureDirective,appFileSizeValidator],
-    declarations: [appNoLeadingSpace, datePastDirective, appFileValidator,dateFutureDirective,appFileSizeValidator],
+    exports: [appNoLeadingSpace, datePastDirective, appFileValidator,dateFutureDirective,appFileSizeValidator,NegativeNumberDirective],
+    declarations: [appNoLeadingSpace, datePastDirective, appFileValidator,dateFutureDirective,appFileSizeValidator,NegativeNumberDirective],
     providers: [],
 })
 export class directiveSharedModule { }

@@ -8,6 +8,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { HttpEventType } from '@angular/common/http';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -29,6 +30,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   total!: number;
   subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 })
 
+  progress: number = 0
+  selectedFile!: string | undefined;
   constructor(
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
@@ -75,7 +78,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
       {
         data: {
           title: `Are you absolutely sure?`,
-          description: `This action is irreversible. Please ensure all files are selected before proceeding.`
+          description: `This action is irreversible and send the assigned task back to the salesperson. Please ensure all files are selected before proceeding.`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'orange'
         }
       });
 
@@ -96,6 +101,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
                 this.dataSource.data = []
                 this.isEmpty = true
               }
+              this.toast.success('Enquiry send successfully')
             }
           })
         )
@@ -157,35 +163,57 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
           })
         },
         error: (error) => {
-          if (error.status == 404) {
-            this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
-          }
+          this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
         }
       })
   }
 
   onDownloadClicks(file: any) {
-    console.log(file)
-    this._enquiryService.downloadFile(file.filename)
-      .subscribe({
-        next: (blob) => {
-          console.log(blob)
-          saveAs(blob, file.originalname);
-        },
-        error: (error) => {
-          if (error.status === 404) {
-            console.error('File not found on the server');
-            // Handle error (e.g., show error message to user)
-          } else {
-            console.error('An error occurred while downloading the file:', error);
-            // Handle other errors (e.g., show error message to user)
+    this.selectedFile = file.filename
+    this.subscriptions.add(
+      this._enquiryService.downloadFile(file.filename)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              this.progress = Math.round(100 * event.loaded / event.total);
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+              this.clearProgress()
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.selectedFile = undefined
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
           }
-        }
-      });
+        })
+    )
+  }
+
+  clearProgress() {
+    setTimeout(() => {
+      this.selectedFile = undefined;
+      this.progress = 0
+    }, 1000)
   }
 
   handleNotClose(event: MouseEvent) {
     event.stopPropagation();
   }
+  chooseType(file: any): string {
+    const contentTypes: any = {
+      'pdf': 'application/pdf',
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    }
+    const extension: string = <string>file.split('.').pop().toLowerCase();
+    return contentTypes[extension]
+  }
+
 }
 

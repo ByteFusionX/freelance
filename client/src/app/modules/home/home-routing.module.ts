@@ -8,8 +8,9 @@ import { RoleGuard } from 'src/app/core/guards/role/role.guard';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   {
-    path: '',
+    path: 'home',
     component: HomeComponent,
     children: [
       { path: '', component: DashboardComponent },

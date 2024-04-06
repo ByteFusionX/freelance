@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
+import { nextTick } from "process";
 import Enquiry from "../models/enquiry.model";
 import fs from "fs";
 import path from "path";
 import { File } from "../interface/enquiry.interface";
 const { ObjectId } = require('mongodb')
 
-export const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
+export const DownloadFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const fileName = req.query.file;
         console.log(fileName)
@@ -27,6 +28,23 @@ export const downloadFile = async (req: Request, res: Response, next: NextFuncti
         next(error);
     }
 };
+
+export const fetchFile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const filename = req.params.filename
+        const filePath = path.join(__dirname, '../../uploads', filename);
+        res.sendFile(filePath, (error) => {
+            if (error) {
+                return res.status(404).json({ mesage: 'file not found' })
+            }
+        })
+    } catch (error) {
+        console.error(error);
+
+        next(error)
+    }
+}
+
 
 export const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
     try {

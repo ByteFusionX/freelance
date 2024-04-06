@@ -20,7 +20,7 @@
                     <div class="cursor-pointer mt-2" (click)="onHomeClick()">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroHome" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Home'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Home</p>
                                 <i>
@@ -55,7 +55,7 @@
                         routerLink="/customers" routerLinkActive="active"  *ngIf="privileges?.customer?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroUserGroup" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Customers'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Customers</p>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -66,7 +66,7 @@
                         routerLink="/enquiry" routerLinkActive="active"  *ngIf="privileges?.enquiry?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Enquiry'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Enquiry</p>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -77,7 +77,7 @@
                     routerLink="/assigned-jobs" routerLinkActive="active"  *ngIf="privileges?.assignedJob?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroIdentification" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Assigned Jobs'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Assigned Jobs</p>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -88,7 +88,7 @@
                         routerLink="/quotations" routerLinkActive="active"  *ngIf="privileges?.quotation?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroNewspaper" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Quotations'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Quotations</p>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
@@ -99,7 +99,7 @@
                     routerLink="/job-sheet" routerLinkActive="active"  *ngIf="privileges?.jobSheet?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroBriefcase" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Jobs Sheet'"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip"></ng-icon></i>
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Jobs Sheet</p>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>

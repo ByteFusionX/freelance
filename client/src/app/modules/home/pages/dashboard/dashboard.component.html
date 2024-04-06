@@ -16,7 +16,7 @@
                     </div>
                     <div class="mt-5">
                         <button class="py-2 px-4 bg-violet-600 text-white rounded hover:bg-violet-500"
-                            [routerLink]="['/profile']" routerLinkActive="router-link-active">Learn
+                            (click)="onClickLearnButton()">Learn
                             More</button>
                     </div>
                 </div>
@@ -110,8 +110,7 @@
         <div class="w-full bg-white rounded-md mt-5">
             <div class="p-10">
                 <p class="text-md font-medium">Enquires</p>
-                <app-skelton-loading [lineLength]="3" *ngIf="!showChart"
-                        class="col-span-3"></app-skelton-loading>
+                <app-skelton-loading [lineLength]="3" *ngIf="!showChart" class="col-span-3"></app-skelton-loading>
                 <div id="chart" *ngIf="showChart">
                     <apx-chart [series]="chartOptions.series!" [chart]="chartOptions.chart!"
                         [xaxis]="chartOptions.xaxis!" [stroke]="chartOptions.stroke!" [tooltip]="chartOptions.tooltip!"

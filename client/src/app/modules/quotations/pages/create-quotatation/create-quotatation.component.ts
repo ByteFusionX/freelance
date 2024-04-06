@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, QueryList, ViewChildren } from '@angular/core';
-import { AbstractControlOptions, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectComponent, NgSelectConfig } from '@ng-select/ng-select';
@@ -46,6 +46,8 @@ export class CreateQuotatationComponent {
   submit: boolean = false;
   isDownloading: boolean = false;
   isPreviewing: boolean = false;
+
+  @ViewChild('inputTextArea') inputTextArea!: ElementRef;
 
   private subscriptions = new Subscription();
 
@@ -350,4 +352,24 @@ export class CreateQuotatationComponent {
     this.isEdit = true;
     console.log(this.quoteForm.value)
   }
+
+  applyFormatting(index: number, textarea: HTMLTextAreaElement): void {
+    const control = this.quoteForm.get(`items.${index}.detail`) as FormControl;
+    let currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
+    let formattedText = `**${escapedText}**`;
+
+    formattedText = formattedText.replace(/\n/g, ' ');
+
+    const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+
+    control.setValue(newText);
+}
+
+
+
 }

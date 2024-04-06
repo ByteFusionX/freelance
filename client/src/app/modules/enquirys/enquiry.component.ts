@@ -50,7 +50,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     private _employeeService: EmployeeService,
     private _enquiryService: EnquiryService,
     private router: Router,
-    private toastr: ToastrService,
+    private toaster: ToastrService
   ) { }
 
   formData = this.fb.group({
@@ -134,6 +134,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           result.salesPerson = result.salesPerson
           this.dataSource.data = [result, ...this.dataSource.data]
           this.enqId = result.enquiryId.slice(-3)
+          this.toaster.success('Enquiry created successfully')
         }
       })
     }
@@ -179,7 +180,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
     }else{
-      this.toastr.warning('Enquiry is Assigned to Presales', 'Cannot Quote this Enquiry')
+      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
     }
   }
 
