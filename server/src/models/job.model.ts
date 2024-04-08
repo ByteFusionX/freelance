@@ -3,6 +3,7 @@ import { Schema, Document, model, Types } from "mongoose";
 interface Job extends Document {
     quoteId: Types.ObjectId;
     jobId: string;
+    lpo:Number;
     status: string;
     createdDate: Date;
     files:[];
@@ -28,6 +29,10 @@ const jobSchema = new Schema<Job>({
         type: String,
         required: true,
         unique: true,
+    },
+    lpo:{
+        type:Number,
+        default:0
     },
     status: {
         type: String,

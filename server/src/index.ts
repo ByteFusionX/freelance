@@ -15,6 +15,7 @@ import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
 import fileRouter from './routes/file.router'
 import TokenLogger from './common/middlewares/jwt.middleware';
+import jobRouter from './routes/job.router';
 
 
 const app: express.Application = express();
@@ -43,6 +44,7 @@ app.use('/enquiry', equiRouter)
 app.use('/celebrationCheck', celebRouter)
 app.use('/quotation', quoteRouter)
 app.use('/file', fileRouter)
+app.use('/job',jobRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)
