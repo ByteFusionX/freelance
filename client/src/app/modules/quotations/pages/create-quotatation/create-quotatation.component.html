@@ -166,8 +166,7 @@
                         </tr>
                     </thead>
                     <tbody formArrayName="items">
-                        <ng-container *ngFor="let item of items.controls; let i = index"
-                            [formGroupName]="i">
+                        <ng-container *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
                             <tr>
                                 <td colspan="9" class="border px-6 py-3 bg-gray-50 ">
                                     <div class="flex justify-center items-center">
@@ -197,8 +196,16 @@
                                                 class="w-full font-normal appearance-none block  rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-last-name" type="text" placeholder="Type / copy the item here."
                                                 #inputTextArea></textarea>
-                                            <button type="button" (click)="applyFormatting(i,j, inputTextArea)"
-                                                class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg">B</button>
+                                            <div class="h-5 w-full ">
+
+                                                <button type="button" (click)="applyFormatting(i, j, inputTextArea)"
+                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                                    matTooltip="Bold" matTooltipPosition="above">B</button>
+
+                                                <button type="button" (click)="applyHighlighter(i, j, inputTextArea)"
+                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                                    matTooltip="Highlight" matTooltipPosition="above">H</button>
+                                            </div>
                                         </td>
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && submit"
                                             class="border px-2 py-2 text-center">
@@ -244,8 +251,8 @@
                                     </tr>
                                 </ng-container>
                             </ng-container>
-                            </ng-container>
-                            
+                        </ng-container>
+
                     </tbody>
                 </table>
 

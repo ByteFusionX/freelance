@@ -3,8 +3,8 @@
         <h3 class="text-md font-medium">Quote - {{quoteData.quoteId}} </h3>
 
         <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
-        (click)="onQuoteEdit()">
-            <div class="flex justify-center items-center gap-2" >
+            (click)="onQuoteEdit()">
+            <div class="flex justify-center items-center gap-2">
                 <ng-icon name="heroPencilSquare"></ng-icon>
                 Edit
             </div>
@@ -78,7 +78,8 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
                 <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
                     <tr>
-                        <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950" key="itemDetail">
+                        <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
+                            key="itemDetail">
                             <div class="px-6 py-3">Item Details</div>
 
                         </th>
@@ -86,15 +87,15 @@
                             class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
                             <div class="px-2 py-3">QTY</div>
                         </th>
-                        <th scope="col" resizable  key="unitCost"
+                        <th scope="col" resizable key="unitCost"
                             class="border-l border-r border-t hover:border-r-slate-950  text-center">
                             <div class="px-6 py-3">Unit Cost</div>
                         </th>
-                        <th scope="col" resizable  key="totalCost"
+                        <th scope="col" resizable key="totalCost"
                             class="border-l border-r border-t hover:border-r-slate-950  text-center">
                             <div class="px-6 py-3">Total Cost</div>
                         </th>
-                        <th scope="col" resizable  key="profit"
+                        <th scope="col" resizable key="profit"
                             class="border-l border-r border-t hover:border-r-slate-950  text-center">
                             <div class="px-6 py-3">Profit</div>
                         </th>
@@ -123,7 +124,14 @@
                         </tr>
                         <ng-container *ngFor="let itemsDetail of item.itemDetails">
                             <tr class="bg-white border-b text-gray-800">
-                                <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line" [innerHTML]="itemsDetail.detail | parseBoldText"></th>
+                                <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                    <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
+                                </th>
+
+
+
+
+
                                 <td class="px-2  border text-center">
                                     {{itemsDetail.quantity}}
                                 </td>
@@ -168,7 +176,7 @@
                     Terms and Conditions
                 </label>
                 <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition.defaultNote}}</p>
-                <p class="w-full whitespace-pre-line" >{{quoteData.termsAndCondition.text}}</p>
+                <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition.text}}</p>
 
             </div>
 
@@ -240,11 +248,14 @@
     <div class=" border-t py-6 px-9 flex justify-end gap-2 ">
         <div class="flex w-70">
             <button
-                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2" (click)="onPreviewPdf()">
+                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
+                (click)="onPreviewPdf()">
                 <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
                 Preview
             </button>
-            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap" (click)="onDownloadPdf()">
+            <button
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                (click)="onDownloadPdf()">
                 <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
                 Download (PDF)
             </button>

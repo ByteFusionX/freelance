@@ -16,23 +16,14 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
-import { animate, style, transition, trigger } from '@angular/animations';
+import { fadeInOut } from 'src/app/shared/animations/animations';
+
 
 @Component({
   selector: 'app-quotation-edit',
   templateUrl: './quotation-edit.component.html',
   styleUrls: ['./quotation-edit.component.css'],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('0.3s ease-in-out', style({ opacity: 1 })),
-      ]),
-      transition(':leave', [
-        animate('0.3s ease-in-out', style({ opacity: 0 }))
-      ])
-    ])
-  ]
+  animations: [fadeInOut]
 })
 export class QuotationEditComponent {
   customers$!: Observable<getCustomer[]>;
@@ -372,20 +363,43 @@ export class QuotationEditComponent {
     if (selectionStart === selectionEnd) return;
 
     const selectedText = currentValue.substring(selectionStart, selectionEnd);
-    
+
     const isBold = /^\*{2}.*\*{2}$/.test(selectedText);
-    
+
     let newText: string;
     if (isBold) {
-        newText = currentValue.substring(0, selectionStart) + selectedText.substring(2, selectedText.length - 2) + currentValue.substring(selectionEnd);
+      newText = currentValue.substring(0, selectionStart) + selectedText.substring(2, selectedText.length - 2) + currentValue.substring(selectionEnd);
     } else {
-        const escapedText = selectedText.replace(/\\/g, '\\\\');
-        const formattedText = `**${escapedText}**`.replace(/\n/g, ' ');
-        newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+      const escapedText = selectedText.replace(/\\/g, '\\\\');
+      const formattedText = `**${escapedText}**`.replace(/\n/g, ' ');
+      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
     }
 
     control.setValue(newText);
-}
+  }
+
+  applyHighlighter(i: number, j: number, textarea: HTMLTextAreaElement): void {
+    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
+    let currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    if (selectionStart === selectionEnd) return;
+
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+
+    const isBold = /^\{.*\}$/.test(selectedText);
+
+    let newText: string;
+    if (isBold) {
+      newText = currentValue.substring(0, selectionStart) + selectedText.substring(1, selectedText.length - 1) + currentValue.substring(selectionEnd);
+    } else {
+      const escapedText = selectedText.replace(/\\/g, '\\\\');
+      const formattedText = `{${escapedText}}`.replace(/\n/g, ' ');
+      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+    }
+
+    control.setValue(newText);
+  }
 
 
 
