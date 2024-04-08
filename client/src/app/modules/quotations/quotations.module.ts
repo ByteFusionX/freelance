@@ -23,6 +23,7 @@ import { ResizableModule } from 'src/app/shared/components/resizable/resizable.m
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { QuotationPreviewComponent } from './pages/quotation-preview/quotation-preview.component';
 import { pipeModule } from 'src/app/shared/pipes/pipe.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @NgModule({
@@ -54,6 +55,7 @@ import { pipeModule } from 'src/app/shared/pipes/pipe.module';
         ResizableModule,
         NgxExtendedPdfViewerModule,
         pipeModule,
+        MatTooltipModule
          
     ]
 })

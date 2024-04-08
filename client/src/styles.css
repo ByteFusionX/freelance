@@ -124,3 +124,7 @@ input[type="number"] {
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
 }
+
+.highlighted-text {
+  color: orange !important;
+}

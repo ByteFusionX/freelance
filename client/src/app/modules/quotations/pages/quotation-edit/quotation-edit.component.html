@@ -13,7 +13,8 @@
                             for="grid-first-name">
                             Client
                         </label>
-                        <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border" (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
+                        <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border"
+                            (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
                             <ng-option *ngFor="let customer of customers$ | async"
                                 [value]="customer._id">{{customer.companyName}}</ng-option>
                             <ng-template ng-footer-tmp>
@@ -29,7 +30,8 @@
                             for="grid-last-name">
                             Attention
                         </label>
-                        <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border" formControlName="attention"  bindLabel="courtesyTitle">
+                        <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border"
+                            formControlName="attention" bindLabel="courtesyTitle">
                             <ng-option *ngFor="let contact of contacts" [value]="contact._id">{{contact.courtesyTitle +
                                 '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
                         </ng-select>
@@ -39,7 +41,8 @@
                             for="quoteDate">
                             Quote Date
                         </label>
-                        <input appNoLeadingSpace formControlName="date" [class.border-red-500]="f['date'].invalid && submit"
+                        <input appNoLeadingSpace formControlName="date"
+                            [class.border-red-500]="f['date'].invalid && submit"
                             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="quoteDate" type="date" placeholder="Email">
                     </div>
@@ -48,11 +51,11 @@
                 <div class="flex flex-wrap -mx-3 ">
 
                     <div class="w-full md:w-2/4 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="subject">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="subject">
                             subject
                         </label>
-                        <input appNoLeadingSpace formControlName="subject" [class.border-red-500]="f['subject'].invalid && submit"
+                        <input appNoLeadingSpace formControlName="subject"
+                            [class.border-red-500]="f['subject'].invalid && submit"
                             class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             id="subject" type="text" placeholder="Subject">
                     </div>
@@ -61,17 +64,20 @@
                             for="department">
                             Department
                         </label>
-                        <ng-select  [class.border-red-500]="f['department'].invalid && submit" bindLabel="departmentName" id="department" class="form border" placeholder="Department" appendTo="body" formControlName="department">
+                        <ng-select [class.border-red-500]="f['department'].invalid && submit" bindLabel="departmentName"
+                            id="department" class="form border" placeholder="Department" appendTo="body"
+                            formControlName="department">
                             <ng-option *ngFor="let department of departments"
-                              [value]="department._id">{{department.departmentName}}</ng-option>
-                          </ng-select>
+                                [value]="department._id">{{department.departmentName}}</ng-option>
+                        </ng-select>
                     </div>
                     <div class="w-full md:w-1/4 px-3 mb-6 md:mb-0">
                         <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                             for="grid-first-name">
                             Currency
                         </label>
-                        <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border" formControlName="currency" bindLabel="">
+                        <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border"
+                            formControlName="currency" bindLabel="">
                             <ng-option value="QAR">QAR</ng-option>
                             <ng-option value="USD">USD</ng-option>
                         </ng-select>
@@ -84,7 +90,8 @@
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
-                            <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950" key="itemDetail">
+                            <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
+                                key="itemDetail">
                                 <div class="px-6 py-3">Item Details</div>
 
                             </th>
@@ -92,15 +99,15 @@
                                 class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
                                 <div class="px-2 py-3">QTY</div>
                             </th>
-                            <th scope="col" resizable  key="unitCost"
+                            <th scope="col" resizable key="unitCost"
                                 class="border-l border-r border-t hover:border-r-slate-950  text-center">
                                 <div class="px-6 py-3">Unit Cost</div>
                             </th>
-                            <th scope="col" resizable  key="totalCost"
+                            <th scope="col" resizable key="totalCost"
                                 class="border-l border-r border-t hover:border-r-slate-950  text-center">
                                 <div class="px-6 py-3">Total Cost</div>
                             </th>
-                            <th scope="col" resizable  key="profit"
+                            <th scope="col" resizable key="profit"
                                 class="border-l border-r border-t hover:border-r-slate-950  text-center">
                                 <div class="px-6 py-3">Profit</div>
                             </th>
@@ -124,7 +131,8 @@
                                 <td colspan="9" class="border px-6 py-3 bg-gray-50 ">
                                     <div class="flex justify-center items-center">
                                         <label for="">ITEM NAME : </label>
-                                        <input formControlName="itemName" type="text" [class.border-red-500]="quoteForm.get('items.' + i + '.itemName')?.invalid && submit"
+                                        <input formControlName="itemName" type="text"
+                                            [class.border-red-500]="quoteForm.get('items.' + i + '.itemName')?.invalid && submit"
                                             class="appearance-none block bg-white text-gray-700 border border-gray-200 rounded py-2 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 ml-2 w-3/6">
                                         <button type="button"
                                             class="ml-2 bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
@@ -140,18 +148,27 @@
                                 </td>
                             </tr>
                             <ng-container formArrayName="itemDetails">
-                                <ng-container *ngFor="let detail of getItemDetailsControls(i).controls; let j=index"
-                                    >
+                                <ng-container *ngFor="let detail of getItemDetailsControls(i).controls; let j=index">
                                     <tr [formGroupName]="j">
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('detail')?.invalid && submit"
                                             class="border px-6 py-3">
                                             <textarea appNoLeadingSpace formControlName="detail"
-                                                class="w-full font-normal appearance-none block  rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                id="grid-last-name" type="text"
-                                                placeholder="Type / copy the item here." #inputTextArea></textarea>
-                                                <button type="button" (click)="applyFormatting(i,j, inputTextArea)"
-                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg">B</button>
+                                                class="w-full font-normal appearance-none block rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                id="grid-last-name" type="text" placeholder="Type / copy the item here."
+                                                #inputTextArea (select)="checkTextSelection(inputTextArea)"></textarea>
+                                            <div class="h-5 w-full ">
+                                                <button *ngIf="isTextSelected" type="button" [@fadeInOut]
+                                                    (click)="applyFormatting(i, j, inputTextArea)"
+                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                                    matTooltip="Bold" matTooltipPosition="above">B</button>
+
+                                                <button type="button" *ngIf="isTextSelected" (click)="applyHighlighter(i, j, inputTextArea)" [@fadeInOut]
+                                                    class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                                    matTooltip="Highlight" matTooltipPosition="above">H</button>
+                                            </div>
                                         </td>
+
+
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && submit"
                                             class="border px-2 py-2 text-center">
                                             <input appNoLeadingSpace formControlName="quantity"
@@ -199,9 +216,10 @@
                         </ng-container>
                     </tbody>
                 </table>
-                
+
                 <div class="w-full flex justify-start items-center mt-3 gap-3">
-                    <button type="button" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+                    <button type="button"
+                        class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
                         (click)="addItemFormGroup()">
                         + Add Item
                     </button>
@@ -215,7 +233,8 @@
                         Customer Notes
                     </label>
                     <ng-select [class.border-red-500]="f['customerNote'].invalid && submit" class="form border"
-                        placeholder="Default Customer Note" appendTo="body" bindLabel="note" formControlName="defaultNote">
+                        placeholder="Default Customer Note" appendTo="body" bindLabel="note"
+                        formControlName="defaultNote">
                         <ng-option *ngFor="let note of customerNotes" [value]="note">{{note}}</ng-option>
                     </ng-select>
                     <textarea appNoLeadingSpace formControlName="customerNote"
@@ -230,7 +249,8 @@
                         Terms and Conditions
                     </label>
                     <ng-select [class.border-red-500]="f['termsAndCondition'].invalid && submit" class="form border"
-                        placeholder="Default Terms & Condition" appendTo="body" bindLabel="terms" formControlName="defaultNote">
+                        placeholder="Default Terms & Condition" appendTo="body" bindLabel="terms"
+                        formControlName="defaultNote">
                         <ng-option *ngFor="let terms of termsAndConditions" [value]="terms">{{terms}}</ng-option>
                     </ng-select>
                     <textarea appNoLeadingSpace formControlName="text"
@@ -286,7 +306,10 @@
                                 Discount
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                <input [class.border-red-500]="f['totalDiscount'].invalid && submit" type="number" appNegativeNumber appNoLeadingSpace name="" id="" class="text-center border outline-none px-2 py-2 w-4/5" formControlName="totalDiscount">
+                                <input [class.border-red-500]="f['totalDiscount'].invalid && submit" type="number"
+                                    appNegativeNumber appNoLeadingSpace name="" id=""
+                                    class="text-center border outline-none px-2 py-2 w-4/5"
+                                    formControlName="totalDiscount">
                             </td>
                         </tr>
                         <tr class=" border-b ">

@@ -353,22 +353,51 @@ export class CreateQuotatationComponent {
     console.log(this.quoteForm.value)
   }
 
-  applyFormatting(i: number,j:number, textarea: HTMLTextAreaElement): void {
+  applyFormatting(i: number, j: number, textarea: HTMLTextAreaElement): void {
     const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
     let currentValue = control.value;
     const selectionStart = textarea.selectionStart;
     const selectionEnd = textarea.selectionEnd;
+    if (selectionStart === selectionEnd) return;
 
     const selectedText = currentValue.substring(selectionStart, selectionEnd);
-    const escapedText = selectedText.replace(/\\/g, '\\\\'); 
-    let formattedText = `**${escapedText}**`;
 
-    formattedText = formattedText.replace(/\n/g, ' ');
+    const isBold = /^\*{2}.*\*{2}$/.test(selectedText);
 
-    const newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+    let newText: string;
+    if (isBold) {
+      newText = currentValue.substring(0, selectionStart) + selectedText.substring(2, selectedText.length - 2) + currentValue.substring(selectionEnd);
+    } else {
+      const escapedText = selectedText.replace(/\\/g, '\\\\');
+      const formattedText = `**${escapedText}**`.replace(/\n/g, ' ');
+      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+    }
 
     control.setValue(newText);
-}
+  }
+
+  applyHighlighter(i: number, j: number, textarea: HTMLTextAreaElement): void {
+    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
+    let currentValue = control.value;
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    if (selectionStart === selectionEnd) return;
+
+    const selectedText = currentValue.substring(selectionStart, selectionEnd);
+
+    const isBold = /^\{.*\}$/.test(selectedText);
+
+    let newText: string;
+    if (isBold) {
+      newText = currentValue.substring(0, selectionStart) + selectedText.substring(1, selectedText.length - 1) + currentValue.substring(selectionEnd);
+    } else {
+      const escapedText = selectedText.replace(/\\/g, '\\\\');
+      const formattedText = `{${escapedText}}`.replace(/\n/g, ' ');
+      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
+    }
+
+    control.setValue(newText);
+  }
 
 
 

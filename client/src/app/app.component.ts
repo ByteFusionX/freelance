@@ -64,6 +64,7 @@ export class AppComponent implements OnDestroy, OnInit {
 
   isUserThere() {
     this.employeeToken = localStorage.getItem('employeeToken');
+    this.getCelebData()
   }
 
   getCelebData() {
