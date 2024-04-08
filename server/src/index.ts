@@ -15,6 +15,7 @@ import startCronJob from './service/cronService'
 import quoteRouter from './routes/quotation.router';
 import fileRouter from './routes/file.router'
 import TokenLogger from './common/middlewares/jwt.middleware';
+import jobRouter from './routes/job.router';
 import catRouter from './routes/category.router';
 
 
@@ -45,6 +46,7 @@ app.use('/celebrationCheck', celebRouter)
 app.use('/quotation', quoteRouter)
 app.use('/category', catRouter)
 app.use('/file', fileRouter)
+app.use('/job',jobRouter)
 
 mongoose
 	.connect(process.env.MONGODB_URL as string)

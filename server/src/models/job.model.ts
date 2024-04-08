@@ -3,6 +3,7 @@ import { Schema, Document, model, Types } from "mongoose";
 interface Job extends Document {
     quoteId: Types.ObjectId;
     jobId: string;
+    lpo:Number;
     status: string;
     createdDate: Date;
     lpoValue:Number;
