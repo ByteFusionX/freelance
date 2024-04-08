@@ -1,5 +1,36 @@
+import { Department } from "./department.interface";
+
 export interface getEmployee {
     _id?: string;
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    designation: string;
+    dob: string;
+    department: string;
+    contactNo: number | string;
+    category: GetCategory;
+    dateOfJoining: string;
+    reportingTo: string | null | undefined;
+}
+
+export interface getEmployeeDetails {
+    _id?: string;
+    employeeId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    designation: string;
+    dob: string;
+    department: Department;
+    contactNo: number | string;
+    category: GetCategory;
+    dateOfJoining: string;
+    reportingTo: getEmployee;
+}
+
+export interface CreateEmployee {
     employeeId: string;
     firstName: string;
     lastName: string;
@@ -11,7 +42,7 @@ export interface getEmployee {
     category: string;
     dateOfJoining: string;
     reportingTo: string | null | undefined;
-    userRole: string;
+    createdBy: string | undefined;
 }
 
 export interface getCreators {
@@ -29,3 +60,42 @@ export interface FilterEmployee {
     row: number;
     search: string;
 }
+
+export interface GetCategory {
+    _id?:string;
+    categoryName:string;
+    role:string;
+    privileges:Privileges;
+}
+
+export interface Privileges {
+    dashboard: {
+      viewReport: string;
+    };
+    employee: {
+      viewReport: string;
+      create: boolean;
+    };
+    announcement: {
+      viewReport: string;
+      create: boolean;
+    };
+    customer: {
+      viewReport: string;
+      create: boolean;
+    };
+    enquiry: {
+      viewReport: string;
+      create: boolean;
+    };
+    assignedJob: {
+      viewReport: string;
+    };
+    quotation: {
+      viewReport: string;
+      create: boolean;
+    };
+    jobSheet: {
+      viewReport: string;
+    };
+  }

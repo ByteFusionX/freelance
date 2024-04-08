@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import Customer from '../models/customer.model'
+import Customer from '../models/customer.model';
+import Employee from '../models/employee.model';
 const { ObjectId } = require('mongodb')
 
 
@@ -18,7 +19,7 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
 
 export const getFilteredCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, createdBy } = req.body;
+        let { page, row, createdBy, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
         let isCreatedBy = createdBy == null ? true : false;
 
@@ -27,10 +28,39 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
             $or: [{ createdBy: new ObjectId(createdBy) }, { createdBy: { $exists: isCreatedBy } }]
         }
 
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+
+
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+        
         let total: number = 0;
         await Customer.aggregate([
             {
-                $match: matchFilters
+                $match: filters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -47,7 +77,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
 
         const customerData = await Customer.aggregate([
             {
-                $match: matchFilters,
+                $match: filters,
             },
             {
                 $sort: { createdDate: 1 }
@@ -72,7 +102,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
             },
         ]);
         if (!customerData || !total) return res.status(204).json({ err: 'No enquiry data found' })
-        return res.status(200).json({ total: total, customers : customerData })
+        return res.status(200).json({ total: total, customers: customerData })
 
     } catch (error) {
         next(error)

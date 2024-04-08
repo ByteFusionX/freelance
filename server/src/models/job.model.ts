@@ -6,6 +6,7 @@ interface Job extends Document {
     lpo:Number;
     status: string;
     createdDate: Date;
+    lpoValue:Number;
     files:[];
 }
 
@@ -30,9 +31,10 @@ const jobSchema = new Schema<Job>({
         required: true,
         unique: true,
     },
-    lpo:{
-        type:Number,
-        default:0
+    lpoValue: {
+        type: Number,
+        required: true,
+        unique: true,
     },
     status: {
         type: String,

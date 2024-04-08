@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express"
-import enquiryModel from "../models/enquiry.model"
-import { Enquiry } from "../interface/enquiry.interface"
+import enquiryModel from "../models/enquiry.model";
+import Employee from '../models/employee.model';
+import Department from '../models/department.model';
+import { Enquiry } from "../interface/enquiry.interface";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -10,20 +12,70 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         const presaleFiles = req.files.presaleFiles
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
+        let enqId: string = await generateEnquiryId(enquiryData.department, enquiryData.salesPerson, enquiryData.date as string);
+        console.log(enqId);
+        enquiryData.enquiryId = enqId;
         enquiryData.attachments = []
         if (enquiryFiles) {
             enquiryData.attachments = enquiryFiles
         }
 
-        if (presaleFiles) {
-            enquiryData.preSale.presaleFiles = presaleFiles
+        if (req.body.presalePerson) {
+            const presalePerson = JSON.parse(req.body.presalePerson)
+            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
+            if (presaleFiles) {
+                enquiryData.preSale.presaleFiles = presaleFiles
+            }
         }
 
         enquiryData.date = new Date(enquiryData.date)
         const newEnquiry = new enquiryModel(enquiryData)
-        const saveEnquiryData = await (await newEnquiry.save()).populate(['client', 'department', 'salesPerson'])
-        if (!saveEnquiryData) return res.status(504).json({ err: 'Internal Error' })
-        return res.status(200).json(newEnquiry)
+        const saveEnquiryData = await newEnquiry.save()
+        if (!saveEnquiryData) return res.status(504).json({ err: 'Internal Error' });
+
+        const savedEnquiryData = await enquiryModel.aggregate([
+            {
+                $match: { "_id" : saveEnquiryData._id }
+            },
+            {
+                $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
+            },
+            {
+                $unwind: '$client'
+            },
+            {
+                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $unwind: '$department'
+            },
+            {
+                $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+            },
+            {
+                $unwind: '$salesPerson'
+            },
+            {
+                $addFields: {
+                    contact: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$client.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$contact']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
+        ]);
+
+        return res.status(200).json(savedEnquiryData[0]);
     } catch (error) {
         next(error)
     }
@@ -31,7 +83,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, status, fromDate, toDate, department } = req.body;
+        let { page, row, salesPerson, status, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
         let isSalesPerson = salesPerson == null ? true : false;
         let isStatus = status == null ? true : false;
@@ -54,9 +106,36 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             ]
         }
 
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { salesPerson: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { salesPerson: new ObjectId(userId) },
+                        { salesPerson: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+
         const enquiryTotal: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: matchFilters
+                $match: filters
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -68,7 +147,10 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
 
         const enquiryData = await enquiryModel.aggregate([
             {
-                $match: matchFilters
+                $match: filters
+            },
+            {
+                $match: { status: { $ne: 'Quoted' } } 
             },
             {
                 $sort: { createdDate: -1 }
@@ -83,11 +165,38 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
             },
             {
+                $unwind: '$client'
+            },
+            {
                 $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $unwind: '$department'
             },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
+            {
+                $unwind: '$salesPerson'
+            },
+            {
+                $addFields: {
+                    contact: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$client.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$contact']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
         ]);
 
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
@@ -103,10 +212,20 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let page = Number(req.query.page)
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
+        let { access, userId } = req.query;
+        let accessFilter: any = { status: 'Assigned To Presales' };
+
+        switch (access) {
+            case 'assigned':
+                accessFilter = { "preSale.presalePerson": userId };
+                break;
+            default:
+                break;
+        }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: { status: 'Assigned To Presales' }
+                $match: accessFilter
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -116,10 +235,17 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const preSaleData = await enquiryModel.aggregate([
             {
-                $match: { status: 'Assigned To Presales' }
+                $match: accessFilter
             },
             {
-                $sort: { createdDate: -1 }
+                $addFields: {
+                    lastNumber: {
+                        $toInt: { $arrayElemAt: [{ $split: ["$enquiryId", "-"] }, -1] }
+                    }
+                }
+            },
+            {
+                $sort: { lastNumber: -1 }
             },
             {
                 $skip: skipNum
@@ -158,7 +284,36 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
 
 export const totalEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let { access, userId } = req.query;
+
+        let accessFilter = {};
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { salesPerson: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { salesPerson: new ObjectId(userId) },
+                        { salesPerson: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
         const result = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
             {
                 $lookup: {
                     from: 'departments',
@@ -189,7 +344,35 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
 
 export const monthlyEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let { access, userId } = req.query;
+
+        let accessFilter = {};
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { salesPerson: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { salesPerson: new ObjectId(userId) },
+                        { salesPerson: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
         const result = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
             {
                 $project: {
                     department: 1,
@@ -247,5 +430,54 @@ export const uploadAssignFiles = async (req: any, res: Response, next: NextFunct
         return res.status(200).json(enquiryData)
     } catch (error) {
         next(error)
+    }
+}
+
+const generateEnquiryId = async (departmentId: string, employeeId: string, date: string) => {
+    try {
+        const lastEnquiry = await enquiryModel.aggregate([
+            {
+                $match: {
+                    enquiryId: { $exists: true }
+                }
+            },
+            {
+                $addFields: {
+                    lastNumber: {
+                        $toInt: { $arrayElemAt: [{ $split: ["$enquiryId", "-"] }, -1] }
+                    }
+                }
+            },
+            {
+                $sort: { lastNumber: -1 }
+            },
+            {
+                $limit: 1
+            }
+        ])
+
+        const department = await Department.findById(departmentId);
+        const employee = await Employee.findById(employeeId);
+        let quoteId: string;
+
+        if (employee && department) {
+            const salesId = `${employee.firstName[0]}${employee.lastName[0]}`;
+            const departmentName = department.departmentName.split(' ')[0].replace(/\s/g, "").toUpperCase().slice(0, 4);
+
+            const [year, month] = date.split('-');
+            const formatedDate = `${month}/${year.substring(2)}`;
+
+            if (lastEnquiry) {
+                const lastNumber = lastEnquiry[0].lastNumber;
+                const incrementedNum = parseInt(lastNumber) + 1;
+                const formattedIncrementedNum = String(incrementedNum).padStart(3, '0');
+                quoteId = `ENQ-NT/${salesId}/${departmentName}-${formatedDate}-${formattedIncrementedNum}`
+            } else {
+                quoteId = `ENQ-NT/${salesId}/${departmentName}-${formatedDate}-001`
+            }
+        }
+        return quoteId;
+    } catch (error) {
+        console.log(error)
     }
 }

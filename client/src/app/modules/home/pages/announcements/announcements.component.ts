@@ -5,6 +5,7 @@ import { AnnouncementService } from 'src/app/core/services/announcement/announce
 import { Subscription } from 'rxjs';
 import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 
 
@@ -14,14 +15,23 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
-  constructor(public dialog: MatDialog, private _service: AnnouncementService,private toaster:ToastrService) { }
+  isLoading: boolean = true;
+  isEmpty: boolean = false;
+  createAnnouncement:boolean | undefined = false;
+
   mySubscription!: Subscription
   announcementData: announcementGetData[] = []
   recentData!: announcementGetData
-  isLoading: boolean = true
-  isEmpty : boolean = false
 
+  constructor(
+    public dialog: MatDialog,
+    private _service: AnnouncementService,
+    private toaster: ToastrService,
+    private _employeeService: EmployeeService,
+  ) { }
+  
   ngOnInit(): void {
+    this.checkPermission()
     this.getAnnouncementData()
   }
 
@@ -30,7 +40,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
 
     this.mySubscription = dialogRef.afterClosed().subscribe(result => {
       this.getAnnouncementData()
-      this.toaster.success('Announcement added!','Success')
+      this.toaster.success('Announcement added!', 'Success')
     });
   }
 
@@ -50,6 +60,11 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
     return item._id;
   }
 
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createAnnouncement = data?.category.privileges.announcement.create
+    })
+  }
 
   ngOnDestroy(): void {
     this.mySubscription.unsubscribe()

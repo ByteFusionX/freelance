@@ -1,8 +1,14 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 import { getEmployee } from "./employee.interface";
+import { getEnquiry } from "./enquiry.interface";
 
-export interface quoteItem {
+export interface QuoteItem {
+    itemName: string;
+    itemDetails: QuoteItemDetail[]
+}
+
+export interface QuoteItemDetail {
     detail: string;
     quantity: number;
     unitCost: number;
@@ -19,14 +25,40 @@ export interface Quotatation {
     department: getDepartment;
     subject: string;
     currenct: string;
-    items: quoteItem[];
+    items: QuoteItem[];
     totalDiscount: number;
-    customerNote: string;
-    termsAndCondition: string;
+    customerNote: DefaultAndText;
+    termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
     status: QuoteStatus;
     lpoFiles:[];
     lpoSubmitted:boolean;
+    enqId:string;
+}
+
+export interface getQuotatation {
+    _id?: string;
+    quoteId?: string;
+    client: getCustomer;
+    attention: ContactDetail;
+    date: string;
+    department: getDepartment;
+    subject: string;
+    currenct: string;
+    items: QuoteItem[];
+    totalDiscount: number;
+    customerNote: DefaultAndText;
+    termsAndCondition: DefaultAndText;
+    createdBy: getEmployee;
+    status: QuoteStatus;
+    lpoFiles:[];
+    lpoSubmitted:boolean;
+    enqId:getEnquiry;
+}
+
+export interface DefaultAndText {
+    defaultNote: string;
+    text: string;
 }
 
 export interface getQuotation {
@@ -43,10 +75,10 @@ export interface quotatationForm {
     department: string | getDepartment | undefined;
     subject: string;
     currenct: string;
-    items: quoteItem[];
+    items: QuoteItem[];
     totalDiscount: number;
-    customerNote: string;
-    termsAndCondition: string;
+    customerNote: DefaultAndText;
+    termsAndCondition: DefaultAndText;
     createdBy: string | getEmployee | undefined;
     status: QuoteStatus;
 }

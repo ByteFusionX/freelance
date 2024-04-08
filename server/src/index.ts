@@ -16,11 +16,12 @@ import quoteRouter from './routes/quotation.router';
 import fileRouter from './routes/file.router'
 import TokenLogger from './common/middlewares/jwt.middleware';
 import jobRouter from './routes/job.router';
+import catRouter from './routes/category.router';
 
 
 const app: express.Application = express();
 
-app.use(morgan("tiny"));
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 startCronJob();
@@ -34,7 +35,7 @@ app.use(
 	})
 );
 
-app.use(TokenLogger)	
+app.use(TokenLogger)
 app.use('/', router);
 app.use('/department', depRouter)
 app.use('/employee', empRouter)
@@ -43,6 +44,7 @@ app.use('/customer', cusRouter)
 app.use('/enquiry', equiRouter)
 app.use('/celebrationCheck', celebRouter)
 app.use('/quotation', quoteRouter)
+app.use('/category', catRouter)
 app.use('/file', fileRouter)
 app.use('/job',jobRouter)
 
@@ -51,6 +53,8 @@ mongoose
 	.then(() => {
 		console.log("Database connected and Working  ");
 	});
+
+app.use('/uploads', express.static(__dirname + '/upload'));
 
 const port = process.env.PORT;
 app.listen(port, () => {

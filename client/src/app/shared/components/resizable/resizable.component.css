@@ -1,0 +1,32 @@
+
+
+.wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.content {
+  flex: 1;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  justify-self: flex-end;
+  background: rgb(26, 26, 26);
+  background-clip: content-box;
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity 0.3s;
+  height: 59px;
+}
+
+.bar:hover{
+    opacity: 1;
+}
+
+.bar:active{
+    opacity:1;
+}
