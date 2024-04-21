@@ -15,13 +15,13 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
+  createAnnouncement:boolean | undefined = false;
+  mySubscription!: Subscription;
+  announcementData: announcementGetData[] = [];
+  recentData!: announcementGetData;
   isLoading: boolean = true;
   isEmpty: boolean = false;
-  createAnnouncement:boolean | undefined = false;
-  mySubscription!: Subscription
-  announcementData: announcementGetData[] = []
-  recentData!: announcementGetData
-  
+
   total: number = 0;
   page: number = 1;
   row: number = 10;
@@ -36,7 +36,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   ) { }
   
   ngOnInit(): void {
-    this.checkPermission()
+    this.getAnnouncementData()
     this.mySubscription =
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -82,6 +82,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
       this.createAnnouncement = data?.category.privileges.announcement.create
     })
   }
+
 
   ngOnDestroy(): void {
     if (this.mySubscription) {
