@@ -1,4 +1,4 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="  border-b p-3 px-9 flex justify-between items-center">
         <h3 class="text-md font-medium">Customer - <span class="uppercase">{{customerData.companyName}}</span></h3>
         
@@ -64,6 +64,9 @@
                         <th scope="col" class="px-6 py-3 border">
                             Email
                         </th>
+                        <th scope="col" class="px-6 py-3 border">
+                            Phone No.
+                        </th>
                         
                     </tr>
                 </thead>
@@ -74,6 +77,9 @@
                         </td>
                         <td class="border px-6 py-3  font-medium text-gray-800 text-base">
                            {{contact.email}}
+                        </td>
+                        <td class="border px-6 py-3  font-medium text-gray-800 text-base">
+                           {{contact.phoneNo}}
                         </td>
                     </tr>
                     

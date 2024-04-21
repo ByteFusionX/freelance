@@ -23,6 +23,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  isFiltered: boolean = false;
+  createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
@@ -57,6 +59,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   })
 
   ngOnInit(): void {
+    this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.subscriptions.add(
       this._enquiryService.departmentData$.subscribe((data) => {
@@ -78,6 +81,14 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   }
 
   getEnquiries() {
+    this.isLoading = true;
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.enquiry.viewReport
+      userId = employee?._id
+    })
+
     let filterData = {
       page: this.page,
       row: this.row,
@@ -85,7 +96,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       status: this.selectedStatus,
       fromDate: this.fromDate,
       toDate: this.toDate,
-      department: this.selectedDepartment
+      department: this.selectedDepartment,
+      access: access,
+      userId: userId
     }
 
     this.subscriptions.add(
@@ -116,15 +129,25 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           this.total++
           this.isEmpty = false
           this.isLoading = false
-          result.client = [result.client]
-          result.department = [result.department]
-          result.salesPerson = [result.salesPerson]
+          result.client = result.client
+          result.department = result.department
+          result.salesPerson = result.salesPerson
           this.dataSource.data = [result, ...this.dataSource.data]
           this.enqId = result.enquiryId.slice(-3)
           this.toaster.success('Enquiry created successfully')
         }
       })
     }
+  }
+
+  onClear() {
+    this.isFiltered = false;
+    this.fromDate = null
+    this.toDate = null
+    this.selectedSalesPerson = null;
+    this.selectedDepartment = null;
+    this.selectedStatus = null;
+    this.getEnquiries()
   }
 
   handleNotClose(event: MouseEvent) {
@@ -142,10 +165,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this.fromDate = from
       this.toDate = to
     }
+    this.isFiltered = true;
     this.getEnquiries()
   }
 
   onfilterApplied() {
+    this.isFiltered = true;
     this.getEnquiries()
   }
 
@@ -157,6 +182,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }else{
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
     }
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createEnquiry = data?.category.privileges.enquiry.create
+    })
   }
 
   onPageNumberClick(event: { page: number, row: number }) {

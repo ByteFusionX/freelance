@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { CreateEmployee, GetCategory, getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { CreateCategoryComponent } from '../create-category/create-category.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-employee',
@@ -12,13 +15,17 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
   styleUrls: ['./create-employee.component.css']
 })
 export class CreateEmployeeDialog implements OnInit {
-  departments: getDepartment[] = [];
-  employees: getEmployee[] = [];
+  category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);
+  departments$!: Observable<getDepartment[]>;
+  employees$!: Observable<getEmployee[]>;
+
   selectedEmployee!: number;
   showPassword: boolean = false;
   passwordType: string = this.showPassword ? 'text' : 'password';
   showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
   isSaving: boolean = false;
+  canCreateCategory: boolean = false;
+  userRole: string = 'user';
 
   employeeForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -31,43 +38,61 @@ export class CreateEmployeeDialog implements OnInit {
     category: ['', Validators.required],
     dateOfJoining: ['', Validators.required],
     reportingTo: [''],
-    userRole: ['', Validators.required],
     password: ['', [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
   })
 
   constructor(
+    public dialog: MatDialog,
     public dialogRef: MatDialogRef<CreateEmployeeDialog>,
     private _fb: FormBuilder,
     private _profileService: ProfileService,
-    private _employeeService: EmployeeService
+    private _employeeService: EmployeeService,
+    private _toast: ToastrService
   ) { }
 
   ngOnInit() {
-    this.getDepartment()
-    this.getEmployee()
-  }
-
-  getDepartment() {
-    this._profileService.getDepartments().subscribe((res: getDepartment[]) => {
-      this.departments = res;
+    this.getCategory();
+    this.departments$ = this._profileService.getDepartments();
+    this.employees$ = this._employeeService.getAllEmployees();
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.userRole = data?.category.role as string;
+      if (data?.category.role == 'superAdmin') {
+        this.canCreateCategory = true;
+      }
     })
   }
 
-  getEmployee() {
-    this._employeeService.getAllEmployees().subscribe((res: getEmployee[]) => {
-      this.employees = res;
-    })
+  getCategory() {
+    this._employeeService.getCategory().subscribe(data => {
+      console.log(this.userRole)
+      let categories = data;
+      if (this.userRole == 'admin') {
+        categories = data.filter((value) => {
+          return value.role == 'admin' || value.role == 'user';
+        });
+      }else if(this.userRole == 'user'){
+        categories = data.filter((value) => {
+          return value.role == 'user'
+        })
+      }
+      this.category$.next(categories);
+    });
   }
 
   onSubmit() {
     if (this.employeeForm.valid) {
       this.isSaving = true;
+
+      let userId;
+      this._employeeService.employeeData$.subscribe((employee) => {
+        userId = employee?._id
+      })
+
       const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
-
       const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
+      const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
 
-      const employeeData: getEmployee = this.employeeForm.value as getEmployee;
-
+      employeeData.createdBy = userId;
       employeeData.reportingTo = reportingToValue;
 
       this._employeeService.createEmployees(employeeData).subscribe((data) => {
@@ -75,6 +100,21 @@ export class CreateEmployeeDialog implements OnInit {
         this.dialogRef.close(data)
       })
     }
+  }
+
+  createCategory() {
+    const dialogRef = this.dialog.open(CreateCategoryComponent, {
+      width: '100vh'
+    });
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data) {
+        const currentCategories = this.category$.getValue();
+        const updatedCategories = [...currentCategories, data];
+        this.category$.next(updatedCategories);
+
+        this._toast.success('Category Created Successfully')
+      }
+    });
   }
 
   onClose(): void {
