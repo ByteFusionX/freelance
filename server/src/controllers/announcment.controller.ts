@@ -3,28 +3,47 @@ import announcementModel from "../models/announcement.model";
 
 
 export const createAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { title, description, date } = req.body
-        const addAcnnouncement = new announcementModel({
-            title,
-            date,
-            description,
-            celeb:false
-        })
-        const saveAnnouncement = await addAcnnouncement.save()
-        if (saveAnnouncement) return res.status(200).json(true)
-        return res.status(502).json()
-    } catch (error) {
-        next(error);
-    }
+  try {
+    const { title, description, date } = req.body
+    const addAcnnouncement = new announcementModel({
+      title,
+      date,
+      description,
+      celeb: false
+    })
+    const saveAnnouncement = await addAcnnouncement.save()
+    if (saveAnnouncement) return res.status(200).json(true)
+    return res.status(502).json()
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const getAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const announcementData = await announcementModel.find().sort({ createdDate: -1 })
-        if (announcementData.length) return res.status(200).json(announcementData)
-        return res.status(202).json()
-    } catch (error) {
-        next(error)
+export const getAnnouncement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const page = Number(req.query.page);
+    const row = Number(req.query.row);
+    const skip = (page - 1) * row;
+
+    const pipeline: any[] = [
+      { $sort: { createdDate: -1 } },
+      { $skip: skip },
+      { $limit: row }
+    ];
+
+    // Count total number of announcements
+    const totalAnnouncements = await announcementModel.countDocuments();
+
+    const announcementData = await announcementModel.aggregate(pipeline);
+
+    if (!announcementData.length) {
+      res.status(204).json();
+    } else {
+      res.status(200).json({ total: totalAnnouncements, announcements: announcementData });
     }
-}
+  } catch (error) {
+    console.error('Error in getAnnouncement:', error);
+    next(error);
+  }
+};
+
