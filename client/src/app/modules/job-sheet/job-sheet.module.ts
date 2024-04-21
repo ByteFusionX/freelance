@@ -9,6 +9,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -23,8 +25,9 @@ import { FormsModule } from '@angular/forms';
     MatTableModule,
     MatMenuModule,
     NgSelectModule,
-    FormsModule
-
+    FormsModule,
+    MatTooltipModule,
+    MatProgressBarModule
   ]
 })
 export class JobSheetModule { }

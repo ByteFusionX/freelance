@@ -1,12 +1,22 @@
 import { Schema, Document, model, Types } from "mongoose";
 import { Customer } from "./customer.model";
 
-interface QuoteItem {
+interface QuoteItemDetail {
     detail: string;
     quantity: number;
     unitCost: number;
     profit: number;
     availability: string;
+}
+
+interface DefaultAndText {
+    defaultNote: string;
+    text: string;
+}
+
+interface QuoteItem {
+    itemName: string;
+    itemDetails: QuoteItemDetail[]
 }
 
 interface Quotation extends Document {
@@ -19,12 +29,13 @@ interface Quotation extends Document {
     currency: string;
     items: QuoteItem[];
     totalDiscount: number;
-    customerNote: string;
-    termsAndCondition: string;
+    customerNote: DefaultAndText;
+    termsAndCondition: DefaultAndText;
     status: string;
     createdBy: Types.ObjectId;
     lpoFiles: [];
     lpoSubmitted: boolean;
+    enqId: Types.ObjectId;
 }
 
 export enum quoteStatus {
@@ -37,7 +48,7 @@ export enum quoteStatus {
     Lost = 'Lost',
 }
 
-const quoteItemSchema = new Schema<QuoteItem>({
+const quoteItemDetailsSchema = new Schema<QuoteItemDetail>({
     detail: {
         type: String,
         required: true,
@@ -56,6 +67,17 @@ const quoteItemSchema = new Schema<QuoteItem>({
     },
     availability: {
         type: String,
+        required: true,
+    },
+});
+
+const quoteItem = new Schema<QuoteItem>({
+    itemName: {
+        type: String,
+        required: true,
+    },
+    itemDetails: {
+        type: [quoteItemDetailsSchema],
         required: true,
     },
 });
@@ -93,7 +115,7 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     items: {
-        type: [quoteItemSchema],
+        type: [quoteItem],
         required: true,
     },
     totalDiscount: {
@@ -101,11 +123,11 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     customerNote: {
-        type: String,
+        type: Object,
         required: true,
     },
     termsAndCondition: {
-        type: String,
+        type: Object,
         required: true,
     },
     status: {
@@ -122,7 +144,11 @@ const quotationSchema = new Schema<Quotation>({
     lpoSubmitted: {
         type: Boolean,
         default: false
-    }
+    },
+    enqId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Enquiry'
+    },
 });
 
 export default model<Quotation>("Quotation", quotationSchema);

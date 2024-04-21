@@ -59,7 +59,7 @@ const enquirySchema = new Schema<Enquiry>({
         default: Date.now()
     },
     attachments: [FilesSchema],
-    preSale: [preSaleSchema],
+    preSale: preSaleSchema,
     assignedFiles: [FilesSchema],
     enquiryId: {
         type: String,
@@ -70,6 +70,7 @@ const enquirySchema = new Schema<Enquiry>({
         type: String,
         required: true
     },
+
 });
 
 export default model<Enquiry>("Enquiry", enquirySchema);

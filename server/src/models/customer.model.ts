@@ -6,6 +6,7 @@ interface ContactDetail {
   firstName: string;
   lastName: string;
   email: string;
+  phoneNo: number;
 }
 
 export interface Customer extends Document {
@@ -35,6 +36,10 @@ const contactDetailSchema = new Schema({
     type: String,
     required: true,
   },
+  phoneNo: {
+    type:Number,
+  required:true
+  }
 });
 
 const customerSchema = new Schema<Customer>({

@@ -6,28 +6,64 @@
 
 @import "~@ng-select/ng-select/themes/default.theme.css";
 
-@font-face{
-    font-family: 'Jost, sans-serif';
-    src: url('./assets/font/static/Jost-Medium.ttf');
+@font-face {
+  font-family: 'Jost, sans-serif';
+  src: url('./assets/font/static/Jost-Regular.ttf');
 }
 
-html, body { height: 100%; }
-body,td,th { margin: 0; font-family: "Jost, sans-serif"; }
+@font-face {
+  font-family: 'Jost-semibold, sans-serif';
+  src: url('./assets/font/static/Jost-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: 'Jost-bold, sans-serif';
+  src: url('./assets/font/static/Jost-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Jost-medium, sans-serif';
+  src: url('./assets/font/static/Jost-Medium.ttf');
+}
+
+.font-semibold{
+  font-family: "Jost-semibold, sans-serif";
+}
+
+.font-bold{
+  font-family: "Jost-bold, sans-serif";
+}
+
+.font-medium{
+  font-family: "Jost-medium, sans-serif";
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body,
+td,
+th {
+  margin: 0;
+  font-family: "Jost, sans-serif";
+}
 
 .ng-select.form .ng-select-container {
-    height: 45px;
-    --tw-bg-opacity: 1;
-    background-color: rgb(229 231 235 / var(--tw-bg-opacity));
-    border: none;
+  height: 45px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+  border: none;
 }
 
 .ng-select.filter .ng-select-container {
-    height: 40px;
+  height: 40px;
 }
 
 .ng-select.filter-createdby .ng-select-container {
-    height: 40px;
-    font-size: 16px;
+  height: 40px;
+  font-size: 16px;
 }
 
 /* CSS to hide spin buttons */
@@ -38,25 +74,31 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
+  -moz-appearance: textfield;
+  /* Firefox */
 }
 
 .mat-tooltip {
   font-size: 12px;
 }
 
-@-webkit-keyframes rotating /* Safari and Chrome */ {
+@-webkit-keyframes rotating
+
+/* Safari and Chrome */
+  {
   from {
     -webkit-transform: rotate(0deg);
     -o-transform: rotate(0deg);
     transform: rotate(0deg);
   }
+
   to {
     -webkit-transform: rotate(360deg);
     -o-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotating {
   from {
     -ms-transform: rotate(0deg);
@@ -65,6 +107,7 @@ input[type="number"] {
     -o-transform: rotate(0deg);
     transform: rotate(0deg);
   }
+
   to {
     -ms-transform: rotate(360deg);
     -moz-transform: rotate(360deg);
@@ -80,4 +123,8 @@ input[type="number"] {
   -ms-animation: rotating 2s linear infinite;
   -o-animation: rotating 2s linear infinite;
   animation: rotating 2s linear infinite;
+}
+
+.highlighted-text {
+  color: orange !important;
 }

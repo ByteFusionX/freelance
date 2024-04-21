@@ -5,6 +5,9 @@ import { AnnouncementService } from 'src/app/core/services/announcement/announce
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+
+
 
 @Component({
   selector: 'app-announcements',
@@ -12,20 +15,28 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
-  constructor(public dialog: MatDialog, private _service: AnnouncementService, private toaster: ToastrService) { }
-  mySubscription!: Subscription;
-  announcementData: announcementGetData[] = [];
-  recentData!: announcementGetData;
   isLoading: boolean = true;
   isEmpty: boolean = false;
-
+  createAnnouncement:boolean | undefined = false;
+  mySubscription!: Subscription
+  announcementData: announcementGetData[] = []
+  recentData!: announcementGetData
+  
   total: number = 0;
   page: number = 1;
   row: number = 10;
 
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
+  constructor(
+    public dialog: MatDialog,
+    private _service: AnnouncementService,
+    private toaster: ToastrService,
+    private _employeeService: EmployeeService,
+  ) { }
+  
   ngOnInit(): void {
+    this.checkPermission()
     this.mySubscription =
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -64,6 +75,12 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   
   trackByIdFn(index: number, item: announcementGetData): string {
     return item._id;
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.createAnnouncement = data?.category.privileges.announcement.create
+    })
   }
 
   ngOnDestroy(): void {

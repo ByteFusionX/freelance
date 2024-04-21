@@ -1,8 +1,8 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white mx-5 mt-5 rounded-2x max-h-[calc(100vh-70px)]">
     <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
-            <h3>Quotations</h3>
+            <h3 class="font-semibold">Quotations</h3>
 
             <div class="flex justify-end gap-4 items-center">
 
@@ -91,120 +91,111 @@
                 <p class="m-2 text-center text-gray-500">No Data</p>
             </div>
         </div>
-        <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
-
-            <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
-
-            <!-- Position Column -->
-            <ng-container matColumnDef="slNo">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Sl No. </th>
-                <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
-            </ng-container>
-
-            <!-- Name Column -->
-            <ng-container matColumnDef="date">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
-                    Date </th>
-                <td mat-cell *matCellDef="let element"> {{element.date | date:'dd/MM/yyyy'}} </td>
-            </ng-container>
-
-            <!-- Creator Column -->
-            <ng-container matColumnDef="quoteId">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Quote Id </th>
-                <td mat-cell *matCellDef="let element"> <a (click)="onQuote(element)"
-                        class="underline text-purple-600 cursor-pointer">{{element.quoteId}}</a> </td>
-            </ng-container>
-
-            <!-- Department Column -->
-            <ng-container matColumnDef="customerName">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Customer Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.client.companyName}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="description">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Description </th>
-                <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="salesPerson">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Sales Person </th>
-                <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+' '+element.createdBy.lastName}}
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="department">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Department </th>
-                <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-                <th *matHeaderCellDef
-                    class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
-                    Status </th>
-                <td mat-cell *matCellDef="let element;let i= index" class="">
-                    <div (click)="onStatus(element.status)" *ngIf="element.status !== 'Won' && element.status !== 'Lost'" class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit"
-                        [matMenuTriggerFor]="beforeMenu" mat-button>
-                        <p class="mx-2 text-sm whitespace-nowrap">{{element.status}}</p>
-                        <div class="mt-1">
-                            <ng-icon name="heroChevronDown"></ng-icon>
-                        </div>
-                    </div>
-                    <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  ">
-                        <div class="" >
-                            <div  *ngFor="let status of quoteStatuses">
-                            <p  class="p-2 hover:bg-violet-200 cursor-pointer" *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
-                                {{status}}</p>
+        <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
+            <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+    
+                <!-- Name Column -->
+                <ng-container matColumnDef="date">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
+                        Date </th>
+                    <td mat-cell *matCellDef="let element"> {{element.date | date:'dd/MM/yyyy'}} </td>
+                </ng-container>
+    
+                <!-- Creator Column -->
+                <ng-container matColumnDef="quoteId">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Quote Id </th>
+                    <td mat-cell *matCellDef="let element"> <a 
+                            class="text-purple-600 font-medium">{{element.quoteId}}</a> </td>
+                </ng-container>
+    
+                <!-- Department Column -->
+                <ng-container matColumnDef="customerName">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Customer </th>
+                    <td mat-cell *matCellDef="let element"> {{element.client.companyName}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="description">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Description </th>
+                    <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="salesPerson">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Sales Person </th>
+                    <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+' '+element.createdBy.lastName}}
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="department">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department </th>
+                    <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="status">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
+                        Status </th>
+                    <td mat-cell *matCellDef="let element;let i= index" class="">
+                        <div (click)="onStatus($event,element.status)" *ngIf="element.status !== 'Won' && element.status !== 'Lost'" class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
+                            [matMenuTriggerFor]="beforeMenu" mat-button>
+                            <p class="mx-2 text-sm whitespace-nowrap">{{element.status}}</p>
+                            <div class="mt-1">
+                                <ng-icon name="heroChevronDown"></ng-icon>
                             </div>
-                            
                         </div>
-                    </mat-menu>
-                    <div class="w-full flex justify-center items-center">
-                        <p *ngIf="element.status === 'Won'"
-                            class="w-fit text-center bg-green-100 rounded-full px-5 text-green-600  py-1">
-                            {{element.status}}</p>
-                        <p *ngIf="element.status === 'Lost'"
-                            class="w-fit text-center bg-red-100 rounded-full px-5 text-red-600  py-1">
-                            {{element.status}}</p>
-                    </div>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="action">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[12px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
-                    Action </th>
-                <td mat-cell *matCellDef="let element;" class="">
-                    <div class="flex justify-end items-center gap-2">
-                        <div (click)="onClickLpo(element)" *ngIf="element.status == 'Won' && !element.lpoSubmitted "
-                            class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
-                            <ng-icon name="heroDocumentArrowUp"></ng-icon>
+                        <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto mat-elevation-z0 border">
+                            <div class="" >
+                                <div  *ngFor="let status of filteredStatuses(element.status)">
+                                <p  class="p-2 hover:bg-violet-200 cursor-pointer   px-[12px]  text-dark  text-[15px] " *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
+                                    {{status}}</p>
+                                </div>
+                                
+                            </div>
+                        </mat-menu>
+                        <div class="w-full flex justify-center items-center">
+                            <p *ngIf="element.status === 'Won'"
+                                class="w-fit text-center bg-green-100 rounded-full px-5 text-green-600  py-1">
+                                {{element.status}}</p>
+                            <p *ngIf="element.status === 'Lost'"
+                                class="w-fit text-center bg-red-100 rounded-full px-5 text-red-600  py-1">
+                                {{element.status}}</p>
                         </div>
-                        <div (click)="onQuoteEdit(element)"
-                            class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-gray-200">
-                            <ng-icon name="heroPencilSquare"></ng-icon>
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="action">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
+                        Action </th>
+                    <td mat-cell *matCellDef="let element;" class="">
+                        <div class="flex justify-end items-center gap-2">
+                            <div (click)="onClickLpo(element,$event)" *ngIf="element.status == 'Won' && !element.lpoSubmitted "
+                                class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
+                                <ng-icon name="heroDocumentArrowUp"></ng-icon>
+                            </div>
+                            <div (click)="onQuoteEdit(element,$event)"
+                                class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-white">
+                                <ng-icon name="heroPencilSquare"></ng-icon>
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-        <div class="w-full bg-white" *ngIf="!isEmpty && !isLoading">
+                    </td>
+                </ng-container>
+    
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index" class="cursor-pointer hover:bg-gray-100"  (click)="onRowClicks(i)"></tr>
+            </table>
+        </section>
+        <div class="w-full bg-white" *ngIf="!isEmpty">
             <app-pagination [page]="page" [row]="row" [total]="total"
                 (changeData)="onPageNumberClick($event)"></app-pagination>
         </div>

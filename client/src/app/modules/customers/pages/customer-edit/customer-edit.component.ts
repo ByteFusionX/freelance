@@ -6,7 +6,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ToastrService } from 'ngx-toastr';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import {  getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 
 @Component({
   selector: 'app-customer-edit',
@@ -18,7 +18,8 @@ export class CustomerEditComponent {
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
   customerData!: getCustomer;
-  initalLength:number = 0;
+  initalLength: number = 0;
+  isSaving: boolean = false;
 
   constructor(
     private _fb: FormBuilder,
@@ -27,7 +28,7 @@ export class CustomerEditComponent {
     private _employeeService: EmployeeService,
     private _router: Router,
     private toastr: ToastrService
-  ) { 
+  ) {
     this.getCustomerData()
     this.getDepartment()
   }
@@ -41,7 +42,8 @@ export class CustomerEditComponent {
           courtesyTitle: ['', Validators.required],
           firstName: ['', Validators.required],
           lastName: ['', Validators.required],
-          email: ['', [Validators.required, Validators.email]]
+          email: ['', [Validators.required, Validators.email]],
+          phoneNo: ['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
@@ -89,6 +91,7 @@ export class CustomerEditComponent {
 
   onSubmit(): void {
     this.isSubmitted = true;
+    this.isSaving = true;
     let userId = this._employeeService.employeeToken().id;
     this.customerForm.patchValue({ createdBy: userId })
     if (this.customerForm.valid) {
@@ -100,7 +103,8 @@ export class CustomerEditComponent {
         this._router.navigate(['/customers'])
       })
     } else {
-      this.toastr.warning('Check the fields properly!', 'Warning !')
+      this.toastr.warning('Check the fields properly!', 'Warning !');
+      this.isSaving = false;
     }
   }
 
@@ -109,7 +113,8 @@ export class CustomerEditComponent {
       courtesyTitle: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      phoneNo: ['', [Validators.required]]
     }));
   }
 

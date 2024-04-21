@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inject, NgZone, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NgSelectConfig } from '@ng-select/ng-select';
@@ -9,7 +9,7 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { AssignPresaleComponent } from '../assign-presale/assign-presale.component';
 import { Observable, Subscription } from 'rxjs';
 import { fileEnterState } from '../enquiry-animations';
-import { Enquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Enquiry, Presale } from 'src/app/shared/interfaces/enquiry.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Router } from '@angular/router';
@@ -35,9 +35,13 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   selectedFiles: any[] = []
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
-  submit: boolean = false
+  submit: boolean = false;
+  preSaleFiles!: Presale;
+  preSaleButton: string = 'Assign To Preslase'
 
-  formData: FormData = new FormData()
+  isSaving: boolean = false;
+  isQuoting: boolean = false;
+
   today = new Date().toISOString().substring(0, 10)
   enquiryForm = this._fb.group({
     client: [undefined, Validators.required],
@@ -48,7 +52,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     date: [this.today, Validators.required],
     attachments: [],
     presale: [],
-    enquiryId: '',
     status: 'Work In Progress'
   })
 
@@ -63,9 +66,10 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.config.notFoundText = 'Wait a few Sec';
+    this.config.notFoundText = 'Select a client first..';
   }
 
   ngOnInit(): void {
@@ -76,11 +80,12 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.createFormData()
     this.subscriptions.unsubscribe()
   }
 
   onChange(change: string) {
+    this.contacts = []
+    this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {
       this.subscriptions.add(this.customers$.subscribe((data) => {
         let customer = data.find((contact) => contact._id == change)
@@ -89,6 +94,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
         }
       }))
     } else {
+      this.config.notFoundText = 'Select a client first..';
       this.contacts = []
       this.enquiryForm.controls.contact.setValue(undefined)
     }
@@ -114,49 +120,47 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     this.fileInput.nativeElement.value = '';
   }
 
-  generateId() {
-    this.data = String(Number(this.data) + 1).padStart(3, '0')
-    let contactId = this.enquiryForm.controls.contact.value
-    let contact = <ContactDetail>this.contacts.find(data => data._id == contactId)
-    let name = contact.firstName[0].toUpperCase() + contact.lastName[0].toUpperCase()
 
-    let formDate = <string>this.enquiryForm.controls.date.value
-    const [year, month] = formDate.split('-');
-    let date = `-${month}/${year.slice(2)}`
-    return ['ENQ-NT', name, this.selectedDep + '' + date + '-' + this.data].join('/')
-  }
+  setUpFormData(): FormData {
+    let formData = new FormData();
 
-  setUpFormData() {
-    let enqId = this.generateId()
-    this.enquiryForm.controls.enquiryId.setValue(enqId)
     this.enquiryForm.controls.salesPerson.setValue(this.tokenData.id)
     let data = this.enquiryForm.value as Partial<Enquiry>
+
+    formData.append('enquiryData', JSON.stringify(data));
     for (let i = 0; i < this.selectedFiles.length; i++) {
-      this.formData.append('attachments', (this.selectedFiles[i] as Blob))
+      formData.append('attachments', (this.selectedFiles[i] as Blob))
     }
-    this.formData.append('enquiryData', JSON.stringify(data))
+
+    if (this.preSaleFiles) {
+      formData.append('presalePerson', JSON.stringify(this.preSaleFiles.presalePerson));
+      for (let i = 0; i < this.preSaleFiles.presaleFile.length; i++) {
+        formData.append('presaleFiles', (this.preSaleFiles.presaleFile[i] as Blob))
+      }
+    }
+
+    return formData;
   }
 
   onSubmit() {
-    this.submit = true
+    this.submit = true;
+    this.isSaving = true;
     if (this.enquiryForm.valid) {
-      this.setUpFormData()
+      const formData = this.setUpFormData()
       this.subscriptions.add(
-        this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+        this._enquiryService.createEnquiry(formData).subscribe((data) => {
           if (data) {
-            this.createFormData()
+            this.isSaving = false
             this.dialogRef.close(data)
           }
         })
       )
-    }else{
+    } else {
+      this.isSaving = false
       this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 
-  createFormData() {
-    this.formData = new FormData()
-  }
 
   onClose() {
     this.dialogRef.close()
@@ -172,14 +176,15 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
         if (data.clear) {
+          this.preSaleButton = `Assign To Presale`
+          this.cdr.detectChanges();
           this.enquiryForm.controls.status.setValue('Work In Progress')
           this.enquiryForm.controls.presale.setValue(null)
         } else {
           this.enquiryForm.controls.presale.setValue(data)
-          this.formData.append('presalePerson', JSON.stringify(data.presalePerson))
-          for (let i = 0; i < data.presaleFile.length; i++) {
-            this.formData.append('presaleFiles', (data.presaleFile[i] as Blob))
-          }
+          this.preSaleFiles = data;
+          this.preSaleButton = `Assigned To ${data.presalePersonName}`;
+          this.cdr.detectChanges();
           this.enquiryForm.controls.status.setValue('Assigned To Presales')
         }
       }
@@ -187,17 +192,24 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onClickQuote() {
+    this.submit = true;
+    this.isQuoting = true;
     if (this.enquiryForm.valid) {
-      this.setUpFormData()
+      const formData = this.setUpFormData()
       this.subscriptions.add(
-        this._enquiryService.createEnquiry(this.formData).subscribe((data) => {
+        this._enquiryService.createEnquiry(formData).subscribe((data) => {
           if (data) {
+            console.log(data)
             this._enquiryService.emitToQuote(data)
+            this.isQuoting = false;
             this.dialogRef.close()
             this.router.navigate(['/quotations/create'])
           }
         })
       )
+    } else {
+      this.isQuoting = false;
+      this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 

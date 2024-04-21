@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
-import { FormBuilder,  FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import {  Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
@@ -19,15 +19,17 @@ import { announcementPostData } from 'src/app/shared/interfaces/announcement.int
   imports: [CommonModule, IconsModule, directiveSharedModule, ReactiveFormsModule, FormsModule],
 })
 export class AddAnnouncementComponent implements OnDestroy {
-  constructor(public dialogRef: MatDialogRef<CreateCustomerDialog>, private fb: FormBuilder, private _service: AnnouncementService ,  private toastr: ToastrService) { }
-
+  submit: boolean = false;
+  isSaving:boolean = false;
 
   private mySubscription!: Subscription;
-  submit: boolean = false
 
-  onClose(): void {
-    this.dialogRef.close();
-  }
+  constructor(
+    public dialogRef: MatDialogRef<CreateCustomerDialog>,
+    private fb: FormBuilder,
+    private _service: AnnouncementService,
+    private toastr: ToastrService
+  ) { }
 
   formData = this.fb.group({
     title: ['', Validators.required],
@@ -35,10 +37,9 @@ export class AddAnnouncementComponent implements OnDestroy {
     date: [null, Validators.required]
   })
 
-
-
   onSubmit() {
     this.submit = true
+    this.isSaving = true;
     if (this.formData.valid) {
       const data: announcementPostData = {
         title: this.formData.value.title as string,
@@ -50,13 +51,18 @@ export class AddAnnouncementComponent implements OnDestroy {
           this.dialogRef.close()
         }
       })
-    }else {
+    } else {
+      this.isSaving = false;
       this.toastr.warning('Check the fields properly!', 'Warning !')
     }
   }
 
   get f() {
     return this.formData.controls;
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 
 

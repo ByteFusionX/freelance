@@ -7,6 +7,7 @@ import { concatMap, from, interval, take, switchMap, takeUntil, Subscription } f
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CelebrationDialogComponent } from './shared/components/celebration-dialog/celebration-dialog.component';
 import { Subject } from 'rxjs';
+import { EmployeeService } from './core/services/employee/employee.service';
 
 @Component({
   selector: 'app-root',
@@ -20,16 +21,20 @@ export class AppComponent implements OnDestroy, OnInit {
   loginRouter: boolean = false;
   dialogRef: MatDialogRef<CelebrationDialogComponent> | undefined;
   employeeToken: string | null = null;
+  employee!: { id: string, employeeId: string };
+
   private destroy$ = new Subject<void>();
   private subscriptions: Subscription = new Subscription()
 
+
   constructor(
+    private _employeeService: EmployeeService,
     private route: ActivatedRoute,
     private _service: celebCheckService,
     private dialog: MatDialog,
     private router: Router
   ) { }
-  
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -37,6 +42,7 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
+
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.loginRouter = this.isLoginRoute();
@@ -45,7 +51,6 @@ export class AppComponent implements OnDestroy, OnInit {
         }
       }
     });
-
   }
 
   reduceSideBar(event: boolean) {
@@ -53,12 +58,13 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   isLoginRoute(): boolean {
-    return this.route.snapshot.firstChild?.routeConfig?.path === 'login';
+    const employeeToken = localStorage.getItem('employeeToken');
+    return (employeeToken === null || employeeToken === undefined) || this.route.snapshot.firstChild?.routeConfig?.path === 'login';
   }
 
   isUserThere() {
     this.employeeToken = localStorage.getItem('employeeToken');
-    this.getCelebData();
+    this.getCelebData()
   }
 
   getCelebData() {
@@ -90,11 +96,11 @@ export class AppComponent implements OnDestroy, OnInit {
                 }),
                 takeUntil(this.destroy$)
               ).subscribe();
-              this._service.markTodaysBirthdaysAsViewed();
             }
           })
         )
       }
+      this._service.markTodaysBirthdaysAsViewed();
     }
   }
 
