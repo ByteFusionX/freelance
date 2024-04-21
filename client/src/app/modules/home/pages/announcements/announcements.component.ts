@@ -2,11 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddAnnouncementComponent } from './add-announcement/add-announcement.component';
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { announcementGetData } from 'src/app/shared/interfaces/announcement.interface';
 import { ToastrService } from 'ngx-toastr';
-
-
 
 @Component({
   selector: 'app-announcements',
@@ -14,15 +12,27 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./announcements.component.css']
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit {
-  constructor(public dialog: MatDialog, private _service: AnnouncementService,private toaster:ToastrService) { }
-  mySubscription!: Subscription
-  announcementData: announcementGetData[] = []
-  recentData!: announcementGetData
-  isLoading: boolean = true
-  isEmpty : boolean = false
+  constructor(public dialog: MatDialog, private _service: AnnouncementService, private toaster: ToastrService) { }
+  mySubscription!: Subscription;
+  announcementData: announcementGetData[] = [];
+  recentData!: announcementGetData;
+  isLoading: boolean = true;
+  isEmpty: boolean = false;
+
+  total: number = 0;
+  page: number = 1;
+  row: number = 10;
+
+  private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
   ngOnInit(): void {
-    this.getAnnouncementData()
+    this.mySubscription =
+      this.subject.subscribe((data) => {
+        this.page = data.page
+        this.row = data.row
+        this.getAnnouncementData()
+      }
+      )
   }
 
   openDialog() {
@@ -30,29 +40,39 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
 
     this.mySubscription = dialogRef.afterClosed().subscribe(result => {
       this.getAnnouncementData()
-      this.toaster.success('Announcement added!','Success')
+      this.toaster.success('Announcement added!', 'Success')
     });
   }
 
   getAnnouncementData() {
-    this.mySubscription = this._service.getAnnouncment().subscribe((res) => {
-      if (res)
-        this.isLoading = false
-      this.announcementData = res
-      this.recentData = this.announcementData.shift() as announcementGetData
+    this.mySubscription = this._service.getAnnouncment(this.page, this.row).subscribe((res: { total: number, announcements: announcementGetData[] }) => {
+      if (res ) {
+        this.isLoading = false;
+        this.announcementData = res.announcements;
+        this.total = res.total;
+        if (this.announcementData.length > 0) {
+          this.recentData = this.announcementData[0];
+          this.announcementData.shift();
+        } else {
+          this.isEmpty = true;
+        }
+      }
     }, (error) => {
-      this.isEmpty = true
-    }
-    )
+      this.isEmpty = true;
+    });
   }
-
+  
   trackByIdFn(index: number, item: announcementGetData): string {
     return item._id;
   }
 
-
   ngOnDestroy(): void {
-    this.mySubscription.unsubscribe()
+    if (this.mySubscription) {
+      this.mySubscription.unsubscribe();
+    }
   }
 
+  onPageNumberClick(event: { page: number, row: number }) {
+    this.subject.next(event)
+  }
 }

@@ -12,7 +12,8 @@
     </div>
     <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
 
-    <div *ngIf="recentData || announcementData.length">
+    <div *ngIf="recentData || (announcementData !== null && announcementData.length > 0)">
+
         <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
             <div *ngIf="recentData.celeb" class="confetti-container">
                 <app-confetti-component></app-confetti-component>
@@ -68,5 +69,11 @@
             <img src="assets/images/empty.png" alt="">
             <p class="m-2 text-center text-gray-500">No Data</p>
         </div>
+
+
+    </div>
+    <div class="w-full mt-4" *ngIf="!isEmpty">
+        <app-pagination [page]="page" [row]="row" [total]="total"
+            (changeData)="onPageNumberClick($event)"></app-pagination>
     </div>
 </div>

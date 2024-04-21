@@ -14,10 +14,7 @@ export class AnnouncementService {
   createAnnouncement(data: announcementPostData): Observable<boolean> { 
     return this.http.post<boolean>(`${this.apiUrl}/announcement/addAcnnouncement`, data)
   }
-
-  getAnnouncment():Observable<announcementGetData[]>{
-    return this.http.get<announcementGetData[]>(`${this.apiUrl}/announcement/getAcnnouncement`)
+  getAnnouncment(page: number, row: number): Observable<{total:number , announcements:announcementGetData[]}> { 
+    return this.http.get<{total:number , announcements:announcementGetData[]}>(`${this.apiUrl}/announcement/getAcnnouncement?page=${page}&row=${row}`);
   }
-
-
 }
