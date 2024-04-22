@@ -10,9 +10,15 @@
   <app-confetti-component></app-confetti-component>
 </div>
 
-<div class="bg-purple-700  h-full w-full pt-7">
-  <p class="text-white text-3xl text-center ">{{ celebData.title }}</p>
+<div>
+  <div class="bg-purple-700  h-full w-full px-4 py-10 rounded-b-xl">
+    <p class="text-white text-2xl text-center ">{{ celebData.title }}</p>
+
+  </div>
+  <div class="h-fit w-full p-4">
+    <p class="text-center">{{celebData.description}}</p>
+  </div>
   <div class="p-5">
-    <p class="text-center text-white text-xl ">{{countdown}}</p>
+    <p class="text-center text-orange-500 text-xl ">{{countdown}}</p>
   </div>
 </div>
