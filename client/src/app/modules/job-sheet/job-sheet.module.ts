@@ -8,9 +8,13 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { GenerateReportComponent } from 'src/app/shared/components/generate-report/generate-report.component';
+
 
 
 @NgModule({
@@ -27,7 +31,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     NgSelectModule,
     FormsModule,
     MatTooltipModule,
-    MatProgressBarModule
+    SkeltonLoadingComponent,
+    PaginationComponent,
+    MatProgressBarModule,
+    ReactiveFormsModule,
+    GenerateReportComponent
   ]
 })
 export class JobSheetModule { }

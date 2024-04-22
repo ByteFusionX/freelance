@@ -4,6 +4,8 @@ export interface filterJob {
     page: number;
     row: number;
     status: number;
+    selectedMonth?:number;
+    selectedYear?:number;
 }
 
 export interface getJob {

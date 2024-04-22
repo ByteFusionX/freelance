@@ -64,7 +64,6 @@ export class CreateEmployeeDialog implements OnInit {
 
   getCategory() {
     this._employeeService.getCategory().subscribe(data => {
-      console.log(this.userRole)
       let categories = data;
       if (this.userRole == 'admin') {
         categories = data.filter((value) => {

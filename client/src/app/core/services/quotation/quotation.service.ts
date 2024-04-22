@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
@@ -28,6 +28,10 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
   }
 
+  getNextQuoteId(quoteData: nextQuoteData): Observable<{quoteId : string}> {
+    return this.http.post<{quoteId : string}>(`${this.api}/quotation/nextQuoteId`, quoteData)
+  }
+
   updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
     return this.http.patch<QuoteStatus>(`${this.api}/quotation/status/${quoteId}`, { status })
   }
@@ -35,6 +39,7 @@ export class QuotationService {
   totalQuotations(access?: string, userId?: string): Observable<{ total: number }> {
     return this.http.get<{ total: number }>(`${this.api}/quotation/total?access=${access}&userId=${userId}`)
   }
+
 
   uploadLpo(lpoData: FormData): Observable<any> {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
@@ -68,7 +73,17 @@ export class QuotationService {
 
   async generatePDF(quoteData: getQuotatation) {
     const items = quoteData.items
-
+    
+    if (!quoteData.quoteId) {
+      let getQuoteIdData: nextQuoteData = {
+          department: quoteData.department,
+          createdBy: quoteData.createdBy._id,
+          date: quoteData.date
+      };
+      this.getNextQuoteId(getQuoteIdData).subscribe((res) => {
+              quoteData.quoteId = res.quoteId;
+      });
+  }
     // Table header
     const tableHeader = [
       { text: 'Sl.\nNo', style: 'tableSlNo' },

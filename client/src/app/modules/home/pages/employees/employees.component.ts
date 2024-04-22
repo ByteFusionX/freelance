@@ -52,7 +52,6 @@ export class EmployeesComponent {
   }
 
   ngModelChange(){
-    console.log(this.isEnter)
     if(this.searchQuery == '' && this.isEnter){
       this.onSearch();
       this.isEnter = !this.isEnter;

@@ -112,7 +112,6 @@ export class QuotationEditComponent {
       this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
       this.quoteForm.controls['client'].setValue(this.quoteData.client);
       this.quoteForm.patchValue(this.quoteData);
-      console.log(this.quoteForm.value)
     }
   }
 
@@ -199,9 +198,6 @@ export class QuotationEditComponent {
     }
   }
 
-  createCustomer() {
-    console.log("asdffffff");
-  }
 
   onRemoveItem(index: number): void {
     this.items.removeAt(index);
@@ -212,7 +208,6 @@ export class QuotationEditComponent {
   }
 
   calculateTotalCost(i: number, j: number) {
-    console.log(this.getItemDetailsControls(i).value.length)
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
   }
 
@@ -271,7 +266,6 @@ export class QuotationEditComponent {
       if (contact) {
         quoteData.attention = contact;
       }
-      console.log(contact)
 
       this._employeeService.employeeData$.subscribe((employee) => {
         quoteData.createdBy = employee

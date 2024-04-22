@@ -23,7 +23,10 @@ export class JobService {
   }
 
   updateJobStatus(jobId: string, status: JobStatus): Observable<JobStatus> {
-    console.log("reached service")
     return this.http.patch<JobStatus>(`${this.apiUrl}/job/status/${jobId}`, { status })
+  }
+
+  totalJobs(access?: string, userId?: string): Observable<{ total: number }> {
+    return this.http.get<{ total: number }>(`${this.apiUrl}/job/total?access=${access}&userId=${userId}`)
   }
 }

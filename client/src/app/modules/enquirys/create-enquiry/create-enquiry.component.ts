@@ -41,6 +41,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   isSaving: boolean = false;
   isQuoting: boolean = false;
+  assignedPresale:boolean = false;
 
   today = new Date().toISOString().substring(0, 10)
   enquiryForm = this._fb.group({
@@ -176,7 +177,8 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     presaleDialog.afterClosed().subscribe((data) => {
       if (data) {
         if (data.clear) {
-          this.preSaleButton = `Assign To Presale`
+          this.preSaleButton = `Assign To Presale`;
+          this.assignedPresale = false;
           this.cdr.detectChanges();
           this.enquiryForm.controls.status.setValue('Work In Progress')
           this.enquiryForm.controls.presale.setValue(null)
@@ -184,6 +186,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
           this.enquiryForm.controls.presale.setValue(data)
           this.preSaleFiles = data;
           this.preSaleButton = `Assigned To ${data.presalePersonName}`;
+          this.assignedPresale = true;
           this.cdr.detectChanges();
           this.enquiryForm.controls.status.setValue('Assigned To Presales')
         }
@@ -199,7 +202,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
       this.subscriptions.add(
         this._enquiryService.createEnquiry(formData).subscribe((data) => {
           if (data) {
-            console.log(data)
             this._enquiryService.emitToQuote(data)
             this.isQuoting = false;
             this.dialogRef.close()

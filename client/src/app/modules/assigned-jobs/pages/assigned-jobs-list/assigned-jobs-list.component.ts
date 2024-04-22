@@ -57,7 +57,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this._enquiryService.getPresale(this.page, this.row, access, userId).subscribe({
         next: (data) => {
-          console.log(data)
           this.dataSource.data = data.enquiry;
           this.total = data.total;
           this.isLoading = false;
@@ -136,7 +135,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this._enquiryService.clearAllPresaleFiles(enquiryId)
       .subscribe({
         next: (event) => {
-          console.log(event)
           this.dataSource.data[index].assignedFiles = [];
         },
         error: (error) => {
@@ -157,7 +155,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this._enquiryService.deleteFile(fileName, enquiryId)
       .subscribe({
         next: (event) => {
-          console.log(event)
           this.dataSource.data[index].assignedFiles = enquiry.assignedFiles.filter((data) => {
             return data.filename !== fileName
           })

@@ -18,7 +18,7 @@
                             <ng-option *ngFor="let customer of customers$ | async"
                                 [value]="customer._id">{{customer.companyName}}</ng-option>
                             <ng-template ng-footer-tmp>
-                                <a (click)="createCustomer()"
+                                <a routerLink="/customers/create"
                                     class="text-violet-700 cursor-pointer  flex justify-center items-center h-full w-full">
                                     + Create Customer
                                 </a>
@@ -162,7 +162,8 @@
                                                     class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
                                                     matTooltip="Bold" matTooltipPosition="above">B</button>
 
-                                                <button type="button" *ngIf="isTextSelected" (click)="applyHighlighter(i, j, inputTextArea)" [@fadeInOut]
+                                                <button type="button" *ngIf="isTextSelected"
+                                                    (click)="applyHighlighter(i, j, inputTextArea)" [@fadeInOut]
                                                     class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
                                                     matTooltip="Highlight" matTooltipPosition="above">H</button>
                                             </div>

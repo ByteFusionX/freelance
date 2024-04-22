@@ -8,6 +8,7 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
+import { JobService } from 'src/app/core/services/job/job.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,13 +29,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   userId!: string | undefined;
   enquiryAccess!: string | undefined;
   quoteAccess!: string | undefined;
+  jobAccess!: string | undefined;
 
   isEnquiryLoading: boolean = true;
   isQuoteLoading: boolean = true;
+  isJobLoading: boolean = true;
 
   enquiries$!: Observable<TotalEnquiry[]>;
   userData$!: Observable<getEmployee | undefined>;
   quotations$!: Observable<{ total: number }>;
+  jobs$!: Observable<{ total: number }>;
 
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
@@ -43,26 +47,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _employeeService: EmployeeService,
     private _quotationService: QuotationService,
+    private _jobService: JobService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    // this._employeeService.employeeData$.subscribe((employee) => {
-
-
-    // })
     this.userData$ = this._employeeService.employeeData$
     this.userData$.subscribe((employee) => {
       if (employee) {
         this.enquiryAccess = employee?.category.privileges.enquiry.viewReport
         this.quoteAccess = employee?.category.privileges.quotation.viewReport
+        this.jobAccess = employee?.category.privileges.jobSheet.viewReport
+
         this.userId = employee?._id;
+
         this.enquiries$ = this._enquiryService.totalEnquiries(this.enquiryAccess, this.userId);
         this.enquiryLoading()
-
-        console.log(this.userId)
         this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
         this.quoteLoading();
+        this.jobs$ = this._jobService.totalJobs(this.jobAccess, this.userId)
+        this.jobLoading();
 
         this.getChartDetails()
       }
@@ -100,6 +104,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }),
         error: ((err) => {
           this.isQuoteLoading = true
+        })
+      })
+    )
+  }
+
+  jobLoading() {
+    this.subscriptions.add(
+      this.jobs$.subscribe({
+        next: ((data) => {
+          if (data) {
+            this.isJobLoading = false
+          }
+        }),
+        error: ((err) => {
+          this.isJobLoading = true
         })
       })
     )

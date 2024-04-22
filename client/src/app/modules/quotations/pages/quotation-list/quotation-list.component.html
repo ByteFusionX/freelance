@@ -94,7 +94,6 @@
         <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
             <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
     
-                <!-- Name Column -->
                 <ng-container matColumnDef="date">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
@@ -102,7 +101,6 @@
                     <td mat-cell *matCellDef="let element"> {{element.date | date:'dd/MM/yyyy'}} </td>
                 </ng-container>
     
-                <!-- Creator Column -->
                 <ng-container matColumnDef="quoteId">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
@@ -111,7 +109,6 @@
                             class="text-purple-600 font-medium">{{element.quoteId}}</a> </td>
                 </ng-container>
     
-                <!-- Department Column -->
                 <ng-container matColumnDef="customerName">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">

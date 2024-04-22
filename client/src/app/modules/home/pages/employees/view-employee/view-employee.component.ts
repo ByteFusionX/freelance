@@ -14,7 +14,6 @@ export class ViewEmployeeComponent {
     const navigation = this._router.getCurrentNavigation();
     if (navigation && navigation.extras.state) {
       this.employeeData = navigation.extras.state as getEmployeeDetails;
-      console.log(this.employeeData)
     } else {
       this._router.navigateByUrl('/home/employees')
     }
