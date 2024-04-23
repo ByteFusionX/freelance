@@ -12,8 +12,9 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         const presaleFiles = req.files.presaleFiles
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
+        
         let enqId: string = await generateEnquiryId(enquiryData.department, enquiryData.salesPerson, enquiryData.date as string);
-        console.log(enqId);
+
         enquiryData.enquiryId = enqId;
         enquiryData.attachments = []
         if (enquiryFiles) {
@@ -329,7 +330,6 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
                 $project: {
                     _id: 0,
                     department: '$_id',
-                    // enquiry: 1,
                     total: 1
                 }
             }
@@ -467,7 +467,7 @@ const generateEnquiryId = async (departmentId: string, employeeId: string, date:
             const [year, month] = date.split('-');
             const formatedDate = `${month}/${year.substring(2)}`;
 
-            if (lastEnquiry) {
+            if (lastEnquiry.length) {
                 const lastNumber = lastEnquiry[0].lastNumber;
                 const incrementedNum = parseInt(lastNumber) + 1;
                 const formattedIncrementedNum = String(incrementedNum).padStart(3, '0');

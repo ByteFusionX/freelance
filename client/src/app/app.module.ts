@@ -40,7 +40,7 @@ import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
     componentModule,
     ResizableModule,
     LoadingBarModule,
-    LoadingBarRouterModule
+    LoadingBarRouterModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

@@ -31,9 +31,9 @@ export interface Quotatation {
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
     status: QuoteStatus;
-    lpoFiles:[];
-    lpoSubmitted:boolean;
-    enqId:string;
+    lpoFiles: [];
+    lpoSubmitted: boolean;
+    enqId: string;
 }
 
 export interface getQuotatation {
@@ -51,9 +51,9 @@ export interface getQuotatation {
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
     status: QuoteStatus;
-    lpoFiles:[];
-    lpoSubmitted:boolean;
-    enqId:getEnquiry;
+    lpoFiles: [];
+    lpoSubmitted: boolean;
+    enqId: getEnquiry;
 }
 
 export interface DefaultAndText {
@@ -63,7 +63,7 @@ export interface DefaultAndText {
 
 export interface getQuotation {
     quotations: Quotatation[];
-    total:number;
+    total: number;
 }
 
 export interface quotatationForm {
@@ -101,4 +101,10 @@ export interface FilterQuote {
     customer: string | null;
     fromDate: string | null;
     toDate: string | null;
+}
+
+export interface nextQuoteData {
+    department: getDepartment;
+    createdBy: string | undefined;
+    date: string;
 }

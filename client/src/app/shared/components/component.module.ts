@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 
 
 @NgModule({
-    imports: [ConfettiComponentComponent,IconsModule,CommonModule],
+    imports: [ConfettiComponentComponent,IconsModule,CommonModule,],
     exports: [],
     declarations: [CelebrationDialogComponent],
     providers: [],

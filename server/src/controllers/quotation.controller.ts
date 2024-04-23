@@ -191,6 +191,21 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+
+export const getNextQuoteId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const quoteData = req.body;
+        let quoteId: string = await generateQuoteId(quoteData.department, quoteData.createdBy, quoteData.date);
+
+        if (!quoteId) return res.status(204).json({ err: 'Something went Wrong!' });
+        return res.status(200).json({ quoteId });
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 const generateQuoteId = async (departmentId: string, employeeId: string, date: string) => {
     try {
         const lastQuote = await Quotation.aggregate([

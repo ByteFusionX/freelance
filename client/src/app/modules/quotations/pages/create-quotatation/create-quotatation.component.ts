@@ -193,12 +193,8 @@ export class CreateQuotatationComponent {
       this.contacts = []
       this.quoteForm.controls['attention'].setValue(undefined)
     }
-    console.log(this.quoteForm.value)
   }
 
-  createCustomer() {
-    console.log("asdffffff");
-  }
 
   onRemoveItem(index: number): void {
     this.items.removeAt(index);
@@ -209,7 +205,6 @@ export class CreateQuotatationComponent {
   }
 
   calculateTotalCost(i: number, j: number) {
-    console.log(this.getItemDetailsControls(i).value.length)
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
   }
 
@@ -350,7 +345,6 @@ export class CreateQuotatationComponent {
 
   onEnquiryEdit() {
     this.isEdit = true;
-    console.log(this.quoteForm.value)
   }
 
   applyFormatting(i: number, j: number, textarea: HTMLTextAreaElement): void {

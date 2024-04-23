@@ -30,8 +30,7 @@ export class QuotationViewComponent {
     const navigation = this._router.getCurrentNavigation();
 
     if (navigation && navigation.extras.state) {
-      this.quoteData = navigation.extras.state as getQuotatation
-      console.log(this.quoteData)
+      this.quoteData = navigation.extras.state as getQuotatation;
     } else {
       this._router.navigate(['/quotations']);
     }

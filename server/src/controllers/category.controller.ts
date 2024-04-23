@@ -32,8 +32,7 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         if (saveCategory) {
             return res.status(200).json(saveCategory);
         }
-
-        console.log(saveCategory);
+        
         return res.status(502).json(saveCategory);
     } catch (error) {
         next(error);
