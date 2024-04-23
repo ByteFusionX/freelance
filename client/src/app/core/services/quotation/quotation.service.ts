@@ -28,8 +28,8 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
   }
 
-  getNextQuoteId(quoteData: nextQuoteData): Observable<{quoteId : string}> {
-    return this.http.post<{quoteId : string}>(`${this.api}/quotation/nextQuoteId`, quoteData)
+  getNextQuoteId(quoteData: nextQuoteData): Observable<{ quoteId: string }> {
+    return this.http.post<{ quoteId: string }>(`${this.api}/quotation/nextQuoteId`, quoteData)
   }
 
   updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
@@ -73,17 +73,17 @@ export class QuotationService {
 
   async generatePDF(quoteData: getQuotatation) {
     const items = quoteData.items
-    
+
     if (!quoteData.quoteId) {
       let getQuoteIdData: nextQuoteData = {
-          department: quoteData.department,
-          createdBy: quoteData.createdBy._id,
-          date: quoteData.date
+        department: quoteData.department,
+        createdBy: quoteData.createdBy._id,
+        date: quoteData.date
       };
       this.getNextQuoteId(getQuoteIdData).subscribe((res) => {
-              quoteData.quoteId = res.quoteId;
+        quoteData.quoteId = res.quoteId;
       });
-  }
+    }
     // Table header
     const tableHeader = [
       { text: 'Sl.\nNo', style: 'tableSlNo' },
@@ -109,9 +109,22 @@ export class QuotationService {
         const unitPrice = detail.unitCost / (1 - decimalMargin)
         const totalPrice = unitPrice * detail.quantity;
         totalCost += totalPrice;
+
+        const segments = detail.detail.split('**');
+
+        const formattedSegments = segments.map((segment, index) => {
+          if (segment.includes('{') && segment.includes('}')) {
+            const regex = /\{(.*?)\}/g;
+            const replacedValue = segment.replace(regex, '$1');
+            return { text: replacedValue, color: 'orange' }; 
+          } else {
+            return index % 2 === 0 ? { text: segment } : { text: segment, bold: true };
+          }
+        });
+        
         tableBody.push([
           { text: serialNumber++, style: 'tableText', alignment: 'center' },
-          { text: detail.detail, style: 'tableText' },
+          { text: formattedSegments, style: 'tableText' },
           { text: detail.quantity, style: 'tableText', alignment: 'center' },
           { text: 'Ea', style: 'tableText', alignment: 'center' },
           { text: unitPrice.toFixed(2), style: 'tableText', alignment: 'center' },
