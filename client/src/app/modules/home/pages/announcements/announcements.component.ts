@@ -36,7 +36,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit {
   ) { }
   
   ngOnInit(): void {
-    this.getAnnouncementData()
+    this.checkPermission()
     this.mySubscription =
       this.subject.subscribe((data) => {
         this.page = data.page
