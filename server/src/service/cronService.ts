@@ -43,7 +43,7 @@ const processEmployeeEvent = async (element, eventType) => {
 };
 
 const startCronJob = () => {
-    cron.schedule('0 0 * * *', async () => {
+    cron.schedule('0 1 * * *', async () => {
         try {
             console.log('Working cron scheduled');
             const today = new Date();
