@@ -1,0 +1,21 @@
+
+
+services:
+  api:
+    build:
+      context: .
+      target: production
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    volumes:
+      - mongo-db:/data/db
+
+volumes:
+  mongo-db:

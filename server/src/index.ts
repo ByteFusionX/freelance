@@ -48,8 +48,13 @@ app.use('/category', catRouter)
 app.use('/file', fileRouter)
 app.use('/job',jobRouter)
 
+let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}/?authSource=admin`
+if(process.env.USE_MONGOATLAS == 'true'){
+	mongoUrl = process.env.MONGODB_ATLAS_URL
+}
+
 mongoose
-	.connect(process.env.MONGODB_URL as string)
+	.connect(mongoUrl)
 	.then(() => {
 		console.log("Database connected and Working  ");
 	});
