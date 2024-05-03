@@ -1,4 +1,4 @@
 export const environment = {
     production : true,
-    api : 'https://neuron-pwp9.onrender.com'
+    api : 'http://192.168.1.150:3000'
 };
