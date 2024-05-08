@@ -9,8 +9,7 @@ const { ObjectId } = require('mongodb')
 export const DownloadFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const fileName = req.query.file;
-        console.log(fileName)
-        const uploadsDir = path.resolve(__dirname, '../..', 'uploads');
+        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
         const filePath = path.join(uploadsDir, fileName as string);
 
         if (!fs.existsSync(filePath)) {
