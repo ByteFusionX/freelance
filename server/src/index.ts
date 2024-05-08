@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors'
+import fs from 'fs';
 import dotenv from "dotenv";
 import morgan from "morgan";
 import * as path from 'path';
@@ -59,7 +60,12 @@ mongoose
 		console.log("Database connected and Working  ");
 	});
 
-app.use('/uploads', express.static(__dirname + '/upload'));
+const uploadFolderPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadFolderPath));
+
+if (!fs.existsSync(uploadFolderPath)) {
+	fs.mkdirSync(uploadFolderPath);
+}
 
 const port = process.env.PORT;
 app.listen(port, () => {
