@@ -57,7 +57,7 @@ if(process.env.USE_MONGOATLAS == 'true'){
 mongoose
 	.connect(mongoUrl)
 	.then(() => {
-		console.log("Database connected and Working  ");
+		console.log("Database connected and Working");
 	});
 
 const uploadFolderPath = path.join(__dirname, 'uploads');

@@ -72,7 +72,7 @@
 
     <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
     <div class="m-8 overflow-y-auto overflow-x-auto">
-        <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
+        <section class="mat-elevation-z8 h-fit max-h-[60vh] overflow-auto" tabindex="0">
             <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
                 <ng-container matColumnDef="enquiryId">
                     <th *matHeaderCellDef
