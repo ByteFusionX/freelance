@@ -12,7 +12,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         const presaleFiles = req.files.presaleFiles
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
-        
+
         let enqId: string = await generateEnquiryId(enquiryData.department, enquiryData.salesPerson, enquiryData.date as string);
 
         enquiryData.enquiryId = enqId;
@@ -36,7 +36,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         const savedEnquiryData = await enquiryModel.aggregate([
             {
-                $match: { "_id" : saveEnquiryData._id }
+                $match: { "_id": saveEnquiryData._id }
             },
             {
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
@@ -135,51 +135,30 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         const filters = { $and: [matchFilters, accessFilter] }
 
         const enquiryTotal: { total: number }[] = await enquiryModel.aggregate([
-            {
-                $match: filters
-            },
-            {
-                $group: { _id: null, total: { $sum: 1 } }
-            },
-            {
-                $project: { total: 1, _id: 0 }
-            }
+            { $match: filters },
+            { $match: { status: { $ne: 'Quoted' } } },
+            { $group: { _id: null, total: { $sum: 1 } } },
+            { $project: { total: 1, _id: 0 } }
         ]).exec()
 
         const enquiryData = await enquiryModel.aggregate([
-            {
-                $match: filters
-            },
-            {
-                $match: { status: { $ne: 'Quoted' } } 
-            },
-            {
-                $sort: { createdDate: -1 }
-            },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
+            { $match: filters },
+            { $match: { status: { $ne: 'Quoted' } } },
+            { $sort: { createdDate: -1 } },
+            { $skip: skipNum },
+            { $limit: row },
             {
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
             },
-            {
-                $unwind: '$client'
-            },
+            { $unwind: '$client' },
             {
                 $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
             },
-            {
-                $unwind: '$department'
-            },
+            { $unwind: '$department' },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
-            {
-                $unwind: '$salesPerson'
-            },
+            { $unwind: '$salesPerson' },
             {
                 $addFields: {
                     contact: {
@@ -199,7 +178,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 }
             }
         ]);
-
+        
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
         return res.status(504).json({ err: 'No enquiry data found' })
 

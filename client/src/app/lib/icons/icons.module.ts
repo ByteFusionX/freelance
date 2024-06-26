@@ -45,8 +45,6 @@ import {
   heroArrowDownCircle,
 } from '@ng-icons/heroicons/outline';
 
-
-
 @NgModule({
   declarations: [],
   imports: [
@@ -92,7 +90,7 @@ import {
       heroArrowPath,
       heroPaperAirplane,
       heroExclamationCircle,
-      heroArrowDownCircle
+      heroArrowDownCircle,
     }),
   ],
   exports: [NgIconsModule]

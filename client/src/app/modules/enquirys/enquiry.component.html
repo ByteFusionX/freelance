@@ -1,25 +1,26 @@
-<div class="bg-white mx-5 mt-5 rounded-2x   max-h-[calc(100vh-65px)]" >
+<div class="bg-white mx-5 mt-5 rounded-2x   max-h-[calc(100vh-65px)]">
     <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <h3 class="font-semibold">Enquiries</h3>
 
             <div class="flex justify-end gap-4">
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
-                    [matMenuTriggerFor]="beforeMenu" mat-button>
+                    [matMenuTriggerFor]="filterMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
                     <p class="mx-2 text-sm">Filter By</p>
                     <div class="mt-1">
                         <ng-icon name="heroChevronDown"></ng-icon>
                     </div>
                 </div>
-                <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto w-96">
+                <mat-menu #filterMenu="matMenu" class="mt-2 h-auto w-96">
 
                     <div class="p-4" (click)="handleNotClose($event)">
                         <form [formGroup]="formData" (ngSubmit)="onSubmit()">
                             <div class="flex justify-between items-center mb-2">
                                 <label for="fromDate" class="font-medium"> From:</label>
                                 <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
-                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]" required="true">
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
+                                    required="true">
                             </div>
                             <div class="text-orange-500 text-sm"
                                 *ngIf="formData.get('fromDate')?.hasError('futureDate')">
@@ -28,7 +29,8 @@
                             <div class="flex justify-between  items-center">
                                 <label for="toDate" class="font-medium"> To:</label>
                                 <input dateFutureDirective type="date" id="toDate" formControlName="toDate"
-                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]" required="true">
+                                    class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
+                                    required="true">
                             </div>
                             <div class="text-orange-500 text-sm" *ngIf="formData.get('toDate')?.hasError('futureDate')">
                                 Please choose a date on or before today's date.
@@ -62,7 +64,8 @@
                     </div>
 
                 </mat-menu>
-                <button *ngIf="createEnquiry" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
+                <button *ngIf="createEnquiry"
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     (click)="openDialog()">
                     + Create Enquiry
                 </button>
