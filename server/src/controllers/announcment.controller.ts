@@ -5,6 +5,7 @@ import announcementModel from "../models/announcement.model";
 export const createAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, description, date, userId } = req.body;
+    console.log(userId)
     const addAnnouncement = new announcementModel({
       title,
       date,

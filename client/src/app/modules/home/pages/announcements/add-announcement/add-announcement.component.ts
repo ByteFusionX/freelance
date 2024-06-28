@@ -22,7 +22,7 @@ import { announcementPostData } from 'src/app/shared/interfaces/announcement.int
 export class AddAnnouncementComponent implements OnDestroy, OnInit {
   submit: boolean = false;
   isSaving: boolean = false;
-  userId!: { id: string, employeeId: string }
+  userId!: any
 
   private mySubscription!: Subscription;
 
@@ -34,8 +34,10 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
     private _employeeService: EmployeeService
   ) { }
   ngOnInit(): void {
-    this.userId = this._employeeService.employeeToken()
-    console.log(this.userId)
+    this._employeeService.employeeData$.subscribe((res)=>{
+      this.userId = res
+    })
+    
   }
 
 
@@ -53,7 +55,7 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
         title: this.formData.value.title as string,
         description: this.formData.value.description as string,
         date: this.formData.value.date as Date | null,
-        userId: this.userId.id
+        userId: this.userId._id
       }
       this.mySubscription = this._service.createAnnouncement(data).subscribe((res: boolean) => {
         if (res === true) {

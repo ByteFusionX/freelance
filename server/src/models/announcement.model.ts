@@ -6,7 +6,7 @@ interface announcment extends Document {
     date: Date
     createdDate: Date,
     celeb: boolean
-    userId: string[]
+    viewedBy: string[]
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -30,7 +30,7 @@ const AnnouncementSchema = new Schema<announcment>({
         type: Boolean,
         required: true
     },
-    userId: {
+    viewedBy: {
         type: [String]
     }
 });
