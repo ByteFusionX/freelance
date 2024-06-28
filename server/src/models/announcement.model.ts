@@ -5,7 +5,8 @@ interface announcment extends Document {
     description: String
     date: Date
     createdDate: Date,
-    celeb:boolean
+    celeb: boolean
+    userId: string[]
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -21,13 +22,16 @@ const AnnouncementSchema = new Schema<announcment>({
         type: Date,
         default: () => new Date().setHours(0, 0, 0, 0)
     },
-    date :{
-        type:Date,
-        required:true
-    },
-    celeb :{
-        type:Boolean,
+    date: {
+        type: Date,
         required: true
+    },
+    celeb: {
+        type: Boolean,
+        required: true
+    },
+    userId: {
+        type: [String]
     }
 });
 

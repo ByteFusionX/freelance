@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy } from '@angular/core';
 import { buttonSlideState, dropDownMenuSate, sideBarState } from './side-bar.animation';
 import { NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
@@ -7,6 +7,8 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Privileges } from '../../interfaces/employee.interface';
+import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-side-bar',
@@ -16,22 +18,35 @@ import { Privileges } from '../../interfaces/employee.interface';
   standalone: true,
   imports: [CommonModule, IconsModule, AppRoutingModule, MatTooltipModule]
 })
-export class SideBarComponent implements AfterViewInit {
+export class SideBarComponent implements AfterViewInit, OnDestroy {
 
   @Input() showFullBar: boolean = true
   homeDropDown: boolean = false;
 
   showTabs: boolean = false;
-  privileges!:Privileges | undefined;
+  privileges!: Privileges | undefined;
+  notifyCount!: number
+  mySubscription: Subscription = new Subscription()
+  userId!: any
 
   constructor(
     private eref: ElementRef,
     private router: Router,
     private _employeeService: EmployeeService,
+    private _announcementService: AnnouncementService
   ) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.checkPermission()
+    this._employeeService.employeeData$.subscribe((res) => {
+      if(res){
+        this.userId = res
+        this._announcementService.onCheckNotViewed(this.userId._id)
+      }
+    })
+    this.mySubscription = this._announcementService.getNewAnnouncements().subscribe((res) => {
+      this.notifyCount = res
+    })
     setTimeout(() => {
       this.showTabs = true;
     }, 1000);
@@ -69,5 +84,11 @@ export class SideBarComponent implements AfterViewInit {
 
   onHomeClick() {
     this.homeDropDown = !this.homeDropDown
+  }
+
+  ngOnDestroy(): void {
+    if (this.mySubscription) {
+      this.mySubscription.unsubscribe()
+    }
   }
 }

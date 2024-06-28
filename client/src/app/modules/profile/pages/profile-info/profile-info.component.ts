@@ -35,7 +35,6 @@ export class ProfileInfoComponent implements AfterViewInit, OnDestroy {
     const employeeId = this.employee.employeeId
     this._employeeService.getEmployeeData(employeeId)
     this.employeeData$ = this._employeeService.employeeData$
-
   }
 
   ngAfterViewInit() {

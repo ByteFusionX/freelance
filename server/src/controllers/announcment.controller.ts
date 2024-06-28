@@ -4,20 +4,25 @@ import announcementModel from "../models/announcement.model";
 
 export const createAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, date } = req.body
-    const addAcnnouncement = new announcementModel({
+    const { title, description, date, userId } = req.body;
+    const addAnnouncement = new announcementModel({
       title,
       date,
       description,
-      celeb: false
-    })
-    const saveAnnouncement = await addAcnnouncement.save()
-    if (saveAnnouncement) return res.status(200).json(true)
-    return res.status(502).json()
+      celeb: false,
+      viewedBy: userId ? [userId] : []
+    });
+
+    const saveAnnouncement = await addAnnouncement.save();
+    if (saveAnnouncement) {
+      return res.status(200).json(true);
+    }
+    return res.status(502).json();
   } catch (error) {
     next(error);
   }
 };
+
 
 export const getAnnouncement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -46,4 +51,6 @@ export const getAnnouncement = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+
+
 

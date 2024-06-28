@@ -5,7 +5,6 @@ import { CreateEmployee, FilterEmployee, GetCategory, getEmployee } from 'src/ap
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
-import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 
 @Injectable({
   providedIn: 'root'

@@ -21,16 +21,17 @@
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex">
                             <i><ng-icon name="heroHome" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Home'"
                                 matTooltipPosition="right" matTooltipClass="mat-tooltip"matTooltipClass="text-sm"></ng-icon></i>
-                            <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
-                                <p class="">Home</p>
-                                <i>
-                                    <ng-icon name="heroChevronUp" class="text-gray-600"
-                                        *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
-                                    <ng-template #homeDropDownMenu>
-                                        <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
-                                    </ng-template>
-                                </i>
-                            </div>
+                                <div class="relative w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
+                                    <p>Home</p>
+                                    <i>
+                                        <ng-icon name="heroChevronUp" class="text-gray-600" *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
+                                        <ng-template #homeDropDownMenu>
+                                            <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                        </ng-template>
+                                    </i>
+                                    <span *ngIf="notifyCount > 0" class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
+                                </div>
+                                
                         </div>
                     </div>
                     <div class="overflow-hidden" *ngIf="homeDropDown" [ngClass]="{dropDown: !showFullBar }">
@@ -44,9 +45,14 @@
                                     routerLinkActive="active" *ngIf="privileges?.employee?.viewReport != 'none'  && showTabs">
                                     <button class="mx-6">Employees</button>
                                 </li>
-                                <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer" routerLink="/home/announcements"
-                                    routerLinkActive="active" *ngIf="privileges?.announcement?.viewReport != 'none'  && showTabs">
-                                    <button class="mx-6">Announcements</button>
+                                <li class="p-2 flex justify-between hover:text-violet-800 rounded-md cursor-pointer" routerLink="/home/announcements" routerLinkActive="active" *ngIf="privileges?.announcement?.viewReport !== 'none' && showTabs">
+                                    <button class=" mx-6 relative">
+                                        Announcements
+                                    </button>
+                                    <div *ngIf="notifyCount > 0" class="bg-orange-500 text-white text-[12px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                                        <p>{{notifyCount}}</p>
+                                    </div>
+                                   
                                 </li>
                             </ul>
                         </div>
