@@ -31,7 +31,7 @@
         <time class="block mt-1 text-xs font-normal leading-none text-gray-400">{{recentData?.createdDate | date: 'MMM d, y'}}</time>
       </div>
       <h1 class="text-xl text-violet-700">{{recentData?.title}}</h1>
-      <div class="flex justify-between">
+      <div class="flex justify-between items-center">
         <p class="text-sm text-gray-600">{{recentData?.description}}</p>
         <span *ngIf="recentData && !recentData.viewedBy.includes(userId)" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
       </div>
@@ -53,7 +53,7 @@
           </div>
         </div>
         <h1 class="text-xl text-violet-700">{{item.title}}</h1>
-        <div class="flex justify-between">
+        <div class="flex justify-between items-center">
           <p class="text-sm text-gray-600">{{item.description}}</p>
           <span *ngIf="!item.viewedBy.includes(userId)" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
         </div>
