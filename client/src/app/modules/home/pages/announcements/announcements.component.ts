@@ -99,27 +99,21 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
 
   markAsViewed(announcementId: string | null) {
     if (announcementId && this.userId) {
-      this._service.markAsViewed(announcementId, this.userId).pipe(takeUntil(this.destroy$)).subscribe(
-        (updatedAnnouncement: announcementGetData) => {
-          const index = this.announcementData.findIndex(a => a._id === updatedAnnouncement._id);
-          if (index !== -1) {
-            this.announcementData[index] = updatedAnnouncement;
-          }
-        }
-      );
+      this._service.markAsViewed(announcementId, this.userId).pipe(takeUntil(this.destroy$)).subscribe()
     }
   }
 
   updateNotViewedIds() {
     this.notViewedIds.clear();
+    if (this.recentData && !this.recentData.viewedBy.includes(this.userId)) {
+      this.notViewedIds.add(this.recentData._id);
+    }
     this.announcementData.forEach(announcement => {
       if (!announcement.viewedBy.includes(this.userId)) {
         this.notViewedIds.add(announcement._id);
       }
     });
-    if (this.recentData && !this.recentData.viewedBy.includes(this.userId)) {
-      this.notViewedIds.add(this.recentData._id);
-    }
+    
   }
 
   trackByIdFn(index: number, item: announcementGetData): string {
