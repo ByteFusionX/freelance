@@ -12,6 +12,7 @@ export interface announcementGetData {
     date: Date
     createdDate: Date,
     celeb: boolean
+    viewedBy:string[]
   }
   
   

@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createAnnouncement, getAnnouncement } from "../controllers/announcment.controller";
+import { createAnnouncement, getAnnouncement, markAsViewed } from "../controllers/announcment.controller";
 const annoRouter = Router()
 
 annoRouter.post('/addAnnouncement',createAnnouncement)
 annoRouter.get('/getAnnouncement',getAnnouncement)
+annoRouter.post('/markAsViewed',markAsViewed)
 
 
 export default annoRouter

@@ -20,7 +20,7 @@ const AnnouncementSchema = new Schema<announcment>({
     },
     createdDate: {
         type: Date,
-        default: () => new Date().setHours(0, 0, 0, 0)
+        default: () => Date.now()
     },
     date: {
         type: Date,
