@@ -16,6 +16,8 @@ export const celebrationCheck = async (req: Request, res: Response, next: NextFu
       ]
     });
     if (celebData.length) return res.status(200).json(celebData)
+    return res.status(404).json('No data found')
+
 
   } catch (error) {
     next(error)

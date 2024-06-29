@@ -2,6 +2,7 @@ export interface announcementPostData {
     title:String | null | undefined;
     description:String | null | undefined;
     date:Date | null | undefined;
+    userId :String | null | undefined;
 }
 
 export interface announcementGetData {
@@ -11,6 +12,7 @@ export interface announcementGetData {
     date: Date
     createdDate: Date,
     celeb: boolean
+    viewedBy:string[]
   }
   
   

@@ -8,6 +8,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CelebrationDialogComponent } from './shared/components/celebration-dialog/celebration-dialog.component';
 import { Subject } from 'rxjs';
 import { EmployeeService } from './core/services/employee/employee.service';
+import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'app-root',
@@ -28,11 +29,10 @@ export class AppComponent implements OnDestroy, OnInit {
 
 
   constructor(
-    private _employeeService: EmployeeService,
     private route: ActivatedRoute,
     private _service: celebCheckService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnDestroy() {
@@ -42,7 +42,6 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit() {
-
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.loginRouter = this.isLoginRoute();
