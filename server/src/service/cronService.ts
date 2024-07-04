@@ -28,7 +28,8 @@ const processEmployeeEvent = async (element, eventType) => {
             title: eventTitle,
             description: eventDescription,
             date: today,
-            celeb: true
+            celeb: true,
+            viewedBy: []
         });
 
 
