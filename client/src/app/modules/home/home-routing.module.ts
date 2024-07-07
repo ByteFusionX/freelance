@@ -6,6 +6,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { RoleGuard } from 'src/app/core/guards/role/role.guard';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
+import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
