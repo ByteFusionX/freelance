@@ -28,6 +28,16 @@ export class EmployeeService {
     return this.http.post(`${this.api}/employee`, employeeData)
   }
 
+  getPasswordOfEmployee(employeeId:string){
+    console.log(employeeId)
+    return this.http.get(`${this.api}/employee/getPasswordOfEmployee/${employeeId}`)
+  }
+
+  editEmployees(employeeData: CreateEmployee) {
+    console.log(employeeData)
+    return this.http.put(`${this.api}/employee/edit`, employeeData)
+  }
+
   createCategory(categroyData: GetCategory) {
     return this.http.post(`${this.api}/category`, categroyData)
   }

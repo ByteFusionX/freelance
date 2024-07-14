@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
+import mongoose from "mongoose";
 var jwt = require('jsonwebtoken');
-const { ObjectId } = require('mongodb');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -131,6 +132,37 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
         if (saveEmployee) {
             return res.status(200).json(saveEmployee);
         }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getPasswordForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        
+        const id = req.params.id
+        const employee = await Employee.findById(id)
+        console.log(employee)
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const editEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeData = req.body;
+
+        console.log(employeeData)
+
+        // const employeeEdit = await Employee.findByIdAndUpdate()
+
+
+
+        // if (saveEmployee) {
+        //     return res.status(200).json(saveEmployee);
+        // }
         return res.status(502).json()
     } catch (error) {
         next(error)

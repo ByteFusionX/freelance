@@ -57,9 +57,14 @@ export class EditEmployeeComponent {
   }
 
   ngOnInit(){
+   
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
+    const passwordOfEmployee = this._employeeService.getPasswordOfEmployee(this.data.employeeData._id as string).subscribe((res:any)=>{
+      console.log(res)
+    })
+    
     this.employeeForm.patchValue({
       firstName: this.data.employeeData.firstName,
       lastName: this.data.employeeData.lastName,
@@ -68,9 +73,9 @@ export class EditEmployeeComponent {
       dob: this.data.employeeData.dob.substring(0, 10), // Assuming ISO date format
       department: this.data.employeeData.department._id,
       contactNo: this.data.employeeData.contactNo as string,
-      category: this.data.employeeData.category.categoryName,
+      category: this.data.employeeData.category._id,
       dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10), // Assuming ISO date format
-      reportingTo: this.data.employeeData.reportingTo.firstName+' '+this.data.employeeData.reportingTo.lastName
+      reportingTo: this.data.employeeData._id
     });
   }
 
@@ -115,25 +120,27 @@ export class EditEmployeeComponent {
 
 
   onSubmit(){
+    console.log(this.employeeForm.value)
     if (this.employeeForm.valid) {
       this.isSaving = true;
 
-      let userId;
-      this._employeeService.employeeData$.subscribe((employee) => {
-        userId = employee?._id
-      })
-
-      const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
-      const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
-      const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
-
-      employeeData.createdBy = userId;
-      employeeData.reportingTo = reportingToValue;
-
-      // this._employeeService.createEmployees(employeeData).subscribe((data) => {
-      //   this.isSaving = false;
-      //   this.dialogRef.close(data)
+      // let userId;
+      // this._employeeService.employeeData$.subscribe((employee) => {
+      //   userId = employee?._id
       // })
+
+      // const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
+      // const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
+      // const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
+
+      
+
+      // employeeData.createdBy = userId;
+      // employeeData.reportingTo = reportingToValue;
+      this._employeeService.editEmployees(this.employeeForm.value as CreateEmployee).subscribe((data) => {
+        this.isSaving = false;
+        this.dialogRef.close(data)
+      })
     }
   }
 }

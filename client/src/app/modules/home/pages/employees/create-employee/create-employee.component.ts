@@ -90,7 +90,7 @@ export class CreateEmployeeDialog implements OnInit {
       const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
       const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
       const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
-
+      
       employeeData.createdBy = userId;
       employeeData.reportingTo = reportingToValue;
 
