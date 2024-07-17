@@ -20,6 +20,7 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
 import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
 import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
+import { ChangePasswordComponent } from './pages/employees/edit-employee/change-password/change-password.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-empl
     CreateCategoryComponent,
     ViewEmployeeComponent,
     EditEmployeeComponent,
+    ChangePasswordComponent,
 
   ],
   imports: [
