@@ -33,6 +33,15 @@
                 <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
             </ng-container>
 
+            <!-- ClientRef Column -->
+            <ng-container matColumnDef="clientRef">
+                <th *matHeaderCellDef
+                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                    Client Ref. </th>
+                <td mat-cell *matCellDef="let element"> <span 
+                    class="text-purple-600 font-semibold">{{element.clientRef}}</span> </td>
+            </ng-container>
+
             <!-- Name Column -->
             <ng-container matColumnDef="name">
                 <th *matHeaderCellDef

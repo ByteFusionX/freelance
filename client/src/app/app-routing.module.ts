@@ -12,6 +12,7 @@ const routes: Routes = [
   { path: 'quotations', canActivate: [AuthGuard], loadChildren: () => import('./modules/quotations/quotations.module').then((m) => m.QuotationsModule) },
   { path: 'job-sheet', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/job-sheet/job-sheet.module').then((m) => m.JobSheetModule) },
   { path: 'profile', canActivate: [AuthGuard], loadChildren: () => import('./modules/profile/profile.module').then((m) => m.ProfileModule) },
+  { path: 'settings', canActivate: [AuthGuard], loadChildren: () => import('./modules/settings/settings.module').then((m) => m.SettingsModule) },
   { path: 'login', canActivate: [LoginGuard], loadChildren: () => import('./modules/login/login.module').then((m) => m.LoginModule) },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

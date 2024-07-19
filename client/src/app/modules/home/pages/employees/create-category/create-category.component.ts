@@ -22,6 +22,7 @@ export class CreateCategoryComponent {
   assignedJobsChecked: boolean = false;
   quotationChecked: boolean = false;
   jobSheetChecked: boolean = false;
+  portalChecked: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<CreateCategoryComponent>,
@@ -61,6 +62,10 @@ export class CreateCategoryComponent {
       }),
       jobSheet: this._fb.group({
         viewReport: 'none',
+      }),
+      portalManagement: this._fb.group({
+        department: [false],
+        notesAndTerms: [false]
       })
     })
   })

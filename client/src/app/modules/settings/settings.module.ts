@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ProfileRoutingModule } from './profile-routing.module';
-import { ProfileInfoComponent } from './pages/profile-info/profile-info.component';
 import { NgIconsModule } from '@ng-icons/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
@@ -12,16 +10,20 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { CreateDepartmentDialog } from './pages/create-department/create-department.component';
+import { SettingsRoutingModule } from './settings-routing.module';
+import { PortalManagementComponent } from './pages/portal-management/portal-management.component';
 
 
 
 @NgModule({
   declarations: [
-    ProfileInfoComponent,
+    CreateDepartmentDialog,
+    PortalManagementComponent,
   ],
   imports: [
     CommonModule,
-    ProfileRoutingModule,
+    SettingsRoutingModule,
     NgIconsModule,
     FormsModule,
     ReactiveFormsModule,
@@ -33,4 +35,4 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
   ],
   providers: [ProfileService, EmployeeService]
 })
-export class ProfileModule { }
+export class SettingsModule { }

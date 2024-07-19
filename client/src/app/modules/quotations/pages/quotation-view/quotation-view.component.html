@@ -22,7 +22,7 @@
                                 Client
                             </td>
                             <td class="px-2 py-2 border text-start ">
-                                {{quoteData.client.companyName}}
+                                {{quoteData.client.companyName}} ({{quoteData.client.clientRef}})
                             </td>
                             <td class="px-2 py-2  border text-start font-medium ">
                                 Date
@@ -166,8 +166,7 @@
                     for="grid-last-name">
                     Customer Notes
                 </label>
-                <p class="w-full whitespace-pre-line">{{quoteData.customerNote.defaultNote}}</p>
-                <p class="w-full whitespace-pre-line">{{quoteData.customerNote.text}}</p>
+                <p class="w-full whitespace-pre-line">{{quoteData.customerNote}}</p>
 
             </div>
             <div class="w-full md:w-3/5 px-4 border py-3">
@@ -175,8 +174,7 @@
                     for="grid-last-name">
                     Terms and Conditions
                 </label>
-                <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition.defaultNote}}</p>
-                <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition.text}}</p>
+                <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition}}</p>
 
             </div>
 
@@ -219,7 +217,7 @@
                             Subtotal
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{calculateSellingPrice() | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -227,7 +225,7 @@
                             Discount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{(quoteData.totalDiscount).toFixed(2)}}
+                            {{(quoteData.totalDiscount) | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -235,7 +233,7 @@
                             Total Amount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateDiscoutPrice().toFixed(2)}}
+                            {{calculateDiscoutPrice() | numberFormatter }}
                         </td>
                     </tr>
 
