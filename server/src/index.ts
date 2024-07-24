@@ -43,7 +43,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE'],
   credentials: true,
 }));
 

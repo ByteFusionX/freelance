@@ -152,20 +152,46 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
 
 export const editEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employeeData = req.body;
+        console.log("reached edit employee")
+        const {firstName,lastName,email,designation,dob,department,contactNo,category,dateOfJoining,reportingTo,password,employeeId} = req.body;
+        const hashedPassword=await bcrypt.hash(password, 10);
+       
 
-        console.log(employeeData)
+        const saveEmployeeEdit = await Employee.findByIdAndUpdate(employeeId,{firstName:firstName,lastName:lastName,email:email,designation:designation,dob:dob,department:department,contactNo:contactNo,category:category,dateOfJoining:dateOfJoining,reportingTo,password:hashedPassword})
 
-        // const employeeEdit = await Employee.findByIdAndUpdate()
+        console.log(saveEmployeeEdit)
 
-
-
-        // if (saveEmployee) {
-        //     return res.status(200).json(saveEmployee);
-        // }
+        if (saveEmployeeEdit) {
+            return res.status(200).json(saveEmployeeEdit);
+        }
         return res.status(502).json()
     } catch (error) {
         next(error)
+    }
+}
+
+export const changePasswordOfEmployee = async(req:Request,res:Response,next:NextFunction)=>{
+    try {
+        console.log(req.body)
+            const {oldPassword,newPassword,userId} = req.body
+            const user = await Employee.findById({userId})
+            const userPassword = user.password
+            bcrypt.compare(userPassword,oldPassword,async (err,result)=>{
+                if(err){
+                    console.log("error comparing passwords:",err)
+                    return 
+                }
+                if(result){
+                    console.log("password matched")
+                    await Employee.findOneAndUpdate({id:user.id},{$set:{password:newPassword}})
+                  return  res.status(200).json({passwordChanged:true})
+                }else{
+                    console.log("password dont match")
+                    return res.status(502).json({passwordChanged:false})
+                }
+            })
+    } catch (error) {
+       next(error)
     }
 }
 

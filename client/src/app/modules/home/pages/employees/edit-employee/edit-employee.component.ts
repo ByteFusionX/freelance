@@ -25,6 +25,12 @@ export class EditEmployeeComponent {
   employees$!: Observable<getEmployee[]>;
   isSaving: boolean = false;
   employeeData!: getEmployeeDetails;
+  changePasswordChoice:boolean=true
+  canGeneratePassword:boolean=false
+  showPassword: boolean = false;
+  passwordType: string = this.showPassword ? 'text' : 'password';
+  showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+  isChangePasswordButton:boolean=true
 
 
 
@@ -41,7 +47,7 @@ export class EditEmployeeComponent {
     category: ['', Validators.required],
     dateOfJoining: ['', Validators.required],
     reportingTo: [''],
-    password: ['', [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
+    password: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
   })
 
   constructor(private _fb:FormBuilder,
@@ -61,10 +67,10 @@ export class EditEmployeeComponent {
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
-    const passwordOfEmployee = this._employeeService.getPasswordOfEmployee(this.data.employeeData._id as string).subscribe((res:any)=>{
-      console.log(res)
-    })
-    
+    // const passwordOfEmployee = this._employeeService.getPasswordOfEmployee(this.data.employeeData._id as string).subscribe((res:any)=>{
+      // console.log(res)
+    // })
+    console.log("employee data:"+this.data.employeeData)
     this.employeeForm.patchValue({
       firstName: this.data.employeeData.firstName,
       lastName: this.data.employeeData.lastName,
@@ -75,7 +81,8 @@ export class EditEmployeeComponent {
       contactNo: this.data.employeeData.contactNo as string,
       category: this.data.employeeData.category._id,
       dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10), // Assuming ISO date format
-      reportingTo: this.data.employeeData._id
+      reportingTo: this.data.employeeData._id,
+      password:''
     });
   }
 
@@ -93,7 +100,6 @@ export class EditEmployeeComponent {
       // }
       
       this.category$.next(categories);
-      console.log(categories)
     });
   }
 
@@ -134,13 +140,61 @@ export class EditEmployeeComponent {
       // const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
 
       
-
+      const employeeData = this.employeeForm.value as CreateEmployee
+      employeeData.employeeId=this.data.employeeData._id as string
+      
       // employeeData.createdBy = userId;
       // employeeData.reportingTo = reportingToValue;
-      this._employeeService.editEmployees(this.employeeForm.value as CreateEmployee).subscribe((data) => {
+
+      this._employeeService.editEmployees(employeeData as CreateEmployee).subscribe((data) => {
         this.isSaving = false;
+        console.log(data)
         this.dialogRef.close(data)
       })
     }
+  }
+
+  changePasswordChoiceButton(){
+    this.changePasswordChoice=false
+    this.canGeneratePassword=true
+    // this.isChangePasswordButton=!this.isChangePasswordButton
+    this.employeeForm.get('password')?.enable();
+    this.employeeForm.patchValue({
+      password:''
+    })
+  }
+
+  generateRandomPassword(): string {
+    this.showPassword = true;
+    this.passwordType = this.showPassword ? 'text' : 'password';
+    this.showIcon = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+
+    const capitalLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const smallLetters = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const specialChars = '!@#$%^&*()_+{}[]';
+
+    const allChars = capitalLetters + smallLetters + numbers + specialChars;
+
+    let password = '';
+
+    password += capitalLetters[Math.floor(Math.random() * capitalLetters.length)];
+    password += smallLetters[Math.floor(Math.random() * smallLetters.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += specialChars[Math.floor(Math.random() * specialChars.length)];
+
+    for (let i = 4; i < 8; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+
+    const shuffledPassword: string | null = password.split('').sort(() => 0.5 - Math.random()).join('');
+    this.employeeForm.patchValue({ password: shuffledPassword })
+    return shuffledPassword;
+  }
+
+  passwordShow() {
+    this.showPassword = !this.showPassword
+    this.passwordType = this.showPassword ? 'text' : 'password';
+    this.showIcon = this.showPassword ? 'heroEye' : 'heroEyeSlash';
   }
 }
