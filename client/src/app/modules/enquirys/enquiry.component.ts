@@ -27,7 +27,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -105,6 +105,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
+            console.log(data.enquiry)
             this.dataSource.data = [...data.enquiry];
             this.filteredData.data = data.enquiry;
             this.total = data.total

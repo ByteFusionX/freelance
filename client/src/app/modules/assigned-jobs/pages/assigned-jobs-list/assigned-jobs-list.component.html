@@ -58,7 +58,8 @@
                             <div class="flex" *ngFor="let file of element.preSale.presaleFiles; let i=index">
                                 <p class="w-28 truncate ..." matTooltip="{{file.originalname}}"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
-                                <button class="w-5 h-5 border rounded-full flex justify-center items-center" (click)="onDownloadClicks(file)">
+                                <button class="w-5 h-5 border rounded-full flex justify-center items-center" matTooltip="Download"
+                                matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onDownloadClicks(file)">
                                     <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
                                 </button>
                             </div>
