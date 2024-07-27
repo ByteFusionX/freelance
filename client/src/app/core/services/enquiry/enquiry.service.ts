@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Enquiry, EnquiryTable, FilterEnquiry, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Enquiry, EnquiryTable, FeedbackTable, FilterEnquiry, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -19,6 +19,10 @@ export class EnquiryService {
 
   createEnquiry(formData: FormData): Observable<getEnquiry> {
     return this.http.post<getEnquiry>(`${this.api}/enquiry/create`, formData)
+  }
+
+  assignPresale(formData: FormData,enquiryId:string): Observable<{success:boolean}> {
+    return this.http.patch<{success:boolean}>(`${this.api}/enquiry/presales/${enquiryId}`, formData)
   }
 
   getEnquiry(filterData: FilterEnquiry): Observable<EnquiryTable> {
@@ -68,6 +72,18 @@ export class EnquiryService {
   
   clearAllPresaleFiles(enquiryId:string){
     return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
+  }
+
+  sendFeedbackRequest(feedbackBody:{enquiryId:string,employeeId:string}){
+    return this.http.patch(`${this.api}/enquiry/feedback-request`,feedbackBody)
+  }
+
+  getFeedbackRequests(page: number, row: number,employeeId?:string): Observable<FeedbackTable> {
+    return this.http.get<FeedbackTable>(`${this.api}/enquiry/feedback-request/${employeeId}?page=${page}&row=${row}`)
+  }
+
+  giveFeedback(feedbackBody:{enquiryId:string,feedback:string}){
+    return this.http.patch(`${this.api}/enquiry/give-feedback`,feedbackBody)
   }
 
   

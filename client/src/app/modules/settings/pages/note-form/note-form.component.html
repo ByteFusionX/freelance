@@ -1,0 +1,34 @@
+<div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between ">
+    <h3 class="text-md font-medium">{{title}}</h3>
+    <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onCloseClicked()">
+        <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+    </button>
+</div>
+<div class="p-5">
+    <form action="">
+        <div class=" flex-row justify-between items-center">
+            <textarea appNoLeadingSpace rows="5" [(ngModel)]="noteText" [ngModelOptions]="{standalone: true}"
+                class=" appearance-none block w-96 bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="customerNote" placeholder="Enter your text here..."></textarea>
+        </div>
+        <p *ngIf="error" class="text-red-500 italic text-sm">This field is Required</p>
+    </form>
+</div>
+<div class="border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
+    <button class="bg-orange-600 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded text-sm"
+        (click)="onCloseClicked()">
+        Cancel
+    </button>
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm disabled:bg-gray-400 disabled:cursor-not-allowed" [disabled]="isSaving"
+        *ngIf="createButton; else updateBlock" (click)="onSubmit()">
+        <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+        Create
+    </button>
+    <ng-template #updateBlock>
+        <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm disabled:bg-gray-400 disabled:cursor-not-allowed" [disabled]="isSaving"
+            (click)="onUpdate()">
+            <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+            Update
+        </button>
+    </ng-template>
+</div>

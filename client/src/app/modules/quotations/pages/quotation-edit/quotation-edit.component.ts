@@ -17,6 +17,7 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 import { fadeInOut } from 'src/app/shared/animations/animations';
+import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 
 
 @Component({
@@ -33,8 +34,8 @@ export class QuotationEditComponent {
   departments: getDepartment[] = [];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
-  customerNotes: string[] = customerNotes;
-  termsAndConditions: string[] = termsAndConditions;
+  customerNotes!: Note[];
+  termsAndConditions!: Note[];
 
   submit: boolean = false;
   isSaving: boolean = false;
@@ -190,11 +191,28 @@ export class QuotationEditComponent {
     })
   }
 
+  getNotes() {
+    this._profileService.getNotes().subscribe((res: Notes) => {
+      this.customerNotes = res.customerNotes
+      this.termsAndConditions = res.termsAndConditions
+    })
+  }
+
   async onCustomerChange(event: string | getCustomer) {
     const customers = await this.customers$.pipe(first()).toPromise() as getCustomer[];
     const customer: getCustomer | undefined = customers.find((value) => value._id == event)
     if (customer) {
       this.contacts = customer?.contactDetails;
+    }
+  }
+
+  onCustomerNote(event: Note, noteType: string) {
+    if (noteType == 'customerNotes') {
+      const note = this.quoteForm.value.customerNote + '\n' + event.note;
+      this.quoteForm.patchValue({ customerNote: note })
+    } else if (noteType == 'termsAndConditions') {
+      const note = this.quoteForm.value.termsAndCondition + '\n' + event.note;
+      this.quoteForm.patchValue({ termsAndCondition : note })
     }
   }
 

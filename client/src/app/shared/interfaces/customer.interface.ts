@@ -11,9 +11,11 @@ export interface ContactDetail {
 
 export interface getCustomer {
     _id: string;
+    clientRef:string;
     department: getDepartment;
     contactDetails: ContactDetail[];
     companyName: string;
+    companyAddress: string;
     customerEmailId: string;
     contactNo: number;
 }

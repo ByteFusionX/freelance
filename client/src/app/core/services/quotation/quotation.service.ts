@@ -110,21 +110,42 @@ export class QuotationService {
         const totalPrice = unitPrice * detail.quantity;
         totalCost += totalPrice;
 
-        const segments = detail.detail.split('**');
-
-        const formattedSegments = segments.map((segment, index) => {
-          if (segment.includes('{') && segment.includes('}')) {
-            const regex = /\{(.*?)\}/g;
-            const replacedValue = segment.replace(regex, '$1');
-            return { text: replacedValue, color: 'orange' }; 
+        const segments = detail.detail
+        const result = [];
+  
+        // Regular expression to match the patterns, including spaces
+        const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
+        let match;
+      
+        while ((match = regex.exec(segments)) !== null) {
+          const [fullMatch] = match;
+      
+          if (fullMatch.startsWith('**')) {
+            if (fullMatch.includes('{') && fullMatch.includes('}')) {
+              // Bold placeholder: **{text}**
+              const text = fullMatch.slice(3, -3).trim(); // Remove **{ and }**
+              result.push({ text, bold: true, color: 'orange' });
+            } else {
+              // Bold text: **text**
+              const text = fullMatch.slice(2, -2); // Remove **, don't trim spaces
+              result.push({ text, bold: true });
+            }
+          } else if (fullMatch.startsWith('{') && fullMatch.endsWith('}')) {
+            // Placeholder: {text}
+            const text = fullMatch.slice(1, -1).trim(); // Remove { and }
+            result.push({ text, color: 'orange' });
           } else {
-            return index % 2 === 0 ? { text: segment } : { text: segment, bold: true };
+            // Regular text (including spaces)
+            const text = fullMatch; // No trim, preserve spaces
+            if (text) result.push({ text });
           }
-        });
-        
+        }
+        console.log(result)
+
+
         tableBody.push([
           { text: serialNumber++, style: 'tableText', alignment: 'center' },
-          { text: formattedSegments, style: 'tableText' },
+          { text: result, style: 'tableText' },
           { text: detail.quantity, style: 'tableText', alignment: 'center' },
           { text: 'Ea', style: 'tableText', alignment: 'center' },
           { text: unitPrice.toFixed(2), style: 'tableText', alignment: 'center' },
@@ -133,39 +154,51 @@ export class QuotationService {
       });
     });
 
-    const tableFooter = [
-      { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+    const totalAmount = [
+      { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
       { text: totalCost.toFixed(2), style: 'tableFooter' },
     ];
+
+
+    let discount;
+    if(quoteData.totalDiscount != 0){
+      discount = [
+        { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
+      ];
+    }
+
+    const finalAmount = [
+      { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+      { text: (totalCost).toFixed(2), style: 'tableFooter' },
+    ];
+
+    let body;
+    if(quoteData.totalDiscount == 0){
+      body = [
+        tableHeader,
+        ...tableBody,
+        totalAmount,
+        finalAmount
+      ]
+    }else{
+      body = [
+        tableHeader,
+        ...tableBody,
+        totalAmount,
+        discount,
+        finalAmount
+      ]
+    }
 
     const table = {
       table: {
         headerRows: 1,
         widths: [20, '*', 25, 40, 60, 60],
-        body: [
-          tableHeader,
-          ...tableBody,
-          tableFooter
-        ],
-
+        body: body,
       }
     };
 
-    let termsAndConditions = '';
-    if (quoteData.termsAndCondition.defaultNote) {
-      termsAndConditions += `${quoteData.termsAndCondition.defaultNote}\n`;
-    }
-    if (quoteData.termsAndCondition.text) {
-      termsAndConditions += `${quoteData.termsAndCondition.text}`;
-    }
-
-    let customerNotes = '';
-    if (quoteData.customerNote.defaultNote) {
-      customerNotes += `${quoteData.customerNote.defaultNote}\n`;
-    }
-    if (quoteData.customerNote.text) {
-      customerNotes += `${quoteData.customerNote.text}`;
-    }
 
 
     const documentDefinition: any = {
@@ -223,7 +256,7 @@ export class QuotationService {
             body: [
               [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 5 }, {}, {}, {}, {}],
               [{ style: 'tableHead', text: 'Attention:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.attention.courtesyTitle + ' ' + quoteData.attention.firstName + ' ' + quoteData.attention.lastName}`, alignment: 'left', colSpan: 3, bold: true }, {}, {}, { style: 'tableHead', text: 'Date:', alignment: 'left' }, { style: 'tableHead', text: '14-03-2024', alignment: 'left' }],
-              [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: '', alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: '', alignment: 'left' }],
+              [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyAddress, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.clientRef, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Client Tel:', alignment: 'left' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'FAX:', alignment: 'center' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'Salesperson:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}`, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Subject:', alignment: 'left' }, { style: 'tableHead', text: quoteData.subject, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Quote Ref:', alignment: 'left' }, { style: 'quoteId', text: quoteData.quoteId, alignment: 'left' }],
             ]
@@ -234,9 +267,9 @@ export class QuotationService {
         { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text', margin: [0, 10, 0, 15] },
         table,
         { text: 'TERMS & CONDITIONS', style: 'subHeading' },
-        { text: termsAndConditions, style: 'text' },
+        { text: quoteData.termsAndCondition, style: 'text' },
         { text: 'Notes', style: 'subHeading' },
-        { text: customerNotes, style: 'text' }, {
+        { text: quoteData.customerNote, style: 'text' }, {
           columns: [
             {
               text: [

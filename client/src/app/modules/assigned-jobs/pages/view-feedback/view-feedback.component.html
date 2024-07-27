@@ -1,0 +1,20 @@
+<div class=" flex items-center justify-center ">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+        <div class="border-b px-4 py-3 flex justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Feedback</h3>
+            <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="closeModal()">
+                <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+            </button>
+        </div>
+        <div class="px-8 py-5">
+            <div class="mb-4 py-4 pl-4 pr-14 border rounded-lg">
+                <h4 class="text-md font-semibold">{{ data.employeeId[0].firstName + ' ' + data.employeeId[0].lastName }}
+                </h4>
+                <p *ngIf="data.feedback; else noFeedback">{{ data.feedback }}</p>
+                <ng-template #noFeedback>
+                    <p class="text-gray-500 italic">No feedback has been received yet</p>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

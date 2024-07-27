@@ -20,12 +20,14 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { RevisionComponent } from './revision/revision.component';
 
 @NgModule({
   declarations: [
     EnquiryComponent,
     CreateEnquiryDialog,
-    AssignPresaleComponent
+    AssignPresaleComponent,
+    RevisionComponent
   ],
   imports: [
     CommonModule,

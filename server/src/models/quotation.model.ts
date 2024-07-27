@@ -1,5 +1,4 @@
 import { Schema, Document, model, Types } from "mongoose";
-import { Customer } from "./customer.model";
 
 interface QuoteItemDetail {
     detail: string;
@@ -9,10 +8,6 @@ interface QuoteItemDetail {
     availability: string;
 }
 
-interface DefaultAndText {
-    defaultNote: string;
-    text: string;
-}
 
 interface QuoteItem {
     itemName: string;
@@ -29,8 +24,8 @@ interface Quotation extends Document {
     currency: string;
     items: QuoteItem[];
     totalDiscount: number;
-    customerNote: DefaultAndText;
-    termsAndCondition: DefaultAndText;
+    customerNote: string;
+    termsAndCondition: string;
     status: string;
     createdBy: Types.ObjectId;
     lpoFiles: [];
@@ -123,11 +118,11 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     customerNote: {
-        type: Object,
+        type: String,
         required: true,
     },
     termsAndCondition: {
-        type: Object,
+        type: String,
         required: true,
     },
     status: {

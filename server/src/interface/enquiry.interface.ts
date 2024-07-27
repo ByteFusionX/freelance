@@ -10,6 +10,7 @@ export interface Enquiry {
     preSale: {
         presalePerson: string;
         presaleFiles: string[];
+        comment:string;
     };
     status: string;
 }

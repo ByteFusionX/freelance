@@ -56,7 +56,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
         }
 
         const filters = { $and: [matchFilters, accessFilter] }
-        
+
         let total: number = 0;
         await Customer.aggregate([
             {
@@ -150,6 +150,9 @@ export const getCustomerCreators = async (req: Request, res: Response, next: Nex
 export const createCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const customerData = req.body
+        let clientId: string = await generateClientRef(customerData.createdDate);
+        customerData.clientRef = clientId;
+
         const customer = new Customer(customerData)
         const saveCustomer = await customer.save()
 
@@ -180,18 +183,49 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
         next(error)
     }
 }
-// export const updateDepartment = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const data = req.body
-//         let department = await Department.findOneAndUpdate(
-//             { departmentName: data.departmentName }, { departmentHead: data.departmentHead })
 
-//         if (department) {
-//             department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
-//             return res.status(200).json(department)
-//         }
-//         return res.status(502).json()
-//     } catch (error) {
-//         next(error)
-//     }
-// }
+const generateClientRef = async (date: string) => {
+    try {
+        const lastClientId = await Customer.aggregate([
+            {
+                $match: {
+                    clientRef: { $ne: null }
+                }
+            },
+            {
+                $addFields: {
+                    slNoString: {
+                        $regexFind: {
+                            input: "$clientRef",
+                            regex: "^[0-9]+"
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    slNo: {
+                        $toInt: "$slNoString.match"
+                    }
+                }
+            },
+            {
+                $sort: { slNo: -1 }
+            }
+        ]);
+        let clientRef: string;
+        const currentYear = new Date().getFullYear();
+        const year = currentYear.toString().slice(-2);
+
+        if (lastClientId.length) {
+            let lastSlNo = lastClientId[0].slNo;
+            const formattedSlNo = String(lastSlNo + 1).padStart(3, '0');
+            clientRef = `${formattedSlNo}/${year}`
+        } else {
+            clientRef = `001-${year}`
+        }
+        return clientRef;
+    } catch (error) {
+        console.log(error)
+    }
+}

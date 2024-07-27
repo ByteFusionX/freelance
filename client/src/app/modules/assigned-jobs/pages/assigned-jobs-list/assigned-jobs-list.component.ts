@@ -3,13 +3,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { HttpEventType } from '@angular/common/http';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ViewCommentComponent } from '../view-comment/view-comment.component';
+import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
+import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -19,7 +22,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'download', 'upload', 'send'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'upload', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   isLoading: boolean = true;
   isEmpty: boolean = false
@@ -57,6 +60,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this._enquiryService.getPresale(this.page, this.row, access, userId).subscribe({
         next: (data) => {
+          console.log(data)
           this.dataSource.data = data.enquiry;
           this.total = data.total;
           this.isLoading = false;
@@ -77,7 +81,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
       {
         data: {
           title: `Are you absolutely sure?`,
-          description: `This action is irreversible and send the assigned task back to the salesperson. Please ensure all files are selected before proceeding.`,
+          description: `This action is irreversible and send the assigned task back to the salesperson. You can also verify by other employees. Please ensure all files are selected before proceeding. `,
           icon: 'heroExclamationCircle',
           IconColor: 'orange'
         }
@@ -108,6 +112,38 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
     })
   }
 
+  onFeedback(enquiryId: string) {
+    const dialogRef = this._dialog.open(SelectEmployeeComponent);
+
+    dialogRef.afterClosed().subscribe((employeeId: string) => {
+      if (employeeId) {
+        const feedbackBody = {
+          employeeId,
+          enquiryId
+        }
+        this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((res: any) => {
+          if (res.success) {
+            this.isLoading = true;
+            this.getJobsData()
+          }
+        })
+      }
+    })
+  }
+
+  viewFeedback(feedback: feedback) {
+    this._dialog.open(ViewFeedbackComponent, {
+      data: feedback
+    });
+  }
+
+  onViewComment(comment: string) {
+    let dialog = this._dialog.open(ViewCommentComponent, {
+      width: '500px',
+      data: comment
+    })
+  }
+
   onUploadClicks(index: number) {
     let dialog = this._dialog.open(FileUploadComponent, {
       width: '500px',
@@ -129,7 +165,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
   }
 
   onClearFiles(index: number) {
-    this.dataSource.data[index].preSale.presaleFile = null;
+    this.dataSource.data[index].preSale.presaleFiles = null;
 
     const enquiryId = this.dataSource.data[index]._id;
     this._enquiryService.clearAllPresaleFiles(enquiryId)

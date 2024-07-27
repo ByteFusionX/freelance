@@ -21,13 +21,14 @@ import TokenLogger from './common/middlewares/jwt.middleware';
 import jobRouter from './routes/job.router';
 import catRouter from './routes/category.router';
 import { socketConnection } from './service/socket-ioService';
+import noteRouter from './routes/note.router';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.ORIGIN1 ?? 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
   }
 });
@@ -43,7 +44,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
   credentials: true,
 }));
 
@@ -59,6 +60,7 @@ app.use('/quotation', quoteRouter);
 app.use('/category', catRouter);
 app.use('/file', fileRouter);
 app.use('/job', jobRouter);
+app.use('/note', noteRouter);
 
 let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}`;
 if (process.env.USE_MONGOATLAS === 'true') {

@@ -17,6 +17,7 @@ import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { customerNoteValidator } from 'src/app/shared/validators/quoation.validator';
 import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
+import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -36,8 +37,8 @@ export class CreateQuotatationComponent {
 
   quoteForm!: FormGroup;
   departments: getDepartment[] = [];
-  customerNotes: string[] = customerNotes;
-  termsAndConditions: string[] = termsAndConditions;
+  customerNotes!: Note[];
+  termsAndConditions!: Note[];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
 
@@ -72,6 +73,7 @@ export class CreateQuotatationComponent {
 
     this.getAllCustomers();
     this.getDepartment();
+    this.getNotes();
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
@@ -96,14 +98,8 @@ export class CreateQuotatationComponent {
         })
       ]),
       totalDiscount: ['', Validators.required],
-      customerNote: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
-      termsAndCondition: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
+      customerNote: ['', Validators.required],
+      termsAndCondition: ['', Validators.required],
       createdBy: [''],
       enqId: ['']
     });
@@ -119,12 +115,7 @@ export class CreateQuotatationComponent {
     )
   }
 
-  customerNoteValidator(formGroup: FormGroup) {
-    const defaultNote = formGroup.get('defaultNote')?.value;
-    const text = formGroup.get('text')?.value;
 
-    return (defaultNote || text) ? null : { required: true };
-  }
 
   get items(): FormArray {
     return this.quoteForm.get('items') as FormArray;
@@ -174,8 +165,25 @@ export class CreateQuotatationComponent {
     })
   }
 
+  getNotes() {
+    this._profileService.getNotes().subscribe((res: Notes) => {
+      this.customerNotes = res.customerNotes
+      this.termsAndConditions = res.termsAndConditions
+    })
+  }
+
   get f() {
     return this.quoteForm.controls;
+  }
+
+  onCustomerNote(event: Note, noteType: string) {
+    if (noteType == 'customerNotes') {
+      const note = this.quoteForm.value.customerNote + '\n' + event.note;
+      this.quoteForm.patchValue({ customerNote: note })
+    } else if (noteType == 'termsAndConditions') {
+      const note = this.quoteForm.value.termsAndCondition + '\n' + event.note;
+      this.quoteForm.patchValue({ termsAndCondition : note })
+    }
   }
 
   onChange(change: string) {

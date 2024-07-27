@@ -36,6 +36,10 @@ export interface Privileges {
     jobSheet: {
       viewReport: string;
     };
+    portalManagement: {
+      department: boolean;
+      notesAndTerms: boolean;
+    };
   }
 
 enum UserRole {

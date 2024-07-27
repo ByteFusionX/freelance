@@ -6,10 +6,11 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { EnquiryTable, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { EnquiryTable, getEnquiry, Presale } from 'src/app/shared/interfaces/enquiry.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -27,7 +28,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status', 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -140,6 +141,41 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
   }
 
+  onRevision(event: Event, enquiryId: string, presalePerson: string) {
+    event.stopPropagation()
+  }
+
+  onAssignPresale(event: Event, enquiryId: string,index:number) {
+    event.stopPropagation();
+
+    const presaleDialog = this.dialog.open(AssignPresaleComponent)
+    presaleDialog.afterClosed().subscribe((data: any) => {
+      if (data) {
+        const presaleData:getEnquiry["preSale"] = {
+          comment: data.comment,
+          presaleFiles: data.presaleFile,
+          presalePerson: data.presalePerson
+        };
+        let formData = new FormData();
+        formData.append('presaleData', JSON.stringify(presaleData));
+
+        if (presaleData.presaleFiles) {
+          for (let i = 0; i < presaleData.presaleFiles.length; i++) {
+            formData.append('presaleFiles', (presaleData.presaleFiles[i] as unknown as Blob))
+          }
+        }
+
+        this._enquiryService.assignPresale(formData,enquiryId).subscribe((res)=>{
+          if(res.success){
+            this.dataSource.data[index].preSale = presaleData
+            this.dataSource.data[index].status = 'Assigned To Presales'
+            this.dataSource._updateChangeSubscription();
+          }
+        })
+      }
+    })
+  }
+
   onClear() {
     this.isFiltered = false;
     this.fromDate = null
@@ -179,7 +215,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     if (enqData.status != 'Assigned To Presales') {
       this._enquiryService.emitToQuote(enqData)
       this.router.navigate(['/quotations/create'])
-    }else{
+    } else {
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
     }
   }
