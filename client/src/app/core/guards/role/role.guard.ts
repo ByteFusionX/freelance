@@ -11,7 +11,6 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
     const employeeService = inject(EmployeeService)
 
-
     const employee = employeeService.employeeToken()
     const employeeId = employee.employeeId
     return employeeService.getEmployee(employeeId).pipe(

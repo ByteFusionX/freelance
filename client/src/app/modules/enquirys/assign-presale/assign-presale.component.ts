@@ -19,6 +19,7 @@ export class AssignPresaleComponent implements OnInit {
   selectedFiles: File[] = []
   employees$!: Observable<getEmployee[]>
   selectedEmployee!: string | undefined;
+  comment!: string;
   employeeError: boolean = false;
   fileError: boolean = false;
   isClear: boolean = false;
@@ -26,7 +27,7 @@ export class AssignPresaleComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AssignPresaleComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[] },
+    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[], comment: string },
     private _employeeService: EmployeeService,
   ) { }
 
@@ -34,6 +35,7 @@ export class AssignPresaleComponent implements OnInit {
     this.employees$ = this._employeeService.getAllEmployees()
     if (this.data) {
       this.selectedEmployee = this.data.presalePerson
+      this.comment = this.data.comment
       this.selectedFiles = this.data.presaleFile
       this.isClear = true
     }
@@ -60,8 +62,8 @@ export class AssignPresaleComponent implements OnInit {
           presalePersonName = `${employee.firstName} ${employee.lastName}`
         }
       })
-      if (this.selectedEmployee && this.selectedFiles.length && presalePersonName) {
-        let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles, presalePersonName: presalePersonName }
+      if (this.selectedEmployee && this.selectedFiles.length && presalePersonName && this.comment) {
+        let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles, presalePersonName: presalePersonName, comment: this.comment }
         this.isSaving = false;
         this.dialogRef.close(presale)
       } else {
@@ -73,6 +75,7 @@ export class AssignPresaleComponent implements OnInit {
 
   onClear() {
     this.selectedEmployee = undefined
+    this.comment = ''
     this.selectedFiles = []
     this.dialogRef.close({ clear: true })
   }

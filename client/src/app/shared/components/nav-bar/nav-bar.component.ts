@@ -26,7 +26,7 @@ export class NavBarComponent {
 
   constructor(
     private _employeeService: EmployeeService,
-    private _router: Router
+    private _router: Router,
   ) { }
 
   ngOnInit() {
@@ -34,6 +34,7 @@ export class NavBarComponent {
     if(this.employee){
       const employeeId = this.employee.employeeId
       this._employeeService.getEmployeeData(employeeId)
+      console.log('shshsh')
       this.employeeData$ = this._employeeService.employeeData$
     }
   }
@@ -41,6 +42,10 @@ export class NavBarComponent {
   reduceSideBar() {
     this.showFullBar = !this.showFullBar
     this.reduce.emit(this.showFullBar)
+  }
+
+  onFeedbacks(){
+    this._router.navigate(['/feedback-requests'])
   }
 
   menuOpened() {

@@ -13,6 +13,7 @@ const routes: Routes = [
   { path: 'job-sheet', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/job-sheet/job-sheet.module').then((m) => m.JobSheetModule) },
   { path: 'profile', canActivate: [AuthGuard], loadChildren: () => import('./modules/profile/profile.module').then((m) => m.ProfileModule) },
   { path: 'settings', canActivate: [AuthGuard], loadChildren: () => import('./modules/settings/settings.module').then((m) => m.SettingsModule) },
+  { path: 'feedback-requests', canActivate: [AuthGuard], loadChildren: () => import('./modules/feedback-requests/feedback-requests.module').then((m) => m.FeedbackRequestsModule) },
   { path: 'login', canActivate: [LoginGuard], loadChildren: () => import('./modules/login/login.module').then((m) => m.LoginModule) },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
