@@ -1,11 +1,12 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { FileUploadComponent } from '../file-upload/file-upload.component';
-import { saveAs } from 'file-saver'
+import { saveAs } from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { HttpEventType } from '@angular/common/http';
@@ -19,22 +20,27 @@ import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component'
   templateUrl: './assigned-jobs-list.component.html',
   styleUrls: ['./assigned-jobs-list.component.css']
 })
-export class AssignedJobsListComponent implements OnInit, OnDestroy {
-
+export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
   displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'upload', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   isLoading: boolean = true;
-  isEmpty: boolean = false
-  subscriptions = new Subscription()
+  isEmpty: boolean = false;
+  subscriptions = new Subscription();
+  jobIdArr: string[] = []
+  private readonly destroy$ = new Subject<void>();
+  private notViewedJobIds: Set<string> = new Set();
 
   page: number = 1;
   row: number = 10;
   total!: number;
-  subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 })
+  subject = new BehaviorSubject<{ page: number, row: number }>({ page: 1, row: 10 });
 
-  progress: number = 0
+  progress: number = 0;
   selectedFile!: string | undefined;
+  userId!: string | undefined;
+
   constructor(
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
@@ -43,39 +49,93 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
-      this.page = data.page
-      this.row = data.row
-      this.getJobsData()
-    })
+      this.page = data.page;
+      this.row = data.row;
+      this.getJobsData();
+    });
+  }
+
+  ngAfterViewInit() {
+    this.jobItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => {
+        this.jobItems.forEach(item => this.observeJob(item));
+      }, 100); // slight delay to ensure the DOM is fully rendered
+    });
   }
 
   getJobsData() {
     let access;
-    let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.assignedJob.viewReport
-      userId = employee?._id
-    })
+      access = employee?.category.privileges.assignedJob.viewReport;
+      this.userId = employee?._id;
+    });
+    if (this.userId) {
+      this.subscriptions.add(
+        this._enquiryService.getPresale(this.page, this.row, access, this.userId).subscribe({
+          next: (data) => {
+            this.dataSource.data = data.enquiry;
+            this.total = data.total;
+            this.isLoading = false;
+            this.updateNotViewedJobIds();
+            this.observeAllJobs();
+          },
+          error: (error) => {
+            this.isEmpty = true;
+          }
+        })
+      );
+    }
+  }
 
-    this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row, access, userId).subscribe({
-        next: (data) => {
-          console.log(data)
-          this.dataSource.data = data.enquiry;
-          this.total = data.total;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          this.isEmpty = true
+  updateNotViewedJobIds() {
+    this.notViewedJobIds.clear();
+    this.dataSource.data.forEach(job => {
+      if (!job.preSale.seenbyEmployee) {
+        this.notViewedJobIds.add(job._id);
+      }
+    });
+  }
+
+  observeAllJobs() {
+    setTimeout(() => {
+      this.jobItems.forEach(item => this.observeJob(item));
+    }, 100); // slight delay to ensure the DOM is fully rendered
+  }
+
+  observeJob(element: ElementRef) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const jobId = entry.target.getAttribute('id');
+          if (jobId && this.notViewedJobIds.has(jobId)) {
+            this.jobIdArr.push(jobId)
+            this.notViewedJobIds.delete(jobId);
+          }
+          observer.unobserve(entry.target);
         }
-      })
-    )
+      });
+    }, { root: null, rootMargin: '0px', threshold: 1.0 });
+
+    if (element?.nativeElement) {
+      observer.observe(element.nativeElement);
+    }
+  }
+
+  markJobAsViewed(jobId: string[]) {
+    if (jobId.length > 0) {
+      this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
+    }
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe()
-  }
+    if (this.jobIdArr.length > 0) {
 
+      this.markJobAsViewed(this.jobIdArr)
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.subscriptions.unsubscribe();
+  }
   onSendClicked(index: number) {
     const dialogRef = this._dialog.open(ConfirmationDialogComponent,
       {

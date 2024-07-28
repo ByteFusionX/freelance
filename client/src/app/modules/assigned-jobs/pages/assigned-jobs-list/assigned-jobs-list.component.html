@@ -12,11 +12,10 @@
             <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
 
                 <ng-container matColumnDef="enqId">
-
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Enquiry ID </th>
-                    <td mat-cell *matCellDef="let element" class="flex items-center gap-2">
+                        <td mat-cell *matCellDef="let element" class="flex items-center gap-2" #jobItem data-id="{{element._id}}">
                         <div class="-translate-x-2" *ngIf="!element.preSale.seenbyEmployee">
                             <span
                                 class="bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
