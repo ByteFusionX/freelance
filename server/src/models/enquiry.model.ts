@@ -11,20 +11,20 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment:string };
+    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment: string };
     assignedFiles: []
     status: string;
     attachments: []
 }
 
 const feedbackSchema = new Schema({
-    employeeId:{
-        type:Types.ObjectId
+    employeeId: {
+        type: Types.ObjectId
     },
-    feedback:{
-        type:String
+    feedback: {
+        type: String
     },
-    requestedDate:{
+    requestedDate: {
         type: Date
     },
 })
@@ -34,11 +34,15 @@ const preSaleSchema = new Schema({
         type: Schema.Types.ObjectId
     },
     presaleFiles: [],
-    comment:{
+    comment: {
         type: String
     },
-    feedback:{
-        type:feedbackSchema
+    feedback: {
+        type: feedbackSchema
+    },
+    seenbyEmployee: {
+        type: Boolean,
+        default: false
     }
 })
 

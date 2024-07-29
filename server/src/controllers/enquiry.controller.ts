@@ -96,7 +96,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
 
         if (update.modifiedCount) return res.status(200).json({ success: true })
-            
+
         return res.status(502).json()
     } catch (error) {
 
@@ -610,3 +610,26 @@ const generateEnquiryId = async (departmentId: string, employeeId: string, date:
         console.log(error)
     }
 }
+
+export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const jobIds: string[] = req.body.jobIds; // Expecting jobIds as an array of strings
+
+        // Update the seenbyEmployee field to true for all job IDs in the array
+        const result = await enquiryModel.updateMany(
+            { _id: { $in: jobIds } },
+            { 'preSale.seenbyEmployee': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+

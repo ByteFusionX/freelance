@@ -11,9 +11,9 @@
   </div>
   <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
 
-  <div *ngIf="recentData || (announcementData && announcementData.length > 0)">
-    <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': recentData && !recentData.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="recentData?._id">
-      <div *ngIf="recentData?.celeb" class="confetti-container">
+  <div *ngIf="(page === 1 && recentData) || (announcementData && announcementData.length > 0)">
+    <div *ngIf="recentData" class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': recentData && !recentData.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="recentData._id">
+      <div *ngIf="recentData.celeb" class="confetti-container">
         <app-confetti-component></app-confetti-component>
       </div>
       <div class="flex gap-2 justify-between">
@@ -23,20 +23,20 @@
         </div>
         <div class="flex gap-2 justify-center items-center">
           <i><ng-icon name="heroCalendarDays" class="text-lg mt-[4px]"></ng-icon></i>
-          <p>{{recentData?.date | date: 'MMM d, y'}}</p>
+          <p>{{recentData.date | date: 'MMM d, y'}}</p>
         </div>
       </div>
       <div class="flex gap-1">
         <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
-        <time class="block mt-1 text-xs font-normal leading-none text-gray-400">{{recentData?.createdDate | date: 'MMM d, y'}}</time>
+        <time class="block mt-1 text-xs font-normal leading-none text-gray-400">{{recentData.createdDate | date: 'MMM d, y'}}</time>
       </div>
-      <h1 class="text-xl text-violet-700">{{recentData?.title}}</h1>
+      <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
       <div class="flex justify-between items-center">
-        <p class="text-sm text-gray-600">{{recentData?.description}}</p>
+        <p class="text-sm text-gray-600">{{recentData.description}}</p>
         <span *ngIf="recentData && !recentData.viewedBy.includes(userId)" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
       </div>
     </div>
-
+  
     <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
       <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': !item.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="item._id">
         <div *ngIf="item.celeb" class="confetti-container">
@@ -60,6 +60,7 @@
       </div>
     </div>
   </div>
+  
 
   <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
     <div class="p-3">

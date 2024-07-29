@@ -11,7 +11,8 @@ import {
     sendFeedbackRequest,
     getFeedbackRequestsById,
     giveFeedback,
-    assignPresale
+    assignPresale,
+    markAsSeenJob
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
@@ -26,5 +27,7 @@ equiRouter.patch('/feedback-request', sendFeedbackRequest);
 equiRouter.patch('/give-feedback', giveFeedback);
 equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/assign-files', upload.array('assignFiles', 5), uploadAssignFiles)
+equiRouter.post('/markAsSeenedJob', markAsSeenJob);
+
 
 export default equiRouter;

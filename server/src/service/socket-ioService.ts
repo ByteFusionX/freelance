@@ -1,4 +1,5 @@
 import announcementModel from "../models/announcement.model";
+import enquiryModel from "../models/enquiry.model";
 
 export const socketConnection = async (socketIo) => {
     try {
@@ -14,7 +15,8 @@ export const socketConnection = async (socketIo) => {
             })
             socket.on('onCheck', async (userId) => {
                 const notViewedCount = await getNotViewedAnnouncementsCount(userId)
-                socket.emit('notViewed', notViewedCount)
+                const notViewedPresaleCount = await getNotViewedPresale(userId)
+                socket.emit('notViewed', { notViewedCount, notViewedPresaleCount })
             })
         })
 
@@ -29,6 +31,18 @@ const getNotViewedAnnouncementsCount = async (userId: string): Promise<number> =
         return count;
     } catch (error) {
         console.error('Error in getNotViewedAnnouncementsCount:', error);
+        return 0;
+    }
+};
+const getNotViewedPresale = async (userId: string): Promise<number> => {
+    try {
+        const count = await enquiryModel.countDocuments({
+            'preSale.presalePerson': userId,
+            'preSale.seenbyEmployee': false,
+        });
+        return count;
+    } catch (error) {
+        console.error('Error in getNotViewedPresale:', error);
         return 0;
     }
 };
