@@ -47,7 +47,9 @@ import {
   heroDocumentText,
   heroTrash,
   heroCheck,
-  heroChatBubbleBottomCenterText
+  heroChatBubbleBottomCenterText,
+  heroCheckCircle,
+  heroArrowsRightLeft,
 } from '@ng-icons/heroicons/outline';
 
 
@@ -102,7 +104,9 @@ import {
       heroDocumentText,
       heroTrash,
       heroCheck,
-      heroChatBubbleBottomCenterText
+      heroChatBubbleBottomCenterText,
+      heroCheckCircle,
+      heroArrowsRightLeft
     }),
   ],
   exports: [NgIconsModule]

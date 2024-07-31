@@ -1,0 +1,201 @@
+<div>
+    <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+        <h3 class="text-md font-medium">Deal Sheet</h3>
+        <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+            <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow px-6 overflow-y-scroll max-h-[77vh]">
+
+       <div class="w-full flex gap-4">
+        <table class="w-1/2 text-sm text-left text-gray-500 border my-4">
+            <tbody>
+                <tr>
+                    <th scope="col" class=" px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >CUSTOMER NAME</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.quoteData.client.companyName }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >DEAL ID</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.quoteData.dealData.dealId }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >DATE</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.quoteData.dealData.savedDate | date }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >SALES AM NAME</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.quoteData.createdBy.firstName + ' ' + data.quoteData.createdBy.lastName }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >PAYMENT TERMS</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.quoteData.dealData.paymentTerms }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="w-1/2 text-sm text-left text-gray-500 border my-4">
+            <tbody>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >Total Selling Price </div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.priceDetails.totalSellingPrice.toFixed(2) }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >Total cost</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.priceDetails.totalCost.toFixed(2) }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >Profit                         </div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.priceDetails.profit.toFixed(2) }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                        <div >%</div>
+                    </th>
+                    <td class=" px-4 border text-gray-800">
+                        {{ data.priceDetails.perc.toFixed(3) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+       </div>
+
+
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4">
+            <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
+                <tr>
+                    <th scope="col" class=" border-l border-r border-t px-2">
+                        Sl/<br>No.
+
+                    </th>
+                    <th scope="col" class=" w-96 border-l border-r border-t " key="itemDetail">
+                        <div class="px-6 py-3">Item Details</div>
+
+                    </th>
+                    <th scope="col" class=" border-l border-r border-t   text-center min-w-[66px]">
+                        <div class="px-2 py-3">QTY</div>
+                    </th>
+                    <th scope="col" class="border-l border-r border-t   text-center">
+                        <div class="px-6 py-3">Unit Selling Price</div>
+                    </th>
+                    <th scope="col" class="border-l border-r border-t   text-center">
+                        <div class="px-6 py-3">Total Selling Price</div>
+                    </th>
+                    <th scope="col" class="border-l border-r border-t   text-center">
+                        <div class="px-6 py-3">Unit Cost</div>
+                    </th>
+                    <th scope="col" class="border-l border-r border-t   text-center">
+                        <div class="px-6 py-3">Total Cost</div>
+                    </th>
+
+                    <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+                        <div class="px-2 py-3">Supplier Name</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of data.quoteItems; let i = index">
+                    <tr *ngIf="item?.itemName">
+                        <td colspan="8" class="border px-6 py-2 bg-gray-50">
+                            <div class="flex justify-center items-center text-md text-black font-medium uppercase">
+                                {{ item?.itemName }}
+                            </div>
+                        </td>
+                    </tr>
+                    <ng-container *ngFor="let detail of item?.itemDetails as QuoteItemDetail ; let j = index">
+                        <tr class=" border-b text-gray-800" *ngIf="detail.dealSelected">
+                            <td class="px-2 border text-center">
+                                {{ detail.quantity }}
+                            </td>
+                            <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                <div [innerHTML]="detail.detail| parseBracketsText | parseBoldText"></div>
+                            </th>
+                            <td class="px-2 border text-center">
+                                {{ detail.quantity }}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{ (detail.unitCost / (1 - (detail.profit / 100))).toFixed(2) }}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{ ((detail.unitCost / (1 - (detail.profit / 100))) * detail.quantity).toFixed(2) }}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{ detail.unitCost.toFixed(2) }}
+                            </td>
+                            <td class="py-2 border text-center">
+                                {{ (detail.quantity * detail.unitCost).toFixed(2) }}
+                            </td>
+                            <td class="py-2 border text-center">
+                                {{ detail.supplierName }}
+                            </td>
+                        </tr>
+                    </ng-container>
+                    <ng-container *ngFor="let cost of data.quoteData.dealData.additionalCosts;let i = index">
+                        <tr class=" border-b text-gray-800">
+                            <td colspan="1" class="px-2 border text-center">
+                                {{ i + 1 }}
+                            </td>
+                            <td colspan="1" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                {{ cost.name }}
+                            </td>
+                            <td colspan="4" class="border px-6 py-2 bg-gray-50">
+
+                            </td>
+                            <td colspan="1" class=" border py-2 text-center">
+                                {{ cost.value }}
+                            </td>
+                            <td colspan="1" class="border px-6 py-2 bg-gray-50">
+
+                            </td>
+                        </tr>
+                    </ng-container>
+                </ng-container>
+            </tbody>
+
+        </table>
+    </div>
+
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-end gap-2"  *ngIf="data.approval">
+        <div class="flex gap-2 ">
+            <button class="border text-black font-medium py-2 px-4 rounded text-sm" (click)="onClose()">
+                Close
+            </button>
+            <button class="border text-white font-medium py-2 px-4 rounded text-sm bg-green-600" (click)="onApprove()">
+            <ng-icon *ngIf="isApproving" class="spin" name="heroArrowPath"></ng-icon>
+                Approve
+            </button>
+        </div>
+    </div>

@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AssignedJobsRoutingModule } from './assigned-jobs-routing.module';
 import { AssignedJobsComponent } from './assigned-jobs.component';
 import { AssignedJobsListComponent } from './pages/assigned-jobs-list/assigned-jobs-list.component';
+import { CompletedJobsListComponent } from './pages/completed-jobs-list/completed-jobs-list.component';
 import { MatTableModule } from '@angular/material/table';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
@@ -25,6 +26,7 @@ import { ViewFeedbackComponent } from './pages/view-feedback/view-feedback.compo
   declarations: [
     AssignedJobsComponent,
     AssignedJobsListComponent,
+    CompletedJobsListComponent,
     FileUploadComponent,
     ViewCommentComponent,
     SelectEmployeeComponent,

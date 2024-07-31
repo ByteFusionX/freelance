@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   quotes!: number;
   jobs!: number;
+  presales!: { pending: number, completed: number };
   graphSeries: { name: string, data: number[] }[] = [];
   graphCategory: string[] = [];
   showChart: boolean = false
@@ -34,11 +35,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isEnquiryLoading: boolean = true;
   isQuoteLoading: boolean = true;
   isJobLoading: boolean = true;
+  isPresalesLoading: boolean = true;
 
   enquiries$!: Observable<TotalEnquiry[]>;
   userData$!: Observable<getEmployee | undefined>;
   quotations$!: Observable<{ total: number }>;
   jobs$!: Observable<{ total: number }>;
+  presales$!: Observable<{ pending: number, completed: number }>;
 
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
@@ -67,6 +70,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.quoteLoading();
         this.jobs$ = this._jobService.totalJobs(this.jobAccess, this.userId)
         this.jobLoading();
+        this.presales$ = this._enquiryService.presalesCounts(this.jobAccess, this.userId)
+        this.presalesLoading();
 
         this.getChartDetails()
       }
@@ -89,6 +94,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }),
         error: ((err) => {
           this.isEnquiryLoading = true
+        })
+      })
+    )
+  }
+
+  presalesLoading() {
+    this.subscriptions.add(
+      this.presales$.subscribe({
+        next: ((data) => {
+          if (data) {
+            this.isPresalesLoading = false
+          }
+        }),
+        error: ((err) => {
+          this.isPresalesLoading = true
         })
       })
     )

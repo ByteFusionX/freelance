@@ -7,7 +7,7 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
-import { getQuotation, Quotatation, quotatationForm, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
+import { dealData, getQuotation, Quotatation, quotatationForm, QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
 import { UploadLpoComponent } from '../upload-lpo/upload-lpo.component';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -16,6 +16,8 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { LoadingBarService } from '@ngx-loading-bar/core';
+import { DealFormComponent } from '../deal-form/deal-form.component';
+import { ViewLpoComponent } from '../view-lpo/view-lpo.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -35,7 +37,7 @@ export class QuotationListComponent {
   loader = this.loadingBar.useRef();
 
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'status', 'action'];
+  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department','totalCost', 'status', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()
@@ -87,6 +89,8 @@ export class QuotationListComponent {
     this.subscriptions.unsubscribe()
   }
 
+
+
   getQuotations() {
     this.isLoading = true;
     let access;
@@ -128,9 +132,9 @@ export class QuotationListComponent {
   filteredStatuses(selectedStatus: string): QuoteStatus[] {
     const allStatuses = Object.values(QuoteStatus);
     let filteredStatuses: QuoteStatus[] = [];
-  
+
     let statusReached = false;
-    
+
     allStatuses.forEach((status) => {
       if (status === selectedStatus) {
         statusReached = true;
@@ -139,10 +143,10 @@ export class QuotationListComponent {
         filteredStatuses.push(status);
       }
     });
-  
+
     return filteredStatuses;
   }
-  
+
 
   onRowClicks(index: number) {
     let data = this.dataSource.data[index]
@@ -229,11 +233,38 @@ export class QuotationListComponent {
 
   onClickLpo(data: Quotatation, event: Event) {
     event.stopPropagation()
-    const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data })
+    const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data, width: '500px' })
     lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
       this.loader.start()
       this.getQuotations()
       this.loader.complete()
+    })
+  }
+
+  onViewLpo(data: Quotatation, event: Event) {
+    event.stopPropagation()
+    this._dialog.open(ViewLpoComponent,
+      {
+        data: data
+      });
+  }
+
+  onConvertToDealSheet(data: Quotatation, event: Event,index:number) {
+    event.stopPropagation()
+    const dialogRef = this._dialog.open(DealFormComponent,
+      {
+        data: data,
+        width: '900px'
+      });
+
+    dialogRef.afterClosed().subscribe((dealData: dealData) => {
+      if(dealData){
+        console.log(dealData)
+        this._quoteService.saveDealSheet(dealData, data._id).subscribe((res)=>{
+          this.dataSource.data[index].dealData = res.dealData;
+          this.dataSource._updateChangeSubscription();
+        })
+      }
     })
   }
 
@@ -245,5 +276,28 @@ export class QuotationListComponent {
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  calculateUnitPrice(i: number, j: number,quoteData:Quotatation) {
+    const decimalMargin = quoteData.items[i].itemDetails[j].profit / 100;
+    return quoteData.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
+  }
+
+  calculateTotalPrice(i: number, j: number,quoteData:Quotatation) {
+    return this.calculateUnitPrice(i, j,quoteData) * quoteData.items[i].itemDetails[j].quantity;
+  }
+
+  calculateSellingPrice(quoteData:Quotatation): number {
+    let totalCost = 0;
+    quoteData.items.forEach((item, i) => {
+      item.itemDetails.forEach((itemDetail, j) => {
+        totalCost += this.calculateTotalPrice(i, j,quoteData)
+      })
+    })
+    return totalCost;
+  }
+
+  calculateDiscoutPrice(quoteData:Quotatation): number {
+    return this.calculateSellingPrice(quoteData) - quoteData.totalDiscount
   }
 }

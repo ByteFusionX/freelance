@@ -9,12 +9,22 @@ export interface QuoteItem {
 }
 
 export interface QuoteItemDetail {
+    _id:string;
     detail: string;
     quantity: number;
     unitCost: number;
     profit: number;
     availability: string;
+    dealSelected:boolean;
+    supplierName:string;
 }
+
+export interface File {
+    fileName:string;
+    originalname: string;
+}
+
+
 
 export interface Quotatation {
     _id?: string;
@@ -31,9 +41,11 @@ export interface Quotatation {
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
     status: QuoteStatus;
-    lpoFiles: [];
+    lpoFiles: File[];
+    lpoValue:string;
     lpoSubmitted: boolean;
     enqId: string;
+    dealData:dealData;
 }
 
 export interface getQuotatation {
@@ -54,6 +66,7 @@ export interface getQuotatation {
     lpoFiles: [];
     lpoSubmitted: boolean;
     enqId: getEnquiry;
+    dealData:dealData;
 }
 
 export interface DefaultAndText {
@@ -63,6 +76,11 @@ export interface DefaultAndText {
 
 export interface getQuotation {
     quotations: Quotatation[];
+    total: number;
+}
+
+export interface getDealSheet {
+    dealSheet: Quotatation[];
     total: number;
 }
 
@@ -93,6 +111,14 @@ export enum QuoteStatus {
     Lost = 'Lost',
 }
 
+export interface dealData{
+    dealId:string;
+    paymentTerms:string;
+    items:[];
+    additionalCosts:{name:string,value:number}[];
+    savedDate:string;
+}
+
 
 export interface FilterQuote {
     page: number;
@@ -103,8 +129,22 @@ export interface FilterQuote {
     toDate: string | null;
 }
 
+export interface FilterDeal {
+    page: number;
+    row: number;
+    access?: string;
+    userId?: string;
+}
+
 export interface nextQuoteData {
     department: getDepartment;
     createdBy: string | undefined;
     date: string;
+}
+
+export interface priceDetails{
+    totalSellingPrice: number;
+    totalCost: number;
+    profit: number;
+    perc: number;
 }

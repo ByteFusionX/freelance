@@ -10,6 +10,7 @@ const routes: Routes = [
   { path: 'enquiry', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/enquirys/enquiry.module').then((m) => m.EnquiryModule) },
   { path: 'assigned-jobs', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/assigned-jobs/assigned-jobs.module').then((m) => m.AssignedJobsModule) },
   { path: 'quotations', canActivate: [AuthGuard], loadChildren: () => import('./modules/quotations/quotations.module').then((m) => m.QuotationsModule) },
+  { path: 'deal-sheet', canActivate: [AuthGuard], loadChildren: () => import('./modules/deal-sheet/deal-sheet.module').then((m) => m.DealSheetModule) },
   { path: 'job-sheet', canActivate: [AuthGuard, RoleGuard], loadChildren: () => import('./modules/job-sheet/job-sheet.module').then((m) => m.JobSheetModule) },
   { path: 'profile', canActivate: [AuthGuard], loadChildren: () => import('./modules/profile/profile.module').then((m) => m.ProfileModule) },
   { path: 'settings', canActivate: [AuthGuard], loadChildren: () => import('./modules/settings/settings.module').then((m) => m.SettingsModule) },

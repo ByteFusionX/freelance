@@ -11,14 +11,17 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { FormBuilder, FormControl } from '@angular/forms';
 import { GeneratePdfReport } from 'src/app/core/services/generateReport.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-
+import { ApproveDealComponent } from 'src/app/modules/deal-sheet/approve-deal/approve-deal.component';
+import { getQuotatation, Quotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
+import { LoadingBarService } from '@ngx-loading-bar/core';
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css']
 })
 export class JobListComponent {
-
   selectedDateFormat: string = "monthly";
   selectedFile!: string | undefined;
   progress: number = 0
@@ -40,7 +43,7 @@ export class JobListComponent {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
-
+  loader = this.loadingBar.useRef();
 
   private subscriptions = new Subscription();
 
@@ -51,6 +54,8 @@ export class JobListComponent {
     private _fb: FormBuilder,
     private _generatePdfSerive: GeneratePdfReport,
     private _employeeService: EmployeeService,
+    private _quotationService: QuotationService,
+    private loadingBar: LoadingBarService
   ) { }
 
 
@@ -80,7 +85,7 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
-  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'lpo', 'lpoValue', 'status'];
+  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status'];
 
   getAllJobs(selectedMonth?: number, selectedYear?: number) {
     this.isLoading = true;
@@ -100,6 +105,7 @@ export class JobListComponent {
       access: access,
       userId: userId
     }
+
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
         next: (data: JobTable) => {
@@ -125,9 +131,9 @@ export class JobListComponent {
   }
 
   onDownloadClicks(file: any) {
-    this.selectedFile = file.filename
+    this.selectedFile = file.fileName
     this.subscriptions.add(
-      this._jobService.downloadFile(file.filename)
+      this._jobService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {
             if (event.type === HttpEventType.DownloadProgress) {
@@ -157,6 +163,64 @@ export class JobListComponent {
 
   onGenerateReport() {
     this.getAllJobs()
+  }
+
+  onViewDealSheet(quoteData: Quotatation,salesPerson:any,customer:any){
+    quoteData.createdBy = salesPerson;
+    quoteData.client = customer;
+    let priceDetails = {
+      totalSellingPrice: 0,
+      totalCost: 0,
+      profit: 0,
+      perc: 0
+    }
+
+    const quoteItems = quoteData.items.map((item) => {
+      let itemSelected = 0;
+
+      item.itemDetails.map((itemDetail) => {
+        if (itemDetail.dealSelected) {
+          itemSelected++;
+          priceDetails.totalSellingPrice += itemDetail.unitCost / (1 - (itemDetail.profit / 100)) * itemDetail.quantity;
+          priceDetails.totalCost += itemDetail.quantity * itemDetail.unitCost;
+          return itemDetail
+        }
+        return;
+      })
+
+      if (itemSelected) return item;
+
+      return;
+    });
+
+    priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
+    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
+
+    this._dialog.open(ApproveDealComponent,
+      {
+        data: { approval:false, quoteData, quoteItems, priceDetails },
+        width: '900px'
+      });
+  }
+
+  onPreviewPdf(quotedData:getQuotatation,salesPerson:any,customer:any,attention:any) {
+    this.loader.start()
+    quotedData.createdBy = salesPerson;
+    quotedData.client = customer;
+    quotedData.attention = attention;
+    let quoteData: getQuotatation = quotedData;
+    const pdfDoc = this._quotationService.generatePDF(quoteData)
+    pdfDoc.then((pdf) => {
+      pdf.getBlob((blob: Blob) => {
+        let url = window.URL.createObjectURL(blob);
+        
+        let dialogRef = this._dialog.open(QuotationPreviewComponent,
+          {
+            data: url
+          });
+      });
+    });
+    this.loader.complete()
   }
 
   onStatus(event: Event, status: JobStatus) {
@@ -219,7 +283,7 @@ export class JobListComponent {
       });
     }
   }
-  
+
   getJobsForPdf(selectedMonth?: number, selectedYear?: number): Observable<JobTable> {
     this.isLoading = true;
     let filterData = {
@@ -229,7 +293,7 @@ export class JobListComponent {
       selectedMonth: selectedMonth,
       selectedYear: selectedYear
     };
-  
+
     return this._jobService.getJobs(filterData).pipe(
       tap((data: JobTable) => {
         this.dataSource.data = [...data.job];
@@ -249,7 +313,7 @@ export class JobListComponent {
       })
     );
   }
-  
+
   generatePdfAfterDataFetch() {
     if (!this.isEmpty) {
       const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'LPO Val.', 'Status'];
@@ -271,7 +335,7 @@ export class JobListComponent {
       this.toast.warning('No Data to generate Report');
     }
   }
-  
+
 
   onRemoveReport() {
     this.reportDate = ''

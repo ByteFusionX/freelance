@@ -78,6 +78,24 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $lookup: { from: 'employees', localField: 'quotation.createdBy', foreignField: '_id', as: 'salesPersonDetails' }
             },
             {
+                $addFields: {
+                    attention: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$clientDetails.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$quotation.attention']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            },
+            {
                 $match: accessFilter
             },
         ]);

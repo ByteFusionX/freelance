@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData, dealData, FilterDeal, getDealSheet } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
@@ -28,12 +28,20 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
   }
 
+  getDealSheet(filterData: FilterDeal): Observable<getDealSheet> {
+    return this.http.post<getDealSheet>(`${this.api}/quotation/deal/get`, filterData)
+  }
+
   getNextQuoteId(quoteData: nextQuoteData): Observable<{ quoteId: string }> {
     return this.http.post<{ quoteId: string }>(`${this.api}/quotation/nextQuoteId`, quoteData)
   }
 
   updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
     return this.http.patch<QuoteStatus>(`${this.api}/quotation/status/${quoteId}`, { status })
+  }
+
+  saveDealSheet(dealDatas: dealData, quoteId?: string): Observable<Quotatation> {
+    return this.http.patch<Quotatation>(`${this.api}/quotation/deal/${quoteId}`, dealDatas)
   }
 
   totalQuotations(access?: string, userId?: string): Observable<{ total: number }> {
@@ -43,6 +51,10 @@ export class QuotationService {
 
   uploadLpo(lpoData: FormData): Observable<any> {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
+  }
+
+  approveDeal(quoteId?:string): Observable<{success:true}>{
+    return this.http.post<{success:true}>(`${this.api}/quotation/deal/approve`,{quoteId})
   }
 
   getBase64ImageFromURL(url: string) {
@@ -112,14 +124,14 @@ export class QuotationService {
 
         const segments = detail.detail
         const result = [];
-  
+
         // Regular expression to match the patterns, including spaces
         const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
         let match;
-      
+
         while ((match = regex.exec(segments)) !== null) {
           const [fullMatch] = match;
-      
+
           if (fullMatch.startsWith('**')) {
             if (fullMatch.includes('{') && fullMatch.includes('}')) {
               // Bold placeholder: **{text}**
@@ -161,7 +173,7 @@ export class QuotationService {
 
 
     let discount;
-    if(quoteData.totalDiscount != 0){
+    if (quoteData.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
@@ -174,14 +186,14 @@ export class QuotationService {
     ];
 
     let body;
-    if(quoteData.totalDiscount == 0){
+    if (quoteData.totalDiscount == 0) {
       body = [
         tableHeader,
         ...tableBody,
         totalAmount,
         finalAmount
       ]
-    }else{
+    } else {
       body = [
         tableHeader,
         ...tableBody,

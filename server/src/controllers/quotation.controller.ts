@@ -191,6 +191,145 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+export const getDealSheet = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { page, row, access, userId } = req.body;
+        let skipNum: number = (page - 1) * row;
+
+        let matchFilters = { dealData: { $exists: true },dealApproved:false }
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+
+        let total: number = 0;
+        await Quotation.aggregate([
+            {
+                $match: filters
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { total: 1, _id: 0 }
+            }
+        ]).exec()
+            .then((result: { total: number }[]) => {
+                if (result && result.length > 0) {
+                    total = result[0].total
+                }
+            })
+
+        let dealData = await Quotation.aggregate([
+            {
+                $match: filters,
+            },
+            {
+                $sort: { createdDate: 1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
+            {
+                $lookup: {
+                    from: 'customers',
+                    localField: 'client',
+                    foreignField: '_id',
+                    as: 'client'
+                }
+            },
+            {
+                $unwind: '$client'
+            },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: '$department',
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy'
+                }
+            },
+            {
+                $unwind: '$createdBy',
+            },
+            {
+                $lookup: {
+                    from: 'enquiries',
+                    localField: 'enqId',
+                    foreignField: '_id',
+                    as: 'enqId'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$enqId',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    attention: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$client.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$attention']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
+        ]);
+
+        if (!dealData || !total) return res.status(204).json({ err: 'No Deal data found' })
+        return res.status(200).json({ total: total, dealSheet: dealData })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 
 export const getNextQuoteId = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -205,6 +344,50 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+
+const generateDealId = async () => {
+    try {
+        const lastQuote = await Quotation.aggregate([
+            {
+                $match: {
+                    dealData: { $exists: true }
+                }
+            },
+            {
+                $addFields: {
+                    lastNumber: {
+                        $toInt: { $arrayElemAt: [{ $split: ["$dealData.dealId", "-"] }, -1] }
+                    }
+                }
+            },
+            {
+                $sort: { lastNumber: -1 }
+            },
+            {
+                $limit: 1
+            }
+        ])
+        console.log(lastQuote)
+        let dealId: string;
+
+
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const year = currentYear.toString().slice(-2);
+
+        if (lastQuote.length) {
+            const lastNumber = lastQuote[0].lastNumber;
+            const incrementedNum = parseInt(lastNumber) + 1;
+            const formattedIncrementedNum = String(incrementedNum).padStart(3, '0');
+            dealId = `DL-${year}-${formattedIncrementedNum}`
+        } else {
+            dealId = `DL-${year}-001`
+        }
+        return dealId;
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 const generateQuoteId = async (departmentId: string, employeeId: string, date: string) => {
     try {
@@ -274,11 +457,64 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
     try {
         const quoteData = req.body;
         const { quoteId } = req.params;
+
         const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, quoteData)
 
         if (quoteUpdated) {
             return res.status(200).json(quoteUpdated)
         }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const saveDealSheet = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { paymentTerms, items, costs } = req.body;
+        let dealId: string = await generateDealId();
+
+        const createdDate = new Date()
+        let updateQuoteData = {
+            items: items,
+            dealData: {
+                dealId: dealId,
+                paymentTerms,
+                additionalCosts: costs,
+                savedDate: createdDate
+            }
+        }
+
+        const { quoteId } = req.params;
+        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, updateQuoteData, { new: true });
+
+        if (quoteUpdated) {
+            return res.status(200).json(quoteUpdated)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+export const approveDeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        console.log('andimukk ivde ethinna thonninath')
+        const jobId = await generateJobId()
+        const jobData = {
+            quoteId: req.body.quoteId,
+            jobId: jobId
+        }
+
+        const job = new Job(jobData);
+        const saveJob = await job.save()
+        if (saveJob) {
+            const quoteUpdate = await Quotation.updateOne({_id:jobData.quoteId},{dealApproved:true})
+            if (quoteUpdate) {
+                return res.status(200).json({ success: true })
+            }
+        }
+
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -292,28 +528,11 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
         const lpoFiles = req.files;
         const files = lpoFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
 
-        if (req.body.isSubmitted == 'true') {
-            const lpoValue = req.body.lpoValue;
-            const jobId = await generateJobId()
+        const lpoValue = req.body.lpoValue;
 
-            const jobData = {
-                quoteId: req.body.quoteId,
-                jobId: jobId,
-                files: files,
-                lpoValue: lpoValue
-            }
-
-            const job = new Job(jobData)
-            const saveJob = await (await job.save()).populate('quoteId')
-
-            const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true });
-            if (quote) {
-                return res.status(200).json(quote);
-            }
-        } else {
-            const quoteId = req.body.quoteId;
-            await Quotation.findByIdAndUpdate(quoteId, { $push: { lpoFiles: { $each: files } } })
-
+        const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoValue: lpoValue, lpoFiles: files });
+        if (quote) {
+            return res.status(200).json(quote);
         }
 
         return res.status(502).json()

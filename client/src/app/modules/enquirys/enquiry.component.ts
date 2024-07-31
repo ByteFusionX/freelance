@@ -11,6 +11,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
+import { ViewPresaleComponent } from './view-presale/view-presale.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -141,8 +142,16 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
   }
 
-  onRevision(event: Event, enquiryId: string, presalePerson: string) {
+  onViewPresale(event: Event, i: number, enquiryData:getEnquiry ) {
     event.stopPropagation()
+    const presaleDialog = this.dialog.open(ViewPresaleComponent,{data:enquiryData,width:'500px'})
+    presaleDialog.afterClosed().subscribe((success: boolean) => {
+      if(success){
+        this.dataSource.data[i].status = 'Assigned To Presales'
+        this.dataSource._updateChangeSubscription();
+      }
+    })
+
   }
 
   onAssignPresale(event: Event, enquiryId: string,index:number) {

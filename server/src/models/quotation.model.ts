@@ -6,12 +6,25 @@ interface QuoteItemDetail {
     unitCost: number;
     profit: number;
     availability: string;
+    supplierName?: string;
+    dealSelected?:boolean;
 }
-
 
 interface QuoteItem {
     itemName: string;
     itemDetails: QuoteItemDetail[]
+}
+
+interface AdditionalCost {
+    name: string;
+    value: number;
+}
+
+interface Deal {
+    dealId: string;
+    paymentTerms: string;
+    additionalCosts: AdditionalCost[];
+    savedDate: Date;
 }
 
 interface Quotation extends Document {
@@ -29,7 +42,9 @@ interface Quotation extends Document {
     status: string;
     createdBy: Types.ObjectId;
     lpoFiles: [];
-    lpoSubmitted: boolean;
+    lpoValue: number;
+    dealApproved: boolean;
+    dealData: Deal;
     enqId: Types.ObjectId;
 }
 
@@ -64,6 +79,15 @@ const quoteItemDetailsSchema = new Schema<QuoteItemDetail>({
         type: String,
         required: true,
     },
+    supplierName: {
+        type: String,
+        required: false,
+    }
+    ,
+    dealSelected: {
+        type: Boolean,
+        required: false,
+    }
 });
 
 const quoteItem = new Schema<QuoteItem>({
@@ -75,6 +99,38 @@ const quoteItem = new Schema<QuoteItem>({
         type: [quoteItemDetailsSchema],
         required: true,
     },
+});
+
+const additionalCostSchema = new Schema<AdditionalCost>({
+    name: {
+        type: String,
+        required: true,
+    },
+    value: {
+        type: Number,
+        required: true,
+    }
+});
+
+const dealDatas = new Schema<Deal>({
+    dealId: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    paymentTerms: {
+        type: String,
+        required: true,
+    },
+    additionalCosts: {
+        type: [additionalCostSchema],
+        required: true,
+    },
+    savedDate: {
+        type: Date,
+        required: true,
+    },
+    
 });
 
 const quotationSchema = new Schema<Quotation>({
@@ -136,9 +192,15 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     lpoFiles: [],
-    lpoSubmitted: {
+    lpoValue: {
+        type: Number
+    },
+    dealApproved: {
         type: Boolean,
         default: false
+    },
+    dealData: {
+        type: dealDatas
     },
     enqId: {
         type: Schema.Types.ObjectId,

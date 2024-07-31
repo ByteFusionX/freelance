@@ -137,6 +137,12 @@
                         Department </th>
                     <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
                 </ng-container>
+                <ng-container matColumnDef="totalCost">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Amount </th>
+                    <td mat-cell *matCellDef="let element"> {{ calculateDiscoutPrice(element) | numberFormatter }} {{element.currency}} </td>
+                </ng-container>
     
                 <ng-container matColumnDef="status">
                     <th *matHeaderCellDef
@@ -174,13 +180,24 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
                         Action </th>
-                    <td mat-cell *matCellDef="let element;" class="">
+                    <td mat-cell *matCellDef="let element; let i=index" class="">
                         <div class="flex justify-end items-center gap-2">
                             <div (click)="onClickLpo(element,$event)" *ngIf="element.status == 'Won' && !element.lpoSubmitted "
+                            matTooltip="Upload Lpo" matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroDocumentArrowUp"></ng-icon>
                             </div>
-                            <div (click)="onQuoteEdit(element,$event)"
+                            <div (click)="onViewLpo(element,$event)" *ngIf="element.status == 'Won' && element.lpoSubmitted "
+                            matTooltip="View Lpo" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                                class="cursor-pointer w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center">
+                                <ng-icon name="heroEye" class="text-black"></ng-icon>
+                            </div>
+                            <div (click)="onConvertToDealSheet(element,$event,i)" *ngIf="element.status == 'Won' && element.lpoSubmitted && !element.dealData"
+                            matTooltip="Convert To Deal Sheet" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                                class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
+                                <ng-icon name="heroArrowsRightLeft"></ng-icon>
+                            </div>
+                            <div (click)="onQuoteEdit(element,$event)" *ngIf="element.status !== 'Won' && !element.lpoSubmitted && !element.dealData"
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-white">
                                 <ng-icon name="heroPencilSquare"></ng-icon>
                             </div>

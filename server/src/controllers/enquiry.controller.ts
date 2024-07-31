@@ -96,7 +96,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
 
         if (update.modifiedCount) return res.status(200).json({ success: true })
-            
+
         return res.status(502).json()
     } catch (error) {
 
@@ -234,7 +234,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let page = Number(req.query.page)
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
-        let { access, userId } = req.query;
+        let { filter, access, userId } = req.query;
         let accessFilter: any = { status: 'Assigned To Presales' };
 
         switch (access) {
@@ -243,6 +243,11 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 break;
             default:
                 break;
+        }
+
+        if (filter == 'completed') {
+            accessFilter.status = 'Work In Progress'
+            console.log(accessFilter)
         }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
@@ -286,6 +291,12 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
+            },
+            {
+                $unwind: {
+                    path: "$preSale.feedback.employeeId",
+                    preserveNullAndEmptyArrays: true
+                }
             }
         ])
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -446,13 +457,20 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
     try {
         const { employeeId, enquiryId } = req.body;
 
-        const result = await enquiryModel.updateOne(
+        const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now() } }
-        );
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now() } },
+            { new: true }
+        ).populate('client')
+            .populate('department')
+            .populate('salesPerson')
+            .populate({
+                path: 'preSale.feedback.employeeId',
+                model: 'Employee'
+            });
 
-        if (result.modifiedCount) {
-            return res.status(200).json({ success: true })
+        if (result) {
+            return res.status(200).json(result)
         }
 
         return res.status(502).json()
@@ -547,20 +565,56 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
     }
 }
 
-export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+export const giveRevision = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let files = req.files
-        let enquiryId = req.body.enquiryId
-        let uploadData = files
-        const enquiryData = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { assignedFiles: uploadData } }, { upsert: true })
-            .populate(['client', 'department', 'salesPerson'])
-        enquiryData.assignedFiles = uploadData
-        if (!enquiryData) return res.status(502).json()
-        return res.status(200).json(enquiryData)
+        let { revisionComment } = req.body;
+        let enquiryId = req.params.enquiryId;
+        const result = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            {
+                $push: { 'preSale.revisionComment': revisionComment },
+                status: 'Assigned To Presales'
+            }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).send('Enquiry not found or comment not added.');
+        }
+
+        return res.status(200).json({ success: true })
     } catch (error) {
         next(error)
     }
 }
+
+export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let files = req.files;
+        let enquiryId = req.body.enquiryId;
+        let uploadData = files;
+
+        const enquiryData = await enquiryModel.findOneAndUpdate(
+            { _id: enquiryId },
+            { $push: { assignedFiles: { $each: uploadData } } },
+            { new: true }
+        ).populate('client')
+            .populate('department')
+            .populate('salesPerson')
+            .populate({
+                path: 'preSale.feedback.employeeId',
+                model: 'Employee'
+            });
+
+        if (!enquiryData) {
+            return res.status(502).json();
+        }
+
+        return res.status(200).json(enquiryData);
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 const generateEnquiryId = async (departmentId: string, employeeId: string, date: string) => {
     try {
@@ -610,3 +664,62 @@ const generateEnquiryId = async (departmentId: string, employeeId: string, date:
         console.log(error)
     }
 }
+
+
+
+export const presalesCount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { access, userId } = req.query;
+
+        let accessFilter: any = { status: 'Assigned To Presales' };
+
+        switch (access) {
+            case 'assigned':
+                accessFilter = { "preSale.presalePerson": userId };
+                break;
+            default:
+                break;
+        }
+
+        const totalPendingJobs: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { _id: 0, total: 1 }
+            }
+        ])
+
+        accessFilter.status = 'Work In Progress'
+
+        const totalCompletedJobs: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { _id: 0, total: 1 }
+            }
+        ])
+
+        let presaleCounts = {
+            pending: totalPendingJobs[0]?.total || 0,
+            completed: totalCompletedJobs[0]?.total || 0
+        };
+
+        console.log(totalPendingJobs, totalCompletedJobs, presaleCounts)
+
+
+        if (presaleCounts) return res.status(200).json(presaleCounts)
+
+        return res.status(502).json()
+    } catch (error) {
+        next(error);
+    }
+};
+

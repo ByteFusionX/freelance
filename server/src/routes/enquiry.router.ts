@@ -11,7 +11,9 @@ import {
     sendFeedbackRequest,
     getFeedbackRequestsById,
     giveFeedback,
-    assignPresale
+    assignPresale,
+    giveRevision,
+    presalesCount
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
@@ -24,7 +26,10 @@ equiRouter.get('/sum', totalEnquiries);
 equiRouter.get('/monthly', monthlyEnquiries);
 equiRouter.patch('/feedback-request', sendFeedbackRequest);
 equiRouter.patch('/give-feedback', giveFeedback);
+equiRouter.patch('/revision/:enquiryId', giveRevision);
 equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/assign-files', upload.array('assignFiles', 5), uploadAssignFiles)
+equiRouter.get('/presales/count', presalesCount)
+
 
 export default equiRouter;

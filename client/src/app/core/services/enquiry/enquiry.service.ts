@@ -29,8 +29,8 @@ export class EnquiryService {
     return this.http.post<EnquiryTable>(`${this.api}/enquiry/get`, filterData)
   }
 
-  getPresale(page: number, row: number,access?:string,userId?:string): Observable<EnquiryTable> {
-    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?page=${page}&row=${row}&access=${access}&userId=${userId}`)
+  getPresale(page: number, row: number,filter:string,access?:string,userId?:string): Observable<EnquiryTable> {
+    return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?filter=${filter}&page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
   updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
@@ -51,7 +51,7 @@ export class EnquiryService {
 
   selectedDepartment(departmentId: string) {
     this.depSubject.next(departmentId)
-  }
+}
 
   uploadAssignedFiles(formData: FormData): Observable<getEnquiry> {
     return this.http.post<getEnquiry>(`${this.api}/enquiry/assign-files`, formData)
@@ -84,6 +84,14 @@ export class EnquiryService {
 
   giveFeedback(feedbackBody:{enquiryId:string,feedback:string}){
     return this.http.patch(`${this.api}/enquiry/give-feedback`,feedbackBody)
+  }
+
+  sendRevision(revisionComment:string,enquiryId:string){
+    return this.http.patch(`${this.api}/enquiry/revision/${enquiryId}`,{revisionComment})
+  }
+
+  presalesCounts(access?: string, userId?: string): Observable<{ pending: number, completed: number }> {
+    return this.http.get<{ pending: number, completed: number }>(`${this.api}/enquiry/presales/count?access=${access}&userId=${userId}`)
   }
 
   

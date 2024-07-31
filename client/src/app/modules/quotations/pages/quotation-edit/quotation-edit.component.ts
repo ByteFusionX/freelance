@@ -15,9 +15,9 @@ import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.i
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 import { fadeInOut } from 'src/app/shared/animations/animations';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 
 @Component({

@@ -80,7 +80,7 @@ export interface Files {
 }
 
 export interface feedback {
-    employeeId:getEmployee[],
+    employeeId:getEmployee,
     feedback:string
 }
 

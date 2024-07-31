@@ -22,7 +22,8 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
 
   @Input() showFullBar: boolean = true
   homeDropDown: boolean = false;
-
+  activeLink: string = '';
+  
   showTabs: boolean = false;
   privileges!: Privileges | undefined;
   notifyCount!: number
@@ -34,7 +35,13 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private _employeeService: EmployeeService,
     private _announcementService: AnnouncementService
-  ) { }
+  ) { 
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.activeLink = event.urlAfterRedirects;
+      }
+    });
+  }
 
   ngOnInit() {
     this.checkPermission()

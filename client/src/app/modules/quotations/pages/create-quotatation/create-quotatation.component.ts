@@ -16,8 +16,8 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { customerNoteValidator } from 'src/app/shared/validators/quoation.validator';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-create-quotatation',
