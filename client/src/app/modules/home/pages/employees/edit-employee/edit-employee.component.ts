@@ -1,31 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
-import { CreateEmployee, GetCategory, getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { CreateEmployee, GetCategory, getEmployee, getEmployeeDetails } from 'src/app/shared/interfaces/employee.interface';
 import { CreateCategoryComponent } from '../create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
+import { CreateEmployeeDialog } from '../create-employee/create-employee.component';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-create-employee',
-  templateUrl: './create-employee.component.html',
-  styleUrls: ['./create-employee.component.css']
+  selector: 'app-edit-employee',
+  templateUrl: './edit-employee.component.html',
+  styleUrls: ['./edit-employee.component.css']
 })
-export class CreateEmployeeDialog implements OnInit {
+export class EditEmployeeComponent {
+
   category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);
   departments$!: Observable<getDepartment[]>;
   employees$!: Observable<getEmployee[]>;
+  employeeData!: getEmployeeDetails;
 
-  selectedEmployee!: number;
+  userRole: string = 'user';
+
+  canCreateCategory: boolean = false;
+  isSaving: boolean = false;
+  changePasswordChoice: boolean = true
+  canGeneratePassword: boolean = false
   showPassword: boolean = false;
+  isChangePasswordButton: boolean = true;
+
   passwordType: string = this.showPassword ? 'text' : 'password';
   showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
-  isSaving: boolean = false;
-  canCreateCategory: boolean = false;
-  userRole: string = 'user';
 
   employeeForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -38,67 +46,44 @@ export class CreateEmployeeDialog implements OnInit {
     category: ['', Validators.required],
     dateOfJoining: ['', Validators.required],
     reportingTo: [''],
-    password: ['', [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
+    password: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
   })
 
-  constructor(
-    public dialog: MatDialog,
-    public dialogRef: MatDialogRef<CreateEmployeeDialog>,
-    private _fb: FormBuilder,
+  constructor(private _fb: FormBuilder,
+    private _router: Router,
     private _profileService: ProfileService,
     private _employeeService: EmployeeService,
-    private _toast: ToastrService
+    public dialog: MatDialog,
+    private _toast: ToastrService,
+    public dialogRef: MatDialogRef<CreateEmployeeDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: { employeeData: getEmployeeDetails }
   ) { }
 
   ngOnInit() {
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
-    this._employeeService.employeeData$.subscribe((data) => {
-      this.userRole = data?.category.role as string;
-      if (data?.category.role == 'superAdmin') {
-        this.canCreateCategory = true;
-      }
-    })
+
+    this.employeeForm.patchValue({
+      firstName: this.data.employeeData.firstName,
+      lastName: this.data.employeeData.lastName,
+      email: this.data.employeeData.email,
+      designation: this.data.employeeData.designation,
+      dob: this.data.employeeData.dob.substring(0, 10),
+      department: this.data.employeeData.department._id,
+      contactNo: this.data.employeeData.contactNo as string,
+      category: this.data.employeeData.category._id,
+      dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10),
+      reportingTo: this.data.employeeData.reportingTo._id,
+      password: ''
+    });
   }
 
   getCategory() {
     this._employeeService.getCategory().subscribe(data => {
       let categories = data;
-      if (this.userRole == 'admin') {
-        categories = data.filter((value) => {
-          return value.role == 'admin' || value.role == 'user';
-        });
-      }else if(this.userRole == 'user'){
-        categories = data.filter((value) => {
-          return value.role == 'user'
-        })
-      }
       this.category$.next(categories);
     });
-  }
-
-  onSubmit() {
-    if (this.employeeForm.valid) {
-      this.isSaving = true;
-
-      let userId;
-      this._employeeService.employeeData$.subscribe((employee) => {
-        userId = employee?._id
-      })
-
-      const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
-      const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
-      const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
-      
-      employeeData.createdBy = userId;
-      employeeData.reportingTo = reportingToValue;
-
-      this._employeeService.createEmployees(employeeData).subscribe((data) => {
-        this.isSaving = false;
-        this.dialogRef.close(data)
-      })
-    }
   }
 
   createCategory() {
@@ -110,7 +95,6 @@ export class CreateEmployeeDialog implements OnInit {
         const currentCategories = this.category$.getValue();
         const updatedCategories = [...currentCategories, data];
         this.category$.next(updatedCategories);
-
         this._toast.success('Category Created Successfully')
       }
     });
@@ -120,10 +104,28 @@ export class CreateEmployeeDialog implements OnInit {
     this.dialogRef.close();
   }
 
-  passwordShow() {
-    this.showPassword = !this.showPassword
-    this.passwordType = this.showPassword ? 'text' : 'password';
-    this.showIcon = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+
+  onSubmit() {
+    if (this.employeeForm.valid) {
+      this.isSaving = true;
+
+      const employeeData = this.employeeForm.value as CreateEmployee
+      employeeData.employeeId = this.data.employeeData._id as string
+
+      this._employeeService.editEmployees(employeeData as CreateEmployee).subscribe((data) => {
+        this.isSaving = false;
+        this.dialogRef.close(data)
+      })
+    }
+  }
+
+  changePasswordChoiceButton() {
+    this.changePasswordChoice = false;
+    this.canGeneratePassword = true;
+    this.employeeForm.get('password')?.enable();
+    this.employeeForm.patchValue({
+      password: ''
+    })
   }
 
   generateRandomPassword(): string {
@@ -154,5 +156,9 @@ export class CreateEmployeeDialog implements OnInit {
     return shuffledPassword;
   }
 
-
+  passwordShow() {
+    this.showPassword = !this.showPassword
+    this.passwordType = this.showPassword ? 'text' : 'password';
+    this.showIcon = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+  }
 }
