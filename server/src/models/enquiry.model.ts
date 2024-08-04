@@ -11,17 +11,39 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, presaleFiles: [] };
+    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment: string };
     assignedFiles: []
     status: string;
     attachments: []
 }
 
-const preSaleSchema = new Schema({
-    presalePerson: {
+const feedbackSchema = new Schema({
+    employeeId: {
+        type: Types.ObjectId
+    },
+    feedback: {
         type: String
     },
-    presaleFiles: []
+    requestedDate: {
+        type: Date
+    },
+})
+
+const preSaleSchema = new Schema({
+    presalePerson: {
+        type: Schema.Types.ObjectId
+    },
+    presaleFiles: [],
+    comment: {
+        type: String
+    },
+    feedback: {
+        type: feedbackSchema
+    },
+    seenbyEmployee: {
+        type: Boolean,
+        default: false
+    }
 })
 
 

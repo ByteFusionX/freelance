@@ -12,7 +12,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         const presaleFiles = req.files.presaleFiles
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
-        
+
         let enqId: string = await generateEnquiryId(enquiryData.department, enquiryData.salesPerson, enquiryData.date as string);
 
         enquiryData.enquiryId = enqId;
@@ -23,7 +23,8 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         if (req.body.presalePerson) {
             const presalePerson = JSON.parse(req.body.presalePerson)
-            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [] }
+            const presaleComment = JSON.parse(req.body.presaleComment)
+            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [], comment: presaleComment }
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
             }
@@ -36,7 +37,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         const savedEnquiryData = await enquiryModel.aggregate([
             {
-                $match: { "_id" : saveEnquiryData._id }
+                $match: { "_id": saveEnquiryData._id }
             },
             {
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
@@ -79,6 +80,26 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         return res.status(200).json(savedEnquiryData[0]);
     } catch (error) {
         next(error)
+    }
+}
+
+export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const presale = JSON.parse(req.body.presaleData)
+        const presaleFiles = req.files.presaleFiles;
+        let enquiryId = req.params.enquiryId;
+
+        if (presaleFiles) {
+            presale.presaleFiles = presaleFiles
+        }
+
+        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
+
+        if (update.modifiedCount) return res.status(200).json({ success: true })
+
+        return res.status(502).json()
+    } catch (error) {
+
     }
 }
 
@@ -151,7 +172,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 $match: filters
             },
             {
-                $match: { status: { $ne: 'Quoted' } } 
+                $match: { status: { $ne: 'Quoted' } }
             },
             {
                 $sort: { createdDate: -1 }
@@ -262,6 +283,9 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
             }
         ])
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -418,6 +442,111 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
     }
 }
 
+export const sendFeedbackRequest = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const { employeeId, enquiryId } = req.body;
+
+        const result = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now() } }
+        );
+
+        if (result.modifiedCount) {
+            return res.status(200).json({ success: true })
+        }
+
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getFeedbackRequestsById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeId = req.params.employeeId;
+        let page = Number(req.query.page);
+        let row = Number(req.query.row);
+        let skipNum: number = (page - 1) * row;
+
+        const totalFeedbacks: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $unwind: "$preSale.feedback"
+            },
+            {
+                $match: {
+                    "preSale.feedback.employeeId": new ObjectId(employeeId),
+                    "preSale.feedback.feedback": { $exists: false }
+                }
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            { $project: { _id: 0, total: 1 } }
+        ]);
+
+        const feedbacks = await enquiryModel.aggregate([
+            { $unwind: "$preSale.feedback" },
+            {
+                $match: {
+                    "preSale.feedback.employeeId": new ObjectId(employeeId),
+                    "preSale.feedback.feedback": { $exists: false }
+                }
+            },
+            {
+                $sort: { "preSale.feedback.requestedDate": -1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
+            {
+                $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
+            },
+            {
+                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
+            }
+        ]);
+
+        console.log(employeeId, page, row, totalFeedbacks, feedbacks);
+
+        if (totalFeedbacks.length) return res.status(200).json({ total: totalFeedbacks[0].total, feedbacks: feedbacks });
+        return res.status(502).json();
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+
+export const giveFeedback = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let { enquiryId, feedback } = req.body;
+        const result = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            { $set: { "preSale.feedback.feedback": feedback } }
+        );
+
+        if (result.modifiedCount) {
+            return res.status(200).json({ success: true })
+        }
+
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
     try {
         let files = req.files
@@ -481,3 +610,26 @@ const generateEnquiryId = async (departmentId: string, employeeId: string, date:
         console.log(error)
     }
 }
+
+export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const jobIds: string[] = req.body.jobIds; // Expecting jobIds as an array of strings
+
+        // Update the seenbyEmployee field to true for all job IDs in the array
+        const result = await enquiryModel.updateMany(
+            { _id: { $in: jobIds } },
+            { 'preSale.seenbyEmployee': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+

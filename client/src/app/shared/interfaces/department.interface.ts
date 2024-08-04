@@ -13,3 +13,4 @@ export interface Department{
     departmentHead:string,
     createdDate:number
 }
+

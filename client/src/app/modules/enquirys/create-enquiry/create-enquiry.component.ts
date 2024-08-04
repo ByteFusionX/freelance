@@ -135,6 +135,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
     if (this.preSaleFiles) {
       formData.append('presalePerson', JSON.stringify(this.preSaleFiles.presalePerson));
+      formData.append('presaleComment', JSON.stringify(this.preSaleFiles.comment));
       for (let i = 0; i < this.preSaleFiles.presaleFile.length; i++) {
         formData.append('presaleFiles', (this.preSaleFiles.presaleFile[i] as Blob))
       }

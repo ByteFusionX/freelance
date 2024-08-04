@@ -47,6 +47,7 @@ export class CustomerEditComponent {
         })
       ]),
       companyName: ['', Validators.required],
+      companyAddress: ['', Validators.required],
       customerEmailId: ['', [Validators.required, Validators.email]],
       contactNo: ['', Validators.required],
       createdBy: ['', Validators.required]

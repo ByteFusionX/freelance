@@ -1,5 +1,6 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
+import { getEmployee } from "./employee.interface";
 
 export interface Enquiry {
     enquiryId: string;
@@ -26,7 +27,10 @@ export interface getEnquiry {
     attachments: Files[];
     preSale: {
         presalePerson: string;
-        presaleFile: Files[] | null;
+        presaleFiles: Files[] | null;
+        comment: string;
+        feedback?: feedback;
+        seenbyEmployee?: boolean;
     };
     assignedFiles: Files[];
     status: string;
@@ -35,6 +39,11 @@ export interface getEnquiry {
 export interface EnquiryTable {
     total: number;
     enquiry: getEnquiry[];
+}
+
+export interface FeedbackTable {
+    total: number;
+    feedbacks: getEnquiry[];
 }
 
 export interface TotalEnquiry {
@@ -71,8 +80,15 @@ export interface Files {
     size: number,
 }
 
+export interface feedback {
+    employeeId: getEmployee[],
+    feedback: string
+}
+
 export interface Presale {
     presalePerson: string;
     presaleFile: File[];
-    presalePersonName:string;
+    comment: string;
+    presalePersonName: string;
+    feedback: feedback
 };

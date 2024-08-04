@@ -43,6 +43,11 @@ import {
   heroPaperAirplane,
   heroExclamationCircle,
   heroArrowDownCircle,
+  heroCog6Tooth,
+  heroDocumentText,
+  heroTrash,
+  heroCheck,
+  heroChatBubbleBottomCenterText
 } from '@ng-icons/heroicons/outline';
 
 
@@ -92,7 +97,12 @@ import {
       heroArrowPath,
       heroPaperAirplane,
       heroExclamationCircle,
-      heroArrowDownCircle
+      heroArrowDownCircle,
+      heroCog6Tooth,
+      heroDocumentText,
+      heroTrash,
+      heroCheck,
+      heroChatBubbleBottomCenterText
     }),
   ],
   exports: [NgIconsModule]

@@ -228,34 +228,32 @@
                 </div>
             </div>
             <div class="flex flex-wrap -mx-3 mt-6">
-                <div class="w-full md:w-2/5 px-3" formGroupName="customerNote">
+                <div class="w-full md:w-2/5 px-3">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         for="customerNote">
                         Customer Notes
                     </label>
-                    <ng-select [class.border-red-500]="f['customerNote'].invalid && submit" class="form border"
-                        placeholder="Default Customer Note" appendTo="body" bindLabel="note"
-                        formControlName="defaultNote">
-                        <ng-option *ngFor="let note of customerNotes" [value]="note">{{note}}</ng-option>
+                    <ng-select class="form border"  (change)="onCustomerNote($event,'customerNotes')" 
+                        placeholder="Default Customer Note" appendTo="body" >
+                        <ng-option *ngFor="let note of customerNotes" [value]="note" >{{note.note}}</ng-option>
                     </ng-select>
                     <textarea appNoLeadingSpace formControlName="customerNote"
-                        [class.border-red-500]="f['customerNote'].invalid && submit" formControlName="text"
+                        [class.border-red-500]="f['customerNote'].invalid && submit" rows="6"
                         class="mt-2 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id="customerNote" placeholder="Customer Note"></textarea>
 
                 </div>
-                <div class="w-full md:w-3/5 px-3" formGroupName="termsAndCondition">
+                <div class="w-full md:w-3/5 px-3" >
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         for="termsAndCondition">
                         Terms and Conditions
                     </label>
-                    <ng-select [class.border-red-500]="f['termsAndCondition'].invalid && submit" class="form border"
-                        placeholder="Default Terms & Condition" appendTo="body" bindLabel="terms"
-                        formControlName="defaultNote">
-                        <ng-option *ngFor="let terms of termsAndConditions" [value]="terms">{{terms}}</ng-option>
+                    <ng-select class="form border" (change)="onCustomerNote($event,'termsAndConditions')"
+                        placeholder="Default Terms & Condition" appendTo="body" >
+                        <ng-option *ngFor="let terms of termsAndConditions" [value]="terms">{{terms.note}}</ng-option>
                     </ng-select>
-                    <textarea appNoLeadingSpace formControlName="text"
-                        [class.border-red-500]="f['termsAndCondition'].invalid && submit" formControlName="text"
+                    <textarea appNoLeadingSpace 
+                        [class.border-red-500]="f['termsAndCondition'].invalid && submit" formControlName="termsAndCondition" rows="6"
                         class="mt-2 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                         id="termsAndCondition" placeholder="Terms and Conditions"></textarea>
                 </div>

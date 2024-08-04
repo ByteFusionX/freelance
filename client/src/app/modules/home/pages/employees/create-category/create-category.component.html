@@ -280,6 +280,22 @@
                         </div>
                     </div>
                    </div>
+                   <!--- Customer -->
+                   <div>
+                    <input type="checkbox" id="portal" class="mr-2" (change)="onCheckboxChange($event,'portal','portalChecked')">
+                    <label for="portal">Portal Management</label>
+                </div>
+                <div class="ml-1.5 border-l" *ngIf="portalChecked" formGroupName="portalManagement">
+                    
+                    <div class="ml-3">
+                        <input type="checkbox" id="portalCreate" class="mr-2" formControlName="department">
+                        <label for="portalCreate">Department (Create/edit/delete)</label>
+                    </div>
+                    <div class="ml-3">
+                        <input type="checkbox" id="portalCreate" class="mr-2" formControlName="notesAndTerms">
+                        <label for="portalCreate">Customer Note & Terms and Condition (Create/edit/delete)</label>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
