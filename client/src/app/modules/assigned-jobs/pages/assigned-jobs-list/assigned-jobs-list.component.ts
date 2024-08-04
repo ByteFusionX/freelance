@@ -95,7 +95,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       }
     });
   }
-  
+
   observeAllJobs() {
     setTimeout(() => {
       this.jobItems.forEach(item => this.observeJob(item));
@@ -167,7 +167,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
                   this.dataSource.data = []
                   this.isEmpty = true
                 }
-                this.toast.success('Enquiry send successfully')
+                this.toast.success(`Job has successfully completed and send back to Enquiry            pre\n(${data.enquiryId})`)
               }
             })
           )
@@ -180,26 +180,30 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onFeedback(enquiryId: string, index: number) {
-    const dialogRef = this._dialog.open(SelectEmployeeComponent);
+    if (this.dataSource.data[index].assignedFiles.length) {
+      const dialogRef = this._dialog.open(SelectEmployeeComponent);
 
-    dialogRef.afterClosed().subscribe((employeeId: string) => {
-      if (employeeId) {
-        const feedbackBody = {
-          employeeId,
-          enquiryId
-        }
-        this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((data: any) => {
-          if (data) {
-            data.client = [data.client]
-            data.department = [data.department]
-            data.salesPerson = [data.salesPerson]
-            this.dataSource.data[index] = data
-            this.dataSource.data = [...this.dataSource.data]
-            this.dataSource._updateChangeSubscription();
+      dialogRef.afterClosed().subscribe((employeeId: string) => {
+        if (employeeId) {
+          const feedbackBody = {
+            employeeId,
+            enquiryId
           }
-        })
-      }
-    })
+          this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((data: any) => {
+            if (data) {
+              data.client = [data.client]
+              data.department = [data.department]
+              data.salesPerson = [data.salesPerson]
+              this.dataSource.data[index] = data
+              this.dataSource.data = [...this.dataSource.data]
+              this.dataSource._updateChangeSubscription();
+            }
+          })
+        }
+      })
+    } else {
+      this.toast.warning('Please select at least one file before Sending')
+    }
   }
 
   viewFeedback(feedback: feedback) {

@@ -13,11 +13,13 @@ import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
   styleUrls: ['./view-presale.component.css']
 })
 export class ViewPresaleComponent {
-  showRevision:boolean = false;
-  isSaving:boolean = false;
+  showRevision: boolean = false;
+  isSaving: boolean = false;
+  showError: boolean = false;
+
 
   progress: number = 0;
-  revisionComment:string = '';
+  revisionComment: string = '';
 
   subscriptions = new Subscription()
 
@@ -27,23 +29,34 @@ export class ViewPresaleComponent {
     @Inject(MAT_DIALOG_DATA) public data: getEnquiry,
     private _enquiryService: EnquiryService,
     private toast: ToastrService,
-  ){}
+  ) { }
 
-  onRevision(){
+
+  validateComments() {
+    if (!this.revisionComment.trim()) {
+      this.showError = true;
+    } else {
+      this.showError = false;
+    }
+  }
+
+  onRevision() {
     this.showRevision = !this.showRevision;
     this.isSaving = false;
   }
 
-  onSubmit(){
-    if(this.revisionComment){
+  onSubmit() {
+    if (this.revisionComment) {
       this.isSaving = true;
       this.subscriptions.add(
-        this._enquiryService.sendRevision(this.revisionComment,this.data._id).subscribe((res:any)=>{
-          if(res.success){
+        this._enquiryService.sendRevision(this.revisionComment, this.data._id).subscribe((res: any) => {
+          if (res.success) {
             this.dialogRef.close(true)
           }
         })
       )
+    } else {
+      this.showError = true;
     }
   }
 
@@ -75,7 +88,7 @@ export class ViewPresaleComponent {
     }, 1000)
   }
 
-  
+
   closeModal() {
     this.dialogRef.close()
   }

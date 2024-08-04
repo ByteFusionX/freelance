@@ -99,7 +99,7 @@ export class CustomersListComponent {
     const navigationExtras: NavigationExtras = {
       state: data
     };
-    this._router.navigate(['/customers/view'], navigationExtras);
+    this._router.navigate([`/customers/view/${data.clientRef}`], navigationExtras);
   }
 
   checkPermission() {

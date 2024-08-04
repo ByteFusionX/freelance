@@ -135,6 +135,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           result.department = result.department
           result.salesPerson = result.salesPerson
           this.dataSource.data = [result, ...this.dataSource.data]
+          this.dataSource._updateChangeSubscription();
           this.enqId = result.enquiryId.slice(-3)
           this.toaster.success('Enquiry created successfully')
         }
@@ -179,6 +180,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
             this.dataSource.data[index].preSale = presaleData
             this.dataSource.data[index].status = 'Assigned To Presales'
             this.dataSource._updateChangeSubscription();
+            this.toaster.success()
           }
         })
       }

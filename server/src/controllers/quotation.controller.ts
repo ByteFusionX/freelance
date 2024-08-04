@@ -499,7 +499,6 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
 }
 export const approveDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log('andimukk ivde ethinna thonninath')
         const jobId = await generateJobId()
         const jobData = {
             quoteId: req.body.quoteId,
@@ -688,39 +687,60 @@ export const getReportDetails = async (req: Request, res: Response) => {
             }
 
             if (quote.status === quoteStatus.Won) {
-                acc.totalWonValue += calculateDiscountPrice(quote);
+                if (quote.currency == 'USD') {
+                    acc.totalUSDWonValue += calculateDiscountPrice(quote);
+                } else if (quote.currency == 'QAR') {
+                    acc.totalQARWonValue += calculateDiscountPrice(quote);
+                }
             } else if (quote.status === quoteStatus.Lost) {
-                acc.totalLossValue += calculateDiscountPrice(quote);
+                if (quote.currency == 'USD') {
+                    acc.totalUSDLossValue += calculateDiscountPrice(quote);
+                } else if (quote.currency == 'QAR') {
+                    acc.totalQARLossValue += calculateDiscountPrice(quote);
+                }
             }
             acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
             return acc;
         }, {
             totalUSDValue: 0,
             totalQARValue: 0,
-            totalWonValue: 0,
-            totalLossValue: 0,
+            totalUSDWonValue: 0,
+            totalQARWonValue: 0,
+            totalUSDLossValue: 0,
+            totalQARLossValue: 0,
             statusCounts: {}
         });
 
-        const totalJobAwarded = jobQuoataions.reduce((acc: any, quote: any) => {
-            return acc += calculateDiscountPrice(quote);
-        }, 0)
+        const totalJobAwardedUQ = jobQuoataions.reduce((acc: any, quote: any) => {
+            if (quote.currency == 'USD') {
+                acc.totalUSDJobAwarded += calculateDiscountPrice(quote);
+            } else if (quote.currency == 'QAR') {
+                acc.totalQARJobAwarded += calculateDiscountPrice(quote);
+            }
+            return acc
+        }, {
+            totalUSDJobAwarded : 0,
+            totalQARJobAwarded : 0
+        })
 
         const pieChartData = Object.keys(totalValues.statusCounts).map(status => ({
             name: status,
             value: totalValues.statusCounts[status]
         }));
 
-        const qatarRates = await getQARRated();
+        const USDRates = await getUSDRated();
 
-        const qatarUsdRates = qatarRates.qar.usd;
+        const qatarUsdRates = USDRates.usd.qar;
         const tatalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
+        const totalWonValue = totalValues.totalQARValue + (totalValues.totalUSDWonValue * qatarUsdRates);
+        const totalLossValue = totalValues.totalQARLossValue + (totalValues.totalUSDLossValue * qatarUsdRates);
+        const totalJobAwarded = totalJobAwardedUQ.totalQARJobAwarded + (totalJobAwardedUQ.totalUSDJobAwarded * qatarUsdRates);
         
         if (totalValues && pieChartData) {
             return res.status(200).json({
                 totalValue : tatalValue,
-                totalWonValue: totalValues.totalWonValue,
-                totalLossValue: totalValues.totalLossValue,
+                totalWonValue: totalWonValue,
+                totalLossValue: totalLossValue,
                 totalJobAwarded: totalJobAwarded,
                 pieChartData
             })
@@ -782,12 +802,12 @@ const calculateDiscountPrice = (quotation: any): number => {
         });
         return totalCost;
     };
-
+    console.log(calculateSellingPrice())
     return calculateSellingPrice() - quotation.totalDiscount;
 };
 
-async function getQARRated() {
-    const url = 'https://latest.currency-api.pages.dev/v1/currencies/qar.min.json';
+async function getUSDRated() {
+    const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';
     const response = await fetch(url);
     const jsonResponse = await response.json();
     return jsonResponse;

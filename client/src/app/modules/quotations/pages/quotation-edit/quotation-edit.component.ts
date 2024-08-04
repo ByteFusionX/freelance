@@ -74,6 +74,7 @@ export class QuotationEditComponent {
 
     this.getAllCustomers();
     this.getDepartment();
+    this.getNotes();
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
@@ -98,14 +99,8 @@ export class QuotationEditComponent {
         })
       ]),
       totalDiscount: ['', Validators.required],
-      customerNote: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
-      termsAndCondition: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
+      customerNote: ['', Validators.required],
+      termsAndCondition: ['', Validators.required],
       createdBy: ['']
     });
 
@@ -116,12 +111,6 @@ export class QuotationEditComponent {
     }
   }
 
-  customerNoteValidator(formGroup: FormGroup) {
-    const defaultNote = formGroup.get('defaultNote')?.value;
-    const text = formGroup.get('text')?.value;
-
-    return (defaultNote || text) ? null : { required: true };
-  }
 
   getQuoteData() {
     const navigation = this._router.getCurrentNavigation();
@@ -193,6 +182,7 @@ export class QuotationEditComponent {
 
   getNotes() {
     this._profileService.getNotes().subscribe((res: Notes) => {
+      console.log(res)
       this.customerNotes = res.customerNotes
       this.termsAndConditions = res.termsAndConditions
     })

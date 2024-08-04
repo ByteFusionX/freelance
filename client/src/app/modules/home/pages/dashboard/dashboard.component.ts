@@ -9,6 +9,7 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
 import { JobService } from 'src/app/core/services/job/job.service';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,6 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private _enquiryService: EnquiryService,
+    private _profileService: ProfileService,
     private _employeeService: EmployeeService,
     private _quotationService: QuotationService,
     private _jobService: JobService,
@@ -64,7 +66,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
         this.userId = employee?._id;
 
-        this.enquiries$ = this._enquiryService.totalEnquiries(this.enquiryAccess, this.userId);
+        this.enquiries$ = this._profileService.totalEnquiries(this.enquiryAccess, this.userId);
+        this.enquiries$.subscribe((res)=> {
+          console.log(res)
+        })
         this.enquiryLoading()
         this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
         this.quoteLoading();

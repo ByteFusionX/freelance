@@ -11,8 +11,7 @@ import { TitleStrategy } from '@angular/router';
   templateUrl: './assign-presale.component.html',
   styleUrls: ['./assign-presale.component.css'],
   animations: [fileEnterState],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 export class AssignPresaleComponent implements OnInit {
 
@@ -22,6 +21,7 @@ export class AssignPresaleComponent implements OnInit {
   comment!: string;
   employeeError: boolean = false;
   fileError: boolean = false;
+  commentError: boolean = false;
   isClear: boolean = false;
   isSaving: boolean = false;
 
@@ -47,9 +47,11 @@ export class AssignPresaleComponent implements OnInit {
 
   onChange(change: string) {
     this.selectedEmployee = change
+    this.validateSalesPerson()
   }
 
   onFileUpload(event: File[]) {
+    this.validateFile()
     this.selectedFiles = event
   }
 
@@ -68,7 +70,9 @@ export class AssignPresaleComponent implements OnInit {
         this.dialogRef.close(presale)
       } else {
         this.isSaving = false;
-        this.Error()
+        this.validateComment();
+        this.validateFile();
+        this.validateSalesPerson();
       }
     })
   }
@@ -80,16 +84,27 @@ export class AssignPresaleComponent implements OnInit {
     this.dialogRef.close({ clear: true })
   }
 
-  Error() {
+  validateFile() {
     if (this.selectedFiles.length == 0) {
       this.fileError = true
+    } else {
+      this.fileError = false
     }
+  }
+
+  validateSalesPerson() {
     if (!this.selectedEmployee) {
       this.employeeError = true
-    }
-    setTimeout(() => {
+    } else {
       this.employeeError = false
-      this.fileError = false
-    }, 1000)
+    }
+  }
+
+  validateComment() {
+    if (!this.comment) {
+      this.commentError = true;
+    } else {
+      this.commentError = false;
+    }
   }
 }

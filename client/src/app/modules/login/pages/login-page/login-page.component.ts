@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { CreateEmployeeDialog } from 'src/app/modules/home/pages/employees/create-employee/create-employee.component';
 import { login } from 'src/app/shared/interfaces/login';
 
 @Component({
@@ -15,6 +17,8 @@ export class LoginPageComponent {
   employeeNotFoundError: boolean = false
   passwordNotMatchError: boolean = false
   isSaving: boolean = false;
+  isEmployeePresent: boolean = true;
+
 
   showPassword: boolean = false;
   passwordType: string = this.showPassword ? 'text' : 'password';
@@ -23,12 +27,29 @@ export class LoginPageComponent {
   constructor(
     private employeeService: EmployeeService,
     private _fb: FormBuilder,
-    private router: Router) { }
+    private router: Router,
+    private _dialog:MatDialog
+  ) { }
 
   loginForm = this._fb.group({
     employeeId: ['', Validators.required],
     password: ['', Validators.required]
   })
+
+  ngOnInit() {
+    this.employeeService.isEmployeePresent().subscribe((res) => {
+      this.isEmployeePresent = res.exists;
+    })
+  }
+
+  onCreateSuperAdmin(){
+    const dialogRef = this._dialog.open(CreateEmployeeDialog);
+    dialogRef.close((data: any)=>{
+      if(data){
+        this.isEmployeePresent = true;
+      }
+    })
+  }
 
   passwordShow() {
     this.showPassword = !this.showPassword

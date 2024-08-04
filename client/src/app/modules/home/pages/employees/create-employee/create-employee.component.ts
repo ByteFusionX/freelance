@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -8,11 +8,21 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { CreateEmployee, GetCategory, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { CreateCategoryComponent } from '../create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgIconComponent } from '@ng-icons/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-create-employee',
   templateUrl: './create-employee.component.html',
-  styleUrls: ['./create-employee.component.css']
+  styleUrls: ['./create-employee.component.css'],
+  standalone:true,
+  imports:[
+    NgSelectModule,
+    NgIconComponent,
+    CommonModule,
+    ReactiveFormsModule
+  ]
 })
 export class CreateEmployeeDialog implements OnInit {
   category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);

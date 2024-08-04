@@ -155,7 +155,7 @@
                         </div>
                         <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto mat-elevation-z0 border">
                             <div class="">
-                                <div *ngFor="let status of filteredStatuses(element.status)">
+                                <div *ngFor="let status of jobStatuses">
                                     <p class="p-2 hover:bg-violet-200 cursor-pointer   px-[12px]  text-dark  text-[15px] "
                                         *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
                                         {{status}}</p>

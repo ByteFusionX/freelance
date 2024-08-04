@@ -27,7 +27,8 @@ export class ViewLpoComponent {
   }
 
   onDownloadClicks(file: any) {
-      this._enquiryService.downloadFile(file.filename)
+    console.log(file)
+      this._enquiryService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {
             if (event.type === HttpEventType.DownloadProgress) {

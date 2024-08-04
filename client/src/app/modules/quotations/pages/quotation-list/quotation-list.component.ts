@@ -131,25 +131,6 @@ export class QuotationListComponent {
 
   }
 
-  filteredStatuses(selectedStatus: string): QuoteStatus[] {
-    const allStatuses = Object.values(QuoteStatus);
-    let filteredStatuses: QuoteStatus[] = [];
-
-    let statusReached = false;
-
-    allStatuses.forEach((status) => {
-      if (status === selectedStatus) {
-        statusReached = true;
-      }
-      if (statusReached) {
-        filteredStatuses.push(status);
-      }
-    });
-
-    return filteredStatuses;
-  }
-
-
   onRowClicks(index: number) {
     let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
@@ -175,7 +156,6 @@ export class QuotationListComponent {
   }
 
   onClear() {
-
     this.isFiltered = false;
     this.fromDate = null
     this.toDate = null
@@ -213,7 +193,7 @@ export class QuotationListComponent {
       {
         data: {
           title: `Are you absolutely sure?`,
-          description: `This action cannot be undone. This will permanently change the status to ${status}.`,
+          description: `Please note that the status will be updated to ${status}. The change will be reflected in the reports accordingly.`,
           icon: 'heroExclamationCircle',
           IconColor: 'orange'
         }
@@ -262,9 +242,11 @@ export class QuotationListComponent {
     event.stopPropagation()
     const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data, width: '500px' })
     lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
-      this.loader.start()
-      this.getQuotations()
-      this.loader.complete()
+      if(quote){
+        this.loader.start()
+        this.getQuotations()
+        this.loader.complete()
+      }
     })
   }
 

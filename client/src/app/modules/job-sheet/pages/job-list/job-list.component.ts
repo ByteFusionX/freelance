@@ -252,23 +252,6 @@ export class JobListComponent {
     })
   }
 
-  filteredStatuses(selectedStatus: string): JobStatus[] {
-    const allStatuses = Object.values(JobStatus);
-    let filteredStatuses: JobStatus[] = [];
-
-    let statusReached = false;
-
-    allStatuses.forEach((status) => {
-      if (status === selectedStatus) {
-        statusReached = true;
-      }
-      if (statusReached) {
-        filteredStatuses.push(status);
-      }
-    });
-
-    return filteredStatuses;
-  }
 
   generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string }) {
     if (dateRange.selectedMonth && dateRange.selectedYear) {

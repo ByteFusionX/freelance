@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Department, getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { NoteDelete, NotePatch, NotePost, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,10 @@ export class ProfileService {
 
   updateDepartment(department: Department): Observable<getDepartment> {
     return this.http.put<getDepartment>(`${this.api}/department`, department)
+  }
+
+  totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
+    return this.http.get<TotalEnquiry[]>(`${this.api}/department/enquiry-count?access=${access}&userId=${userId}`)
   }
 
   getNotes(): Observable<Notes> {

@@ -5,7 +5,6 @@ import {
     getEnquiries,
     getPreSaleJobs,
     updateEnquiryStatus,
-    totalEnquiries,
     monthlyEnquiries,
     uploadAssignFiles,
     sendFeedbackRequest,
@@ -23,7 +22,6 @@ equiRouter.post('/get', getEnquiries);
 equiRouter.get('/presales', getPreSaleJobs);
 equiRouter.patch('/presales/:enquiryId', upload.fields([{ name: 'presaleFiles' }]), assignPresale);
 equiRouter.put('/update', updateEnquiryStatus);
-equiRouter.get('/sum', totalEnquiries);
 equiRouter.get('/monthly', monthlyEnquiries);
 equiRouter.patch('/feedback-request', sendFeedbackRequest);
 equiRouter.patch('/give-feedback', giveFeedback);
@@ -31,7 +29,6 @@ equiRouter.patch('/revision/:enquiryId', giveRevision);
 equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/assign-files', upload.array('assignFiles', 5), uploadAssignFiles)
 equiRouter.post('/markAsSeenedJob', markAsSeenJob);
-
 equiRouter.get('/presales/count', presalesCount)
 
 

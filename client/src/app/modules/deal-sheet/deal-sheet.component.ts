@@ -87,7 +87,6 @@ export class DealSheetComponent {
   }
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation,index:number) {
-
     let priceDetails = {
       totalSellingPrice: 0,
       totalCost: 0,
@@ -137,17 +136,6 @@ export class DealSheetComponent {
 
     })
   }
-
-  // onRowClicks(index: number) {
-  //   let data = this.dataSource.data[index]
-  //   const navigationExtras: NavigationExtras = {
-  //     state: data
-  //   };
-
-  //   this._router.navigate(['/quotations/view'], navigationExtras);
-  // }
-
-
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)

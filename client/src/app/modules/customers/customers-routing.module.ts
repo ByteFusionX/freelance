@@ -13,7 +13,7 @@ const routes: Routes = [
     children: [
       { path: '', canActivate: [RoleGuard], component: CustomersListComponent },
       { path: 'create', canActivate: [RoleGuard], component: CreateCustomerDialog },
-      { path: 'view', canActivate: [RoleGuard], component: CustomerViewComponent },
+      { path: 'view/:customerId', canActivate: [RoleGuard], component: CustomerViewComponent },
       { path: 'edit', canActivate: [RoleGuard], component: CustomerEditComponent }
     ]
   }

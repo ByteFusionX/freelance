@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Enquiry, EnquiryTable, FeedbackTable, FilterEnquiry, MonthlyEnquiry, TotalEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import {  EnquiryTable, FeedbackTable, FilterEnquiry, MonthlyEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -39,10 +39,6 @@ export class EnquiryService {
 
   emitToQuote(enquiry: getEnquiry | undefined) {
     this.quoteSubject.next(enquiry)
-  }
-
-  totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
-    return this.http.get<TotalEnquiry[]>(`${this.api}/enquiry/sum?access=${access}&userId=${userId}`)
   }
 
   monthlyEnquiries(access?: string, userId?: string): Observable<MonthlyEnquiry[]> {

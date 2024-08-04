@@ -318,65 +318,6 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
     }
 }
 
-export const totalEnquiries = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { access, userId } = req.query;
-
-        let accessFilter = {};
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
-
-        switch (access) {
-            case 'created':
-                accessFilter = { salesPerson: new ObjectId(userId) };
-                break;
-            case 'reported':
-                accessFilter = { salesPerson: { $in: reportedToUserIds } };
-                break;
-            case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
-                break;
-
-            default:
-                break;
-        }
-
-        const result = await enquiryModel.aggregate([
-            {
-                $match: accessFilter
-            },
-            {
-                $lookup: {
-                    from: 'departments',
-                    localField: 'department',
-                    foreignField: '_id',
-                    as: 'department'
-                }
-            },
-            {
-                $group: { _id: "$department", total: { $sum: 1 }, enquiry: { $push: '$$ROOT' } }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    department: '$_id',
-                    total: 1
-                }
-            }
-        ])
-
-        if (result) return res.status(200).json(result)
-        return res.status(502).json()
-    } catch (error) {
-        next(error)
-    }
-}
-
 export const monthlyEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { access, userId } = req.query;

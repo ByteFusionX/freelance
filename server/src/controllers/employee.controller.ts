@@ -17,6 +17,88 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const isEmployeePresent = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeCount = await Employee.countDocuments();
+
+        if (employeeCount > 0) {
+            return res.status(200).json({ exists: true });
+        }
+        return res.status(200).json({ exists: false });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getEmployeeByEmployeId = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { access, userId } = req.query;
+        let employeeId = req.params.employeeId;
+        let accessFilter = {};
+
+        switch (access) {
+            case 'reported':
+                accessFilter = { reportingTo: new ObjectId(userId) };
+                break;
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { reportingTo: new ObjectId(userId) },
+                        { createdBy: new ObjectId(userId) }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+        const matchFilters = { employeeId: employeeId }
+        const filters = { $and: [matchFilters, accessFilter] }
+        console.log(accessFilter)
+        const employeeExist = await Employee.findOne({ employeeId: employeeId });
+
+        if (employeeExist) {
+            const employeeData = await Employee.aggregate([
+                {
+                    $match: filters
+                },
+                {
+                    $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                },
+                {
+                    $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' }
+                },
+                {
+                    $lookup: { from: 'employees', localField: 'reportingTo', foreignField: '_id', as: 'reportingTo' }
+                },
+                {
+                    $unwind: "$department"
+                },
+                {
+                    $unwind: "$reportingTo"
+                },
+                {
+                    $unwind: "$category"
+                },
+            ])
+
+            if (employeeData[0]) {
+                return res.status(200).json({ access: true, employeeData: employeeData[0] })
+            } else {
+                return res.status(200).json({ access: false })
+            }
+        }
+
+
+        return res.status(204).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, search, access, userId } = req.body;
@@ -128,7 +210,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 
         const employee = new Employee(employeeData);
 
-        const saveEmployee = await (await employee.save()).populate('department');
+        const saveEmployee = await (await employee.save()).populate('category department reportingTo');
         if (saveEmployee) {
             return res.status(200).json(saveEmployee);
         }
@@ -152,7 +234,7 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
 
 export const editEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const updatedEmployeeData = {...req.body};
+        const updatedEmployeeData = { ...req.body };
         const employeeId = req.body.employeeId;
 
         delete updatedEmployeeData.password;
