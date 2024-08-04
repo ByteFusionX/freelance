@@ -20,21 +20,20 @@ export class EditEmployeeComponent {
 
   category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);
   departments$!: Observable<getDepartment[]>;
-  userRole: string = 'user';
-  canCreateCategory: boolean = false;
   employees$!: Observable<getEmployee[]>;
-  isSaving: boolean = false;
   employeeData!: getEmployeeDetails;
-  changePasswordChoice:boolean=true
-  canGeneratePassword:boolean=false
+
+  userRole: string = 'user';
+
+  canCreateCategory: boolean = false;
+  isSaving: boolean = false;
+  changePasswordChoice: boolean = true
+  canGeneratePassword: boolean = false
   showPassword: boolean = false;
+  isChangePasswordButton: boolean = true;
+
   passwordType: string = this.showPassword ? 'text' : 'password';
   showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
-  isChangePasswordButton:boolean=true
-
-
-
-
 
   employeeForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -50,55 +49,39 @@ export class EditEmployeeComponent {
     password: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/)]]
   })
 
-  constructor(private _fb:FormBuilder,
-              private _router:Router,
-              private _profileService:ProfileService,
-              private _employeeService:EmployeeService,
-              public dialog: MatDialog,
-              private _toast: ToastrService,
-              public dialogRef: MatDialogRef<CreateEmployeeDialog>,
-              @Inject(MAT_DIALOG_DATA) public data: {employeeData:getEmployeeDetails}
-            ){
-              
-  }
+  constructor(private _fb: FormBuilder,
+    private _router: Router,
+    private _profileService: ProfileService,
+    private _employeeService: EmployeeService,
+    public dialog: MatDialog,
+    private _toast: ToastrService,
+    public dialogRef: MatDialogRef<CreateEmployeeDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: { employeeData: getEmployeeDetails }
+  ) { }
 
-  ngOnInit(){
-   
+  ngOnInit() {
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
-    // const passwordOfEmployee = this._employeeService.getPasswordOfEmployee(this.data.employeeData._id as string).subscribe((res:any)=>{
-      // console.log(res)
-    // })
-    console.log("employee data:"+this.data.employeeData)
+
     this.employeeForm.patchValue({
       firstName: this.data.employeeData.firstName,
       lastName: this.data.employeeData.lastName,
       email: this.data.employeeData.email,
       designation: this.data.employeeData.designation,
-      dob: this.data.employeeData.dob.substring(0, 10), // Assuming ISO date format
+      dob: this.data.employeeData.dob.substring(0, 10),
       department: this.data.employeeData.department._id,
       contactNo: this.data.employeeData.contactNo as string,
       category: this.data.employeeData.category._id,
-      dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10), // Assuming ISO date format
-      reportingTo: this.data.employeeData._id,
-      password:''
+      dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10),
+      reportingTo: this.data.employeeData.reportingTo._id,
+      password: ''
     });
   }
 
   getCategory() {
     this._employeeService.getCategory().subscribe(data => {
       let categories = data;
-      // if (this.userRole == 'admin') {
-      //   categories = data.filter((value) => {
-      //     return value.role == 'admin' || value.role == 'user';
-      //   });
-      // }else if(this.userRole == 'user'){
-      //   categories = data.filter((value) => {
-      //     return value.role == 'user'
-      //   })
-      // }
-      
       this.category$.next(categories);
     });
   }
@@ -112,55 +95,36 @@ export class EditEmployeeComponent {
         const currentCategories = this.category$.getValue();
         const updatedCategories = [...currentCategories, data];
         this.category$.next(updatedCategories);
-
         this._toast.success('Category Created Successfully')
       }
     });
   }
-
-  
 
   onClose(): void {
     this.dialogRef.close();
   }
 
 
-  onSubmit(){
-    console.log(this.employeeForm.value)
+  onSubmit() {
     if (this.employeeForm.valid) {
       this.isSaving = true;
 
-      // let userId;
-      // this._employeeService.employeeData$.subscribe((employee) => {
-      //   userId = employee?._id
-      // })
-
-      // const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
-      // const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
-      // const employeeData: CreateEmployee = this.employeeForm.value as CreateEmployee;
-
-      
       const employeeData = this.employeeForm.value as CreateEmployee
-      employeeData.employeeId=this.data.employeeData._id as string
-      
-      // employeeData.createdBy = userId;
-      // employeeData.reportingTo = reportingToValue;
+      employeeData.employeeId = this.data.employeeData._id as string
 
       this._employeeService.editEmployees(employeeData as CreateEmployee).subscribe((data) => {
         this.isSaving = false;
-        console.log(data)
         this.dialogRef.close(data)
       })
     }
   }
 
-  changePasswordChoiceButton(){
-    this.changePasswordChoice=false
-    this.canGeneratePassword=true
-    // this.isChangePasswordButton=!this.isChangePasswordButton
+  changePasswordChoiceButton() {
+    this.changePasswordChoice = false;
+    this.canGeneratePassword = true;
     this.employeeForm.get('password')?.enable();
     this.employeeForm.patchValue({
-      password:''
+      password: ''
     })
   }
 

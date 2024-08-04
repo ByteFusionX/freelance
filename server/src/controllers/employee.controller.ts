@@ -58,7 +58,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 break;
         }
 
-        const filters = {$and:[matchFilters,accessFilter]}
+        const filters = { $and: [matchFilters, accessFilter] }
 
         await Employee.aggregate([
             {
@@ -140,7 +140,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 
 export const getPasswordForEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        
+
         const id = req.params.id
         const employee = await Employee.findById(id)
         console.log(employee)
@@ -152,14 +152,23 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
 
 export const editEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("reached edit employee")
-        const {firstName,lastName,email,designation,dob,department,contactNo,category,dateOfJoining,reportingTo,password,employeeId} = req.body;
-        const hashedPassword=await bcrypt.hash(password, 10);
-       
+        const updatedEmployeeData = {...req.body};
+        const employeeId = req.body.employeeId;
 
-        const saveEmployeeEdit = await Employee.findByIdAndUpdate(employeeId,{firstName:firstName,lastName:lastName,email:email,designation:designation,dob:dob,department:department,contactNo:contactNo,category:category,dateOfJoining:dateOfJoining,reportingTo,password:hashedPassword})
+        delete updatedEmployeeData.password;
+        delete updatedEmployeeData.employeeId;
 
-        console.log(saveEmployeeEdit)
+        const { password } = req.body;
+        console.log(password)
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedEmployeeData.password = hashedPassword
+        }
+
+        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
+            employeeId,
+            updatedEmployeeData,
+            { new: true }).populate('category department reportingTo')
 
         if (saveEmployeeEdit) {
             return res.status(200).json(saveEmployeeEdit);
@@ -170,28 +179,28 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export const changePasswordOfEmployee = async(req:Request,res:Response,next:NextFunction)=>{
+export const changePasswordOfEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         console.log(req.body)
-            const {oldPassword,newPassword,userId} = req.body
-            const user = await Employee.findById({userId})
-            const userPassword = user.password
-            bcrypt.compare(userPassword,oldPassword,async (err,result)=>{
-                if(err){
-                    console.log("error comparing passwords:",err)
-                    return 
-                }
-                if(result){
-                    console.log("password matched")
-                    await Employee.findOneAndUpdate({id:user.id},{$set:{password:newPassword}})
-                  return  res.status(200).json({passwordChanged:true})
-                }else{
-                    console.log("password dont match")
-                    return res.status(502).json({passwordChanged:false})
-                }
-            })
+        const { oldPassword, newPassword, userId } = req.body
+        const user = await Employee.findById({ userId })
+        const userPassword = user.password
+        bcrypt.compare(userPassword, oldPassword, async (err, result) => {
+            if (err) {
+                console.log("error comparing passwords:", err)
+                return
+            }
+            if (result) {
+                console.log("password matched")
+                await Employee.findOneAndUpdate({ id: user.id }, { $set: { password: newPassword } })
+                return res.status(200).json({ passwordChanged: true })
+            } else {
+                console.log("password dont match")
+                return res.status(502).json({ passwordChanged: false })
+            }
+        })
     } catch (error) {
-       next(error)
+        next(error)
     }
 }
 
