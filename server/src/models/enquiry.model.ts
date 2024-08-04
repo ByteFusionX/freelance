@@ -18,13 +18,13 @@ interface Enquiry extends Document {
 }
 
 const feedbackSchema = new Schema({
-    employeeId:{
-        type:Types.ObjectId
+    employeeId: {
+        type: Types.ObjectId
     },
-    feedback:{
-        type:String
+    feedback: {
+        type: String
     },
-    requestedDate:{
+    requestedDate: {
         type: Date
     },
 })
@@ -35,11 +35,15 @@ const preSaleSchema = new Schema({
         ref: 'Employee',
     },
     presaleFiles: [],
-    comment:{
+    comment: {
         type: String
     },
-    feedback:{
-    type:feedbackSchema
+    feedback: {
+    type: feedbackSchema
+    },
+    seenbyEmployee: {
+        type: Boolean,
+        default: false
     },
     revisionComment:{
         type:[String],

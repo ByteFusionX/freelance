@@ -18,6 +18,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { LoadingBarService } from '@ngx-loading-bar/core';
 import { DealFormComponent } from '../deal-form/deal-form.component';
 import { ViewLpoComponent } from '../view-lpo/view-lpo.component';
+import { ViewReportComponent } from '../view-report/view-report.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -37,7 +38,7 @@ export class QuotationListComponent {
   loader = this.loadingBar.useRef();
 
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department','totalCost', 'status', 'action'];
+  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()
@@ -83,6 +84,7 @@ export class QuotationListComponent {
         this.getQuotations()
       })
     )
+
   }
 
   ngOnDestroy(): void {
@@ -173,6 +175,7 @@ export class QuotationListComponent {
   }
 
   onClear() {
+
     this.isFiltered = false;
     this.fromDate = null
     this.toDate = null
@@ -228,7 +231,31 @@ export class QuotationListComponent {
 
   onfilterApplied() {
     this.isFiltered = true;
-    this.getQuotations()
+    this.getQuotations();
+  }
+
+  generateReport() {
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.quotation.viewReport
+      userId = employee?._id
+    })
+
+    let filterData = {
+      salesPerson: this.selectedSalesPerson,
+      customer: this.selectedCustomer,
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      department: this.selectedDepartment,
+      access: access,
+      userId: userId
+    }
+    this._dialog.open(ViewReportComponent,
+      {
+        data: filterData,
+        width: '768px'
+      })
   }
 
   onClickLpo(data: Quotatation, event: Event) {
@@ -249,7 +276,7 @@ export class QuotationListComponent {
       });
   }
 
-  onConvertToDealSheet(data: Quotatation, event: Event,index:number) {
+  onConvertToDealSheet(data: Quotatation, event: Event, index: number) {
     event.stopPropagation()
     const dialogRef = this._dialog.open(DealFormComponent,
       {
@@ -258,9 +285,9 @@ export class QuotationListComponent {
       });
 
     dialogRef.afterClosed().subscribe((dealData: dealData) => {
-      if(dealData){
+      if (dealData) {
         console.log(dealData)
-        this._quoteService.saveDealSheet(dealData, data._id).subscribe((res)=>{
+        this._quoteService.saveDealSheet(dealData, data._id).subscribe((res) => {
           this.dataSource.data[index].dealData = res.dealData;
           this.dataSource._updateChangeSubscription();
         })
@@ -278,26 +305,26 @@ export class QuotationListComponent {
     this.subject.next(event)
   }
 
-  calculateUnitPrice(i: number, j: number,quoteData:Quotatation) {
+  calculateUnitPrice(i: number, j: number, quoteData: Quotatation) {
     const decimalMargin = quoteData.items[i].itemDetails[j].profit / 100;
     return quoteData.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
   }
 
-  calculateTotalPrice(i: number, j: number,quoteData:Quotatation) {
-    return this.calculateUnitPrice(i, j,quoteData) * quoteData.items[i].itemDetails[j].quantity;
+  calculateTotalPrice(i: number, j: number, quoteData: Quotatation) {
+    return this.calculateUnitPrice(i, j, quoteData) * quoteData.items[i].itemDetails[j].quantity;
   }
 
-  calculateSellingPrice(quoteData:Quotatation): number {
+  calculateSellingPrice(quoteData: Quotatation): number {
     let totalCost = 0;
     quoteData.items.forEach((item, i) => {
       item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalPrice(i, j,quoteData)
+        totalCost += this.calculateTotalPrice(i, j, quoteData)
       })
     })
     return totalCost;
   }
 
-  calculateDiscoutPrice(quoteData:Quotatation): number {
+  calculateDiscoutPrice(quoteData: Quotatation): number {
     return this.calculateSellingPrice(quoteData) - quoteData.totalDiscount
   }
 }

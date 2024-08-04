@@ -28,8 +28,9 @@ export interface getEnquiry {
     preSale: {
         presalePerson: string;
         presaleFiles: Files[] | null;
-        comment:string;
-        feedback?:feedback;
+        comment: string;
+        feedback?: feedback;
+        seenbyEmployee?: boolean;
     };
     assignedFiles: Files[];
     status: string;
@@ -87,7 +88,7 @@ export interface feedback {
 export interface Presale {
     presalePerson: string;
     presaleFile: File[];
-    comment:string;
-    presalePersonName:string;
-    feedback:feedback
+    comment: string;
+    presalePersonName: string;
+    feedback: feedback
 };

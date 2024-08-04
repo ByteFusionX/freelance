@@ -1,5 +1,5 @@
 import { NextFunction, Response, Request } from "express";
-import Quotation from '../models/quotation.model';
+import Quotation, { quoteStatus } from '../models/quotation.model';
 import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
@@ -196,7 +196,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         let { page, row, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = { dealData: { $exists: true },dealApproved:false }
+        let matchFilters = { dealData: { $exists: true }, dealApproved: false }
         let accessFilter = {};
 
         let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
@@ -509,7 +509,7 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         const job = new Job(jobData);
         const saveJob = await job.save()
         if (saveJob) {
-            const quoteUpdate = await Quotation.updateOne({_id:jobData.quoteId},{dealApproved:true})
+            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { dealApproved: true })
             if (quoteUpdate) {
                 return res.status(200).json({ success: true })
             }
@@ -599,6 +599,139 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+export const getReportDetails = async (req: Request, res: Response) => {
+    try {
+        let { salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
+        let isSalesPerson = salesPerson == null ? true : false;
+        let isCustomer = customer == null ? true : false;
+        let isDate = fromDate == null || toDate == null ? true : false;
+        let isDepartment = department == null ? true : false;
+
+        let matchFilters = {
+            $and: [
+                { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
+                { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
+                {
+                    $or: [
+                        { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
+                        { date: { $exists: isDate } }
+                    ]
+                },
+                {
+                    $or: [{ department: new ObjectId(department) }, { department: { $exists: isDepartment } }]
+                }
+            ]
+        }
+
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+
+        const quotations = await Quotation.aggregate([
+            {
+                $match: filters
+            },
+        ])
+
+        const jobQuoataions = await Quotation.aggregate([
+            {
+                $match: filters
+            },
+            {
+                $lookup: {
+                    from: 'jobs',
+                    localField: '_id',
+                    foreignField: 'quoteId',
+                    as: 'jobs'
+                }
+            },
+            {
+                $match: {
+                    'jobs.0': { $exists: true }
+                }
+            },
+            {
+                $project: {
+                    jobs: 0
+                }
+            }
+        ])
+
+        const totalValues = quotations.reduce((acc: any, quote: any) => {
+            if (quote.currency == 'USD') {
+                acc.totalUSDValue += calculateDiscountPrice(quote);
+            } else if (quote.currency == 'QAR') {
+                acc.totalQARValue += calculateDiscountPrice(quote);
+            }
+
+            if (quote.status === quoteStatus.Won) {
+                acc.totalWonValue += calculateDiscountPrice(quote);
+            } else if (quote.status === quoteStatus.Lost) {
+                acc.totalLossValue += calculateDiscountPrice(quote);
+            }
+            acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
+            return acc;
+        }, {
+            totalUSDValue: 0,
+            totalQARValue: 0,
+            totalWonValue: 0,
+            totalLossValue: 0,
+            statusCounts: {}
+        });
+
+        const totalJobAwarded = jobQuoataions.reduce((acc: any, quote: any) => {
+            return acc += calculateDiscountPrice(quote);
+        }, 0)
+
+        const pieChartData = Object.keys(totalValues.statusCounts).map(status => ({
+            name: status,
+            value: totalValues.statusCounts[status]
+        }));
+
+        const qatarRates = await getQARRated();
+
+        const qatarUsdRates = qatarRates.qar.usd;
+        const tatalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
+        
+        if (totalValues && pieChartData) {
+            return res.status(200).json({
+                totalValue : tatalValue,
+                totalWonValue: totalValues.totalWonValue,
+                totalLossValue: totalValues.totalLossValue,
+                totalJobAwarded: totalJobAwarded,
+                pieChartData
+            })
+        }
+
+        return res.status(502).json();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 
 const generateJobId = async () => {
     try {
@@ -629,3 +762,33 @@ const generateJobId = async () => {
         console.log(error)
     }
 }
+
+const calculateDiscountPrice = (quotation: any): number => {
+    const calculateUnitPrice = (i: number, j: number): number => {
+        const decimalMargin = quotation.items[i].itemDetails[j].profit / 100;
+        return quotation.items[i].itemDetails[j].unitCost / (1 - decimalMargin);
+    };
+
+    const calculateTotalPrice = (i: number, j: number): number => {
+        return calculateUnitPrice(i, j) * quotation.items[i].itemDetails[j].quantity;
+    };
+
+    const calculateSellingPrice = (): number => {
+        let totalCost = 0;
+        quotation.items.forEach((item: any, i: number) => {
+            item.itemDetails.forEach((itemDetail: any, j: number) => {
+                totalCost += calculateTotalPrice(i, j);
+            });
+        });
+        return totalCost;
+    };
+
+    return calculateSellingPrice() - quotation.totalDiscount;
+};
+
+async function getQARRated() {
+    const url = 'https://latest.currency-api.pages.dev/v1/currencies/qar.min.json';
+    const response = await fetch(url);
+    const jsonResponse = await response.json();
+    return jsonResponse;
+} 

@@ -27,6 +27,7 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
   showTabs: boolean = false;
   privileges!: Privileges | undefined;
   notifyCount!: number
+  notViewedPresaleCount!: number
   mySubscription: Subscription = new Subscription()
   userId!: any
 
@@ -52,7 +53,8 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
       }
     })
     this.mySubscription = this._announcementService.getNewAnnouncements().subscribe((res) => {
-      this.notifyCount = res
+      this.notifyCount = res.notViewedCount
+      this.notViewedPresaleCount = res.notViewedPresaleCount
     })
     setTimeout(() => {
       this.showTabs = true;

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData, dealData, FilterDeal, getDealSheet } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData, dealData, FilterDeal, getDealSheet, ReportDetails } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
@@ -26,6 +26,10 @@ export class QuotationService {
 
   getQuotation(filterData: FilterQuote): Observable<getQuotation> {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
+  }
+
+  getQuotationReport(filterData: FilterQuote): Observable<ReportDetails> {
+    return this.http.post<ReportDetails>(`${this.api}/quotation/report`, filterData)
   }
 
   getDealSheet(filterData: FilterDeal): Observable<getDealSheet> {
@@ -56,6 +60,7 @@ export class QuotationService {
   approveDeal(quoteId?:string): Observable<{success:true}>{
     return this.http.post<{success:true}>(`${this.api}/quotation/deal/approve`,{quoteId})
   }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {

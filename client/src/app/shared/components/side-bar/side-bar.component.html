@@ -100,6 +100,10 @@
                                     matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon></i>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="">Assigned Jobs</p>
+                                <div *ngIf="notViewedPresaleCount > 0"
+                                    class="bg-orange-500 ml-11 my-auto text-white text-[12px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                                    <p>{{notViewedPresaleCount}}</p>
+                                </div>
                                 <i><ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon></i>
                             </div>
                         </div>

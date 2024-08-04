@@ -24,6 +24,8 @@ import { pipeModule } from 'src/app/shared/pipes/pipe.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DealFormComponent } from './pages/deal-form/deal-form.component';
 import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
+import { ViewReportComponent } from './pages/view-report/view-report.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 
 @NgModule({
@@ -36,6 +38,7 @@ import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
         UploadLpoComponent,
         DealFormComponent,
         ViewLpoComponent,
+        ViewReportComponent,
     ],
     providers: [DatePipe],
     imports: [
@@ -55,8 +58,8 @@ import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
         PaginationComponent,
         ResizableModule,
         pipeModule,
-        MatTooltipModule
-
+        MatTooltipModule,
+    NgApexchartsModule,
     ]
 })
 export class QuotationsModule { }

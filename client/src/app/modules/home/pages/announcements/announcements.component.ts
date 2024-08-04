@@ -35,7 +35,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
     private _service: AnnouncementService,
     private toaster: ToastrService,
     private _employeeService: EmployeeService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.checkPermission();
@@ -62,13 +62,20 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   }
 
   getAnnouncementData() {
+    console.log(this.page)
     this._service.getAnnouncement(this.page, this.row).pipe(takeUntil(this.destroy$)).subscribe(
       (res: { total: number, announcements: announcementGetData[] }) => {
         this.isLoading = false;
         this.announcementData = res.announcements;
         this.total = res.total;
         this.updateNotViewedIds();
-        this.recentData = this.announcementData.shift() || null;
+
+        if (this.page === 1) {
+          this.recentData = this.announcementData.shift() || null;
+        } else {
+          this.recentData = null;
+        }
+
         this.isEmpty = this.announcementData.length === 0;
       },
       () => {
@@ -77,6 +84,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
       }
     );
   }
+  
 
   observeAnnouncement(element: ElementRef) {
     const observer = new IntersectionObserver(entries => {
@@ -113,7 +121,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
         this.notViewedIds.add(announcement._id);
       }
     });
-    
+
   }
 
   trackByIdFn(index: number, item: announcementGetData): string {
