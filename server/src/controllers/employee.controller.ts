@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
+import mongoose from "mongoose";
 var jwt = require('jsonwebtoken');
-const { ObjectId } = require('mongodb');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -57,7 +58,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 break;
         }
 
-        const filters = {$and:[matchFilters,accessFilter]}
+        const filters = { $and: [matchFilters, accessFilter] }
 
         await Employee.aggregate([
             {
@@ -132,6 +133,72 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
             return res.status(200).json(saveEmployee);
         }
         return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getPasswordForEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const id = req.params.id
+        const employee = await Employee.findById(id)
+        console.log(employee)
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const editEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const updatedEmployeeData = {...req.body};
+        const employeeId = req.body.employeeId;
+
+        delete updatedEmployeeData.password;
+        delete updatedEmployeeData.employeeId;
+
+        const { password } = req.body;
+        console.log(password)
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedEmployeeData.password = hashedPassword
+        }
+
+        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
+            employeeId,
+            updatedEmployeeData,
+            { new: true }).populate('category department reportingTo')
+
+        if (saveEmployeeEdit) {
+            return res.status(200).json(saveEmployeeEdit);
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const changePasswordOfEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        console.log(req.body)
+        const { oldPassword, newPassword, userId } = req.body
+        const user = await Employee.findById({ userId })
+        const userPassword = user.password
+        bcrypt.compare(userPassword, oldPassword, async (err, result) => {
+            if (err) {
+                console.log("error comparing passwords:", err)
+                return
+            }
+            if (result) {
+                console.log("password matched")
+                await Employee.findOneAndUpdate({ id: user.id }, { $set: { password: newPassword } })
+                return res.status(200).json({ passwordChanged: true })
+            } else {
+                console.log("password dont match")
+                return res.status(502).json({ passwordChanged: false })
+            }
+        })
     } catch (error) {
         next(error)
     }

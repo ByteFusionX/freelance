@@ -19,6 +19,7 @@ import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-c
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
+import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { ViewEmployeeComponent } from './pages/employees/view-employee/view-empl
     AnnouncementsComponent,
     CreateCategoryComponent,
     ViewEmployeeComponent,
+    EditEmployeeComponent,
 
   ],
   imports: [

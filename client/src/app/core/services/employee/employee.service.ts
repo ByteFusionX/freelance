@@ -28,6 +28,22 @@ export class EmployeeService {
     return this.http.post(`${this.api}/employee`, employeeData)
   }
 
+  // getPasswordOfEmployee(employeeId:string){
+  //   console.log(employeeId)
+  //   return this.http.get(`${this.api}/employee/getPasswordOfEmployee/${employeeId}`)
+  // }
+
+  changePasswordOfEmployee(passwords:object){
+      console.log(passwords)
+      return this.http.patch(`${this.api}/employee/changePassword`,passwords)
+  }
+
+  editEmployees(employeeData: CreateEmployee) {
+    console.log(employeeData)
+    console.log("reached service")
+    return this.http.patch(`${this.api}/employee/edit`, employeeData)
+  }
+
   createCategory(categroyData: GetCategory) {
     return this.http.post(`${this.api}/category`, categroyData)
   }

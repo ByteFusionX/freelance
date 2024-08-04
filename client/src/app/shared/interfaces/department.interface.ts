@@ -8,6 +8,7 @@ export interface getDepartment {
 }
 
 export interface Department{
+    _id?:string;
     departmentName:string,
     departmentHead:string,
     createdDate:number
