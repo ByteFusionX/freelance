@@ -5,14 +5,14 @@
 
             <div class="flex justify-end gap-4">
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
-                    [matMenuTriggerFor]="beforeMenu" mat-button>
+                    [matMenuTriggerFor]="filterMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
                     <p class="mx-2 text-sm">Filter By</p>
                     <div class="mt-1">
                         <ng-icon name="heroChevronDown"></ng-icon>
                     </div>
                 </div>
-                <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto w-96">
+                <mat-menu #filterMenu="matMenu" class="mt-2 h-auto w-96">
 
                     <div class="p-4" (click)="handleNotClose($event)">
                         <form [formGroup]="formData" (ngSubmit)="onSubmit()">
@@ -115,6 +115,23 @@
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Department </th>
                     <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="attachedFiles">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden ">
+                        Attached Files </th>
+                    <td mat-cell *matCellDef="let element" class="hover:bg-white" (click)="preventClick($event)">
+                        <div *ngIf="element.attachments.length == 0, else elseBlock">
+                            <p class="text-red-500">No Files Attached</p>
+                        </div>
+                        <ng-template #elseBlock>
+                            <div *ngFor="let file of element.attachments">
+                                <p class="w-32 truncate ... hover:text-violet-600" matTooltip="Download File" (click)="onDownloadClicks(file)"
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
+                            </div>
+                        </ng-template>
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">

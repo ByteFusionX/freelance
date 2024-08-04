@@ -52,8 +52,6 @@ import {
   heroArrowsRightLeft,
 } from '@ng-icons/heroicons/outline';
 
-
-
 @NgModule({
   declarations: [],
   imports: [
