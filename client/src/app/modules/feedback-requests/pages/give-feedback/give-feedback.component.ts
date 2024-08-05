@@ -8,6 +8,7 @@ import {  MatDialogRef } from '@angular/material/dialog';
 })
 export class GiveFeedbackComponent {
   feedback!:string;
+  showError:boolean = false;
   constructor(
     public dialogRef: MatDialogRef<GiveFeedbackComponent>,
   ) {  }
@@ -15,6 +16,16 @@ export class GiveFeedbackComponent {
   onSubmit(){
     if(this.feedback){
       this.dialogRef.close(this.feedback)
+    }else{
+      this.showError = true;
+    }
+  }
+
+  validateComment() {
+    if (!this.feedback) {
+      this.showError = true;
+    } else {
+      this.showError = false;
     }
   }
 

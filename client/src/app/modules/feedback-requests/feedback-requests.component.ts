@@ -4,12 +4,13 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { ViewCommentComponent } from '../assigned-jobs/pages/view-comment/view-comment.component';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
 import { saveAs } from 'file-saver'
 import { GiveFeedbackComponent } from './pages/give-feedback/give-feedback.component';
+import { ViewFeedbackComponent } from '../assigned-jobs/pages/view-feedback/view-feedback.component';
 
 
 @Component({
@@ -81,6 +82,13 @@ export class FeedbackRequestsComponent {
       width: '500px',
       data: comment
     })
+  }
+
+  viewFeedback(feedback: feedback) {
+    this._dialog.open(ViewFeedbackComponent, {
+      width: '500px',
+      data: feedback
+    });
   }
 
   onDownloadClicks(file: any) {

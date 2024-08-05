@@ -412,8 +412,7 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId),
-                    "preSale.feedback.feedback": { $exists: false }
+                    "preSale.feedback.employeeId": new ObjectId(employeeId)
                 }
             },
             {
@@ -426,8 +425,7 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             { $unwind: "$preSale.feedback" },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId),
-                    "preSale.feedback.feedback": { $exists: false }
+                    "preSale.feedback.employeeId": new ObjectId(employeeId)
                 }
             },
             {

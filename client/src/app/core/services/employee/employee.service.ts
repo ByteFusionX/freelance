@@ -41,6 +41,10 @@ export class EmployeeService {
     return this.http.post(`${this.api}/category`, categroyData)
   }
 
+  updateCategory(categroyData: GetCategory,categoryId?:string) {
+    return this.http.patch(`${this.api}/category/${categoryId}`, categroyData)
+  }
+
   getCategory(): Observable<GetCategory[]> {
     return this.http.get<GetCategory[]>(`${this.api}/category`)
   }

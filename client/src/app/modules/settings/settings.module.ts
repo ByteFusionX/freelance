@@ -13,6 +13,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { CreateDepartmentDialog } from './pages/create-department/create-department.component';
 import { SettingsRoutingModule } from './settings-routing.module';
 import { PortalManagementComponent } from './pages/portal-management/portal-management.component';
+import { EditCategoryComponent } from './pages/edit-category/edit-category.component';
 
 
 
@@ -20,6 +21,7 @@ import { PortalManagementComponent } from './pages/portal-management/portal-mana
   declarations: [
     CreateDepartmentDialog,
     PortalManagementComponent,
+    EditCategoryComponent,
   ],
   imports: [
     CommonModule,

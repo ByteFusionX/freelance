@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { GetCategory, Privileges } from 'src/app/shared/interfaces/employee.interface';
 
 @Component({
-  selector: 'app-create-category',
-  templateUrl: './create-category.component.html',
-  styleUrls: ['./create-category.component.css']
+  selector: 'app-edit-category',
+  templateUrl: './edit-category.component.html',
+  styleUrls: ['./edit-category.component.css']
 })
+export class EditCategoryComponent {
 
-export class CreateCategoryComponent {
   isSaving: boolean = false;
   error!: string;
 
@@ -25,8 +25,9 @@ export class CreateCategoryComponent {
   portalChecked: boolean = false;
 
   constructor(
-    public dialogRef: MatDialogRef<CreateCategoryComponent>,
+    public dialogRef: MatDialogRef<EditCategoryComponent>,
     private _fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: GetCategory,
     private _employeeService: EmployeeService,
   ) { }
 
@@ -75,11 +76,32 @@ export class CreateCategoryComponent {
     })
   })
 
+  ngOnInit() {
+    this.updateChecks(this.data.privileges)
+    console.log(this.data.privileges)
+    this.categoryForm.patchValue(this.data)
+    console.log(this.categoryForm.value)
+  }
+
+  updateChecks(privileges: Privileges) {
+    this.dashboardChecked = privileges.dashboard.viewReport !== 'none',
+      this.employeeChecked = privileges.employee.viewReport !== 'none',
+      this.announcementChecked = privileges.announcement.viewReport !== 'none',
+      this.customerChecked = privileges.customer.viewReport !== 'none',
+      this.enquiryChecked = privileges.enquiry.viewReport !== 'none',
+      this.assignedJobsChecked = privileges.assignedJob.viewReport !== 'none',
+      this.quotationChecked = privileges.quotation.viewReport !== 'none',
+      this.jobSheetChecked = privileges.jobSheet.viewReport !== 'none',
+      this.portalChecked = privileges.portalManagement
+        ? Object.values(privileges.portalManagement).some(value => value)
+        : false;
+  }
+
   onClose(): void {
     this.dialogRef.close();
   }
 
-  onCheckboxChange(event: Event, formControlName: string, checkedVariable: keyof CreateCategoryComponent): void {
+  onCheckboxChange(event: Event, formControlName: string, checkedVariable: keyof EditCategoryComponent): void {
     const eventTarget = event.target as HTMLInputElement;
     const checked = eventTarget.checked;
 
@@ -99,7 +121,7 @@ export class CreateCategoryComponent {
 
       const categoryData: GetCategory = this.categoryForm.value as GetCategory;
 
-      this._employeeService.createCategory(categoryData).subscribe({
+      this._employeeService.updateCategory(categoryData, this.data._id).subscribe({
         next: (data) => {
           this.isSaving = false;
           this.dialogRef.close(data)

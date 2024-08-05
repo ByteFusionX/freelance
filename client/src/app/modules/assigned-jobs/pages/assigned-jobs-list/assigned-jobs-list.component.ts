@@ -207,7 +207,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   viewFeedback(feedback: feedback) {
-    console.log(this.dataSource.data)
     this._dialog.open(ViewFeedbackComponent, {
       data: feedback
     });

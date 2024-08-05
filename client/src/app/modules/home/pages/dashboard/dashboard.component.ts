@@ -4,7 +4,7 @@ import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee, Privileges } from 'src/app/shared/interfaces/employee.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
@@ -15,8 +15,7 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  animations: [opacityState],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  animations: [opacityState]
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -27,6 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   graphSeries: { name: string, data: number[] }[] = [];
   graphCategory: string[] = [];
   showChart: boolean = false
+  privileges!: Privileges | undefined;
 
   userId!: string | undefined;
   enquiryAccess!: string | undefined;
@@ -60,34 +60,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.userData$ = this._employeeService.employeeData$
     this.userData$.subscribe((employee) => {
       if (employee) {
-        this.enquiryAccess = employee?.category.privileges.enquiry.viewReport
-        this.quoteAccess = employee?.category.privileges.quotation.viewReport
-        this.jobAccess = employee?.category.privileges.jobSheet.viewReport
-
+        this.privileges = employee?.category?.privileges
         this.userId = employee?._id;
 
-        this.enquiries$ = this._profileService.totalEnquiries(this.enquiryAccess, this.userId);
-        this.enquiries$.subscribe((res)=> {
-          console.log(res)
-        })
-        this.enquiryLoading()
-        this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
-        this.quoteLoading();
-        this.jobs$ = this._jobService.totalJobs(this.jobAccess, this.userId)
-        this.jobLoading();
-        this.presales$ = this._enquiryService.presalesCounts(this.jobAccess, this.userId)
-        this.presalesLoading();
+        if (this.privileges?.dashboard?.totalEnquiry) {
+          this.enquiryAccess = employee?.category.privileges.enquiry.viewReport
+          this.enquiries$ = this._profileService.totalEnquiries(this.enquiryAccess, this.userId);
+          this.enquiryLoading()
+        }
 
-        this.getChartDetails()
+        if (this.privileges?.dashboard?.totalQuote) {
+          this.quoteAccess = employee?.category.privileges.quotation.viewReport;
+          this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
+          this.quoteLoading();
+        }
+
+        if (this.privileges?.dashboard?.totalJobs) {
+          this.jobAccess = employee?.category.privileges.jobSheet.viewReport
+          this.jobs$ = this._jobService.totalJobs(this.jobAccess, this.userId)
+          this.jobLoading();
+        }
+
+        if (this.privileges?.dashboard?.totalPresale) {
+          this.presales$ = this._enquiryService.presalesCounts(this.jobAccess, this.userId)
+          this.presalesLoading();
+        }
+
+        if (this.privileges?.dashboard?.EnquiryChart) {
+          this.getChartDetails()
+        }
       }
-    })
+    }).unsubscribe()
+
 
     this.dateCategories()
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe()
-  }
+
+
 
   enquiryLoading() {
     this.subscriptions.add(
@@ -124,6 +134,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.quotations$.subscribe({
         next: ((data) => {
           if (data) {
+            console.log(data)
             this.isQuoteLoading = false
           }
         }),
@@ -221,5 +232,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     };
     this.showChart = true;
+  }
+
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe()
   }
 }

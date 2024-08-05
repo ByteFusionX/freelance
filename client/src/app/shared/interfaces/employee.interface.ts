@@ -73,11 +73,14 @@ export interface getEmployeeByID {
   employeeData: getEmployeeDetails
 }
 
-
-
 export interface Privileges {
   dashboard: {
     viewReport: string;
+    totalEnquiry: boolean;
+    totalQuote: boolean;
+    totalJobs: boolean;
+    totalPresale: boolean;
+    EnquiryChart: boolean;
   };
   employee: {
     viewReport: string;
@@ -104,5 +107,9 @@ export interface Privileges {
   };
   jobSheet: {
     viewReport: string;
+  };
+  portalManagement: {
+    department: boolean;
+    notesAndTerms: boolean;
   };
 }

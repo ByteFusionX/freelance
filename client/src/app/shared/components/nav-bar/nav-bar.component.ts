@@ -21,6 +21,7 @@ export class NavBarComponent {
   @Output() reduce = new EventEmitter<boolean>()
   showFullBar: boolean = true
   menuState: boolean = false
+  showPortalMangement: boolean = false;
   employee!: { id: string, employeeId: string };
   employeeData$!: Observable<getEmployee | undefined>
 
@@ -31,11 +32,16 @@ export class NavBarComponent {
 
   ngOnInit() {
     this.employee = this._employeeService.employeeToken()
-    if(this.employee){
+    if (this.employee) {
       const employeeId = this.employee.employeeId
       this._employeeService.getEmployeeData(employeeId)
-      console.log('shshsh')
       this.employeeData$ = this._employeeService.employeeData$
+
+      this.employeeData$.subscribe((emp)=>{
+        emp?.category?.privileges?.portalManagement
+        ? Object.values(emp?.category?.privileges?.portalManagement).some(value => value)
+        : false;
+      })
     }
   }
 
@@ -44,7 +50,7 @@ export class NavBarComponent {
     this.reduce.emit(this.showFullBar)
   }
 
-  onFeedbacks(){
+  onFeedbacks() {
     this._router.navigate(['/feedback-requests'])
   }
 

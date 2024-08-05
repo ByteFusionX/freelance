@@ -31,7 +31,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status' , 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
