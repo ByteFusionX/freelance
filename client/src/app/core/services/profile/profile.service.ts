@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Department, getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { NoteDelete, NotePatch, NotePost, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -50,4 +51,12 @@ export class ProfileService {
     return this.http.delete<any>(`${this.api}/note/${noteId}/${noteType}`)
   }
 
+  getCompanyDetails(){
+    return this.http.get<getCompanyDetails>(`${this.api}/company/getCompanyDetails`)
+  }
+
+  updateCompanyDetails(companyDetails:getCompanyDetails){
+    console.log(companyDetails)
+    return this.http.patch<getCompanyDetails>(`${this.api}/company/updateCompanyDetails`,companyDetails)
+  }
 }

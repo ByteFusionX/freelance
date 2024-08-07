@@ -24,16 +24,22 @@
             </div>
         </div>
     </div>
-    <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
+    <div *ngIf="companyDetails; else noCompanyDetails" class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
+       
         <div class="mb-5">
-            <div class="flex gap-1">
-                <i><ng-icon name="heroBuildingOffice" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
-                <p class="font-medium text-orange-400 "> Organization Details:</p>
+            <div class="flex gap-1 items-center">
+                <div class="flex items-center gap-1">
+                    <i><ng-icon name="heroBuildingOffice" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                    <p class="font-medium text-orange-400"> Organization Details:</p>
+                </div>
+                <button class="ml-auto bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm flex items-center gap-2" (click)="updateCompanyDetails()">
+                    <ng-icon name="heroPencilSquare"></ng-icon>
+                    Edit
+                </button>
             </div>
             <p class="text-gray-600 mt-1">
-                <span class="">Neuron Technologies</span> <br>
-                A versatile technology integrator with unparalleled array of products and services to encompass every
-                need an enterprise will endure in field of digital information and technology.
+                <span>{{companyDetails.name}}</span> <br>
+                {{companyDetails.description}}
             </p>
         </div>
 
@@ -43,11 +49,31 @@
                 <i><ng-icon name="heroMapPin" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
                 <p class="font-medium text-orange-400">Address:</p>
             </div>
-            <p class="text-gray-600 mt-1">Neuron Technologies, <br>
-                Umm Ghuwailina, street No.950, <br>
-                Area No.27 , Doha-Qatar</p>
+            <p class="text-gray-600 mt-1">{{companyDetails.name}}, <br>
+                {{companyDetails.address.street}}, <br>
+                {{companyDetails.address.area}}, <br>
+                {{companyDetails.address.city}} - {{companyDetails.address.country}}
+            </p>
         </div>
     </div>
+    <ng-template #noCompanyDetails >
+        <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md ">
+          <div class="flex justify-center ">
+            <h1>No Company Details available.</h1>
+          </div>
+          <div class="flex justify-center">
+            <button 
+            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+            (click)="updateCompanyDetails()">
+            + Add Company Details
+        </button>
+          </div>
+         
+
+        </div>
+        
+           
+      </ng-template>
     
 </div>
 <div class="w-full p-5 bg-white"></div>
