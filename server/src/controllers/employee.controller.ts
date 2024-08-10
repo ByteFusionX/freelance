@@ -2,7 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
 import mongoose from "mongoose";
-var jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import announcementModel from "../models/announcement.model";
+import enquiryModel from "../models/enquiry.model";
+import quotationModel from "../models/quotation.model";
+import categoryModel, { UserRole } from "../models/category.model";
+import departmentModel from "../models/department.model";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,10 +25,67 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
 export const isEmployeePresent = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeCount = await Employee.countDocuments();
+        const categoryCount = await categoryModel.countDocuments();
+        const departmentCount = await departmentModel.countDocuments();
 
         if (employeeCount > 0) {
             return res.status(200).json({ exists: true });
         }
+
+        if(categoryCount == 0){
+            await new categoryModel({
+                categoryName: "CEO",
+                role: UserRole.superAdmin, 
+                privileges: {
+                  dashboard: {
+                    viewReport: 'all',
+                    totalEnquiry: true,
+                    totalQuote: true,
+                    totalJobs: true,
+                    totalPresale: true,
+                    EnquiryChart: true,
+                  },
+                  employee: {
+                    viewReport: 'all',
+                    create: true,
+                  },
+                  announcement: {
+                    viewReport: 'all',
+                    create: true,
+                  },
+                  customer: {
+                    viewReport: 'all',
+                    create: true,
+                  },
+                  enquiry: {
+                    viewReport: 'all',
+                    create: true,
+                  },
+                  assignedJob: {
+                    viewReport: 'all',
+                  },
+                  quotation: {
+                    viewReport: 'all',
+                    create: true,
+                  },
+                  jobSheet: {
+                    viewReport: 'all',
+                  },
+                  dealSheet: true,
+                  portalManagement: {
+                    department: true,
+                    notesAndTerms: true,
+                  },
+                },
+              }).save()
+        }
+
+        if(departmentCount == 0){
+            await new departmentModel({
+                departmentName : 'General'
+              }).save()
+        }
+        
         return res.status(200).json({ exists: false });
     } catch (error) {
         next(error);
@@ -317,7 +379,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             const passwordMatch = await bcrypt.compare(password, employee.password)
             if (passwordMatch) {
                 const payload = { id: employee._id, employeeId: employee.employeeId }
-                const token = await jwt.sign(payload, process.env.JWT_SECRET)
+                const token = jwt.sign(payload, process.env.JWT_SECRET)
                 res.status(200).json({ token: token, employeeData: employee })
             } else {
                 res.send({ passwordNotMatchError: true })
@@ -341,3 +403,35 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
         next(error)
     }
 }
+
+export const getNotificationCounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const token = req.params.token
+        const jwtPayload = jwt.verify(token, process.env.JWT_SECRET)
+        const userId = (<any>jwtPayload).id
+        const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: userId } });
+        const assignedJobCount = await enquiryModel.countDocuments({
+            'preSale.presalePerson': userId,
+            'preSale.seenbyEmployee': false,
+        });
+        const dealSheetCount = await quotationModel.countDocuments({
+            "dealData.seenByApprover": false,
+        });
+        const feedbackCount = await enquiryModel.countDocuments({
+            "preSale.feedback.seenByFeedbackProvider": false,
+        });
+        const employeeCount = {
+            announcementCount,
+            assignedJobCount,
+            dealSheetCount,
+            feedbackCount
+        }
+        console.log(dealSheetCount)
+        if (employeeCount) return res.status(200).json(employeeCount)
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+

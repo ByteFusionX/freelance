@@ -60,6 +60,10 @@ export class QuotationService {
     return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId })
   }
 
+  markDealAsViewed(quoteIds: any): Observable<any> {
+    return this.http.post(`${this.api}/quotation/markAsSeenedDeal`, { quoteIds })
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {
@@ -177,24 +181,31 @@ export class QuotationService {
 
 
     let discount;
+    let finalAmount;
+
     if (quoteData.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
       ];
+      finalAmount = [
+        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
+      ];
+    }else{
+      finalAmount = [
+        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost).toFixed(2), style: 'tableFooter' },
+      ];
     }
 
-    const finalAmount = [
-      { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-      { text: (totalCost).toFixed(2), style: 'tableFooter' },
-    ];
+
 
     let body;
     if (quoteData.totalDiscount == 0) {
       body = [
         tableHeader,
         ...tableBody,
-        totalAmount,
         finalAmount
       ]
     } else {
@@ -399,6 +410,17 @@ export class QuotationService {
 
     const pdfDoc = pdfMake.createPdf(documentDefinition);
     return pdfDoc
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 

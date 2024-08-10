@@ -58,7 +58,7 @@
                                 class="text-gray-800 uppercase font-medium">{{data.departmentName}}</span>
                             <p class="text-3xl font-semibold mt-1">{{data.totalEnquiries}} <span
                                     class="text-xs text-gray-700">Nos</span></p>
-                            <div class="text-sm text-gray-700 mt-2">
+                            <div class="text-sm text-gray-700 mt-2" *ngIf="data.totalEnquiries">
                                 <a class="text-blue-500 underline uppercase cursor-pointer hover:text-blue-700 font-medium"
                                     (click)="onDepartmentSelect(data.departmentId)">See all reports</a>
                             </div>
@@ -145,7 +145,7 @@
                 
             </div>
         </div>
-        <div class="w-full bg-white rounded-md mt-5  shadow-md"  *ngIf="privileges?.dashboard?.EnquiryChart">
+        <div class="w-full bg-white rounded-md mt-5  shadow-md"  *ngIf="privileges?.dashboard?.EnquiryChart && !noDataForChart">
             <div class="p-10">
                 <p class="text-md font-medium">Enquires</p>
                 <app-skelton-loading [lineLength]="3" *ngIf="!showChart" class="col-span-3"></app-skelton-loading>

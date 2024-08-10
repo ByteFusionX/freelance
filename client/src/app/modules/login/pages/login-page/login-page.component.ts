@@ -43,7 +43,11 @@ export class LoginPageComponent {
   }
 
   onCreateSuperAdmin(){
-    const dialogRef = this._dialog.open(CreateEmployeeDialog);
+    const dialogRef = this._dialog.open(CreateEmployeeDialog,{
+      data:{
+        createSuperAdmin : true
+      }
+    });
     dialogRef.close((data: any)=>{
       if(data){
         this.isEmployeePresent = true;

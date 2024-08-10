@@ -50,9 +50,12 @@ import {
   heroChatBubbleBottomCenterText,
   heroCheckCircle,
   heroArrowsRightLeft,
-  heroTag
+  heroTag,
+  heroBell,
+  heroClipboardDocumentCheck,
 } from '@ng-icons/heroicons/outline';
 
+import { heroBellSolid } from '@ng-icons/heroicons/solid'
 @NgModule({
   declarations: [],
   imports: [
@@ -106,7 +109,10 @@ import {
       heroChatBubbleBottomCenterText,
       heroCheckCircle,
       heroArrowsRightLeft,
-      heroTag
+      heroTag,
+      heroBellSolid,
+      heroBell,
+      heroClipboardDocumentCheck
     }),
   ],
   exports: [NgIconsModule]

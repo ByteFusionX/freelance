@@ -32,6 +32,7 @@ const io = new Server(server, {
     credentials: true
   }
 });
+app.set('io', io);
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -39,6 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 
 startCronJob();
 socketConnection(io)
+
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 

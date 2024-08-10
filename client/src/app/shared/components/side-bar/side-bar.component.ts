@@ -8,7 +8,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Privileges } from '../../interfaces/employee.interface';
 import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationCounts } from '../../interfaces/notification.interface';
 
 @Component({
   selector: 'app-side-bar',
@@ -19,24 +21,23 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, IconsModule, AppRoutingModule, MatTooltipModule]
 })
 export class SideBarComponent implements AfterViewInit, OnDestroy {
-
+  notificationCounts$!: Observable<NotificationCounts>;
   @Input() showFullBar: boolean = true
   homeDropDown: boolean = false;
   activeLink: string = '';
-  
+
   showTabs: boolean = false;
   privileges!: Privileges | undefined;
   notifyCount!: number
   notViewedPresaleCount!: number
   mySubscription: Subscription = new Subscription()
-  userId!: any
 
   constructor(
     private eref: ElementRef,
     private router: Router,
     private _employeeService: EmployeeService,
-    private _announcementService: AnnouncementService
-  ) { 
+    private _notificationService: NotificationService
+  ) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.activeLink = event.urlAfterRedirects;
@@ -45,17 +46,8 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.checkPermission()
-    this._employeeService.employeeData$.subscribe((res) => {
-      if(res){
-        this.userId = res
-        this._announcementService.onCheckNotViewed(this.userId._id)
-      }
-    })
-    this.mySubscription = this._announcementService.getNewAnnouncements().subscribe((res) => {
-      this.notifyCount = res.notViewedCount
-      this.notViewedPresaleCount = res.notViewedPresaleCount
-    })
+    this.checkPermission();
+    this.notificationCounts$ = this._notificationService.notificationCounts$;
     setTimeout(() => {
       this.showTabs = true;
     }, 1000);

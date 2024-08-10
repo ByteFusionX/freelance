@@ -178,11 +178,21 @@ export class CreateQuotatationComponent {
 
   onCustomerNote(event: Note, noteType: string) {
     if (noteType == 'customerNotes') {
-      const note = this.quoteForm.value.customerNote + '\n' + event.note;
+      const customerNote = this.quoteForm.value.customerNote;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.customerNote + nextLine + event.note;
       this.quoteForm.patchValue({ customerNote: note })
     } else if (noteType == 'termsAndConditions') {
-      const note = this.quoteForm.value.termsAndCondition + '\n' + event.note;
-      this.quoteForm.patchValue({ termsAndCondition : note })
+      const customerNote = this.quoteForm.value.termsAndCondition;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.termsAndCondition + nextLine + event.note;
+      this.quoteForm.patchValue({ termsAndCondition: note })
     }
   }
 

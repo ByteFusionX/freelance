@@ -4,16 +4,39 @@ import Category from '../models/category.model'
 
 export const getCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const categories = await Category.find().exec()
+        const categories = await Category.aggregate([
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: '_id',
+                    foreignField: 'category',
+                    as: 'employees'
+                }
+            },
+            {
+                $addFields: {
+                    employeeCount: { $size: '$employees' }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    categoryName: 1,
+                    role: 1,
+                    privileges: 1,
+                    employeeCount: 1
+                }
+            }
+        ]);
 
         if (categories.length > 0) {
             return res.status(200).json(categories);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
 
 export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {

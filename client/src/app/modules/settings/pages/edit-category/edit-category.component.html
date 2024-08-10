@@ -295,6 +295,12 @@
                         </div>
                     </div>
 
+                    <!--- Deal Sheet -->
+                    <div>
+                        <input type="checkbox" id="dealSheet" class="mr-2" formControlName="dealSheet">
+                        <label for="dealSheet">Deal Sheet Approval</label>
+                    </div>
+
                     <!--- Job Sheet -->
                     <div>
                         <input type="checkbox" id="jobSheet" class="mr-2"  [(ngModel)]="jobSheetChecked" [ngModelOptions]="{standalone: true}"
@@ -354,7 +360,7 @@
     </div>
 
     <div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
-        <button (click)="onClose()"
+        <button type="button" (click)="onClose()"
             class="bg-violet-200 hover:bg-violet-300 text-black font-medium py-2 px-4 rounded text-sm">
             Cancel
         </button>

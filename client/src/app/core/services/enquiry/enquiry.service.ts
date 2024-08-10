@@ -94,5 +94,9 @@ export class EnquiryService {
     return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobIds })
   }
 
+  markFeedbackAsViewed(enqIds: any): Observable<any> {
+    return this.http.post(`${this.api}/enquiry/markAsSeenFeeback`, { enqIds })
+  }
+
 
 }

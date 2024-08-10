@@ -108,6 +108,7 @@ export interface Privileges {
   jobSheet: {
     viewReport: string;
   };
+  dealSheet: boolean;
   portalManagement: {
     department: boolean;
     notesAndTerms: boolean;

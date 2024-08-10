@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEmployee, getEmployees, login, getEmployee, getFilteredEmployees, editEmployee, getEmployeeByEmployeId, isEmployeePresent } from "../controllers/employee.controller";
+import { createEmployee, getEmployees, login, getEmployee, getFilteredEmployees, editEmployee, getEmployeeByEmployeId, isEmployeePresent, getNotificationCounts } from "../controllers/employee.controller";
 const empRouter = Router()
 
 empRouter.get('/', getEmployees)
@@ -11,5 +11,6 @@ empRouter.patch('/changePasswordOfEmployee',)
 empRouter.patch('/edit', editEmployee)
 empRouter.post('/login', login)
 empRouter.get('/get/:id', getEmployee)
+empRouter.get('/notifications/:token', getNotificationCounts)
 
 export default empRouter;

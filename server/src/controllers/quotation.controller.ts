@@ -5,6 +5,7 @@ import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
 import { getPreSaleJobs } from "./enquiry.controller";
+import { Server } from "socket.io";
 const { ObjectId } = require('mongodb')
 
 
@@ -344,6 +345,27 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
     }
 }
 
+export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const quoteIds: string[] = req.body.quoteIds;
+
+        const result = await Quotation.updateMany(
+            { _id: { $in: quoteIds } },
+            { 'dealData.seenByApprover': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No Deal found' });
+        }
+
+        res.status(200).json({ message: 'Deal marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 const generateDealId = async () => {
     try {
@@ -485,6 +507,9 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
                 savedDate: createdDate
             }
         }
+
+        const socket = req.app.get('io') as Server;
+        socket.emit("notifications", 'dealSheet')
 
         const { quoteId } = req.params;
         const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, updateQuoteData, { new: true });

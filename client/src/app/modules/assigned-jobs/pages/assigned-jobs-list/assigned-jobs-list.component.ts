@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ViewCommentComponent } from '../view-comment/view-comment.component';
 import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
 import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -45,7 +46,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
     private toast: ToastrService,
-    private _employeeService: EmployeeService) { }
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService
+  ) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -59,7 +62,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.jobItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
         this.jobItems.forEach(item => this.observeJob(item));
-      }, 100); // slight delay to ensure the DOM is fully rendered
+      }, 100);
     });
   }
 
@@ -124,6 +127,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   markJobAsViewed(jobId: string[]) {
     if (jobId.length > 0) {
       this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
+      this._notificationService.decrementNotificationCount('assignedJob',jobId.length)
     }
   }
 

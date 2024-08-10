@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Quotatation, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
 
@@ -10,6 +10,7 @@ import { Quotatation, QuoteItemDetail } from 'src/app/shared/interfaces/quotatio
 })
 export class DealFormComponent {
   isSaving: boolean = false;
+  isSubmitted:boolean = false;
   costForm!: FormGroup;
 
   constructor(
@@ -22,8 +23,13 @@ export class DealFormComponent {
     this.costForm = this.fb.group({
       paymentTerms: ['', Validators.required],
       items: this.fb.array(this.data.items.map(item => this.createItemGroup(item))),
-      costs: this.fb.array([])
+      costs: this.fb.array([], this.additionalCostsValidator())
     });
+  }
+
+
+  get paymentTermsControl(): AbstractControl {
+    return this.costForm.get('paymentTerms')!;
   }
 
   get costs(): FormArray {
@@ -45,7 +51,7 @@ export class DealFormComponent {
       unitCost: [detail.unitCost],
       profit: [detail.profit],
       availability: [detail.availability],
-      supplierName: ['']
+      supplierName: ['',this.supplierNameValidator()]
     });
   }
 
@@ -69,7 +75,9 @@ export class DealFormComponent {
   }
 
   onSubmit() {
+    this.isSubmitted = true;
     if (this.costForm.valid) {
+      this.isSaving = true;
       const formValue = this.costForm.value;
       const updatedItems = formValue.items.map((item: any) => ({
         ...item,
@@ -84,6 +92,37 @@ export class DealFormComponent {
         items: updatedItems
       });
     }
+  }
+
+  
+  additionalCostsValidator(): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      const costs = control as FormArray;
+  
+      if (costs.length === 0) {
+        return null;
+      }
+  
+      for (const cost of costs.controls) {
+        if (!cost?.get('name')?.value || !cost?.get('value')?.value) {
+          return { 'additionalCostInvalid': true };
+        }
+      }
+      return null;
+    };
+  }
+
+  supplierNameValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const formGroup = control.parent as FormGroup;
+      if (formGroup) {
+        const dealSelected = formGroup.get('dealSelected')?.value;
+        if (dealSelected && !control.value) {
+          return { 'supplierNameRequired': true };
+        }
+      }
+      return null;
+    };
   }
 
   onClose() {

@@ -7,6 +7,7 @@ import { announcementGetData } from 'src/app/shared/interfaces/announcement.inte
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { takeUntil } from 'rxjs/operators';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-announcements',
@@ -34,7 +35,8 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
     public dialog: MatDialog,
     private _service: AnnouncementService,
     private toaster: ToastrService,
-    private _employeeService: EmployeeService
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService,
   ) { }
 
   ngOnInit(): void {
@@ -108,6 +110,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   markAsViewed(announcementId: string | null) {
     if (announcementId && this.userId) {
       this._service.markAsViewed(announcementId, this.userId).pipe(takeUntil(this.destroy$)).subscribe()
+      this._notificationService.decrementNotificationCount('announcement',1)
     }
   }
 

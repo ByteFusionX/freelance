@@ -11,7 +11,7 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment:string,revisionComment:string[] };
+    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment: string, revisionComment: string[] };
     assignedFiles: []
     status: string;
     attachments: []
@@ -27,6 +27,10 @@ const feedbackSchema = new Schema({
     requestedDate: {
         type: Date
     },
+    seenByFeedbackProvider: {
+        type: Boolean,
+        default:false
+    }
 })
 
 const preSaleSchema = new Schema({
@@ -39,15 +43,15 @@ const preSaleSchema = new Schema({
         type: String
     },
     feedback: {
-    type: feedbackSchema
+        type: feedbackSchema
     },
     seenbyEmployee: {
         type: Boolean,
         default: false
     },
-    revisionComment:{
-        type:[String],
-        default:[]
+    revisionComment: {
+        type: [String],
+        default: []
     }
 })
 

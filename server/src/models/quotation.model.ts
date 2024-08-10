@@ -25,6 +25,7 @@ interface Deal {
     paymentTerms: string;
     additionalCosts: AdditionalCost[];
     savedDate: Date;
+    seenByApprover:boolean;
 }
 
 interface Quotation extends Document {
@@ -130,6 +131,10 @@ const dealDatas = new Schema<Deal>({
         type: Date,
         required: true,
     },
+    seenByApprover:{
+        type:Boolean,
+        default:false
+    }
     
 });
 

@@ -65,6 +65,7 @@ export class CreateCategoryComponent {
         viewReport: 'none',
         create: [false]
       }),
+      dealSheet: [false],
       jobSheet: this._fb.group({
         viewReport: 'none',
       }),

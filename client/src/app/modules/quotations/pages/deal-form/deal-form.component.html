@@ -15,6 +15,9 @@
                 <input appNoLeadingSpace  formControlName="paymentTerms"
                     class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-last-name"  placeholder="Payment Terms..">
+                    <div *ngIf="paymentTermsControl.invalid && isSubmitted" class="text-red-500 text-xs mt-1">
+                      <div *ngIf="paymentTermsControl.errors?.['required']">Payment Terms is required.</div>
+                    </div>
             </div>
 
 
@@ -95,6 +98,9 @@
                           </td>
                           <td class="px-2 py-2 border text-center" *ngIf="detail.get('dealSelected')?.value">
                             <input formControlName="supplierName" type="text" class="w-[150px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Enter supplier name">
+                            <div *ngIf="detail.get('supplierName')?.hasError('supplierNameRequired') && isSubmitted" class="text-red-500 text-xs">
+                              Supplier name is required
+                            </div>
                           </td>
                         </tr>
                       </ng-container>
@@ -104,16 +110,15 @@
             </table>
 
             <div class="w-full">
-                    <div formArrayName="costs" *ngFor="let cost of costs.controls; let i = index;">
-                        <h3 *ngIf="cost && i == 0" class="text-lg font-semibold mb-2">Additional Costs</h3>
-                        <div [formGroupName]="i" class="flex items-center space-x-4 additional-cost mb-2">
-                            <input type="text" formControlName="name" class="w-4/6 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Cost Name">
-                            <input type="number" formControlName="value" class="w-2/6 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Cost">
-                            <button type="button" class="bg-red-500 hover:bg-red-600 text-white font-medium p-2 rounded text-sm" (click)="removeCost(i)">&times;</button>
-                        </div>
-                    </div>
-                    <button type="button" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm mt-2" (click)="addCost()">+ Add Additional Cost</button>
-             
+              <div formArrayName="costs" *ngFor="let cost of costs.controls; let i = index;">
+                <div [formGroupName]="i" class="flex items-center space-x-4 additional-cost mb-2">
+                  <input type="text" formControlName="name" class="w-4/6 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Cost Name">
+                  <input type="number" formControlName="value" class="w-2/6 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" placeholder="Cost">
+                  <button type="button" class="bg-red-500 hover:bg-red-600 text-white font-medium p-2 rounded text-sm" (click)="removeCost(i)">&times;</button>
+                </div>
+              </div>
+              <div *ngIf="costs.errors?.['additionalCostInvalid'] && isSubmitted" class="text-red-500 text-xs">All additional costs must have a name and value</div>
+              <button type="button" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm mt-2" (click)="addCost()">+ Add Additional Cost</button>
             </div>
                         
 

@@ -58,7 +58,6 @@ export class ViewEmployeeComponent {
 
     dialogRef.afterClosed().subscribe((data) => {
       if (data) {
-        console.log(data, this.employeeData)
         this.employeeData = data;
         this._toast.success('Employee Updated Successfully')
       }

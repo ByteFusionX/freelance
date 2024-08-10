@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { LoadingBarService } from '@ngx-loading-bar/core';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { getDealSheet, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { ApproveDealComponent } from './approve-deal/approve-deal.component';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-deal-sheet',
@@ -15,9 +16,13 @@ import { ApproveDealComponent } from './approve-deal/approve-deal.component';
   styleUrls: ['./deal-sheet.component.css']
 })
 export class DealSheetComponent {
+  @ViewChildren('quoteItem') quoteItems!: QueryList<ElementRef>;
   isLoading: boolean = true;
   isEmpty: boolean = false;
   loader = this.loadingBar.useRef();
+  quoteIdArr: string[] = []
+  private readonly destroy$ = new Subject<void>();
+  private notViewedDealIds: Set<string> = new Set();
 
   displayedColumns: string[] = ['dealId', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'action'];
 
@@ -35,6 +40,7 @@ export class DealSheetComponent {
     private _router: Router,
     private _dialog: MatDialog,
     private _employeeService: EmployeeService,
+    private _notificationService: NotificationService,
     private loadingBar: LoadingBarService
   ) { }
 
@@ -48,7 +54,20 @@ export class DealSheetComponent {
     )
   }
 
+  ngAfterViewInit() {
+    this.quoteItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => {
+        this.quoteItems.forEach(item => this.observeJob(item));
+      }, 100);
+    });
+  }
+
   ngOnDestroy(): void {
+    if (this.quoteIdArr.length > 0) {
+      this.markQuoteAsViewed(this.quoteIdArr)
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
     this.subscriptions.unsubscribe()
   }
 
@@ -70,12 +89,13 @@ export class DealSheetComponent {
     this.subscriptions.add(
       this._quoteService.getDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          console.log(data)
           if (data) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
             this.isEmpty = false
+            this.updateNotViewedQuoteIds();
+            this.observeAllQuotes();
           } else {
             this.dataSource.data = [];
             this.isEmpty = true;
@@ -86,7 +106,48 @@ export class DealSheetComponent {
 
   }
 
-  onPreviewDeal(approval: boolean, quoteData: Quotatation,index:number) {
+  updateNotViewedQuoteIds() {
+    this.notViewedDealIds.clear();
+    this.dataSource.data.forEach(quote => {
+      if (!quote.dealData.seenByApprover && quote._id) {
+        this.notViewedDealIds.add(quote._id);
+      }
+    });
+  }
+
+  observeAllQuotes() {
+    setTimeout(() => {
+      this.quoteItems.forEach(item => this.observeJob(item));
+    }, 100);
+  }
+
+  observeJob(element: ElementRef) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const quoteId = entry.target.getAttribute('id');
+          if (quoteId && this.notViewedDealIds.has(quoteId)) {
+            this.quoteIdArr.push(quoteId)
+            this.notViewedDealIds.delete(quoteId);
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { root: null, rootMargin: '0px', threshold: 1.0 });
+
+    if (element?.nativeElement) {
+      observer.observe(element.nativeElement);
+    }
+  }
+
+  markQuoteAsViewed(quoteIds: string[]) {
+    if (quoteIds.length > 0) {
+      this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe();
+      this._notificationService.decrementNotificationCount('dealSheet',quoteIds.length)
+    }
+  }
+
+  onPreviewDeal(approval: boolean, quoteData: Quotatation, index: number) {
     let priceDetails = {
       totalSellingPrice: 0,
       totalCost: 0,
@@ -122,12 +183,12 @@ export class DealSheetComponent {
       });
 
     dialogRef.afterClosed().subscribe((approve: boolean) => {
-      if(approve){
-        this._quoteService.approveDeal(quoteData._id).subscribe((res)=>{
-          if(res.success){
+      if (approve) {
+        this._quoteService.approveDeal(quoteData._id).subscribe((res) => {
+          if (res.success) {
             this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()
-            if(this.dataSource.data.length == 0){
+            if (this.dataSource.data.length == 0) {
               this.isEmpty = true;
             }
           }
@@ -140,4 +201,5 @@ export class DealSheetComponent {
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
   }
+  
 }

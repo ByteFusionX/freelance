@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
@@ -54,6 +54,7 @@ export class CreateEmployeeDialog implements OnInit {
   constructor(
     public dialog: MatDialog,
     public dialogRef: MatDialogRef<CreateEmployeeDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: {createSuperAdmin:boolean},
     private _fb: FormBuilder,
     private _profileService: ProfileService,
     private _employeeService: EmployeeService,

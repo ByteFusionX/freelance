@@ -61,41 +61,10 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
     try {
         let { access, userId } = req.query;
 
-        let accessFilter = {};
         let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
         let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
-
-        switch (access) {
-            case 'created':
-                accessFilter = { salesPerson: new ObjectId(userId) };
-                break;
-            case 'reported':
-                accessFilter = { salesPerson: { $in: reportedToUserIds } };
-                break;
-            case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
-                break;
-            default:
-                break;
-        }
-
-        const enquiriesPerDepartment = await Enquiry.aggregate([
-            {
-                $match: accessFilter
-            },
-            {
-                $group: {
-                    _id: "$department", // Group by department id
-                    totalEnquiries: { $sum: 1 } // Count the number of enquiries for each department
-                }
-            }
-        ]);
-
+    
+        
         const departmentsWithCounts = await Department.aggregate([
             {
                 $lookup: {
@@ -107,8 +76,42 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $addFields: {
+                    filteredEnquiries: {
+                        $filter: {
+                            input: '$enquiries',
+                            as: 'enquiry',
+                            cond: {
+                                $switch: {
+                                    branches: [
+                                        {
+                                            case: { $eq: [access, 'created'] },
+                                            then: { $eq: ['$$enquiry.salesPerson', new ObjectId(userId)] }
+                                        },
+                                        {
+                                            case: { $eq: [access, 'reported'] },
+                                            then: { $in: ['$$enquiry.salesPerson', reportedToUserIds] }
+                                        },
+                                        {
+                                            case: { $eq: [access, 'createdAndReported'] },
+                                            then: {
+                                                $or: [
+                                                    { $eq: ['$$enquiry.salesPerson', new ObjectId(userId)] },
+                                                    { $in: ['$$enquiry.salesPerson', reportedToUserIds] }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    default: { $literal: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
                     totalEnquiries: {
-                        $size: '$enquiries' 
+                        $size: '$filteredEnquiries'
                     }
                 }
             },
@@ -121,7 +124,8 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
                 }
             }
         ]);
-        console.log(departmentsWithCounts)
+        
+        
 
         if (departmentsWithCounts) return res.status(200).json(departmentsWithCounts);
         return res.status(502).json();

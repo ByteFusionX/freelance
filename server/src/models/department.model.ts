@@ -14,8 +14,7 @@ const departmentSchema = new Schema<Department>({
     },
     departmentHead: {
         type: Schema.Types.ObjectId, 
-        ref: 'Employee',
-        required: true
+        ref: 'Employee'
     },
     createdDate: {
         type: Date,

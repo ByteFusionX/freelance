@@ -27,6 +27,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   graphCategory: string[] = [];
   showChart: boolean = false
   privileges!: Privileges | undefined;
+  noDataForChart:boolean = false;
 
   userId!: string | undefined;
   enquiryAccess!: string | undefined;
@@ -200,7 +201,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
           let index = this.graphCategory.indexOf(date)
           dep.data[index] = item.total
         })
-        this.chartDetails()
+        if(data.length){
+          this.chartDetails()
+        }else{
+          this.noDataForChart = true
+        }
       })
     )
   }

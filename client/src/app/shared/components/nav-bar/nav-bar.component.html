@@ -18,7 +18,9 @@
                 </div> -->
                 <button (click)="onFeedbacks()" class="relative flex items-center px-2 py-1  border border-purple-600 text-sm bg-white text-black rounded-md hover:bg-gray-100 ">
                     Feedback Requests
-                    <span class="absolute top-0 right-0 -mt-1 -mr-1 h-2 w-2 rounded-full bg-red-500"></span>
+                    <ng-container  *ngIf="(notificationCounts$ | async) as notifications">    
+                        <span *ngIf="notifications.feedbackCount > 0"  class="absolute top-0 right-0 -mt-1 -mr-1 h-2 w-2 rounded-full bg-red-500"></span>
+                    </ng-container>
                   </button>
                 <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="beforeMenu"
                     (menuOpened)="menuOpened()" (menuClosed)="menuClosed()">
@@ -57,7 +59,7 @@
                                     <ng-icon name="heroUser" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Profile</p>
                                 </li>
-                                <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
+                                <li *ngIf="showPortalMangement" class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
                                     routerLink="/settings">
                                     <ng-icon name="heroCog6Tooth" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Portal Management</p>

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createAnnouncement, getAnnouncement, markAsViewed } from "../controllers/announcment.controller";
+import { createAnnouncement, getAnnouncement, markAsViewed } from "../controllers/announcement.controller";
 const annoRouter = Router()
 
 annoRouter.post('/addAnnouncement',createAnnouncement)

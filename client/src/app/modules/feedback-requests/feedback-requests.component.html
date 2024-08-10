@@ -15,7 +15,11 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Enquiry ID </th>
-                    <td mat-cell *matCellDef="let element">
+                        <td mat-cell *matCellDef="let element" class="flex items-center gap-2" #feebackItem data-id="{{element._id}}">
+                        <div class="-translate-x-2" *ngIf="element.preSale.feedback.seenByFeedbackProvider == false">
+                            <span
+                                class="bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
+                        </div>
                         <p class="text-violet-500 font-medium">{{element.enquiryId}}</p>
                     </td>
                 </ng-container>

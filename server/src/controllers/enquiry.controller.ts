@@ -3,6 +3,7 @@ import enquiryModel from "../models/enquiry.model";
 import Employee from '../models/employee.model';
 import Department from '../models/department.model';
 import { Enquiry } from "../interface/enquiry.interface";
+import { Server } from "socket.io";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -28,6 +29,8 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
             }
+            const socket = req.app.get('io') as Server;
+            socket.to(presalePerson).emit("notifications", 'assignedJob')
         }
 
         enquiryData.date = new Date(enquiryData.date)
@@ -94,7 +97,8 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         }
 
         const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
-
+        const socket = req.app.get('io') as Server;
+        socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
         if (update.modifiedCount) return res.status(200).json({ success: true })
 
         return res.status(502).json()
@@ -226,7 +230,6 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         if (filter == 'completed') {
             accessFilter.status = 'Work In Progress'
-            console.log(accessFilter)
         }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
@@ -379,7 +382,7 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
 
         const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now() } },
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider":false } },
             { new: true }
         ).populate('client')
             .populate('department')
@@ -390,6 +393,8 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
             });
 
         if (result) {
+            const socket = req.app.get('io') as Server;
+            socket.to(employeeId).emit("notifications", 'feedbackRequest')
             return res.status(200).json(result)
         }
 
@@ -454,7 +459,6 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             }
         ]);
 
-        console.log(employeeId, page, row, totalFeedbacks, feedbacks);
 
         if (totalFeedbacks.length) return res.status(200).json({ total: totalFeedbacks[0].total, feedbacks: feedbacks });
         return res.status(502).json();
@@ -630,8 +634,6 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
             completed: totalCompletedJobs[0]?.total || 0
         };
 
-        console.log(totalPendingJobs, totalCompletedJobs, presaleCounts)
-
 
         if (presaleCounts) return res.status(200).json(presaleCounts)
 
@@ -644,12 +646,31 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
 export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jobIds: string[] = req.body.jobIds; // Expecting jobIds as an array of strings
+        const jobIds: string[] = req.body.jobIds;
 
-        // Update the seenbyEmployee field to true for all job IDs in the array
         const result = await enquiryModel.updateMany(
             { _id: { $in: jobIds } },
             { 'preSale.seenbyEmployee': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enqIds: string[] = req.body.enqIds;
+        console.log(enqIds)
+        const result = await enquiryModel.updateMany(
+            { _id: { $in: enqIds } },
+            { 'preSale.feedback.seenByFeedbackProvider': true },
             { new: true }
         );
 
