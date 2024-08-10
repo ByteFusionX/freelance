@@ -11,7 +11,7 @@ export const DownloadFile = async (req: Request, res: Response, next: NextFuncti
         const fileName = req.query.file;
         const uploadsDir = path.resolve(__dirname, '..', 'uploads');
         const filePath = path.join(uploadsDir, fileName as string);
-        console.log(filePath)
+
         if (!fs.existsSync(filePath)) {
             return res.status(404).json({ message: 'File not found' });
         }
@@ -51,7 +51,6 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
         const enquiryId = req.query.enquiryId;
         const uploadsDir = path.resolve(__dirname, '..', 'uploads');
         const filePath = path.join(uploadsDir, fileName as string);
-        console.log(filePath);
 
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);

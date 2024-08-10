@@ -31,60 +31,6 @@ export const isEmployeePresent = async (req: Request, res: Response, next: NextF
         if (employeeCount > 0) {
             return res.status(200).json({ exists: true });
         }
-
-        if(categoryCount == 0){
-            await new categoryModel({
-                categoryName: "CEO",
-                role: UserRole.superAdmin, 
-                privileges: {
-                  dashboard: {
-                    viewReport: 'all',
-                    totalEnquiry: true,
-                    totalQuote: true,
-                    totalJobs: true,
-                    totalPresale: true,
-                    EnquiryChart: true,
-                  },
-                  employee: {
-                    viewReport: 'all',
-                    create: true,
-                  },
-                  announcement: {
-                    viewReport: 'all',
-                    create: true,
-                  },
-                  customer: {
-                    viewReport: 'all',
-                    create: true,
-                  },
-                  enquiry: {
-                    viewReport: 'all',
-                    create: true,
-                  },
-                  assignedJob: {
-                    viewReport: 'all',
-                  },
-                  quotation: {
-                    viewReport: 'all',
-                    create: true,
-                  },
-                  jobSheet: {
-                    viewReport: 'all',
-                  },
-                  dealSheet: true,
-                  portalManagement: {
-                    department: true,
-                    notesAndTerms: true,
-                  },
-                },
-              }).save()
-        }
-
-        if(departmentCount == 0){
-            await new departmentModel({
-                departmentName : 'General'
-              }).save()
-        }
         
         return res.status(200).json({ exists: false });
     } catch (error) {
@@ -119,7 +65,6 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
         }
         const matchFilters = { employeeId: employeeId }
         const filters = { $and: [matchFilters, accessFilter] }
-        console.log(accessFilter)
         const employeeExist = await Employee.findOne({ employeeId: employeeId });
 
         if (employeeExist) {
@@ -287,7 +232,6 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
 
         const id = req.params.id
         const employee = await Employee.findById(id)
-        console.log(employee)
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -303,7 +247,6 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
         delete updatedEmployeeData.employeeId;
 
         const { password } = req.body;
-        console.log(password)
         if (password) {
             const hashedPassword = await bcrypt.hash(password, 10);
             updatedEmployeeData.password = hashedPassword
@@ -325,21 +268,17 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
 
 export const changePasswordOfEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
         const { oldPassword, newPassword, userId } = req.body
         const user = await Employee.findById({ userId })
         const userPassword = user.password
         bcrypt.compare(userPassword, oldPassword, async (err, result) => {
             if (err) {
-                console.log("error comparing passwords:", err)
                 return
             }
             if (result) {
-                console.log("password matched")
                 await Employee.findOneAndUpdate({ id: user.id }, { $set: { password: newPassword } })
                 return res.status(200).json({ passwordChanged: true })
             } else {
-                console.log("password dont match")
                 return res.status(502).json({ passwordChanged: false })
             }
         })
@@ -426,7 +365,6 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             dealSheetCount,
             feedbackCount
         }
-        console.log(dealSheetCount)
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
     } catch (error) {

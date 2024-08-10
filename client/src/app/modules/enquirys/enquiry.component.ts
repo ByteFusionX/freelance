@@ -31,7 +31,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status' , 'action'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -109,7 +109,6 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
-            console.log(data.enquiry)
             this.dataSource.data = [...data.enquiry];
             this.filteredData.data = data.enquiry;
             this.total = data.total
@@ -126,7 +125,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     )
   }
 
-  
+
   onDownloadClicks(file: any) {
     this.subscriptions.add(
       this._enquiryService.downloadFile(file.filename)
@@ -168,15 +167,15 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
   }
 
-  preventClick(event:Event){
+  preventClick(event: Event) {
     event.stopPropagation()
   }
 
-  onViewPresale(event: Event, i: number, enquiryData:getEnquiry ) {
+  onViewPresale(event: Event, i: number, enquiryData: getEnquiry) {
     event.stopPropagation()
-    const presaleDialog = this.dialog.open(ViewPresaleComponent,{data:enquiryData,width:'500px'})
+    const presaleDialog = this.dialog.open(ViewPresaleComponent, { data: enquiryData, width: '500px' })
     presaleDialog.afterClosed().subscribe((success: boolean) => {
-      if(success){
+      if (success) {
         this.dataSource.data[i].status = 'Assigned To Presales'
         this.dataSource._updateChangeSubscription();
       }
@@ -184,13 +183,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   }
 
-  onAssignPresale(event: Event, enquiryId: string,index:number) {
+  onAssignPresale(event: Event, enquiryId: string, index: number) {
     event.stopPropagation();
 
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data: any) => {
       if (data) {
-        const presaleData:getEnquiry["preSale"] = {
+        const presaleData: getEnquiry["preSale"] = {
           comment: data.comment,
           presaleFiles: data.presaleFile,
           presalePerson: data.presalePerson
@@ -204,8 +203,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           }
         }
 
-        this._enquiryService.assignPresale(formData,enquiryId).subscribe((res)=>{
-          if(res.success){
+        this._enquiryService.assignPresale(formData, enquiryId).subscribe((res) => {
+          if (res.success) {
             this.dataSource.data[index].preSale = presaleData
             this.dataSource.data[index].status = 'Assigned To Presales'
             this.dataSource._updateChangeSubscription();

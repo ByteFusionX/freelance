@@ -54,9 +54,7 @@ export class PortalManagementComponent {
 
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
-        console.log(employee)
         this.privileges = employee?.category?.privileges;
-        console.log(this.privileges)
         if (this.privileges?.portalManagement?.department) {
           this.subscriptions.add(
             this._profileService.getDepartments().subscribe((data) => {
@@ -73,7 +71,7 @@ export class PortalManagementComponent {
             this._profileService.getNotes().subscribe((data) => {
               if (data) {
                 this.cstcDataSource.data = [data]
-                console.log(this.cstcDataSource.data)
+
                 this.isNotesLoading = false
               }
             })
@@ -133,7 +131,6 @@ export class PortalManagementComponent {
   }
 
   onNoteDelete(noteType: string, noteId: string) {
-    console.log(this.cstcDataSource.data)
     const dialogRef = this.dialog.open(ConfirmationDialogComponent,
       {
         data: {

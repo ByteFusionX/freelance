@@ -21,7 +21,6 @@ export class ViewReportComponent {
 
   ngOnInit(){
     this._quotationSerice.getQuotationReport(this.data).subscribe((res)=>{
-      console.log(res)
       this.reportData = res;
       this.getPieChartDetails()
     })

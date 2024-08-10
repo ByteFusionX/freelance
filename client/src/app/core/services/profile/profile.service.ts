@@ -56,7 +56,6 @@ export class ProfileService {
   }
 
   updateCompanyDetails(companyDetails:getCompanyDetails){
-    console.log(companyDetails)
     return this.http.patch<getCompanyDetails>(`${this.api}/company/updateCompanyDetails`,companyDetails)
   }
 }

@@ -389,7 +389,6 @@ const generateDealId = async () => {
                 $limit: 1
             }
         ])
-        console.log(lastQuote)
         let dealId: string;
 
 

@@ -135,7 +135,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.quotations$.subscribe({
         next: ((data) => {
           if (data) {
-            console.log(data)
             this.isQuoteLoading = false
           }
         }),

@@ -51,7 +51,6 @@ export class EditCompanyDetailsComponent {
 
           const companyData = this.companyDetailsForm.value as getCompanyDetails
           this._profileService.updateCompanyDetails(companyData).subscribe((res)=>{
-            console.log(res)
             this.isSaving = false;
             this.dialogRef.close(res)
           })

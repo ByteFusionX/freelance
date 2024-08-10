@@ -17,7 +17,6 @@ export class QuotationPreviewComponent {
     public dialogRef: MatDialogRef<QuotationPreviewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: string,
   ) {
-    console.log(this.data)
     this.url = data;
     dialogRef.beforeClosed().subscribe((result) => {
       this.pdfViewer.ngOnDestroy();

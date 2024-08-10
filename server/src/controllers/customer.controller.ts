@@ -142,7 +142,6 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         const filters = { $and: [matchFilters, accessFilter] }
         
         const customerExist = await Customer.findOne({ clientRef: customerId });
-        console.log(access,userId,customerId,accessFilter,matchFilters)
 
         if (customerExist) {
             const customerData = await Customer.aggregate([

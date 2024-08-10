@@ -57,9 +57,7 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
         date: this.formData.value.date as Date | null,
         userId: this.userId._id
       }
-      console.log(data)
       this.mySubscription = this._service.createAnnouncement(data).subscribe((res: any) => {
-        console.log(res)
         if (res.success) {
           this.dialogRef.close()
         }

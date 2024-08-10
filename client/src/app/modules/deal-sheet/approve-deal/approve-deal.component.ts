@@ -16,7 +16,6 @@ export class ApproveDealComponent {
     private _dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems:(QuoteItem | undefined)[], priceDetails:priceDetails }
   ) {
-    console.log(data)
   }
 
   onClose() {

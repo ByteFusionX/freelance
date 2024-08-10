@@ -160,7 +160,6 @@ export class QuotationService {
             if (text) result.push({ text });
           }
         }
-        console.log(result)
 
 
         tableBody.push([

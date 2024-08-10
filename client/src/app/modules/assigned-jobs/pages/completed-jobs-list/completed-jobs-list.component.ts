@@ -60,7 +60,6 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this._enquiryService.getPresale(this.page, this.row, 'completed',access, userId).subscribe({
         next: (data) => {
-          console.log(data)
           this.dataSource.data = data.enquiry;
           this.total = data.total;
           this.isLoading = false;
@@ -77,7 +76,7 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
   }
 
   viewFeedback(feedback: feedback) {
-    console.log(this.dataSource.data)
+
     this._dialog.open(ViewFeedbackComponent, {
       data: feedback
     });

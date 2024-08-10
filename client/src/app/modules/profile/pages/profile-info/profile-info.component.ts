@@ -58,7 +58,6 @@ updateCompanyDetails() {
   dialogRef.afterClosed().subscribe((data) => {
     if (data) {
       this.getCompanyDetails()
-      console.log(data)
     }
   });
 }

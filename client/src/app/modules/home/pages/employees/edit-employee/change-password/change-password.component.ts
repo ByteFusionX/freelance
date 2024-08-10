@@ -24,10 +24,9 @@ export class ChangePasswordComponent {
 
   onSubmit(){
     const passwords=this.changePasswordForm.value 
-    console.log(passwords)
     this._employeeService.changePasswordOfEmployee(passwords).subscribe((res:any)=>{
       try {
-        console.log(res)
+
       } catch (error) {
         console.log(error)
       }

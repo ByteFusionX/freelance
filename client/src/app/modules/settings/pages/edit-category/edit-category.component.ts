@@ -79,9 +79,7 @@ export class EditCategoryComponent {
 
   ngOnInit() {
     this.updateChecks(this.data.privileges)
-    console.log(this.data.privileges)
     this.categoryForm.patchValue(this.data)
-    console.log(this.categoryForm.value)
   }
 
   updateChecks(privileges: Privileges) {

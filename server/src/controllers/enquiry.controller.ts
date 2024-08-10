@@ -667,7 +667,6 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
 export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const enqIds: string[] = req.body.enqIds;
-        console.log(enqIds)
         const result = await enquiryModel.updateMany(
             { _id: { $in: enqIds } },
             { 'preSale.feedback.seenByFeedbackProvider': true },

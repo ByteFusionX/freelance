@@ -230,7 +230,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     })
     dialog.afterClosed().subscribe((data) => {
       if (data) {
-        console.log(data)
         data.client = [data.client]
         data.department = [data.department]
         data.salesPerson = [data.salesPerson]

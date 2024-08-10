@@ -29,7 +29,6 @@ export class EmployeeService {
   }
 
   changePasswordOfEmployee(passwords: object) {
-    console.log(passwords)
     return this.http.patch(`${this.api}/employee/changePassword`, passwords)
   }
 

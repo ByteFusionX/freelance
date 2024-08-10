@@ -27,7 +27,6 @@ export class ViewLpoComponent {
   }
 
   onDownloadClicks(file: any) {
-    console.log(file)
       this._enquiryService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {

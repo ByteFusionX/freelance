@@ -71,7 +71,6 @@ export class FeedbackRequestsComponent {
         this.subscriptions.add(
           this._enquiryService.getFeedbackRequests(this.page, this.row, employeeId).subscribe({
             next: (data) => {
-              console.log(data);
               this.dataSource.data = data.feedbacks;
               this.total = data.total;
               this.isLoading = false;

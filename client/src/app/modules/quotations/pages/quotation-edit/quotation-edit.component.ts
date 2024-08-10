@@ -182,7 +182,6 @@ export class QuotationEditComponent {
 
   getNotes() {
     this._profileService.getNotes().subscribe((res: Notes) => {
-      console.log(res)
       this.customerNotes = res.customerNotes
       this.termsAndConditions = res.termsAndConditions
     })

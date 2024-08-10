@@ -28,7 +28,6 @@ export const createAnnouncement = async (req: any, res: Response, next: NextFunc
     }
     return res.status(502).json();
   } catch (error) {
-    console.error('Error creating announcement:', error);
     next(error);
   }
 };
