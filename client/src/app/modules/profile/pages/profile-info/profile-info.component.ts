@@ -56,8 +56,8 @@ updateCompanyDetails() {
   const dialogRef = this.dialog.open(EditCompanyDetailsComponent);
 
   dialogRef.afterClosed().subscribe((data) => {
-    window.location.reload(); // Reload the page
     if (data) {
+      this.getCompanyDetails()
       console.log(data)
     }
   });
