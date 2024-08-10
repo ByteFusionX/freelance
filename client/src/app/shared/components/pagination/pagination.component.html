@@ -26,21 +26,28 @@
                     <span class="sr-only">Previous</span>
                     <ng-icon name="heroChevronLeft"></ng-icon>
                 </a>
+                <!-- <a aria-current="page"
+                    class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
+                    *ngIf="selectedPage == maxPage && maxPage > 2"
+                    (click)="onPageNumberClick(selectedPage-2)">{{selectedPage - 2}}</a> -->
                 <a aria-current="page"
                     class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
-                    *ngIf="selectedPage == maxPage && maxPage > 2">{{selectedPage - 2}}</a>
-                <a aria-current="page"
-                    class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
-                    *ngIf="selectedPage != 1">{{selectedPage - 1}}</a>
+                    *ngIf="selectedPage != 1" (click)="onPageNumberClick(selectedPage-1)">{{selectedPage - 1}}</a>
                 <a aria-current="page"
                     class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer active">{{selectedPage}}</a>
                 <a aria-current="page"
                     class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
-                    *ngIf="selectedPage != maxPage">{{selectedPage + 1}}</a>
+                    *ngIf="selectedPage != maxPage" (click)="onPageNumberClick(selectedPage+1)">{{selectedPage + 1}}</a>
+                <!-- <a aria-current="page"
+                    class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
+                    *ngIf="selectedPage == 1 && maxPage > 2" (click)="onPageNumberClick(selectedPage+2)">{{selectedPage
+                    + 2}}</a> -->
+                <span *ngIf="maxPage > 3 && selectedPage < maxPage-2"
+                    class="relative text-center px-4 py-2 me-1">...</span>
                 <a aria-current="page"
                     class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"
-                    *ngIf="selectedPage == 1 && maxPage > 2 ">{{selectedPage + 2}}</a>
-<!-- 
+                    *ngIf="selectedPage == 1 && maxPage > 2" (click)="onPageNumberClick(maxPage)">{{maxPage}}</a>
+                <!-- 
                 <div *ngFor="let page of totalLinksArray(); let i=index" class="flex">
                     <a aria-current="page" *ngIf="page > maxPage - 2 && maxPage > 4"
                         class="relative text-center px-4 py-2 rounded ring-1 ring-inset ring-gray-200 hover:bg-gray-50 me-1 cursor-pointer"

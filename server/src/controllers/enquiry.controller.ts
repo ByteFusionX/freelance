@@ -3,6 +3,7 @@ import enquiryModel from "../models/enquiry.model";
 import Employee from '../models/employee.model';
 import Department from '../models/department.model';
 import { Enquiry } from "../interface/enquiry.interface";
+import { Server } from "socket.io";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -28,6 +29,8 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
             }
+            const socket = req.app.get('io') as Server;
+            socket.to(presalePerson).emit("notifications", 'assignedJob')
         }
 
         enquiryData.date = new Date(enquiryData.date)
@@ -94,7 +97,8 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         }
 
         const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
-
+        const socket = req.app.get('io') as Server;
+        socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
         if (update.modifiedCount) return res.status(200).json({ success: true })
 
         return res.status(502).json()
@@ -156,51 +160,30 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         const filters = { $and: [matchFilters, accessFilter] }
 
         const enquiryTotal: { total: number }[] = await enquiryModel.aggregate([
-            {
-                $match: filters
-            },
-            {
-                $group: { _id: null, total: { $sum: 1 } }
-            },
-            {
-                $project: { total: 1, _id: 0 }
-            }
+            { $match: filters },
+            { $match: { status: { $ne: 'Quoted' } } },
+            { $group: { _id: null, total: { $sum: 1 } } },
+            { $project: { total: 1, _id: 0 } }
         ]).exec()
 
         const enquiryData = await enquiryModel.aggregate([
-            {
-                $match: filters
-            },
-            {
-                $match: { status: { $ne: 'Quoted' } }
-            },
-            {
-                $sort: { createdDate: -1 }
-            },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
+            { $match: filters },
+            { $match: { status: { $ne: 'Quoted' } } },
+            { $sort: { createdDate: -1 } },
+            { $skip: skipNum },
+            { $limit: row },
             {
                 $lookup: { from: 'customers', localField: 'client', foreignField: '_id', as: 'client' }
             },
-            {
-                $unwind: '$client'
-            },
+            { $unwind: '$client' },
             {
                 $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
             },
-            {
-                $unwind: '$department'
-            },
+            { $unwind: '$department' },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
-            {
-                $unwind: '$salesPerson'
-            },
+            { $unwind: '$salesPerson' },
             {
                 $addFields: {
                     contact: {
@@ -220,7 +203,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 }
             }
         ]);
-
+        
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
         return res.status(504).json({ err: 'No enquiry data found' })
 
@@ -234,7 +217,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let page = Number(req.query.page)
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
-        let { access, userId } = req.query;
+        let { filter, access, userId } = req.query;
         let accessFilter: any = { status: 'Assigned To Presales' };
 
         switch (access) {
@@ -243,6 +226,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 break;
             default:
                 break;
+        }
+
+        if (filter == 'completed') {
+            accessFilter.status = 'Work In Progress'
         }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
@@ -286,6 +273,12 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
+            },
+            {
+                $unwind: {
+                    path: "$preSale.feedback.employeeId",
+                    preserveNullAndEmptyArrays: true
+                }
             }
         ])
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -301,65 +294,6 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
         const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status } })
             .populate(['client', 'department', 'salesPerson'])
         if (update) return res.status(200).json(update)
-        return res.status(502).json()
-    } catch (error) {
-        next(error)
-    }
-}
-
-export const totalEnquiries = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let { access, userId } = req.query;
-
-        let accessFilter = {};
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
-
-        switch (access) {
-            case 'created':
-                accessFilter = { salesPerson: new ObjectId(userId) };
-                break;
-            case 'reported':
-                accessFilter = { salesPerson: { $in: reportedToUserIds } };
-                break;
-            case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
-                break;
-
-            default:
-                break;
-        }
-
-        const result = await enquiryModel.aggregate([
-            {
-                $match: accessFilter
-            },
-            {
-                $lookup: {
-                    from: 'departments',
-                    localField: 'department',
-                    foreignField: '_id',
-                    as: 'department'
-                }
-            },
-            {
-                $group: { _id: "$department", total: { $sum: 1 }, enquiry: { $push: '$$ROOT' } }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    department: '$_id',
-                    total: 1
-                }
-            }
-        ])
-
-        if (result) return res.status(200).json(result)
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -446,13 +380,22 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
     try {
         const { employeeId, enquiryId } = req.body;
 
-        const result = await enquiryModel.updateOne(
+        const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now() } }
-        );
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider":false } },
+            { new: true }
+        ).populate('client')
+            .populate('department')
+            .populate('salesPerson')
+            .populate({
+                path: 'preSale.feedback.employeeId',
+                model: 'Employee'
+            });
 
-        if (result.modifiedCount) {
-            return res.status(200).json({ success: true })
+        if (result) {
+            const socket = req.app.get('io') as Server;
+            socket.to(employeeId).emit("notifications", 'feedbackRequest')
+            return res.status(200).json(result)
         }
 
         return res.status(502).json()
@@ -474,8 +417,7 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId),
-                    "preSale.feedback.feedback": { $exists: false }
+                    "preSale.feedback.employeeId": new ObjectId(employeeId)
                 }
             },
             {
@@ -488,8 +430,7 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             { $unwind: "$preSale.feedback" },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId),
-                    "preSale.feedback.feedback": { $exists: false }
+                    "preSale.feedback.employeeId": new ObjectId(employeeId)
                 }
             },
             {
@@ -518,7 +459,6 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             }
         ]);
 
-        console.log(employeeId, page, row, totalFeedbacks, feedbacks);
 
         if (totalFeedbacks.length) return res.status(200).json({ total: totalFeedbacks[0].total, feedbacks: feedbacks });
         return res.status(502).json();
@@ -547,20 +487,56 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
     }
 }
 
-export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+export const giveRevision = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let files = req.files
-        let enquiryId = req.body.enquiryId
-        let uploadData = files
-        const enquiryData = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { assignedFiles: uploadData } }, { upsert: true })
-            .populate(['client', 'department', 'salesPerson'])
-        enquiryData.assignedFiles = uploadData
-        if (!enquiryData) return res.status(502).json()
-        return res.status(200).json(enquiryData)
+        let { revisionComment } = req.body;
+        let enquiryId = req.params.enquiryId;
+        const result = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            {
+                $push: { 'preSale.revisionComment': revisionComment },
+                status: 'Assigned To Presales'
+            }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).send('Enquiry not found or comment not added.');
+        }
+
+        return res.status(200).json({ success: true })
     } catch (error) {
         next(error)
     }
 }
+
+export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let files = req.files;
+        let enquiryId = req.body.enquiryId;
+        let uploadData = files;
+
+        const enquiryData = await enquiryModel.findOneAndUpdate(
+            { _id: enquiryId },
+            { $push: { assignedFiles: { $each: uploadData } } },
+            { new: true }
+        ).populate('client')
+            .populate('department')
+            .populate('salesPerson')
+            .populate({
+                path: 'preSale.feedback.employeeId',
+                model: 'Employee'
+            });
+
+        if (!enquiryData) {
+            return res.status(502).json();
+        }
+
+        return res.status(200).json(enquiryData);
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 const generateEnquiryId = async (departmentId: string, employeeId: string, date: string) => {
     try {
@@ -611,14 +587,90 @@ const generateEnquiryId = async (departmentId: string, employeeId: string, date:
     }
 }
 
+
+
+export const presalesCount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { access, userId } = req.query;
+
+        let accessFilter: any = { status: 'Assigned To Presales' };
+
+        switch (access) {
+            case 'assigned':
+                accessFilter = { "preSale.presalePerson": userId };
+                break;
+            default:
+                break;
+        }
+
+        const totalPendingJobs: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { _id: 0, total: 1 }
+            }
+        ])
+
+        accessFilter.status = 'Work In Progress'
+
+        const totalCompletedJobs: { total: number }[] = await enquiryModel.aggregate([
+            {
+                $match: accessFilter
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { _id: 0, total: 1 }
+            }
+        ])
+
+        let presaleCounts = {
+            pending: totalPendingJobs[0]?.total || 0,
+            completed: totalCompletedJobs[0]?.total || 0
+        };
+
+
+        if (presaleCounts) return res.status(200).json(presaleCounts)
+
+        return res.status(502).json()
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jobIds: string[] = req.body.jobIds; // Expecting jobIds as an array of strings
+        const jobIds: string[] = req.body.jobIds;
 
-        // Update the seenbyEmployee field to true for all job IDs in the array
         const result = await enquiryModel.updateMany(
             { _id: { $in: jobIds } },
             { 'preSale.seenbyEmployee': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enqIds: string[] = req.body.enqIds;
+        console.log(enqIds)
+        const result = await enquiryModel.updateMany(
+            { _id: { $in: enqIds } },
+            { 'preSale.feedback.seenByFeedbackProvider': true },
             { new: true }
         );
 

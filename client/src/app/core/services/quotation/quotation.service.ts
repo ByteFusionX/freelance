@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData, dealData, FilterDeal, getDealSheet, ReportDetails } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs
+
 
 @Injectable({
   providedIn: 'root'
@@ -28,12 +27,24 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
   }
 
+  getQuotationReport(filterData: FilterQuote): Observable<ReportDetails> {
+    return this.http.post<ReportDetails>(`${this.api}/quotation/report`, filterData)
+  }
+
+  getDealSheet(filterData: FilterDeal): Observable<getDealSheet> {
+    return this.http.post<getDealSheet>(`${this.api}/quotation/deal/get`, filterData)
+  }
+
   getNextQuoteId(quoteData: nextQuoteData): Observable<{ quoteId: string }> {
     return this.http.post<{ quoteId: string }>(`${this.api}/quotation/nextQuoteId`, quoteData)
   }
 
   updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
     return this.http.patch<QuoteStatus>(`${this.api}/quotation/status/${quoteId}`, { status })
+  }
+
+  saveDealSheet(dealDatas: dealData, quoteId?: string): Observable<Quotatation> {
+    return this.http.patch<Quotatation>(`${this.api}/quotation/deal/${quoteId}`, dealDatas)
   }
 
   totalQuotations(access?: string, userId?: string): Observable<{ total: number }> {
@@ -44,6 +55,15 @@ export class QuotationService {
   uploadLpo(lpoData: FormData): Observable<any> {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
   }
+
+  approveDeal(quoteId?: string): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId })
+  }
+
+  markDealAsViewed(quoteIds: any): Observable<any> {
+    return this.http.post(`${this.api}/quotation/markAsSeenedDeal`, { quoteIds })
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {
@@ -112,14 +132,14 @@ export class QuotationService {
 
         const segments = detail.detail
         const result = [];
-  
+
         // Regular expression to match the patterns, including spaces
         const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
         let match;
-      
+
         while ((match = regex.exec(segments)) !== null) {
           const [fullMatch] = match;
-      
+
           if (fullMatch.startsWith('**')) {
             if (fullMatch.includes('{') && fullMatch.includes('}')) {
               // Bold placeholder: **{text}**
@@ -161,27 +181,34 @@ export class QuotationService {
 
 
     let discount;
-    if(quoteData.totalDiscount != 0){
+    let finalAmount;
+
+    if (quoteData.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
       ];
+      finalAmount = [
+        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
+      ];
+    }else{
+      finalAmount = [
+        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost).toFixed(2), style: 'tableFooter' },
+      ];
     }
 
-    const finalAmount = [
-      { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-      { text: (totalCost).toFixed(2), style: 'tableFooter' },
-    ];
+
 
     let body;
-    if(quoteData.totalDiscount == 0){
+    if (quoteData.totalDiscount == 0) {
       body = [
         tableHeader,
         ...tableBody,
-        totalAmount,
         finalAmount
       ]
-    }else{
+    } else {
       body = [
         tableHeader,
         ...tableBody,
@@ -199,9 +226,19 @@ export class QuotationService {
       }
     };
 
+    (pdfMake as any).fonts = {
+      EBGaramond: {
+        normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
+        bold: `${window.location.origin}/assets/font/EBGaramond-Bold.ttf`,
+        italics: `${window.location.origin}/assets/font/EBGaramond-Italic.ttf`,
+      }
+    }
 
 
     const documentDefinition: any = {
+      defaultStyle: {
+        font: 'EBGaramond'
+      },
       background: {
         image: await this.getBase64ImageFromURL(
           "../../assets/images/logo.webp"
@@ -254,7 +291,7 @@ export class QuotationService {
           table: {
             widths: [78.66, '*', 43.24, '*', 73.60, 'auto'],
             body: [
-              [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 5 }, {}, {}, {}, {}],
+              [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 4 }, {}, {}, {}, { text:['Total Pages : 0',{pageReference: 'lastPage'}], alignment: 'left', style: 'pageNumber' }],
               [{ style: 'tableHead', text: 'Attention:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.attention.courtesyTitle + ' ' + quoteData.attention.firstName + ' ' + quoteData.attention.lastName}`, alignment: 'left', colSpan: 3, bold: true }, {}, {}, { style: 'tableHead', text: 'Date:', alignment: 'left' }, { style: 'tableHead', text: '14-03-2024', alignment: 'left' }],
               [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyAddress, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.clientRef, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Client Tel:', alignment: 'left' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'FAX:', alignment: 'center' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'Salesperson:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}`, alignment: 'left' }],
@@ -274,7 +311,7 @@ export class QuotationService {
             {
               text: [
                 { text: 'Thanking you\nFor ', style: 'footerText' },
-                { text: 'Neuron Technologies W.L.L', style: 'footerBoldText' }]
+                { text: 'Neuron Technologies W.L.L', style: 'footerBoldText', id:'lastPage' }]
             },
             {
               image: await this.getBase64ImageFromURL(
@@ -283,7 +320,7 @@ export class QuotationService {
               width: 90,
               margin: [30, 5, 0, 0]
             },
-            { text: 'Subin Suresh\nMob: - +974 55007257\nE: sales@neuron.com.qa', style: 'footerText', alignment: 'right' },
+            { text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}\nMob: - ${quoteData.createdBy.contactNo}\nE: ${quoteData.createdBy.email}`, style: 'footerText', alignment: 'right' },
           ],
           margin: [0, 10, 0, 0],
           pageBreak: 'avoid'
@@ -366,9 +403,6 @@ export class QuotationService {
           margin: [5, 10, 0, 0],
           bold: true
         }
-      },
-      defaultStyle: {
-        // alignment: 'justify'
       }
 
     }
@@ -376,6 +410,17 @@ export class QuotationService {
 
     const pdfDoc = pdfMake.createPdf(documentDefinition);
     return pdfDoc
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 

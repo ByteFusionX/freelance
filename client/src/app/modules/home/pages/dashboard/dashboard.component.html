@@ -1,12 +1,12 @@
 <div>
     <div class="md:p-8 p-5">
-        <div class="w-full bg-white rounded-md">
+        <div class="w-full bg-white rounded-md  shadow-md">
             <div class="md:flex p-10">
                 <div class="md:w-1/2">
                     <p class="text-4xl font-medium mt-2">Hey
                         <span class="capitalize" *ngIf="userData$ | async as user">{{user.firstName + ' '+
                             user.lastName}}</span>,<br>
-                        
+
                     </p>
                     <p class="text-3xl font-medium mt-2">Welcome to Neuron Technologies</p>
                     <div class="mt-3">
@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <div class="w-full bg-white rounded-md mt-5">
+        <div class="w-full bg-white rounded-md mt-5  shadow-md" *ngIf="privileges?.dashboard?.totalEnquiry">
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
                 <div class="md:grid grid-cols-3 gap-10 mt-5">
@@ -35,7 +35,7 @@
                         class="col-span-3"></app-skelton-loading>
                     <div class="md:col-span-1 flex mb-5" *ngFor="let data of enquiries$ | async; let i = index"
                         @opacityTrigger>
-                        <div [ngSwitch]="data.department[0].departmentName.toLowerCase().trim()">
+                        <div [ngSwitch]="data.departmentName.toLowerCase().trim()">
                             <div class="w-20 h-20 flex justify-center items-center rounded-full bg-violet-100"
                                 *ngSwitchCase="'ict'">
                                 <ng-icon name="heroClipboardDocumentList" class="text-5xl text-violet-700"></ng-icon>
@@ -54,12 +54,13 @@
                             </div>
                         </div>
                         <div class="mx-5">
-                            <span class="text-gray-800 uppercase font-medium">{{data.department[0].departmentName}}</span>
-                            <p class="text-3xl font-semibold mt-1">{{data.total}} <span
+                            <span
+                                class="text-gray-800 uppercase font-medium">{{data.departmentName}}</span>
+                            <p class="text-3xl font-semibold mt-1">{{data.totalEnquiries}} <span
                                     class="text-xs text-gray-700">Nos</span></p>
-                            <div class="text-sm text-gray-700 mt-2">
+                            <div class="text-sm text-gray-700 mt-2" *ngIf="data.totalEnquiries">
                                 <a class="text-blue-500 underline uppercase cursor-pointer hover:text-blue-700 font-medium"
-                                    (click)="onDepartmentSelect(data.department[0]._id)">See all reports</a>
+                                    (click)="onDepartmentSelect(data.departmentId)">See all reports</a>
                             </div>
                         </div>
                     </div>
@@ -67,8 +68,8 @@
             </div>
         </div>
         <div class="w-full rounded-md mt-5">
-            <div class="md:grid grid-cols-2 gap-10">
-                <div class="p-10 bg-white rounded-md mb-5">
+            <div class="md:grid grid-cols-3 gap-5">
+                <div class="p-10 bg-white rounded-md mb-5  shadow-md    " *ngIf="privileges?.dashboard?.totalQuote">
                     <p class="text-md font-medium">Total No of Quote Submitted</p>
                     <app-skelton-loading [lineLength]="1" *ngIf="isQuoteLoading;else quoteBlock"
                         class="col-span-3"></app-skelton-loading>
@@ -90,31 +91,61 @@
                         </div>
                     </ng-template>
                 </div>
-                <div class="p-10 bg-white rounded-md mb-5">
+                <div class="p-10 bg-white rounded-md mb-5  shadow-md" *ngIf="privileges?.dashboard?.totalJobs">
                     <p class="text-md font-medium">Total No of Jobs Awarded</p>
                     <app-skelton-loading [lineLength]="1" *ngIf="isJobLoading;else jobBlock"
                         class="col-span-3"></app-skelton-loading>
                     <ng-template #jobBlock>
-                    <div class="mt-5 flex" @opacityTrigger>
-                        <div class="w-20 h-20 flex justify-center items-center rounded-full bg-rose-100">
-                            <ng-icon name="heroBriefcase" class="text-5xl text-rose-700"></ng-icon>
-                        </div>
-                        <div class="mx-5">
-                            <div *ngIf="jobs$ | async as job">
+                        <div class="mt-5 flex" @opacityTrigger>
+                            <div class="w-20 h-20 flex justify-center items-center rounded-full bg-rose-100">
+                                <ng-icon name="heroBriefcase" class="text-5xl text-rose-700"></ng-icon>
+                            </div>
+                            <div class="mx-5">
+                                <div *ngIf="jobs$ | async as job">
 
-                            <p class="text-3xl font-semibold mt-1">{{job.total}} <span class="text-xs text-gray-700">Nos</span></p>
-                            </div>
-                            <div class="text-sm text-gray-700 mt-2">
-                                <a class="text-blue-500 underline uppercase cursor-pointer hover:text-blue-700 font-medium"
-                                    [routerLink]="['/job-sheet']">See all reports</a>
+                                    <p class="text-3xl font-semibold mt-1">{{job.total}} <span
+                                            class="text-xs text-gray-700">Nos</span></p>
+                                </div>
+                                <div class="text-sm text-gray-700 mt-2">
+                                    <a class="text-blue-500 underline uppercase cursor-pointer hover:text-blue-700 font-medium"
+                                        [routerLink]="['/job-sheet']">See all reports</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </ng-template>
                 </div>
+                <div class="p-10 bg-white rounded-md mb-5 shadow-md" *ngIf="privileges?.dashboard?.totalPresale">
+                    <p class="text-lg font-semibold text-gray-900">Presales</p>
+                    <app-skelton-loading [lineLength]="1" *ngIf="isPresalesLoading; else presaleBlock" class="col-span-3"></app-skelton-loading>
+                    <ng-template #presaleBlock>
+                        <div class="mt-5 space-y-4" @opacityTrigger>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 flex justify-center items-center rounded-full bg-red-100">
+                                    <ng-icon name="heroIdentification" class="text-xl text-red-700"></ng-icon>
+                                </div>
+                                <div>
+                                    <div *ngIf="presales$ | async as Presalse">
+                                        <p class="text-gray-800 uppercase font-medium">Pending Job: <span class="text-red-700">{{Presalse.pending}}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 flex justify-center items-center rounded-full bg-green-100">
+                                    <ng-icon name="heroCheckCircle" class="text-xl text-green-700"></ng-icon>
+                                </div>
+                                <div>
+                                    <div *ngIf="presales$ | async as Presalse">
+                                        <p class="text-gray-800 uppercase font-medium">Completed Job: <span class="text-green-700">{{Presalse.completed}}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </div>
+                
             </div>
         </div>
-        <div class="w-full bg-white rounded-md mt-5">
+        <div class="w-full bg-white rounded-md mt-5  shadow-md"  *ngIf="privileges?.dashboard?.EnquiryChart && !noDataForChart">
             <div class="p-10">
                 <p class="text-md font-medium">Enquires</p>
                 <app-skelton-loading [lineLength]="3" *ngIf="!showChart" class="col-span-3"></app-skelton-loading>

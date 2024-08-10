@@ -16,7 +16,7 @@ const routes: Routes = [
     children: [
       { path: '', component: DashboardComponent },
       { path: 'employees', canActivate:[RoleGuard], component: EmployeesComponent },
-      { path: 'employees/view', canActivate: [RoleGuard], component: ViewEmployeeComponent },
+      { path: 'employees/view/:employeeId', canActivate: [RoleGuard], component: ViewEmployeeComponent },
       { path: 'announcements', canActivate:[RoleGuard], component: AnnouncementsComponent }
     ]
   }

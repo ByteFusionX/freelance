@@ -15,9 +15,9 @@ import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.i
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 import { fadeInOut } from 'src/app/shared/animations/animations';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 
 @Component({
@@ -74,6 +74,7 @@ export class QuotationEditComponent {
 
     this.getAllCustomers();
     this.getDepartment();
+    this.getNotes();
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
@@ -98,14 +99,8 @@ export class QuotationEditComponent {
         })
       ]),
       totalDiscount: ['', Validators.required],
-      customerNote: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
-      termsAndCondition: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
+      customerNote: ['', Validators.required],
+      termsAndCondition: ['', Validators.required],
       createdBy: ['']
     });
 
@@ -116,12 +111,6 @@ export class QuotationEditComponent {
     }
   }
 
-  customerNoteValidator(formGroup: FormGroup) {
-    const defaultNote = formGroup.get('defaultNote')?.value;
-    const text = formGroup.get('text')?.value;
-
-    return (defaultNote || text) ? null : { required: true };
-  }
 
   getQuoteData() {
     const navigation = this._router.getCurrentNavigation();
@@ -193,6 +182,7 @@ export class QuotationEditComponent {
 
   getNotes() {
     this._profileService.getNotes().subscribe((res: Notes) => {
+      console.log(res)
       this.customerNotes = res.customerNotes
       this.termsAndConditions = res.termsAndConditions
     })
@@ -208,11 +198,21 @@ export class QuotationEditComponent {
 
   onCustomerNote(event: Note, noteType: string) {
     if (noteType == 'customerNotes') {
-      const note = this.quoteForm.value.customerNote + '\n' + event.note;
+      const customerNote = this.quoteForm.value.customerNote;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.customerNote + nextLine + event.note;
       this.quoteForm.patchValue({ customerNote: note })
     } else if (noteType == 'termsAndConditions') {
-      const note = this.quoteForm.value.termsAndCondition + '\n' + event.note;
-      this.quoteForm.patchValue({ termsAndCondition : note })
+      const customerNote = this.quoteForm.value.termsAndCondition;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.termsAndCondition + nextLine + event.note;
+      this.quoteForm.patchValue({ termsAndCondition: note })
     }
   }
 

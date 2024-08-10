@@ -1,15 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { ViewCommentComponent } from '../assigned-jobs/pages/view-comment/view-comment.component';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
 import { saveAs } from 'file-saver'
 import { GiveFeedbackComponent } from './pages/give-feedback/give-feedback.component';
+import { ViewFeedbackComponent } from '../assigned-jobs/pages/view-feedback/view-feedback.component';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 
 @Component({
@@ -18,9 +20,13 @@ import { GiveFeedbackComponent } from './pages/give-feedback/give-feedback.compo
   styleUrls: ['./feedback-requests.component.css']
 })
 export class FeedbackRequestsComponent {
+  @ViewChildren('feebackItem') feebackItems!: QueryList<ElementRef>;
   isLoading: boolean = true;
   isEmpty: boolean = false;
   subscriptions = new Subscription()
+  feedbackIdArr: string[] = []
+  private readonly destroy$ = new Subject<void>();
+  private notViewedfeedbackIds: Set<string> = new Set();
 
   dataSource = new MatTableDataSource<getEnquiry>();
   displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'requestedBy', 'presaleFile', 'reply'];
@@ -37,7 +43,9 @@ export class FeedbackRequestsComponent {
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
     private toast: ToastrService,
-    private _employeeService: EmployeeService) { }
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService
+  ) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -45,6 +53,14 @@ export class FeedbackRequestsComponent {
       this.row = data.row
       this.getFeedbackRequests()
     })
+  }
+
+  ngAfterViewInit() {
+    this.feebackItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => {
+        this.feebackItems.forEach(item => this.observeFeedback(item));
+      }, 100);
+    });
   }
 
   getFeedbackRequests() {
@@ -60,6 +76,8 @@ export class FeedbackRequestsComponent {
               this.total = data.total;
               this.isLoading = false;
               this.isEmpty = false;
+              this.updateNotViewedFeebackIds();
+              this.observeAllFeedbacks();
             },
             error: (error) => {
               this.isEmpty = true;
@@ -67,13 +85,54 @@ export class FeedbackRequestsComponent {
             }
           })
         );
-      } else {        
+      } else {
         this.isLoading = false;
         this.isEmpty = true;
       }
     });
   }
-  
+
+  updateNotViewedFeebackIds() {
+    this.notViewedfeedbackIds.clear();
+    this.dataSource.data.forEach(enquiry => {
+      if (!enquiry.preSale.feedback?.seenByFeedbackProvider) {
+        this.notViewedfeedbackIds.add(enquiry._id);
+      }
+    });
+  }
+
+  observeAllFeedbacks() {
+    setTimeout(() => {
+      this.feebackItems.forEach(item => this.observeFeedback(item));
+    }, 100); 
+  }
+
+  observeFeedback(element: ElementRef) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const enqId = entry.target.getAttribute('id');
+          if (enqId && this.notViewedfeedbackIds.has(enqId)) {
+            this.feedbackIdArr.push(enqId)
+            this.notViewedfeedbackIds.delete(enqId);
+          }
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { root: null, rootMargin: '0px', threshold: 1.0 });
+
+    if (element?.nativeElement) {
+      observer.observe(element.nativeElement);
+    }
+  }
+
+  markFeedbackAsViewed(enqId: string[]) {
+
+    if (enqId.length > 0) {
+      this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
+      this._notificationService.decrementNotificationCount('feedbackRequest',enqId.length)
+    }
+  }
 
 
   onViewComment(comment: string) {
@@ -81,6 +140,13 @@ export class FeedbackRequestsComponent {
       width: '500px',
       data: comment
     })
+  }
+
+  viewFeedback(feedback: feedback) {
+    this._dialog.open(ViewFeedbackComponent, {
+      width: '500px',
+      data: feedback
+    });
   }
 
   onDownloadClicks(file: any) {
@@ -119,7 +185,7 @@ export class FeedbackRequestsComponent {
           if (res.success) {
             this.dataSource.data.splice(index, 1);
             this.dataSource._updateChangeSubscription();
-            if(this.dataSource.data.length == 0){
+            if (this.dataSource.data.length == 0) {
               this.isEmpty = true;
             }
           }
@@ -137,5 +203,15 @@ export class FeedbackRequestsComponent {
       this.selectedFile = undefined;
       this.progress = 0
     }, 1000)
+  }
+
+  ngOnDestroy(): void {
+    if (this.feedbackIdArr.length > 0) {
+
+      this.markFeedbackAsViewed(this.feedbackIdArr)
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.subscriptions.unsubscribe();
   }
 }

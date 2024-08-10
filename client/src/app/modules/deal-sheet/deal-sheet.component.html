@@ -1,0 +1,117 @@
+<div class="bg-white mx-5 mt-5 rounded-2x max-h-[calc(100vh-70px)]">
+    <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
+
+        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+            <h3 class="font-semibold">Deal Sheet</h3>
+
+
+        </div>
+    </div>
+
+    <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
+
+    <div class="m-8  overflow-y-auto">
+        <div *ngIf="isEmpty && !isLoading" class="w-full flex justify-center items-center pb-8">
+            <div class="p-3">
+                <img src="assets/images/empty.png" alt="">
+                <p class="m-2 text-center text-gray-500">No Data</p>
+            </div>
+        </div>
+        <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
+            <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+    
+                
+    
+                <ng-container matColumnDef="dealId">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Deal Id </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div  class="flex items-center gap-2" >
+                            <div class="-translate-x-2" *ngIf="!element.dealData.seenByApprover">
+                                <span
+                                    class="bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
+                            </div>
+                            <a 
+                                class="text-purple-600 font-medium">{{element.dealData.dealId}}</a>
+                        </div> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="quoteId">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Quote Id </th>
+                    <td mat-cell *matCellDef="let element" #quoteItem data-id="{{element._id}}"> <a 
+                            class="text-purple-600 font-medium">{{element.quoteId}}</a> </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="customerName">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Customer </th>
+                    <td mat-cell *matCellDef="let element"> {{element.client.companyName}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="description">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Description </th>
+                    <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="salesPerson">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Sales Person </th>
+                    <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+' '+element.createdBy.lastName}}
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="department">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department </th>
+                    <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
+                </ng-container>
+                <ng-container matColumnDef="paymentTerms">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Payment Terms </th>
+                    <td mat-cell *matCellDef="let element"> {{element.dealData.paymentTerms}} </td>
+                </ng-container>
+                <ng-container matColumnDef="action">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Actions </th>
+                    <td mat-cell *matCellDef="let element;let i=index"> 
+                       <div class="flex gap-2">
+                        <div 
+                        matTooltip="View Deal Sheet" matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onPreviewDeal(false,element,i)"
+                            class="cursor-pointer w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 hover:bg-white flex justify-center items-center">
+                            <ng-icon name="heroEye" class="text-black"></ng-icon>
+                        </div>
+                    <div 
+                        matTooltip="Approve Deal" matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onPreviewDeal(true,element,i)"
+                            class="cursor-pointer w-8 h-8 rounded-full bg-green-600 flex justify-center items-center">
+                            <ng-icon name="heroCheckCircle" class="text-white text-xl"></ng-icon>
+                        </div>
+                       </div>
+                         </td>
+                </ng-container>
+    
+   
+    
+    
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index" ></tr>
+            </table>
+        </section>
+        <div class="w-full bg-white" *ngIf="!isEmpty">
+            <app-pagination [page]="page" [row]="row" [total]="total"
+                (changeData)="onPageNumberClick($event)"></app-pagination>
+        </div>
+    </div>
+    <div>
+    </div>
+
+</div>

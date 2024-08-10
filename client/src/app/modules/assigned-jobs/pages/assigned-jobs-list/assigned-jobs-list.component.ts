@@ -14,6 +14,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ViewCommentComponent } from '../view-comment/view-comment.component';
 import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
 import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -45,7 +46,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
     private toast: ToastrService,
-    private _employeeService: EmployeeService) { }
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService
+  ) { }
 
   ngOnInit(): void {
     this.subject.subscribe((data) => {
@@ -59,7 +62,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.jobItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
         this.jobItems.forEach(item => this.observeJob(item));
-      }, 100); // slight delay to ensure the DOM is fully rendered
+      }, 100);
     });
   }
 
@@ -71,7 +74,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     });
     if (this.userId) {
       this.subscriptions.add(
-        this._enquiryService.getPresale(this.page, this.row, access, this.userId).subscribe({
+        this._enquiryService.getPresale(this.page, this.row, 'none', access, this.userId).subscribe({
           next: (data) => {
             this.dataSource.data = data.enquiry;
             this.total = data.total;
@@ -124,8 +127,10 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   markJobAsViewed(jobId: string[]) {
     if (jobId.length > 0) {
       this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
+      this._notificationService.decrementNotificationCount('assignedJob',jobId.length)
     }
   }
+
 
   ngOnDestroy(): void {
     if (this.jobIdArr.length > 0) {
@@ -136,59 +141,73 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.destroy$.complete();
     this.subscriptions.unsubscribe();
   }
-  onSendClicked(index: number) {
-    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
-      {
-        data: {
-          title: `Are you absolutely sure?`,
-          description: `This action is irreversible and send the assigned task back to the salesperson. You can also verify by other employees. Please ensure all files are selected before proceeding. `,
-          icon: 'heroExclamationCircle',
-          IconColor: 'orange'
-        }
-      });
 
-    dialogRef.afterClosed().subscribe((approved: boolean) => {
-      if (approved) {
-        let selectedEnquiry: { id: string, status: string } = {
-          id: this.dataSource.data[index]._id,
-          status: 'Work In Progress'
-        }
-        Object.seal(selectedEnquiry)
-        this.subscriptions.add(
-          this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
-            if (data) {
-              this.dataSource.data.splice(index, 1)
-              if (this.dataSource.data.length) {
-                this.dataSource.data = [...this.dataSource.data]
-              } else {
-                this.dataSource.data = []
-                this.isEmpty = true
+  onSendClicked(index: number) {
+    if (this.dataSource.data[index].assignedFiles.length) {
+      const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+        {
+          data: {
+            title: `Are you absolutely sure?`,
+            description: `This action is irreversible and send the assigned task back to the salesperson. You can also verify by other employees. Please ensure all files are selected before proceeding. `,
+            icon: 'heroExclamationCircle',
+            IconColor: 'orange'
+          }
+        });
+
+      dialogRef.afterClosed().subscribe((approved: boolean) => {
+        if (approved) {
+          let selectedEnquiry: { id: string, status: string } = {
+            id: this.dataSource.data[index]._id,
+            status: 'Work In Progress'
+          }
+          Object.seal(selectedEnquiry)
+          this.subscriptions.add(
+            this._enquiryService.updateEnquiryStatus(selectedEnquiry).subscribe((data) => {
+              if (data) {
+                this.dataSource.data.splice(index, 1)
+                if (this.dataSource.data.length) {
+                  this.dataSource.data = [...this.dataSource.data]
+                } else {
+                  this.dataSource.data = []
+                  this.isEmpty = true
+                }
+                this.toast.success(`Job has successfully completed and send back to Enquiry            pre\n(${data.enquiryId})`)
               }
-              this.toast.success('Enquiry send successfully')
-            }
-          })
-        )
-      }
-    })
+            })
+          )
+        }
+      })
+    } else {
+      this.toast.warning('Please select at least one file before Sending')
+    }
+
   }
 
-  onFeedback(enquiryId: string) {
-    const dialogRef = this._dialog.open(SelectEmployeeComponent);
+  onFeedback(enquiryId: string, index: number) {
+    if (this.dataSource.data[index].assignedFiles.length) {
+      const dialogRef = this._dialog.open(SelectEmployeeComponent);
 
-    dialogRef.afterClosed().subscribe((employeeId: string) => {
-      if (employeeId) {
-        const feedbackBody = {
-          employeeId,
-          enquiryId
-        }
-        this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((res: any) => {
-          if (res.success) {
-            this.isLoading = true;
-            this.getJobsData()
+      dialogRef.afterClosed().subscribe((employeeId: string) => {
+        if (employeeId) {
+          const feedbackBody = {
+            employeeId,
+            enquiryId
           }
-        })
-      }
-    })
+          this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((data: any) => {
+            if (data) {
+              data.client = [data.client]
+              data.department = [data.department]
+              data.salesPerson = [data.salesPerson]
+              this.dataSource.data[index] = data
+              this.dataSource.data = [...this.dataSource.data]
+              this.dataSource._updateChangeSubscription();
+            }
+          })
+        }
+      })
+    } else {
+      this.toast.warning('Please select at least one file before Sending')
+    }
   }
 
   viewFeedback(feedback: feedback) {
@@ -197,10 +216,10 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     });
   }
 
-  onViewComment(comment: string) {
+  onViewComment(comment: string, revisionComment: string[]) {
     let dialog = this._dialog.open(ViewCommentComponent, {
       width: '500px',
-      data: comment
+      data: { comment, revisionComment }
     })
   }
 
@@ -211,11 +230,13 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     })
     dialog.afterClosed().subscribe((data) => {
       if (data) {
+        console.log(data)
         data.client = [data.client]
         data.department = [data.department]
         data.salesPerson = [data.salesPerson]
         this.dataSource.data[index] = data
         this.dataSource.data = [...this.dataSource.data]
+        this.dataSource._updateChangeSubscription();
       }
     })
   }
@@ -225,13 +246,12 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onClearFiles(index: number) {
-    this.dataSource.data[index].preSale.presaleFiles = null;
-
     const enquiryId = this.dataSource.data[index]._id;
     this._enquiryService.clearAllPresaleFiles(enquiryId)
       .subscribe({
         next: (event) => {
           this.dataSource.data[index].assignedFiles = [];
+          this.dataSource._updateChangeSubscription();
         },
         error: (error) => {
           if (error.status == 404) {

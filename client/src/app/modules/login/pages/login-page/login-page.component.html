@@ -19,8 +19,8 @@
                     <img class="w-8 h-8 mr-2" src="../../../../../assets/images/favicon.png" alt="logo">
                     <img class="w-46 h-8 mr-2" src="../../../../../assets/images/companyTransparent.png" alt="logo">
                 </a>
-                <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
-                    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <div  class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                    <div *ngIf="isEmployeePresent" class="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl ">
                             Sign in to your account
                         </h1>
@@ -74,8 +74,23 @@
                             </div>
 
                         </form>
+                    </div> 
+                    <div *ngIf="!isEmployeePresent" class="mt-8 w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                        <div class="p-6 space-y-2 md:space-y-2 sm:p-8">
+                            <p class="text-gray-600 mb-4">
+                                No Employees Found in the Database
+                            </p>
+                            <button type="button" (click)="onCreateSuperAdmin()"
+                                class="w-full text-white bg-violet-700 hover:bg-violet-600 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 text-center flex justify-center items-center gap-2">
+                                <ng-icon name="heroUserCircle" class="text-white text-lg"></ng-icon>
+                                Create Super Admin Account
+                            </button>
+                        </div>
                     </div>
+
                 </div>
+
+               
             </div>
         </section>
     </div>

@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationExtras, Router } from '@angular/router';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-quotation-view',
@@ -104,6 +104,10 @@ export class QuotationViewComponent {
       })
     })
     return totalCost;
+  }
+
+  calculateProfitMargin(): number {
+    return this.calculateSellingPrice() - this.calculateAllTotalCost() || 0
   }
 
   calculateTotalProfit(): number {

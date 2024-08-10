@@ -16,8 +16,8 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { customerNoteValidator } from 'src/app/shared/validators/quoation.validator';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -178,11 +178,21 @@ export class CreateQuotatationComponent {
 
   onCustomerNote(event: Note, noteType: string) {
     if (noteType == 'customerNotes') {
-      const note = this.quoteForm.value.customerNote + '\n' + event.note;
+      const customerNote = this.quoteForm.value.customerNote;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.customerNote + nextLine + event.note;
       this.quoteForm.patchValue({ customerNote: note })
     } else if (noteType == 'termsAndConditions') {
-      const note = this.quoteForm.value.termsAndCondition + '\n' + event.note;
-      this.quoteForm.patchValue({ termsAndCondition : note })
+      const customerNote = this.quoteForm.value.termsAndCondition;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.termsAndCondition + nextLine + event.note;
+      this.quoteForm.patchValue({ termsAndCondition: note })
     }
   }
 

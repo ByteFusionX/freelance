@@ -101,6 +101,7 @@ export class CustomerEditComponent {
       customer.id = this.customerData._id
 
       this._customerService.editCustomer(customer).subscribe((res: getCustomer) => {
+        this.toastr.success('Customer Updated Succesfully');
         this._router.navigate(['/customers'])
       })
     } else {

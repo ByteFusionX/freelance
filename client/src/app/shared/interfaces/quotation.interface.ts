@@ -1,3 +1,4 @@
+import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexTooltip } from "ng-apexcharts";
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 import { getEmployee } from "./employee.interface";
@@ -9,12 +10,22 @@ export interface QuoteItem {
 }
 
 export interface QuoteItemDetail {
+    _id: string;
     detail: string;
     quantity: number;
     unitCost: number;
     profit: number;
     availability: string;
+    dealSelected: boolean;
+    supplierName: string;
 }
+
+export interface File {
+    fileName: string;
+    originalname: string;
+}
+
+
 
 export interface Quotatation {
     _id?: string;
@@ -31,9 +42,11 @@ export interface Quotatation {
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
     status: QuoteStatus;
-    lpoFiles: [];
+    lpoFiles: File[];
+    lpoValue: string;
     lpoSubmitted: boolean;
     enqId: string;
+    dealData: dealData;
 }
 
 export interface getQuotatation {
@@ -54,6 +67,7 @@ export interface getQuotatation {
     lpoFiles: [];
     lpoSubmitted: boolean;
     enqId: getEnquiry;
+    dealData: dealData;
 }
 
 export interface DefaultAndText {
@@ -63,6 +77,11 @@ export interface DefaultAndText {
 
 export interface getQuotation {
     quotations: Quotatation[];
+    total: number;
+}
+
+export interface getDealSheet {
+    dealSheet: Quotatation[];
     total: number;
 }
 
@@ -93,6 +112,15 @@ export enum QuoteStatus {
     Lost = 'Lost',
 }
 
+export interface dealData {
+    dealId: string;
+    paymentTerms: string;
+    items: [];
+    additionalCosts: { name: string, value: number }[];
+    savedDate: string;
+    seenByApprover:boolean;
+}
+
 
 export interface FilterQuote {
     page: number;
@@ -103,8 +131,57 @@ export interface FilterQuote {
     toDate: string | null;
 }
 
+export interface FilterDeal {
+    page: number;
+    row: number;
+    access?: string;
+    userId?: string;
+}
+
 export interface nextQuoteData {
     department: getDepartment;
     createdBy: string | undefined;
     date: string;
 }
+
+export interface priceDetails {
+    totalSellingPrice: number;
+    totalCost: number;
+    profit: number;
+    perc: number;
+}
+
+export interface PieChartData {
+    name: string;
+    value: number;
+}
+
+export interface ReportDetails {
+    totalValue: number;
+    totalWonValue: number;
+    totalJobAwarded: number;
+    totalLossValue: number;
+    pieChartData: PieChartData[];
+}
+
+export type PieChartOptions = {
+    series: ApexNonAxisChartSeries;
+    chart: ApexChart;
+    labels: string[];
+    tooltip: ApexTooltip;
+    legend: ApexLegend;
+    dataLabels: ApexDataLabels;
+    plotOptions: ApexPlotOptions;
+    colors:any;
+};
+
+
+export const QuoteStatusColors: { [key in QuoteStatus]: string } = {
+    [QuoteStatus.WorkInProgress]: '#FFA500',  // Orange
+    [QuoteStatus.QuoteSubmitted]: '#00BFFF',  // Deep Sky Blue
+    [QuoteStatus.UnderNegotiation]: '#FFD700', // Gold
+    [QuoteStatus.UnderReview]: '#32CD32',    // Lime Green
+    [QuoteStatus.ReadyForSubmission]: '#FF6347', // Tomato
+    [QuoteStatus.Won]: '#228B22',  // Forest Green
+    [QuoteStatus.Lost]: '#FF0000', // Red
+};

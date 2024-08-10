@@ -1,7 +1,11 @@
+import { Server } from "socket.io";
 import announcementModel from "../models/announcement.model";
 import enquiryModel from "../models/enquiry.model";
+import jwt from 'jsonwebtoken'
 
-export const socketConnection = async (socketIo) => {
+export const connectedSockets = {};
+
+export const socketConnection = async (socketIo:Server) => {
     try {
         let io = socketIo
 
@@ -12,12 +16,21 @@ export const socketConnection = async (socketIo) => {
 
             socket.on("disconnect", () => {
                 console.log("Client disconnected");
+                for (const [userId, socketId] of Object.entries(connectedSockets)) {
+                    if (socketId === socket.id) {
+                        delete connectedSockets[userId];
+                        break;
+                    }
+                }
             })
-            socket.on('onCheck', async (userId) => {
-                const notViewedCount = await getNotViewedAnnouncementsCount(userId)
-                const notViewedPresaleCount = await getNotViewedPresale(userId)
-                socket.emit('notViewed', { notViewedCount, notViewedPresaleCount })
+
+            socket.on('auth',(token)=> {
+                const jwtPayload = jwt.verify(token,process.env.JWT_SECRET)
+                const userId = (<any>jwtPayload).id;
+                connectedSockets[userId] = socket.id;
+                socket.join(userId)
             })
+
         })
 
     } catch (error) {
@@ -25,24 +38,3 @@ export const socketConnection = async (socketIo) => {
     }
 }
 
-const getNotViewedAnnouncementsCount = async (userId: string): Promise<number> => {
-    try {
-        const count = await announcementModel.countDocuments({ viewedBy: { $ne: userId } });
-        return count;
-    } catch (error) {
-        console.error('Error in getNotViewedAnnouncementsCount:', error);
-        return 0;
-    }
-};
-const getNotViewedPresale = async (userId: string): Promise<number> => {
-    try {
-        const count = await enquiryModel.countDocuments({
-            'preSale.presalePerson': userId,
-            'preSale.seenbyEmployee': false,
-        });
-        return count;
-    } catch (error) {
-        console.error('Error in getNotViewedPresale:', error);
-        return 0;
-    }
-};

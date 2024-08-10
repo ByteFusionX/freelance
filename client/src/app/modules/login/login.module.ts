@@ -6,6 +6,7 @@ import { LoginComponent } from './login.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     LoginRoutingModule,
     IconsModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgSelectModule
   ]
 })
 export class LoginModule { }

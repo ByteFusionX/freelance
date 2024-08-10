@@ -25,6 +25,11 @@ export interface getFilteredCustomer {
     customers:getCustomer[]
 }
 
+export interface getCustomerByID {
+    access:boolean,
+    customerData:getCustomer;
+}
+
 export interface FilterCustomer {
     page: number;
     row: number;

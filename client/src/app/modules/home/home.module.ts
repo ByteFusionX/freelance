@@ -25,7 +25,6 @@ import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-empl
   declarations: [
     HomeComponent,
     EmployeesComponent,
-    CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
     CreateCategoryComponent,

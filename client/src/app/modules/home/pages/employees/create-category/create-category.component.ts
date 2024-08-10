@@ -35,7 +35,12 @@ export class CreateCategoryComponent {
     role: ['', Validators.required],
     privileges: this._fb.group({
       dashboard: this._fb.group({
-        viewReport: 'all'
+        viewReport: 'all',
+        totalEnquiry: [false],
+        totalQuote: [false],
+        totalJobs: [false],
+        totalPresale: [false],
+        EnquiryChart: [false],
       }),
       employee: this._fb.group({
         viewReport: 'none',
@@ -60,6 +65,7 @@ export class CreateCategoryComponent {
         viewReport: 'none',
         create: [false]
       }),
+      dealSheet: [false],
       jobSheet: this._fb.group({
         viewReport: 'none',
       }),
@@ -100,7 +106,7 @@ export class CreateCategoryComponent {
           this.dialogRef.close(data)
         },
         error: ((error) => {
-          this.isSaving = error;
+          this.isSaving = false;
           this.error = error.error;
         })
       })

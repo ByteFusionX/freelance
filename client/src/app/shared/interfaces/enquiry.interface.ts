@@ -47,8 +47,9 @@ export interface FeedbackTable {
 }
 
 export interface TotalEnquiry {
-    total: number;
-    department: getDepartment[];
+    totalEnquiries: number;
+    departmentId: string;
+    departmentName: string;
     enquiry?: getEnquiry[];
 }
 
@@ -81,8 +82,9 @@ export interface Files {
 }
 
 export interface feedback {
-    employeeId: getEmployee[],
-    feedback: string
+    employeeId:getEmployee,
+    feedback:string
+    seenByFeedbackProvider:boolean
 }
 
 export interface Presale {

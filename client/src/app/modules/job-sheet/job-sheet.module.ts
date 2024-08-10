@@ -14,13 +14,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { GenerateReportComponent } from 'src/app/shared/components/generate-report/generate-report.component';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 
 
 @NgModule({
   declarations: [
     JobSheetComponent,
-    JobListComponent
+    JobListComponent,
   ],
   imports: [
     CommonModule,
@@ -35,7 +36,8 @@ import { GenerateReportComponent } from 'src/app/shared/components/generate-repo
     PaginationComponent,
     MatProgressBarModule,
     ReactiveFormsModule,
-    GenerateReportComponent
+    GenerateReportComponent,
+    NgxExtendedPdfViewerModule,
   ]
 })
 export class JobSheetModule { }

@@ -20,14 +20,15 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UploadFileComponent } from 'src/app/shared/components/upload-file/upload-file.component';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
-import { RevisionComponent } from './revision/revision.component';
+import { ViewPresaleComponent } from './view-presale/view-presale.component';
+import { MatDividerModule } from '@angular/material/divider';
 
 @NgModule({
   declarations: [
     EnquiryComponent,
     CreateEnquiryDialog,
     AssignPresaleComponent,
-    RevisionComponent
+    ViewPresaleComponent
   ],
   imports: [
     CommonModule,
@@ -48,7 +49,8 @@ import { RevisionComponent } from './revision/revision.component';
     FormsModule,
     SkeltonLoadingComponent,
     UploadFileComponent,
-    PaginationComponent
+    PaginationComponent,
+    MatDividerModule,
   ],
   providers: []
 })

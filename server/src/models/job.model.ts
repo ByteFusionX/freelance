@@ -3,11 +3,8 @@ import { Schema, Document, model, Types } from "mongoose";
 interface Job extends Document {
     quoteId: Types.ObjectId;
     jobId: string;
-    lpo:Number;
     status: string;
     createdDate: Date;
-    lpoValue:Number;
-    files:[];
 }
 
 export enum jobStatus {
@@ -31,11 +28,6 @@ const jobSchema = new Schema<Job>({
         required: true,
         unique: true,
     },
-    lpoValue: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
     status: {
         type: String,
         enum: Object.values(jobStatus),
@@ -44,8 +36,7 @@ const jobSchema = new Schema<Job>({
     createdDate: {
         type: Date,
         default: Date.now
-    },
-    files:[]
+    }
 });
 
 export default model<Job>("Job", jobSchema);

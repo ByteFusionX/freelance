@@ -11,6 +11,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
+import { ViewPresaleComponent } from './view-presale/view-presale.component';
+import { HttpEventType } from '@angular/common/http';
+import saveAs from 'file-saver';
 
 @Component({
   selector: 'app-enquiry',
@@ -28,7 +31,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'status', 'action'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status' , 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -106,6 +109,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
+            console.log(data.enquiry)
             this.dataSource.data = [...data.enquiry];
             this.filteredData.data = data.enquiry;
             this.total = data.total
@@ -122,6 +126,28 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     )
   }
 
+  
+  onDownloadClicks(file: any) {
+    this.subscriptions.add(
+      this._enquiryService.downloadFile(file.filename)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.toaster.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
+          }
+        })
+    )
+  }
+
+
   openDialog() {
     if (this.enqId) {
       const dialogRef = this.dialog.open(CreateEnquiryDialog, { data: this.enqId })
@@ -134,6 +160,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
           result.department = result.department
           result.salesPerson = result.salesPerson
           this.dataSource.data = [result, ...this.dataSource.data]
+          this.dataSource._updateChangeSubscription();
           this.enqId = result.enquiryId.slice(-3)
           this.toaster.success('Enquiry created successfully')
         }
@@ -141,8 +168,20 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
   }
 
-  onRevision(event: Event, enquiryId: string, presalePerson: string) {
+  preventClick(event:Event){
     event.stopPropagation()
+  }
+
+  onViewPresale(event: Event, i: number, enquiryData:getEnquiry ) {
+    event.stopPropagation()
+    const presaleDialog = this.dialog.open(ViewPresaleComponent,{data:enquiryData,width:'500px'})
+    presaleDialog.afterClosed().subscribe((success: boolean) => {
+      if(success){
+        this.dataSource.data[i].status = 'Assigned To Presales'
+        this.dataSource._updateChangeSubscription();
+      }
+    })
+
   }
 
   onAssignPresale(event: Event, enquiryId: string,index:number) {
@@ -170,6 +209,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
             this.dataSource.data[index].preSale = presaleData
             this.dataSource.data[index].status = 'Assigned To Presales'
             this.dataSource._updateChangeSubscription();
+            this.toaster.success()
           }
         })
       }
