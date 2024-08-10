@@ -126,7 +126,6 @@ export class FeedbackRequestsComponent {
   }
 
   markFeedbackAsViewed(enqId: string[]) {
-
     if (enqId.length > 0) {
       this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
       this._notificationService.decrementNotificationCount('feedbackRequest',enqId.length)
@@ -182,8 +181,7 @@ export class FeedbackRequestsComponent {
         const feedbackBody = { enquiryId, feedback }
         this._enquiryService.giveFeedback(feedbackBody).subscribe((res: any) => {
           if (res.success) {
-            this.dataSource.data.splice(index, 1);
-            this.dataSource._updateChangeSubscription();
+            this.getFeedbackRequests()
             if (this.dataSource.data.length == 0) {
               this.isEmpty = true;
             }

@@ -826,7 +826,6 @@ const calculateDiscountPrice = (quotation: any): number => {
         });
         return totalCost;
     };
-    console.log(calculateSellingPrice())
     return calculateSellingPrice() - quotation.totalDiscount;
 };
 

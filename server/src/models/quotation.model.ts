@@ -105,31 +105,30 @@ const quoteItem = new Schema<QuoteItem>({
 const additionalCostSchema = new Schema<AdditionalCost>({
     name: {
         type: String,
-        required: true,
+        required: false,
     },
     value: {
         type: Number,
-        required: true,
+        required: false,
     }
 });
 
 const dealDatas = new Schema<Deal>({
     dealId: {
         type: String,
-        required: true,
-        unique: true,
+        required: false,
     },
     paymentTerms: {
         type: String,
-        required: true,
+        required: false,
     },
     additionalCosts: {
         type: [additionalCostSchema],
-        required: true,
+        required: false,
     },
     savedDate: {
         type: Date,
-        required: true,
+        required: false,
     },
     seenByApprover:{
         type:Boolean,

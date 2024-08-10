@@ -203,7 +203,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 }
             }
         ]);
-        
+
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
         return res.status(504).json({ err: 'No enquiry data found' })
 
@@ -219,10 +219,9 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let skipNum: number = (page - 1) * row;
         let { filter, access, userId } = req.query;
         let accessFilter: any = { status: 'Assigned To Presales' };
-
         switch (access) {
             case 'assigned':
-                accessFilter = { "preSale.presalePerson": userId };
+                accessFilter['preSale.presalePerson'] = new ObjectId(userId);
                 break;
             default:
                 break;
@@ -281,6 +280,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 }
             }
         ])
+
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
         return res.status(502).json()
     } catch (error) {
@@ -382,7 +382,7 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
 
         const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider":false } },
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider": false } },
             { new: true }
         ).populate('client')
             .populate('department')
@@ -667,8 +667,9 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
 export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const enqIds: string[] = req.body.enqIds;
+        const enqObjectIds = enqIds.map(id => new ObjectId(id));
         const result = await enquiryModel.updateMany(
-            { _id: { $in: enqIds } },
+            { _id: { $in: enqObjectIds } },
             { 'preSale.feedback.seenByFeedbackProvider': true },
             { new: true }
         );

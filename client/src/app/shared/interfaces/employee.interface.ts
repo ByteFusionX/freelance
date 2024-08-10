@@ -27,7 +27,7 @@ export interface getEmployeeDetails {
   contactNo: number | string;
   category: GetCategory;
   dateOfJoining: string;
-  reportingTo: getEmployee;
+  reportingTo: getEmployee | null;
 }
 
 export interface CreateEmployee {

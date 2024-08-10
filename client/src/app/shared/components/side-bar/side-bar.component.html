@@ -33,7 +33,7 @@
                                     </ng-template>
                                 
                                 <ng-container *ngIf="(notificationCounts$ | async) as notifications">
-                                    <span *ngIf="notifications.announcementCount > 0"
+                                    <span *ngIf="notifications.announcementCount > 0 && privileges?.announcement?.viewReport !== 'none'"
                                         class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
                                 </ng-container>
                             </div>

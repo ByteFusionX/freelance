@@ -50,7 +50,7 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
     this.notificationCounts$ = this._notificationService.notificationCounts$;
     setTimeout(() => {
       this.showTabs = true;
-    }, 1000);
+    }, 2000);
   }
 
   @HostListener('window:resize', ['$event'])

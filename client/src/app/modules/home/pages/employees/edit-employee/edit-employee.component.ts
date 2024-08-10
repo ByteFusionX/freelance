@@ -74,7 +74,7 @@ export class EditEmployeeComponent {
       contactNo: this.data.employeeData.contactNo as string,
       category: this.data.employeeData.category._id,
       dateOfJoining: this.data.employeeData.dateOfJoining.substring(0, 10),
-      reportingTo: this.data.employeeData.reportingTo._id,
+      reportingTo: this.data.employeeData.reportingTo?._id,
       password: ''
     });
   }
@@ -111,6 +111,11 @@ export class EditEmployeeComponent {
 
       const employeeData = this.employeeForm.value as CreateEmployee
       employeeData.employeeId = this.data.employeeData._id as string
+
+      const selectedReportingTo = this.employeeForm.get('reportingTo')?.value;
+      const reportingToValue = selectedReportingTo === '' ? null : selectedReportingTo;
+
+      employeeData.reportingTo = reportingToValue;
 
       this._employeeService.editEmployees(employeeData as CreateEmployee).subscribe((data) => {
         this.isSaving = false;

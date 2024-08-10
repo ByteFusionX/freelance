@@ -59,7 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userData$ = this._employeeService.employeeData$
-    this.userData$.subscribe((employee) => {
+    this._employeeService.employeeData$.subscribe((employee) => {
       if (employee) {
         this.privileges = employee?.category?.privileges
         this.userId = employee?._id;

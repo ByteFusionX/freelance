@@ -12,7 +12,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await Employee.find().sort({ createdDate: -1 }).populate('department')
+        const employees = await Employee.find({}, { password: 0 }).sort({ createdDate: -1 }).populate('department')
         if (employees.length) {
             return res.status(200).json(employees);
         }
@@ -90,6 +90,9 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                 {
                     $unwind: "$category"
                 },
+                {
+                    $project: { password: 0 } 
+                }
             ])
 
             if (employeeData[0]) {
@@ -109,7 +112,6 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, search, access, userId } = req.body;
-
         let skipNum: number = (page - 1) * row;
 
         let searchRegex = search.split('').join('\\s*');
@@ -166,38 +168,66 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             })
 
-        const employeeData = await Employee.aggregate([
-            {
-                $match: filters,
-            },
-            {
-                $sort: { employeeId: 1 }
-            },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
-            {
-                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
-            },
-            {
-                $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' }
-            },
-            {
-                $lookup: { from: 'employees', localField: 'reportingTo', foreignField: '_id', as: 'reportingTo' }
-            },
-            {
-                $unwind: "$department"
-            },
-            {
-                $unwind: "$reportingTo"
-            },
-            {
-                $unwind: "$category"
-            },
-        ]);
+            const employeeData = await Employee.aggregate([
+                {
+                    $match: filters,
+                },
+                {
+                    $sort: { employeeId: 1 }
+                },
+                {
+                    $skip: skipNum
+                },
+                {
+                    $limit: row
+                },
+                {
+                    $lookup: {
+                        from: 'departments',
+                        localField: 'department',
+                        foreignField: '_id',
+                        as: 'department'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        as: 'category'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'employees',
+                        localField: 'reportingTo',
+                        foreignField: '_id',
+                        as: 'reportingTo'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$department",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$category",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$reportingTo",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: { password: 0 } 
+                }
+            ]);            
+
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
@@ -335,7 +365,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ employeeId: employeeId }).populate('category');
+        const employeeData = await Employee.findOne({ employeeId: employeeId }, { password: 0 }).populate('category');
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
@@ -348,15 +378,17 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const token = req.params.token
         const jwtPayload = jwt.verify(token, process.env.JWT_SECRET)
         const userId = (<any>jwtPayload).id
-        const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: userId } });
+        const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: new ObjectId(userId) } });
         const assignedJobCount = await enquiryModel.countDocuments({
-            'preSale.presalePerson': userId,
+            'preSale.presalePerson': new ObjectId(userId),
             'preSale.seenbyEmployee': false,
         });
         const dealSheetCount = await quotationModel.countDocuments({
+            dealApproved: false,
             "dealData.seenByApprover": false,
         });
         const feedbackCount = await enquiryModel.countDocuments({
+            'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,
         });
         const employeeCount = {

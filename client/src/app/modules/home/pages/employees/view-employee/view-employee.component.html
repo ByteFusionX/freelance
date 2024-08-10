@@ -87,7 +87,12 @@
                                 Reporting To
                             </td>
                             <td class="px-2 py-2 border text-start ">
-                                {{employeeData.reportingTo.firstName + ' ' + employeeData.reportingTo.lastName}}
+                                <ng-container *ngIf="employeeData.reportingTo">
+                                    {{employeeData.reportingTo.firstName + ' ' + employeeData.reportingTo.lastName}}
+                                </ng-container>
+                                <ng-container *ngIf="!employeeData.reportingTo">
+                                    No One
+                                </ng-container>
                             </td>
                            
                         </tr>

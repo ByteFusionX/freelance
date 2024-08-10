@@ -59,6 +59,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.getAnnouncementData();
+      this.isEmpty = false;
       this.toaster.success('Announcement added!', 'Success');
     });
   }
@@ -66,18 +67,22 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   getAnnouncementData() {
     this._service.getAnnouncement(this.page, this.row).pipe(takeUntil(this.destroy$)).subscribe(
       (res: { total: number, announcements: announcementGetData[] }) => {
-        this.isLoading = false;
-        this.announcementData = res.announcements;
-        this.total = res.total;
-        this.updateNotViewedIds();
+        if (res) {
+          this.isLoading = false;
+          this.announcementData = res.announcements;
+          this.total = res.total;
+          this.updateNotViewedIds();
 
-        if (this.page === 1) {
-          this.recentData = this.announcementData.shift() || null;
+          this.isEmpty = this.announcementData.length === 0;
+          if (this.page === 1) {
+            this.recentData = this.announcementData.shift() || null;
+          } else {
+            this.recentData = null;
+          }
         } else {
-          this.recentData = null;
+          this.isLoading = false;
+          this.isEmpty = true;
         }
-
-        this.isEmpty = this.announcementData.length === 0;
       },
       () => {
         this.isLoading = false;
@@ -85,7 +90,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
       }
     );
   }
-  
+
 
   observeAnnouncement(element: ElementRef) {
     const observer = new IntersectionObserver(entries => {
@@ -109,7 +114,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   markAsViewed(announcementId: string | null) {
     if (announcementId && this.userId) {
       this._service.markAsViewed(announcementId, this.userId).pipe(takeUntil(this.destroy$)).subscribe()
-      this._notificationService.decrementNotificationCount('announcement',1)
+      this._notificationService.decrementNotificationCount('announcement', 1)
     }
   }
 

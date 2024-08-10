@@ -127,7 +127,7 @@
             </label>
             <input dateFutureDirective formControlName="dob"
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              id="grid-last-name" type="date" placeholder="">
+              id="dob" type="date" placeholder="">
             <div class="text-red-700 text-sm mt-1 absolute mb-1" *ngIf="employeeForm.get('dob')?.hasError('futureDate')">
               Date must be in the past.
             </div>
@@ -142,7 +142,7 @@
             </label>
             <input dateFutureDirective formControlName="dateOfJoining"
               class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              id="grid-last-name" type="date" placeholder="Date Of Joining">
+              id="dateOfJoining" type="date" placeholder="Date Of Joining">
             <div class="text-red-700 text-sm mt-1 absolute mb-1"
               *ngIf="employeeForm.get('dateOfJoining')?.hasError('futureDate')">
               Date must be in the past.
