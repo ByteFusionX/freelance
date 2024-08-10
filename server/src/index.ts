@@ -22,6 +22,7 @@ import jobRouter from './routes/job.router';
 import catRouter from './routes/category.router';
 import { socketConnection } from './service/socket-ioService';
 import noteRouter from './routes/note.router';
+import companyRouter from './routes/company.router';
 
 const app = express();
 const server = http.createServer(app);
@@ -63,6 +64,7 @@ app.use('/category', catRouter);
 app.use('/file', fileRouter);
 app.use('/job', jobRouter);
 app.use('/note', noteRouter);
+app.use('/company',companyRouter)
 
 let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}`;
 if (process.env.USE_MONGOATLAS === 'true') {
