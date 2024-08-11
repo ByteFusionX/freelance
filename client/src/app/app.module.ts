@@ -17,7 +17,8 @@ import { ResizableModule } from './shared/components/resizable/resizable.module'
 import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
-const config:SocketIoConfig = { url: 'http://localhost:3000', options: {} };
+import { environment } from 'src/environments/environment';
+const config:SocketIoConfig = { url: environment.api, options: {} };
 
 @NgModule({
   declarations: [
