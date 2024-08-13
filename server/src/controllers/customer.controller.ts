@@ -288,7 +288,7 @@ const generateClientRef = async (date: string) => {
         if (lastClientId.length) {
             let lastSlNo = lastClientId[0].slNo;
             const formattedSlNo = String(lastSlNo + 1).padStart(3, '0');
-            clientRef = `${formattedSlNo}/${year}`
+            clientRef = `${formattedSlNo}-${year}`
         } else {
             clientRef = `001-${year}`
         }

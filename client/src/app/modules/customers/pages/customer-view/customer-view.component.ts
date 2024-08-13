@@ -39,8 +39,10 @@ export class CustomerViewComponent {
             } else {
               this._toast.warning('This user detail cannot be displayed to you due to the permissions assigned')
               this._router.navigate(['/customers'])
+              console.log('sugar')
             }
           } else {
+            console.log('andi ')
             this._router.navigate(['/customers'])
           }
         })
