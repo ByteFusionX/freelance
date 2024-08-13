@@ -1,6 +1,4 @@
 import { Server } from "socket.io";
-import announcementModel from "../models/announcement.model";
-import enquiryModel from "../models/enquiry.model";
 import jwt from 'jsonwebtoken'
 
 export const connectedSockets = {};
