@@ -646,12 +646,12 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
 export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jobIds: string[] = req.body.jobIds;
+        const jobIds: string = req.body.jobId
 
-        const result = await enquiryModel.updateMany(
-            { _id: { $in: jobIds } },
-            { 'preSale.seenbyEmployee': true },
-            { new: true }
+
+        const result = await enquiryModel.updateOne(
+            { _id: jobIds },
+            { $set: { 'preSale.seenbyEmployee': true } }
         );
 
         if (result.modifiedCount === 0) {
@@ -666,12 +666,10 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
 
 export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const enqIds: string[] = req.body.enqIds;
-        const enqObjectIds = enqIds.map(id => new ObjectId(id));
-        const result = await enquiryModel.updateMany(
-            { _id: { $in: enqObjectIds } },
-            { 'preSale.feedback.seenByFeedbackProvider': true },
-            { new: true }
+        const enqIds: string = req.body.enqIds;
+        const result = await enquiryModel.updateOne(
+            { _id: new ObjectId(enqIds) },
+            { $set: { 'preSale.feedback.seenByFeedbackProvider': true } },
         );
 
         if (result.modifiedCount === 0) {

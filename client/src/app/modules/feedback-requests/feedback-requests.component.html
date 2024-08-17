@@ -9,15 +9,15 @@
     <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
     <div class="m-8  overflow-y-auto overflow-x-auto">
         <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
-            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
-
+            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">      
                 <ng-container matColumnDef="enqId">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Enquiry ID </th>
-                        <td mat-cell *matCellDef="let element" class="flex items-center gap-2" #feebackItem data-id="{{element._id}}">
-                        
-                        <p class="text-violet-500 font-medium">{{element.enquiryId}}</p>
+                    <td mat-cell *matCellDef="let element" class="flex items-center gap-2" #feebackItem
+                        data-id="{{element._id}}">
+                        <p [ngClass]="{'text-orange-500': !element.preSale.feedback.seenByFeedbackProvider, 'text-violet-500': element.preSale.feedback.seenByFeedbackProvider}"
+                            class=" font-medium">{{element.enquiryId}}</p>
                     </td>
                 </ng-container>
 
@@ -54,7 +54,7 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100 px-[20px] py-[16px] text-center text-dark  text-[15px] font-medium border-none before:hidden">
                         Comment </th>
-                    <td mat-cell *matCellDef="let element"  >
+                    <td mat-cell *matCellDef="let element">
                         <div class="flex justify-center items-center">
                             <button (click)="onViewComment(element.preSale.comment)"
                                 class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
@@ -123,7 +123,8 @@
                                 matTooltip="Give Feedback" matTooltipPosition="above"
                                 matTooltipClass="mat-tooltip"><ng-icon name="heroChatBubbleBottomCenterText"
                                     class="text-white"></ng-icon></button>
-                            <button *ngIf="element?.preSale?.feedback?.feedback" (click)="viewFeedback(element.preSale.feedback)"
+                            <button *ngIf="element?.preSale?.feedback?.feedback"
+                                (click)="viewFeedback(element.preSale.feedback)"
                                 class="w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center"
                                 matTooltip="View feedback" matTooltipPosition="above"
                                 matTooltipClass="mat-tooltip"><ng-icon name="heroEye"
