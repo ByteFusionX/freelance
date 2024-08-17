@@ -38,7 +38,7 @@
     </div>
   
     <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
-      <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': !item.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="item._id">
+      <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': !item.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="item._id">
         <div *ngIf="item.celeb" class="confetti-container">
           <app-confetti-component></app-confetti-component>
         </div>

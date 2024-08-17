@@ -4,7 +4,6 @@ import { datePastDirective } from './date-validator.directive';
 import { appFileValidator } from './file-validator.directive';
 import { dateFutureDirective } from './date-future.directive';
 import { appFileSizeValidator } from './file-size.directive';
-import { ResizableDirective } from '../components/resizable/resizable.directive';
 import { NegativeNumberDirective } from './negative-validator.directive';
 
 
