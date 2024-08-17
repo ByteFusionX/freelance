@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NgIconsModule } from '@ng-icons/core';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 @Component({
     selector: 'app-note-form',
@@ -11,7 +12,8 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
     imports: [
         CommonModule,
         NgIconsModule,
-        FormsModule
+        FormsModule,
+        directiveSharedModule
     ],
     templateUrl: './note-form.component.html',
     styleUrls: ['./note-form.component.css'],

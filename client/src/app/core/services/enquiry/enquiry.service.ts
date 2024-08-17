@@ -90,11 +90,11 @@ export class EnquiryService {
     return this.http.get<{ pending: number, completed: number }>(`${this.api}/enquiry/presales/count?access=${access}&userId=${userId}`)
   }
 
-  markJobAsViewed(jobIds: any): Observable<any> {
-    return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobIds })
+  markJobAsViewed(jobId: string): Observable<any> {
+    return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobId})
   }
 
-  markFeedbackAsViewed(enqIds: any): Observable<any> {
+  markFeedbackAsViewed(enqIds: string): Observable<any> {
     return this.http.post(`${this.api}/enquiry/markAsSeenFeeback`, { enqIds })
   }
 

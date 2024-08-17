@@ -11,6 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgIconComponent } from '@ng-icons/core';
 import { CommonModule } from '@angular/common';
+import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 
 @Component({
   selector: 'app-create-employee',
@@ -21,7 +22,8 @@ import { CommonModule } from '@angular/common';
     NgSelectModule,
     NgIconComponent,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    directiveSharedModule
   ]
 })
 export class CreateEmployeeDialog implements OnInit {
