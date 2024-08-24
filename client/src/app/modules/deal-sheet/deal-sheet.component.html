@@ -28,11 +28,8 @@
                         Deal Id </th>
                     <td mat-cell *matCellDef="let element">
                         <div class="flex items-center gap-2">
-                            <div class="-translate-x-2" *ngIf="!element.dealData.seenByApprover">
-                                <span
-                                    class="bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
-                            </div>
-                            <a class="text-purple-600 font-medium">{{element.dealData.dealId}}</a>
+                            <a [ngClass]="{'text-orange-500': !element.dealData.seenByApprover, 'text-violet-500': element.dealData.seenByApprover}"
+                                class="font-medium">{{element.dealData.dealId}}</a>
                         </div>
                     </td>
                 </ng-container>

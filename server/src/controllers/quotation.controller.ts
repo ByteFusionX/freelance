@@ -348,12 +348,11 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
 
 export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const quoteIds: string[] = req.body.quoteIds;
+        const quoteIds: string = req.body.quoteIds;
 
         const result = await Quotation.updateMany(
-            { _id: { $in: quoteIds } },
-            { 'dealData.seenByApprover': true },
-            { new: true }
+            { _id: quoteIds },
+            { $set: { 'dealData.seenByApprover': true } },
         );
 
         if (result.modifiedCount === 0) {
@@ -505,7 +504,7 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
                 paymentTerms,
                 additionalCosts: costs,
                 savedDate: createdDate,
-                status : 'pending'
+                status: 'pending'
             }
         }
 

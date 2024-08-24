@@ -126,8 +126,8 @@ export class FeedbackRequestsComponent {
   }
 
   markFeedbackAsViewed(enqId: string) {
-      this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('feedbackRequest',enqId.length)
+    this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
+    this._notificationService.decrementNotificationCount('feedbackRequest', 1)
   }
 
 

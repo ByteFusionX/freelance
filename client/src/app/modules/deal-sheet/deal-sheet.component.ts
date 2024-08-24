@@ -21,7 +21,6 @@ export class DealSheetComponent {
   isLoading: boolean = true;
   isEmpty: boolean = false;
   loader = this.loadingBar.useRef();
-  quoteIdArr: string[] = []
   private readonly destroy$ = new Subject<void>();
   private notViewedDealIds: Set<string> = new Set();
 
@@ -64,9 +63,6 @@ export class DealSheetComponent {
   }
 
   ngOnDestroy(): void {
-    if (this.quoteIdArr.length > 0) {
-      this.markQuoteAsViewed(this.quoteIdArr)
-    }
     this.destroy$.next();
     this.destroy$.complete();
     this.subscriptions.unsubscribe()
@@ -128,7 +124,7 @@ export class DealSheetComponent {
         if (entry.isIntersecting) {
           const quoteId = entry.target.getAttribute('id');
           if (quoteId && this.notViewedDealIds.has(quoteId)) {
-            this.quoteIdArr.push(quoteId)
+            this.markQuoteAsViewed(quoteId)
             this.notViewedDealIds.delete(quoteId);
           }
           observer.unobserve(entry.target);
@@ -141,11 +137,9 @@ export class DealSheetComponent {
     }
   }
 
-  markQuoteAsViewed(quoteIds: string[]) {
-    if (quoteIds.length > 0) {
-      this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('dealSheet', quoteIds.length)
-    }
+  markQuoteAsViewed(quoteIds: string) {
+    this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe();
+    this._notificationService.decrementNotificationCount('dealSheet', 1)
   }
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, index: number) {
@@ -202,14 +196,14 @@ export class DealSheetComponent {
     this.subject.next(event)
   }
 
-  onRejectDeal(quoteData: Quotatation,index:number) {
+  onRejectDeal(quoteData: Quotatation, index: number) {
     const rejectModal = this._dialog.open(RejectDealComponent, {
       width: '500px'
     })
     rejectModal.afterClosed().subscribe((comment) => {
       if (comment) {
         this._quoteService.rejectDeal(comment, quoteData._id).subscribe((res) => {
-          if(res){
+          if (res) {
             this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()
           }
