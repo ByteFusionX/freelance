@@ -118,7 +118,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
         if (entry.isIntersecting) {
           const jobId = entry.target.getAttribute('id');
           if (jobId && this.notViewedJobIds.has(jobId)) {
-            this.jobIdArr.push(jobId)
+            console.log(jobId)
+            this.markJobAsViewed(jobId)
             this.notViewedJobIds.delete(jobId);
           }
           observer.unobserve(entry.target);
@@ -131,19 +132,13 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
-  markJobAsViewed(jobId: string[]) {
-    if (jobId.length > 0) {
-      this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('assignedJob', jobId.length)
-    }
+  markJobAsViewed(jobId: string) {
+    this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
+    this._notificationService.decrementNotificationCount('assignedJob', jobId.length)
   }
 
 
   ngOnDestroy(): void {
-    if (this.jobIdArr.length > 0) {
-
-      this.markJobAsViewed(this.jobIdArr)
-    }
     this.destroy$.next();
     this.destroy$.complete();
     this.subscriptions.unsubscribe();

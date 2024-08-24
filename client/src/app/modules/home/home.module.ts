@@ -7,7 +7,6 @@ import { EmployeesComponent } from './pages/employees/employees.component';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
-import { CreateEmployeeDialog } from './pages/employees/create-employee/create-employee.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';

@@ -112,7 +112,7 @@ export class FeedbackRequestsComponent {
         if (entry.isIntersecting) {
           const enqId = entry.target.getAttribute('id');
           if (enqId && this.notViewedfeedbackIds.has(enqId)) {
-            this.feedbackIdArr.push(enqId)
+            this.markFeedbackAsViewed(enqId)
             this.notViewedfeedbackIds.delete(enqId);
           }
           observer.unobserve(entry.target);
@@ -125,11 +125,9 @@ export class FeedbackRequestsComponent {
     }
   }
 
-  markFeedbackAsViewed(enqId: string[]) {
-    if (enqId.length > 0) {
+  markFeedbackAsViewed(enqId: string) {
       this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('feedbackRequest', enqId.length)
-    }
+      this._notificationService.decrementNotificationCount('feedbackRequest',enqId.length)
   }
 
 
@@ -204,10 +202,6 @@ export class FeedbackRequestsComponent {
   }
 
   ngOnDestroy(): void {
-    if (this.feedbackIdArr.length > 0) {
-
-      this.markFeedbackAsViewed(this.feedbackIdArr)
-    }
     this.destroy$.next();
     this.destroy$.complete();
     this.subscriptions.unsubscribe();
