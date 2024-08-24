@@ -41,7 +41,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   isSaving: boolean = false;
   isQuoting: boolean = false;
-  assignedPresale:boolean = false;
+  assignedPresale: boolean = false;
 
   today = new Date().toISOString().substring(0, 10)
   enquiryForm = this._fb.group({
@@ -85,6 +85,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onChange(change: string) {
+    this.enquiryForm.controls.contact.patchValue(undefined)
     this.contacts = []
     this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {

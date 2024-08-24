@@ -14,7 +14,8 @@ import {
     giveRevision,
     presalesCount,
     markAsSeenJob,
-    markAsSeenFeeback
+    markAsSeenFeeback,
+    markFeedbackResponseAsViewed
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
@@ -31,6 +32,7 @@ equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/assign-files', upload.array('assignFiles', 5), uploadAssignFiles)
 equiRouter.post('/markAsSeenedJob', markAsSeenJob);
 equiRouter.post('/markAsSeenFeeback', markAsSeenFeeback);
+equiRouter.patch('/markAsSeenFeebackResponse', markFeedbackResponseAsViewed);
 equiRouter.get('/presales/count', presalesCount)
 
 

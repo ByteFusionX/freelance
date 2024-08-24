@@ -23,8 +23,25 @@
                     <th scope="col" class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
                         <div >DEAL ID</div>
                     </th>
-                    <td class=" px-4 border text-gray-800">
-                        {{ data.quoteData.dealData.dealId }}
+                    <td class=" px-4 border text-gray-800 ">
+                        <div class="flex gap-2 items-center">
+
+                            <p>{{ data.quoteData.dealData.dealId }}</p>
+                            <div *ngIf="data.quoteView" [ngSwitch]="data.quoteData.dealData.status" class="flex items-center space-x-2">
+                                <div *ngSwitchCase="'pending'" class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg px-4  text-sm">
+                                  Pending
+                                </div>
+                                <div *ngSwitchCase="'approved'" class="bg-green-100 text-green-800 border border-green-300 rounded-lg px-4  text-sm">
+                                  Approved
+                                </div>
+                                <div *ngSwitchCase="'rejected'" class="bg-red-100 text-red-800 border border-red-300 rounded-lg px-4  text-sm">
+                                  Rejected
+                                </div>
+                                <div *ngSwitchDefault class="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg px-4  text-sm">
+                                  Unknown Status
+                                </div>
+                              </div>
+                        </div>
                     </td>
                 </tr>
                 <tr>
@@ -196,6 +213,17 @@
             <button class="border text-white font-medium py-2 px-4 rounded text-sm bg-green-600" (click)="onApprove()">
             <ng-icon *ngIf="isApproving" class="spin" name="heroArrowPath"></ng-icon>
                 Approve
+            </button>
+        </div>
+    </div>
+    
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-end gap-2"  *ngIf="data.quoteView && data.quoteData.dealData.status == 'rejected'">
+        <div class="flex gap-2 ">
+            <button class="border text-black font-medium py-2 px-4 rounded text-sm" (click)="onClose()">
+                Close
+            </button>
+            <button class="border text-white font-medium py-2 px-4 rounded text-sm bg-purple-600 hover:bg-purple-700" (click)="onUpdate()">
+                Edit Deal (Rejected)
             </button>
         </div>
     </div>

@@ -9,12 +9,12 @@ import { priceDetails, Quotatation, QuoteItem } from 'src/app/shared/interfaces/
   styleUrls: ['./approve-deal.component.css']
 })
 export class ApproveDealComponent {
-  isApproving:boolean = false;
+  isApproving: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<ApproveDealComponent>,
     private _dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems:(QuoteItem | undefined)[], priceDetails:priceDetails }
+    @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean }
   ) {
   }
 
@@ -22,7 +22,11 @@ export class ApproveDealComponent {
     this.dialogRef.close()
   }
 
-  onApprove(){
+  onUpdate() {
+
+  }
+
+  onApprove() {
     const dialogRef = this._dialog.open(ConfirmationDialogComponent,
       {
         data: {
@@ -37,7 +41,8 @@ export class ApproveDealComponent {
       if (approved) {
         this.isApproving = true;
         this.dialogRef.close(true)
-      }})
+      }
+    })
   }
 
 }

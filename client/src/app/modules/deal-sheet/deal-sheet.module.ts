@@ -10,6 +10,8 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApproveDealComponent } from './approve-deal/approve-deal.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
+import { RejectDealComponent } from './reject-deal/reject-deal.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -17,6 +19,7 @@ import { pipeModule } from "../../shared/pipes/pipe.module";
   declarations: [
     DealSheetComponent,
     ApproveDealComponent,
+    RejectDealComponent,
   ],
   imports: [
     CommonModule,
@@ -27,7 +30,8 @@ import { pipeModule } from "../../shared/pipes/pipe.module";
     PaginationComponent,
     IconsModule,
     MatTooltipModule,
-    pipeModule
+    pipeModule,
+    ReactiveFormsModule
 ]
 })
 export class DealSheetModule { }

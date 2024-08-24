@@ -26,6 +26,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   @ViewChild('fileInput') fileInput!: ElementRef;
   displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'upload', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
+  viewAssignedFor: boolean = false;
   isLoading: boolean = true;
   isEmpty: boolean = false;
   subscriptions = new Subscription();
@@ -51,6 +52,12 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   ) { }
 
   ngOnInit(): void {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
+    })
+    if(this.viewAssignedFor){
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy','assignedFor', 'department', 'comment', 'download', 'upload', 'send'];
+    }
     this.subject.subscribe((data) => {
       this.page = data.page;
       this.row = data.row;
@@ -127,7 +134,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   markJobAsViewed(jobId: string[]) {
     if (jobId.length > 0) {
       this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('assignedJob',jobId.length)
+      this._notificationService.decrementNotificationCount('assignedJob', jobId.length)
     }
   }
 
@@ -185,12 +192,13 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
 
   onFeedback(enquiryId: string, index: number) {
     if (this.dataSource.data[index].assignedFiles.length) {
-      const dialogRef = this._dialog.open(SelectEmployeeComponent);
+      const dialogRef = this._dialog.open(SelectEmployeeComponent, { width: '400px' });
 
-      dialogRef.afterClosed().subscribe((employeeId: string) => {
-        if (employeeId) {
+      dialogRef.afterClosed().subscribe((data: { employeeId: string, comment: string }) => {
+        if (data.employeeId) {
           const feedbackBody = {
-            employeeId,
+            employeeId: data.employeeId,
+            comment: data.comment,
             enquiryId
           }
           this._enquiryService.sendFeedbackRequest(feedbackBody).subscribe((data: any) => {
@@ -199,7 +207,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
               data.department = [data.department]
               data.salesPerson = [data.salesPerson]
               this.dataSource.data[index] = data
-              this.dataSource.data = [...this.dataSource.data]
+              this.dataSource.data = [...this.dataSource.data];
               this.dataSource._updateChangeSubscription();
             }
           })
@@ -210,10 +218,18 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
-  viewFeedback(feedback: feedback) {
+  viewFeedback(feedback: feedback, enqId: string, index: number) {
     this._dialog.open(ViewFeedbackComponent, {
-      data: feedback
-    });
+      data: { feedback, enqId },
+      width: '400px'
+    }).afterClosed().subscribe(() => {
+      const feedbackRes = this.dataSource.data[index].preSale.feedback;
+
+      if (feedbackRes && feedback.feedback) {
+        feedbackRes.seenByFeedbackRequester = true;
+        this.dataSource._updateChangeSubscription()
+      }
+    })
   }
 
   onViewComment(comment: string, revisionComment: string[]) {

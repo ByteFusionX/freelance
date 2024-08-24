@@ -103,7 +103,7 @@ export class FeedbackRequestsComponent {
   observeAllFeedbacks() {
     setTimeout(() => {
       this.feebackItems.forEach(item => this.observeFeedback(item));
-    }, 100); 
+    }, 100);
   }
 
   observeFeedback(element: ElementRef) {
@@ -128,15 +128,15 @@ export class FeedbackRequestsComponent {
   markFeedbackAsViewed(enqId: string[]) {
     if (enqId.length > 0) {
       this._enquiryService.markFeedbackAsViewed(enqId).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('feedbackRequest',enqId.length)
+      this._notificationService.decrementNotificationCount('feedbackRequest', enqId.length)
     }
   }
 
 
-  onViewComment(comment: string) {
-    let dialog = this._dialog.open(ViewCommentComponent, {
+  onViewComment(comment: string, revisionComment: string[], feedbackComment: string) {
+    this._dialog.open(ViewCommentComponent, {
       width: '500px',
-      data: comment
+      data: { comment, revisionComment, feedbackComment }
     })
   }
 
@@ -181,7 +181,8 @@ export class FeedbackRequestsComponent {
         const feedbackBody = { enquiryId, feedback }
         this._enquiryService.giveFeedback(feedbackBody).subscribe((res: any) => {
           if (res.success) {
-            this.getFeedbackRequests()
+            this.dataSource.data.splice(index, 1);
+            this.dataSource._updateChangeSubscription();
             if (this.dataSource.data.length == 0) {
               this.isEmpty = true;
             }

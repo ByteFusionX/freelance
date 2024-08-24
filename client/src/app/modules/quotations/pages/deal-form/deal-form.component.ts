@@ -10,7 +10,8 @@ import { Quotatation, QuoteItemDetail } from 'src/app/shared/interfaces/quotatio
 })
 export class DealFormComponent {
   isSaving: boolean = false;
-  isSubmitted:boolean = false;
+  isSubmitted: boolean = false;
+  isAllSelected: boolean = false;
   costForm!: FormGroup;
 
   constructor(
@@ -45,13 +46,13 @@ export class DealFormComponent {
 
   createItemDetailGroup(detail: QuoteItemDetail): FormGroup {
     return this.fb.group({
-      dealSelected:[false],
+      dealSelected: [false],
       detail: [detail.detail],
       quantity: [detail.quantity],
       unitCost: [detail.unitCost],
       profit: [detail.profit],
       availability: [detail.availability],
-      supplierName: ['',this.supplierNameValidator()]
+      supplierName: ['', this.supplierNameValidator()]
     });
   }
 
@@ -65,13 +66,32 @@ export class DealFormComponent {
 
   addCost(): void {
     this.costs.push(this.fb.group({
-      name: ['',Validators.required],
-      value: ['',Validators.required]
+      name: ['', Validators.required],
+      value: ['', Validators.required]
     }));
   }
 
   removeCost(index: number): void {
     this.costs.removeAt(index);
+  }
+
+  toggleAllSelection(event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.isAllSelected = isChecked;
+    this.items.controls.forEach(item => {
+      const itemDetails = this.getItemDetailsArray(item);
+      itemDetails.forEach(detail => {
+        detail.get('dealSelected')?.setValue(isChecked);
+      });
+    });
+  }
+
+  onItemCheckboxChange() {
+    const allSelected = this.items.controls.every(item => {
+      return this.getItemDetailsArray(item).every(detail => detail.get('dealSelected')?.value === true);
+    });
+
+    this.isAllSelected = allSelected;
   }
 
   onSubmit() {
@@ -94,15 +114,15 @@ export class DealFormComponent {
     }
   }
 
-  
+
   additionalCostsValidator(): ValidatorFn {
-    return (control: AbstractControl): {[key: string]: any} | null => {
+    return (control: AbstractControl): { [key: string]: any } | null => {
       const costs = control as FormArray;
-  
+
       if (costs.length === 0) {
         return null;
       }
-  
+
       for (const cost of costs.controls) {
         if (!cost?.get('name')?.value || !cost?.get('value')?.value) {
           return { 'additionalCostInvalid': true };

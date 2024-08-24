@@ -14,6 +14,9 @@ export class SelectEmployeeComponent {
 
   employees$!: Observable<getEmployee[]>
   selectedEmployee!:string;
+  comment!:string;
+  showError:boolean = false;
+
 
   constructor(
     private dialogRef: MatDialogRef<SelectEmployeeComponent>,
@@ -25,13 +28,23 @@ export class SelectEmployeeComponent {
     this.employees$ = this._employeeService.getAllEmployees()
   }
 
+  validateComment() {
+    if (!this.comment) {
+      this.showError = true;
+    } else {
+      this.showError = false;
+    }
+  }
+
   onClose() {
     this.dialogRef.close()
   }
 
   onSubmit(){
-    if(this.selectedEmployee){
-      this.dialogRef.close(this.selectedEmployee)
+    if(this.selectedEmployee && this.comment){
+      this.dialogRef.close({employeeId:this.selectedEmployee,comment:this.comment})
+    }else if(this.selectedEmployee){
+      this.showError = true
     }
   }
 

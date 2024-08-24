@@ -169,7 +169,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         const enquiryData = await enquiryModel.aggregate([
             { $match: filters },
             { $match: { status: { $ne: 'Quoted' } } },
-            { $sort: { createdDate: -1 } },
+            { $sort: { _id: -1 } },
             { $skip: skipNum },
             { $limit: row },
             {
@@ -272,6 +272,9 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
+            },
+            {
+                $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
             },
             {
                 $unwind: {
@@ -378,11 +381,11 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
 
 export const sendFeedbackRequest = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const { employeeId, enquiryId } = req.body;
+        const { employeeId, enquiryId, comment } = req.body;
 
         const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider": false } },
+            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.comment": comment, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider": false } },
             { new: true }
         ).populate('client')
             .populate('department')
@@ -417,7 +420,8 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId)
+                    "preSale.feedback.employeeId": new ObjectId(employeeId),
+                    "preSale.feedback.feedback": { $exists: false }
                 }
             },
             {
@@ -430,7 +434,8 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
             { $unwind: "$preSale.feedback" },
             {
                 $match: {
-                    "preSale.feedback.employeeId": new ObjectId(employeeId)
+                    "preSale.feedback.employeeId": new ObjectId(employeeId),
+                    "preSale.feedback.feedback": { $exists: false }
                 }
             },
             {
@@ -472,12 +477,15 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
 export const giveFeedback = async (req: any, res: Response, next: NextFunction) => {
     try {
         let { enquiryId, feedback } = req.body;
-        const result = await enquiryModel.updateOne(
+        const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.feedback": feedback } }
+            { $set: { "preSale.feedback.feedback": feedback,'preSale.feedback.seenByFeedbackRequester':false } }
         );
 
-        if (result.modifiedCount) {
+        if (result) {
+            const socket = req.app.get('io') as Server;
+            const presalePerson = result.preSale.presalePerson.toString();
+            socket.to(presalePerson).emit("notifications", 'assignedJob')
             return res.status(200).json({ success: true })
         }
 
@@ -671,6 +679,26 @@ export const markAsSeenFeeback = async (req: Request, res: Response, next: NextF
         const result = await enquiryModel.updateMany(
             { _id: { $in: enqObjectIds } },
             { 'preSale.feedback.seenByFeedbackProvider': true },
+            { new: true }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const markFeedbackResponseAsViewed = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enqId: string = req.body.enqId;
+
+        const result = await enquiryModel.updateMany(
+            { _id: enqId },
+            { 'preSale.feedback.seenByFeedbackRequester': true },
             { new: true }
         );
 

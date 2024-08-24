@@ -125,7 +125,7 @@
                                 </div>
                                 <div>
                                     <div *ngIf="presales$ | async as Presalse">
-                                        <p class="text-gray-800 uppercase font-medium">Pending Job: <span class="text-red-700">{{Presalse.pending}}</span></p>
+                                        <p [routerLink]="['/assigned-jobs']" class="text-gray-800 uppercase font-medium hover:underline hover:text-purple-600 cursor-pointer">Pending Job: <span class="text-red-700  hover:no-underline hover:text-red-700 ">{{Presalse.pending}}</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@
                                 </div>
                                 <div>
                                     <div *ngIf="presales$ | async as Presalse">
-                                        <p class="text-gray-800 uppercase font-medium">Completed Job: <span class="text-green-700">{{Presalse.completed}}</span></p>
+                                        <p [routerLink]="['/assigned-jobs/completed']"  class="text-gray-800 uppercase font-medium hover:underline hover:text-purple-600 cursor-pointer">Completed Job: <span class="text-green-700 hover:no-underline hover:text-green-700 ">{{Presalse.completed}}</span></p>
                                     </div>
                                 </div>
                             </div>

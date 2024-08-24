@@ -21,6 +21,9 @@ const feedbackSchema = new Schema({
     employeeId: {
         type: Types.ObjectId
     },
+    comment:{
+        type: String
+    },
     feedback: {
         type: String
     },
@@ -30,7 +33,11 @@ const feedbackSchema = new Schema({
     seenByFeedbackProvider: {
         type: Boolean,
         default:false
-    }
+    },
+    seenByFeedbackRequester: {
+        type: Boolean,
+        default:false
+    },
 })
 
 const preSaleSchema = new Schema({

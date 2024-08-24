@@ -70,7 +70,7 @@ export class EnquiryService {
     return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
   }
 
-  sendFeedbackRequest(feedbackBody: { enquiryId: string, employeeId: string }) {
+  sendFeedbackRequest(feedbackBody: { enquiryId: string, employeeId: string,comment:string }) {
     return this.http.patch(`${this.api}/enquiry/feedback-request`, feedbackBody)
   }
 
@@ -92,6 +92,10 @@ export class EnquiryService {
 
   markJobAsViewed(jobIds: any): Observable<any> {
     return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobIds })
+  }
+
+  markFeedbackResponseAsViewed(enqId: any): Observable<any> {
+    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`,{enqId})
   }
 
   markFeedbackAsViewed(enqIds: any): Observable<any> {

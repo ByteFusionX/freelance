@@ -31,7 +31,7 @@ export const isEmployeePresent = async (req: Request, res: Response, next: NextF
         if (employeeCount > 0) {
             return res.status(200).json({ exists: true });
         }
-        
+
         return res.status(200).json({ exists: false });
     } catch (error) {
         next(error);
@@ -91,7 +91,7 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                     $unwind: "$category"
                 },
                 {
-                    $project: { password: 0 } 
+                    $project: { password: 0 }
                 }
             ])
 
@@ -168,65 +168,65 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             })
 
-            const employeeData = await Employee.aggregate([
-                {
-                    $match: filters,
-                },
-                {
-                    $sort: { employeeId: 1 }
-                },
-                {
-                    $skip: skipNum
-                },
-                {
-                    $limit: row
-                },
-                {
-                    $lookup: {
-                        from: 'departments',
-                        localField: 'department',
-                        foreignField: '_id',
-                        as: 'department'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: 'category',
-                        foreignField: '_id',
-                        as: 'category'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'employees',
-                        localField: 'reportingTo',
-                        foreignField: '_id',
-                        as: 'reportingTo'
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$department",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$category",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$reportingTo",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: { password: 0 } 
+        const employeeData = await Employee.aggregate([
+            {
+                $match: filters,
+            },
+            {
+                $sort: { employeeId: 1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department'
                 }
-            ]);            
+            },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'reportingTo',
+                    foreignField: '_id',
+                    as: 'reportingTo'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: "$category",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $unwind: {
+                    path: "$reportingTo",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: { password: 0 }
+            }
+        ]);
 
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
@@ -381,8 +381,18 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: new ObjectId(userId) } });
         const assignedJobCount = await enquiryModel.countDocuments({
             'preSale.presalePerson': new ObjectId(userId),
-            'preSale.seenbyEmployee': false,
+            $or: [
+                { 'preSale.seenbyEmployee': false },
+                {
+                    $and: [
+                        { 'preSale.feedback.seenByFeedbackRequester': false, },
+                        { 'preSale.feedback.feedback': { $exists: true } }
+                    ]
+                }
+            ]
+
         });
+
         const dealSheetCount = await quotationModel.countDocuments({
             dealApproved: false,
             "dealData.seenByApprover": false,
@@ -390,6 +400,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,
+            'preSale.feedback.feedback': { $exists: false }
         });
         const employeeCount = {
             announcementCount,

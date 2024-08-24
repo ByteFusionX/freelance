@@ -26,6 +26,8 @@ interface Deal {
     additionalCosts: AdditionalCost[];
     savedDate: Date;
     seenByApprover:boolean;
+    status:string;
+    comments:string[];
 }
 
 interface Quotation extends Document {
@@ -44,7 +46,6 @@ interface Quotation extends Document {
     createdBy: Types.ObjectId;
     lpoFiles: [];
     lpoValue: number;
-    dealApproved: boolean;
     dealData: Deal;
     enqId: Types.ObjectId;
 }
@@ -133,8 +134,15 @@ const dealDatas = new Schema<Deal>({
     seenByApprover:{
         type:Boolean,
         default:false
-    }
-    
+    },
+    status:{
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    },
+    comments: {
+        type:[String],
+    },
 });
 
 const quotationSchema = new Schema<Quotation>({
@@ -198,10 +206,6 @@ const quotationSchema = new Schema<Quotation>({
     lpoFiles: [],
     lpoValue: {
         type: Number
-    },
-    dealApproved: {
-        type: Boolean,
-        default: false
     },
     dealData: {
         type: dealDatas

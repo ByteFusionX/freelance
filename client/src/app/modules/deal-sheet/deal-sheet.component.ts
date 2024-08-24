@@ -9,6 +9,7 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 import { getDealSheet, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { ApproveDealComponent } from './approve-deal/approve-deal.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { RejectDealComponent } from './reject-deal/reject-deal.component';
 
 @Component({
   selector: 'app-deal-sheet',
@@ -109,7 +110,7 @@ export class DealSheetComponent {
   updateNotViewedQuoteIds() {
     this.notViewedDealIds.clear();
     this.dataSource.data.forEach(quote => {
-      if (!quote.dealData.seenByApprover && quote._id) {
+      if (!quote.dealData?.seenByApprover && quote._id) {
         this.notViewedDealIds.add(quote._id);
       }
     });
@@ -143,7 +144,7 @@ export class DealSheetComponent {
   markQuoteAsViewed(quoteIds: string[]) {
     if (quoteIds.length > 0) {
       this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe();
-      this._notificationService.decrementNotificationCount('dealSheet',quoteIds.length)
+      this._notificationService.decrementNotificationCount('dealSheet', quoteIds.length)
     }
   }
 
@@ -200,5 +201,21 @@ export class DealSheetComponent {
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
   }
-  
+
+  onRejectDeal(quoteData: Quotatation,index:number) {
+    const rejectModal = this._dialog.open(RejectDealComponent, {
+      width: '500px'
+    })
+    rejectModal.afterClosed().subscribe((comment) => {
+      if (comment) {
+        this._quoteService.rejectDeal(comment, quoteData._id).subscribe((res) => {
+          if(res){
+            this.dataSource.data.splice(index, 1)
+            this.dataSource._updateChangeSubscription()
+          }
+        })
+      }
+    })
+  }
+
 }

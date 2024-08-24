@@ -84,7 +84,8 @@ export interface Files {
 export interface feedback {
     employeeId:getEmployee,
     feedback:string
-    seenByFeedbackProvider:boolean
+    seenByFeedbackProvider:boolean,
+    seenByFeedbackRequester:boolean
 }
 
 export interface Presale {

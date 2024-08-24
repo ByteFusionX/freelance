@@ -19,6 +19,7 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 import { DealFormComponent } from '../deal-form/deal-form.component';
 import { ViewLpoComponent } from '../view-lpo/view-lpo.component';
 import { ViewReportComponent } from '../view-report/view-report.component';
+import { ApproveDealComponent } from 'src/app/modules/deal-sheet/approve-deal/approve-deal.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -208,6 +209,45 @@ export class QuotationListComponent {
       }
     })
   }
+
+  
+  onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event) {
+    event.stopPropagation()
+    let priceDetails = {
+      totalSellingPrice: 0,
+      totalCost: 0,
+      profit: 0,
+      perc: 0
+    }
+
+    const quoteItems = quoteData.items.map((item) => {
+      let itemSelected = 0;
+
+      item.itemDetails.map((itemDetail) => {
+        if (itemDetail.dealSelected) {
+          itemSelected++;
+          priceDetails.totalSellingPrice += itemDetail.unitCost / (1 - (itemDetail.profit / 100)) * itemDetail.quantity;
+          priceDetails.totalCost += itemDetail.quantity * itemDetail.unitCost;
+          return itemDetail
+        }
+        return;
+      })
+
+      if (itemSelected) return item;
+
+      return;
+    });
+
+    priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
+    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
+
+    const dialogRef = this._dialog.open(ApproveDealComponent,
+      {
+        data: { approval, quoteData, quoteItems, priceDetails, quoteView:true },
+        width: '900px'
+      });
+
+    }
 
   onfilterApplied() {
     this.isFiltered = true;

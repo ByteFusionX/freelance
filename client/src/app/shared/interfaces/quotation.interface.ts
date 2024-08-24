@@ -119,6 +119,7 @@ export interface dealData {
     additionalCosts: { name: string, value: number }[];
     savedDate: string;
     seenByApprover:boolean;
+    status:string;
 }
 
 

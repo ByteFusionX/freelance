@@ -91,7 +91,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.getChartDetails()
         }
       }
-    }).unsubscribe()
+    })
 
 
     this.dateCategories()

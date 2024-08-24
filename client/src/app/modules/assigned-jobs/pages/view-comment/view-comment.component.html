@@ -17,6 +17,10 @@
                     <p class="text-gray-700">Revision {{i+1}}: {{comment}}</p>
                 </div>
             </div>
+            <div class="p-4 bg-gray-100 rounded" *ngIf="data.feedbackComment">
+                <h3 class="text-md font-semibold">Feedback Request</h3>
+                <p class="text-gray-700">{{data.feedbackComment}}</p>
+            </div>
         </div>
     </div>
 </div>

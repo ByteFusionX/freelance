@@ -197,7 +197,8 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         let { page, row, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = { dealData: { $exists: true }, dealApproved: false }
+        let matchFilters = { dealData: { $exists: true }, 'dealData.status': { $ne: 'rejected' } }
+
         let accessFilter = {};
 
         let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
@@ -503,7 +504,8 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
                 dealId: dealId,
                 paymentTerms,
                 additionalCosts: costs,
-                savedDate: createdDate
+                savedDate: createdDate,
+                status : 'pending'
             }
         }
 
@@ -521,6 +523,7 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
         next(error)
     }
 }
+
 export const approveDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const jobId = await generateJobId()
@@ -539,6 +542,25 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         }
 
         return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const rejectDeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { quoteId, comment } = req.body;
+        const deal = await Quotation.findById(quoteId);
+        if (!deal) {
+            return res.status(502).json({ message: 'Deal not found' });
+        }
+        deal.dealData.status = 'rejected';
+        deal.dealData.comments.push(comment);
+        await deal.save();
+
+        return res.status(200).json({ success: true })
+
     } catch (error) {
         next(error)
     }
@@ -743,8 +765,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
             }
             return acc
         }, {
-            totalUSDJobAwarded : 0,
-            totalQARJobAwarded : 0
+            totalUSDJobAwarded: 0,
+            totalQARJobAwarded: 0
         })
 
         const pieChartData = Object.keys(totalValues.statusCounts).map(status => ({
@@ -759,10 +781,10 @@ export const getReportDetails = async (req: Request, res: Response) => {
         const totalWonValue = totalValues.totalQARValue + (totalValues.totalUSDWonValue * qatarUsdRates);
         const totalLossValue = totalValues.totalQARLossValue + (totalValues.totalUSDLossValue * qatarUsdRates);
         const totalJobAwarded = totalJobAwardedUQ.totalQARJobAwarded + (totalJobAwardedUQ.totalUSDJobAwarded * qatarUsdRates);
-        
+
         if (totalValues && pieChartData) {
             return res.status(200).json({
-                totalValue : tatalValue,
+                totalValue: tatalValue,
                 totalWonValue: totalWonValue,
                 totalLossValue: totalLossValue,
                 totalJobAwarded: totalJobAwarded,
