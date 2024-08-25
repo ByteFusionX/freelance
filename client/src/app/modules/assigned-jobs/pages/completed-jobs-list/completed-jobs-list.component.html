@@ -85,25 +85,16 @@
                 <ng-container matColumnDef="presaleFiles">
                     <th *matHeaderCellDef
                         class="bg-gray-100 px-[20px] py-[16px] text-start text-dark text-[15px] font-medium border-none before:hidden">
-                        Presale Files </th>
+                        Estimations </th>
                     <td mat-cell *matCellDef="let element; let i = index">
-                        <div class="flex justify-center">
+                        <div class="flex justify-center items-center">
                             <button
                                 class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
-                                [matMenuTriggerFor]="menu" *ngIf="element.assignedFiles.length" matTooltip="View Files"
-                                matTooltipPosition="above" matTooltipClass="mat-tooltip">
+                                *ngIf="element.preSale.items" matTooltip="View Estimations" matTooltipPosition="above"
+                                matTooltipClass="mat-tooltip"
+                                (click)="onViewEstimation(element.preSale.items,element._id)">
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </button>
-                            <mat-menu #menu="matMenu">
-                                <div (click)="handleNotClose($event)" *ngFor="let file of element.assignedFiles">
-                                    <p class="text-sm p-2 w-64 flex justify-between items-center"><span
-                                            (click)="onDownloadClicks(file)"
-                                            class="hover:underline hover:text-purple-600 hover:cursor-pointer max-w-[13rem] truncate"
-                                            [matTooltip]="'Download File'" matTooltipPosition="below"
-                                            matTooltipClass="mat-tooltip">{{file.originalname}}</span></p>
-                                    <mat-divider></mat-divider>
-                                </div>
-                            </mat-menu>
                         </div>
                     </td>
                 </ng-container>

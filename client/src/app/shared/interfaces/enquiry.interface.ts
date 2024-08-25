@@ -1,6 +1,7 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 import { getEmployee } from "./employee.interface";
+import { QuoteItem } from "./quotation.interface";
 
 export interface Enquiry {
     enquiryId: string;
@@ -28,11 +29,11 @@ export interface getEnquiry {
     preSale: {
         presalePerson: string;
         presaleFiles: Files[] | null;
+        items?: QuoteItem[];
         comment: string;
         feedback?: feedback;
         seenbyEmployee?: boolean;
     };
-    assignedFiles: Files[];
     status: string;
 }
 

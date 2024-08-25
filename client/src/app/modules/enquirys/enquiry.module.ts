@@ -22,6 +22,7 @@ import { UploadFileComponent } from 'src/app/shared/components/upload-file/uploa
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { MatDividerModule } from '@angular/material/divider';
+import { pipeModule } from "../../shared/pipes/pipe.module";
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { MatDividerModule } from '@angular/material/divider';
     UploadFileComponent,
     PaginationComponent,
     MatDividerModule,
-  ],
+    pipeModule
+],
   providers: []
 })
 export class EnquiryModule { }

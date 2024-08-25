@@ -108,7 +108,7 @@ export class CreateQuotatationComponent {
     this.enquiryData$ = this._enquiryService.enquiryData$;
     this.subscriptions.add(
       this.enquiryData$.subscribe((data) => {
-        this.quoteForm.patchValue({ client: data?.client._id, department: data?.department._id, enqId: data?._id })
+        this.quoteForm.patchValue({ client: data?.client._id, department: data?.department._id, enqId: data?._id, items:data?.preSale.items })
         this.onChange(data?.client._id as string);
         this.quoteForm.patchValue({ attention: data?.contact._id })
       })
@@ -197,6 +197,7 @@ export class CreateQuotatationComponent {
   }
 
   onChange(change: string) {
+    this.quoteForm.controls['attention'].patchValue(undefined)
     this.contacts = []
     this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {

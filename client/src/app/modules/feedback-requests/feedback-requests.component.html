@@ -9,7 +9,7 @@
     <app-skelton-loading *ngIf="isLoading && !isEmpty" [lineLength]="4"></app-skelton-loading>
     <div class="m-8  overflow-y-auto overflow-x-auto">
         <section class="mat-elevation-z8 h-fit max-h-[64vh] overflow-auto" tabindex="0">
-            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">      
+            <table mat-table *ngIf="!isLoading || isEmpty" [dataSource]="dataSource" class="rounded-lg table-fixed">
                 <ng-container matColumnDef="enqId">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
@@ -56,7 +56,8 @@
                         Comment </th>
                     <td mat-cell *matCellDef="let element">
                         <div class="flex justify-center items-center">
-                            <button (click)="onViewComment(element.preSale.comment,element.preSale.revisionComment,element.preSale.feedback.comment)"
+                            <button
+                                (click)="onViewComment(element.preSale.comment,element.preSale.revisionComment,element.preSale.feedback.comment)"
                                 class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
                                 matTooltip="View Comment" matTooltipPosition="above" matTooltipClass="mat-tooltip">
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
@@ -94,18 +95,17 @@
                 <ng-container matColumnDef="presaleFile">
                     <th *matHeaderCellDef
                         class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                        Presale Files
+                        Estimations
                     </th>
                     <td mat-cell *matCellDef="let element">
-                        <div class="flex flex-col gap-2" *ngIf="element.assignedFiles.length">
-                            <div class="flex" *ngFor="let file of element.assignedFiles; let i=index">
-                                <p class="w-20 truncate ..." matTooltip="{{file.originalname}}"
-                                    matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
-                                <button class="w-5 h-5 border rounded-full flex justify-center items-center"
-                                    (click)="onDownloadClicks(file)">
-                                    <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
-                                </button>
-                            </div>
+                        <div class="flex justify-center items-center">
+                            <button
+                                class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
+                                *ngIf="element.preSale.items" matTooltip="View Estimations" matTooltipPosition="above"
+                                matTooltipClass="mat-tooltip"
+                                (click)="onViewEstimation(element.preSale.items,element._id)">
+                                <ng-icon name="heroEye" class="text-black"></ng-icon>
+                            </button>
                         </div>
                     </td>
                 </ng-container>

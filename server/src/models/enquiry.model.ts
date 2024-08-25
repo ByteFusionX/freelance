@@ -11,17 +11,30 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, presaleFiles: [], comment: string, revisionComment: string[] };
+    preSale: { presalePerson: Types.ObjectId, items: ItemDetail[], comment: string, revisionComment: string[] };
     assignedFiles: []
     status: string;
     attachments: []
+}
+
+interface ItemDetail {
+    detail: string;
+    quantity: number;
+    unitCost: number;
+    profit: number;
+    availability: string;
+}
+
+interface QuoteItem {
+    itemName: string;
+    itemDetails: ItemDetail[]
 }
 
 const feedbackSchema = new Schema({
     employeeId: {
         type: Types.ObjectId
     },
-    comment:{
+    comment: {
         type: String
     },
     feedback: {
@@ -32,11 +45,11 @@ const feedbackSchema = new Schema({
     },
     seenByFeedbackProvider: {
         type: Boolean,
-        default:false
+        default: false
     },
     seenByFeedbackRequester: {
         type: Boolean,
-        default:false
+        default: false
     },
 })
 
@@ -45,7 +58,7 @@ const preSaleSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Employee',
     },
-    presaleFiles: [],
+    items: [],
     comment: {
         type: String
     },

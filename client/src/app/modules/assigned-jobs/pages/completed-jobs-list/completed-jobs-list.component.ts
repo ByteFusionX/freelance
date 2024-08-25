@@ -4,7 +4,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
-import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -13,6 +12,8 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { ViewCommentComponent } from '../view-comment/view-comment.component';
 import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
 import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
+import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
+import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 
 @Component({
   selector: 'app-completed-jobs-list',
@@ -73,6 +74,12 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe()
+  }
+
+  onViewEstimation(items:QuoteItem[],enqId:string){
+    this._dialog.open(ViewEstimationComponent, {
+      data:{items,enqId,isEdit:false}
+    })
   }
 
   viewFeedback(feedback: feedback) {

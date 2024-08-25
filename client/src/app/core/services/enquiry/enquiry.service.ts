@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import {  EnquiryTable, FeedbackTable, FilterEnquiry, MonthlyEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { EnquiryTable, FeedbackTable, FilterEnquiry, MonthlyEnquiry, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -29,7 +29,7 @@ export class EnquiryService {
     return this.http.post<EnquiryTable>(`${this.api}/enquiry/get`, filterData)
   }
 
-  getPresale(page: number, row: number,filter:string,access?:string,userId?:string): Observable<EnquiryTable> {
+  getPresale(page: number, row: number, filter: string, access?: string, userId?: string): Observable<EnquiryTable> {
     return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?filter=${filter}&page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
@@ -47,10 +47,10 @@ export class EnquiryService {
 
   selectedDepartment(departmentId: string) {
     this.depSubject.next(departmentId)
-}
+  }
 
-  uploadAssignedFiles(formData: FormData): Observable<getEnquiry> {
-    return this.http.post<getEnquiry>(`${this.api}/enquiry/assign-files`, formData)
+  uploadEstimations(postBody: { items: any, enquiryId: string }): Observable<{success:boolean}> {
+    return this.http.post<{success:boolean}>(`${this.api}/enquiry/upload-estimation`, postBody)
   }
 
   downloadFile(fileName: string): Observable<any> {
@@ -70,7 +70,7 @@ export class EnquiryService {
     return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
   }
 
-  sendFeedbackRequest(feedbackBody: { enquiryId: string, employeeId: string,comment:string }) {
+  sendFeedbackRequest(feedbackBody: { enquiryId: string, employeeId: string, comment: string }) {
     return this.http.patch(`${this.api}/enquiry/feedback-request`, feedbackBody)
   }
 
@@ -78,12 +78,12 @@ export class EnquiryService {
     return this.http.get<FeedbackTable>(`${this.api}/enquiry/feedback-request/${employeeId}?page=${page}&row=${row}`)
   }
 
-  giveFeedback(feedbackBody:{enquiryId:string,feedback:string}){
-    return this.http.patch(`${this.api}/enquiry/give-feedback`,feedbackBody)
+  giveFeedback(feedbackBody: { enquiryId: string, feedback: string }) {
+    return this.http.patch(`${this.api}/enquiry/give-feedback`, feedbackBody)
   }
 
-  sendRevision(revisionComment:string,enquiryId:string){
-    return this.http.patch(`${this.api}/enquiry/revision/${enquiryId}`,{revisionComment})
+  sendRevision(revisionComment: string, enquiryId: string) {
+    return this.http.patch(`${this.api}/enquiry/revision/${enquiryId}`, { revisionComment })
   }
 
   presalesCounts(access?: string, userId?: string): Observable<{ pending: number, completed: number }> {
@@ -91,11 +91,11 @@ export class EnquiryService {
   }
 
   markJobAsViewed(jobId: string): Observable<any> {
-    return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobId})
+    return this.http.post(`${this.api}/enquiry/markAsSeenedJob`, { jobId })
   }
 
   markFeedbackResponseAsViewed(enqId: any): Observable<any> {
-    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`,{enqId})
+    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`, { enqId })
   }
 
   markFeedbackAsViewed(enqIds: string): Observable<any> {

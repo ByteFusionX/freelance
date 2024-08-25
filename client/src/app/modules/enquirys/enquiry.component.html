@@ -155,7 +155,7 @@
                         <button type="button"
                             *ngIf="element.preSale && element.preSale.presalePerson && element.status !== 'Assigned To Presales'"
                             (click)="onViewPresale($event,i,element)"
-                            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-2 rounded text-sm whitespace-nowrap">View Presale</button>
+                            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-2 rounded text-sm whitespace-nowrap">View Estimations</button>
                         <button type="button" *ngIf="!element.preSale" (click)="onAssignPresale($event,element._id,i)"
                             class="bg-orange-500 hover:bg-orange-400 text-white font-medium p-2 rounded text-sm whitespace-nowrap ">Assign
                             to Presale</button>

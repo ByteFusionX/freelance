@@ -5,7 +5,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
-import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { saveAs } from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -15,6 +14,10 @@ import { ViewCommentComponent } from '../view-comment/view-comment.component';
 import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
 import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { UploadEstimationComponent } from '../upload-estimation/upload-estimation.component';
+import { NavigationExtras, Router } from '@angular/router';
+import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
+import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -24,7 +27,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'upload', 'send'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'estimation', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   viewAssignedFor: boolean = false;
   isLoading: boolean = true;
@@ -48,15 +51,16 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     private _dialog: MatDialog,
     private toast: ToastrService,
     private _employeeService: EmployeeService,
-    private _notificationService: NotificationService
+    private _notificationService: NotificationService,
+    private _router: Router,
   ) { }
 
   ngOnInit(): void {
     this._employeeService.employeeData$.subscribe((data) => {
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
-    if(this.viewAssignedFor){
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy','assignedFor', 'department', 'comment', 'download', 'upload', 'send'];
+    if (this.viewAssignedFor) {
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'department', 'comment', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -145,7 +149,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onSendClicked(index: number) {
-    if (this.dataSource.data[index].assignedFiles.length) {
+    if (this.dataSource.data[index].preSale.items?.length) {
       const dialogRef = this._dialog.open(ConfirmationDialogComponent,
         {
           data: {
@@ -180,13 +184,13 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
         }
       })
     } else {
-      this.toast.warning('Please select at least one file before Sending')
+      this.toast.warning('Please complete the estimation Uploads')
     }
 
   }
 
   onFeedback(enquiryId: string, index: number) {
-    if (this.dataSource.data[index].assignedFiles.length) {
+    if (this.dataSource.data[index].preSale.items?.length) {
       const dialogRef = this._dialog.open(SelectEmployeeComponent, { width: '400px' });
 
       dialogRef.afterClosed().subscribe((data: { employeeId: string, comment: string }) => {
@@ -209,7 +213,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
         }
       })
     } else {
-      this.toast.warning('Please select at least one file before Sending')
+      this.toast.warning('Please complete the estimation Uploads')
     }
   }
 
@@ -234,20 +238,16 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     })
   }
 
-  onUploadClicks(index: number) {
-    let dialog = this._dialog.open(FileUploadComponent, {
-      width: '500px',
-      data: this.dataSource.data[index]._id
-    })
-    dialog.afterClosed().subscribe((data) => {
-      if (data) {
-        data.client = [data.client]
-        data.department = [data.department]
-        data.salesPerson = [data.salesPerson]
-        this.dataSource.data[index] = data
-        this.dataSource.data = [...this.dataSource.data]
-        this.dataSource._updateChangeSubscription();
-      }
+  onUploadClicks(enquiryId: string) {
+    const navigationExtras: NavigationExtras = {
+      state: { enquiryId }
+    };
+    this._router.navigate(['/assigned-jobs/upload-estimations'], navigationExtras);
+  }
+
+  onViewEstimation(items:QuoteItem[],enqId:string) {
+    this._dialog.open(ViewEstimationComponent, {
+      data:{items,enqId,isEdit:true}
     })
   }
 
@@ -255,41 +255,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this.subject.next(event)
   }
 
-  onClearFiles(index: number) {
-    const enquiryId = this.dataSource.data[index]._id;
-    this._enquiryService.clearAllPresaleFiles(enquiryId)
-      .subscribe({
-        next: (event) => {
-          this.dataSource.data[index].assignedFiles = [];
-          this.dataSource._updateChangeSubscription();
-        },
-        error: (error) => {
-          if (error.status == 404) {
-            this.toast.warning('Something went wrong')
-          }
-        }
-      })
-  }
-
-  onRemoveItem(event: Event, index: number, file: any) {
-    event.stopPropagation()
-
-    const enquiry = this.dataSource.data[index];
-    const enquiryId = enquiry._id;
-    const fileName = file.filename;
-
-    this._enquiryService.deleteFile(fileName, enquiryId)
-      .subscribe({
-        next: (event) => {
-          this.dataSource.data[index].assignedFiles = enquiry.assignedFiles.filter((data) => {
-            return data.filename !== fileName
-          })
-        },
-        error: (error) => {
-          this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
-        }
-      })
-  }
 
   onDownloadClicks(file: any) {
     this.selectedFile = file.filename

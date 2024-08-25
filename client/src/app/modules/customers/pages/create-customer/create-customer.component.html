@@ -90,8 +90,13 @@
                   <ng-select [ngClass]="{'border-red-500':contact.get('department')?.hasError('required') && (contact.get('department')?.touched || isSubmitted)}" id="department" class="form border"
                     placeholder="Department" appendTo="body" formControlName="department"
           >
-                    <ng-option *ngFor="let department of departments"
-                      [value]="department._id">{{department.departmentName}}</ng-option>
+                    <!-- <ng-option *ngFor="let department of departments"
+                      [value]="department._id">{{department.departmentName}}</ng-option> -->
+
+                      <ng-option>IT</ng-option>
+                      <ng-option>Procurement</ng-option>
+                      <ng-option>Finance</ng-option>
+                      <ng-option>Facility</ng-option>
                   </ng-select>
                 </div>
 

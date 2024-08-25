@@ -12,6 +12,8 @@ import { saveAs } from 'file-saver'
 import { GiveFeedbackComponent } from './pages/give-feedback/give-feedback.component';
 import { ViewFeedbackComponent } from '../assigned-jobs/pages/view-feedback/view-feedback.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { ViewEstimationComponent } from '../assigned-jobs/pages/view-estimation/view-estimation.component';
+import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 
 
 @Component({
@@ -123,6 +125,12 @@ export class FeedbackRequestsComponent {
     if (element?.nativeElement) {
       observer.observe(element.nativeElement);
     }
+  }
+
+  onViewEstimation(items:QuoteItem[],enqId:string){
+    this._dialog.open(ViewEstimationComponent, {
+      data:{items,enqId,isEdit:false}
+    })
   }
 
   markFeedbackAsViewed(enqId: string) {

@@ -517,29 +517,21 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
     }
 }
 
-export const uploadAssignFiles = async (req: any, res: Response, next: NextFunction) => {
+export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let files = req.files;
+        let items = req.body.items;
         let enquiryId = req.body.enquiryId;
-        let uploadData = files;
 
-        const enquiryData = await enquiryModel.findOneAndUpdate(
-            { _id: enquiryId },
-            { $push: { assignedFiles: { $each: uploadData } } },
-            { new: true }
-        ).populate('client')
-            .populate('department')
-            .populate('salesPerson')
-            .populate({
-                path: 'preSale.feedback.employeeId',
-                model: 'Employee'
-            });
+        const enquiryData = await enquiryModel.updateOne(
+            { _id: new ObjectId(enquiryId) },
+            { $set: { 'preSale.items': items } }
+        );
 
-        if (!enquiryData) {
+        if (!enquiryData.modifiedCount) {
             return res.status(502).json();
         }
 
-        return res.status(200).json(enquiryData);
+        return res.status(200).json({success:true});
     } catch (error) {
         next(error);
     }
