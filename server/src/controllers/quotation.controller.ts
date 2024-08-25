@@ -4,7 +4,6 @@ import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
-import { getPreSaleJobs } from "./enquiry.controller";
 import { Server } from "socket.io";
 const { ObjectId } = require('mongodb')
 
@@ -249,7 +248,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                 $match: filters,
             },
             {
-                $sort: { createdDate: 1 }
+                $sort: { 'dealData.savedDate': -1 }
             },
             {
                 $skip: skipNum
@@ -348,12 +347,11 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
 
 export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const quoteIds: string[] = req.body.quoteIds;
+        const quoteIds: string = req.body.quoteIds;
 
         const result = await Quotation.updateMany(
-            { _id: { $in: quoteIds } },
-            { 'dealData.seenByApprover': true },
-            { new: true }
+            { _id: quoteIds },
+            { $set: { 'dealData.seenByApprover': true } },
         );
 
         if (result.modifiedCount === 0) {
@@ -505,7 +503,7 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
                 paymentTerms,
                 additionalCosts: costs,
                 savedDate: createdDate,
-                status : 'pending'
+                status: 'pending'
             }
         }
 

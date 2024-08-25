@@ -120,6 +120,7 @@ export interface dealData {
     savedDate: string;
     seenByApprover:boolean;
     status:string;
+    comments:string[]
 }
 
 
