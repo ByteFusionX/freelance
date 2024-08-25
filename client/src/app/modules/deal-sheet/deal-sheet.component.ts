@@ -177,8 +177,8 @@ export class DealSheetComponent {
         width: '900px'
       });
 
-    dialogRef.afterClosed().subscribe((approve: boolean) => {
-      if (approve) {
+    dialogRef.afterClosed().subscribe((actions: { approve: boolean, updating: boolean }) => {
+      if (actions.approve && !actions.updating) {
         this._quoteService.approveDeal(quoteData._id).subscribe((res) => {
           if (res.success) {
             this.dataSource._updateChangeSubscription()
@@ -188,7 +188,6 @@ export class DealSheetComponent {
           }
         })
       }
-
     })
   }
 

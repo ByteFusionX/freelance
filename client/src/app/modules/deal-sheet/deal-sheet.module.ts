@@ -12,6 +12,7 @@ import { ApproveDealComponent } from './approve-deal/approve-deal.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectDealComponent } from './reject-deal/reject-deal.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { UpdatedealsheetComponent } from './updatedealsheet-component/updatedealsheet-component.component';
 
 
 
@@ -20,6 +21,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     DealSheetComponent,
     ApproveDealComponent,
     RejectDealComponent,
+    UpdatedealsheetComponent,
   ],
   imports: [
     CommonModule,

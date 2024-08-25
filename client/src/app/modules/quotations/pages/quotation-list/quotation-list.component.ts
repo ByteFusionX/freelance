@@ -210,7 +210,7 @@ export class QuotationListComponent {
     })
   }
 
-  
+
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event) {
     event.stopPropagation()
     let priceDetails = {
@@ -243,11 +243,13 @@ export class QuotationListComponent {
 
     const dialogRef = this._dialog.open(ApproveDealComponent,
       {
-        data: { approval, quoteData, quoteItems, priceDetails, quoteView:true },
+        data: { approval, quoteData, quoteItems, priceDetails, quoteView: true },
         width: '900px'
       });
 
-    }
+  }
+
+
 
   onfilterApplied() {
     this.isFiltered = true;
@@ -282,7 +284,7 @@ export class QuotationListComponent {
     event.stopPropagation()
     const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data, width: '500px' })
     lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
-      if(quote){
+      if (quote) {
         this.loader.start()
         this.getQuotations()
         this.loader.complete()

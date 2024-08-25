@@ -4,7 +4,6 @@ import Job from '../models/job.model';
 import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
-import { getPreSaleJobs } from "./enquiry.controller";
 import { Server } from "socket.io";
 const { ObjectId } = require('mongodb')
 
@@ -249,7 +248,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                 $match: filters,
             },
             {
-                $sort: { createdDate: 1 }
+                $sort: { 'dealData.savedDate': -1 }
             },
             {
                 $skip: skipNum
