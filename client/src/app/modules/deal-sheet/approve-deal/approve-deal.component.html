@@ -34,8 +34,8 @@
                                 <div *ngSwitchCase="'approved'" class="bg-green-100 text-green-800 border border-green-300 rounded-lg px-4  text-sm">
                                   Approved
                                 </div>
-                                <div (click)="openReview()" *ngSwitchCase="'rejected'" class="bg-red-100 text-red-800 border cursor-pointer border-red-300 rounded-lg px-4  text-sm">
-                                  Rejected <ng-icon name="heroChevronDown" class="text-center text-gray-600"></ng-icon>
+                                <div (click)="openReview()" *ngSwitchCase="'rejected'" class="flex justify-center items-center gap-2 bg-red-100 text-red-800 border cursor-pointer border-red-300 rounded-lg px-4  text-sm">
+                                  Rejected <ng-icon name="heroInformationCircle" class="text-center text-gray-700 text-md"></ng-icon>
                                 </div>
                                 <div *ngSwitchDefault class="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg px-4  text-sm">
                                   Unknown Status
@@ -155,7 +155,7 @@
                     <ng-container *ngFor="let detail of item?.itemDetails as QuoteItemDetail ; let j = index">
                         <tr class=" border-b text-gray-800" *ngIf="detail.dealSelected">
                             <td class="px-2 border text-center">
-                                {{ detail.quantity }}
+                                {{ j+1 }}
                             </td>
                             <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
                                 <div [innerHTML]="detail.detail| parseBracketsText | parseBoldText"></div>
@@ -183,7 +183,7 @@
                     <ng-container *ngFor="let cost of data.quoteData.dealData.additionalCosts;let i = index">
                         <tr class=" border-b text-gray-800">
                             <td colspan="1" class="px-2 border text-center">
-                                {{ i + 1 }}
+                                {{ (item?.itemDetails?.length ?? 0) + i }}
                             </td>
                             <td colspan="1" class="px-6 border font-normal py-2 whitespace-pre-line">
                                 {{ cost.name }}

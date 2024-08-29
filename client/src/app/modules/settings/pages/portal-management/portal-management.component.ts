@@ -22,15 +22,18 @@ export class PortalManagementComponent {
 
   openCreateForm: boolean = false;
   isDepartmentLoading: boolean = true
+  isCustomerDepartmentLoading: boolean = true
   isNotesLoading: boolean = true
   isCategoryLoading: boolean = true;
   categorySection: boolean = false;
 
   departmentDisplayedColumns: string[] = ['position', 'name', 'head', 'date', 'action'];
+  customerDepartmentDisplayedColumns: string[] = ['position', 'name', 'date'];
   cstcDisplayedColumns: string[] = ['customerNote', 'termsCondition'];
   categoryDisplayedColumns: string[] = ['slNo', 'categoryName', 'role', 'count', 'action'];
 
   departmentDataSource: any = new MatTableDataSource();
+  customerDepartmentDataSource: any = new MatTableDataSource();
   cstcDataSource: any = new MatTableDataSource();
   categoryDataSource: any = new MatTableDataSource();
 
@@ -66,6 +69,17 @@ export class PortalManagementComponent {
           )
         }
 
+        if (this.privileges?.portalManagement?.department) {
+          this.subscriptions.add(
+            this._profileService.getCustomerDepartments().subscribe((data) => {
+              if (data) {
+                this.customerDepartmentDataSource.data = data
+                this.isCustomerDepartmentLoading = false
+              }
+            })
+          )
+        }
+
         if (this.privileges?.portalManagement?.notesAndTerms) {
           this.subscriptions.add(
             this._profileService.getNotes().subscribe((data) => {
@@ -95,12 +109,27 @@ export class PortalManagementComponent {
   }
 
 
-  onCreateClicks() {
-    const dialogRef = this.dialog.open(CreateDepartmentDialog);
+  onCreateDepartment() {
+    const dialogRef = this.dialog.open(CreateDepartmentDialog, {
+      data: { forCustomer: false }
+    });
     dialogRef.afterClosed().subscribe(data => {
       if (data) {
         data.departmentHead = [data.departmentHead]
         this.departmentDataSource.data = [...this.departmentDataSource.data, data]
+      }
+    });
+  }
+
+  onCreateCustomerDepartment() {
+    const dialogRef = this.dialog.open(CreateDepartmentDialog, {
+      data: { forCustomer: true }
+    });
+    dialogRef.afterClosed().subscribe(data => {
+      if (data) {
+        data.departmentHead = [data.departmentHead]
+        this.customerDepartmentDataSource.data = [...this.customerDepartmentDataSource.data, data];
+        this.customerDepartmentDataSource._updateChangeSubscription()
       }
     });
   }
@@ -119,12 +148,26 @@ export class PortalManagementComponent {
   onEditClick(index: number) {
     let department = this.departmentDataSource.data[index]
     if (department) {
-      const dialogRef = this.dialog.open(CreateDepartmentDialog, { data: department });
+      const dialogRef = this.dialog.open(CreateDepartmentDialog, { data: { forCustomer: false, department } });
       dialogRef.afterClosed().subscribe(data => {
         if (data) {
           data.departmentHead = [data.departmentHead]
           this.departmentDataSource.data[index] = data
           this.departmentDataSource.data = [...this.departmentDataSource.data]
+        }
+      })
+    }
+  }
+
+  onEditCustomerClick(index: number) {
+    let department = this.customerDepartmentDataSource.data[index]
+    if (department) {
+      const dialogRef = this.dialog.open(CreateDepartmentDialog, { data: { forCustomer: true, department } });
+      dialogRef.afterClosed().subscribe(data => {
+        if (data) {
+          data.departmentHead = [data.departmentHead]
+          this.customerDepartmentDataSource.data[index] = data
+          this.customerDepartmentDataSource._updateChangeSubscription()
         }
       })
     }

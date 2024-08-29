@@ -47,7 +47,8 @@ export class ApproveDealComponent {
 
   openReview() {
     this._dialog.open(ViewCommentComponent, {
-      data: { comment: this.data.quoteData.dealData.comments[0] }
+      data: { comment: this.data.quoteData.dealData.comments[0] },
+      width:'500px'
     });
   }
 

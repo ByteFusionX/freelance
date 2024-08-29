@@ -53,7 +53,8 @@ import {
   heroTag,
   heroBell,
   heroClipboardDocumentCheck,
-  heroXCircle
+  heroXCircle,
+  heroInformationCircle
 } from '@ng-icons/heroicons/outline';
 
 import { heroBellSolid } from '@ng-icons/heroicons/solid'
@@ -114,7 +115,8 @@ import { heroBellSolid } from '@ng-icons/heroicons/solid'
       heroBellSolid,
       heroBell,
       heroClipboardDocumentCheck,
-      heroXCircle
+      heroXCircle,
+      heroInformationCircle
     }),
   ],
   exports: [NgIconsModule]

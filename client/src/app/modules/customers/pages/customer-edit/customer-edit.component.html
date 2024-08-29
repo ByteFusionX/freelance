@@ -42,8 +42,8 @@
                 <div class="flex flex-col">
                   <div class="px-3">
                     <div class="flex w-full gap-3 mb-3 md:mb-0">
-                      <ng-icon *ngIf="i > initalLength" name="heroXMark" class="text-md p-0 m-0 cursor-pointer mt-1 text-red-600"
-                        (click)="onRemoveContact(i)"></ng-icon>
+                      <ng-icon *ngIf="i > initalLength" name="heroXMark"
+                        class="text-md p-0 m-0 cursor-pointer mt-1 text-red-600" (click)="onRemoveContact(i)"></ng-icon>
                       <div class="flex">
                         <input type="radio" formControlName="courtesyTitle" value="Mr" [id]="'Mr'+i">
                         <label class="pl-2" [for]="'Mr'+i">MR</label>
@@ -85,6 +85,24 @@
                     type="number" placeholder="Phone Number">
                 </div>
 
+                <div class="px-3 w-full">
+                  <label for="" class="uppercase text-xs mb-4 font-semibold text-gray-600">Department :</label>
+                  <ng-select
+                    [ngClass]="{'border-red-500':contact.get('department')?.hasError('required') && (contact.get('department')?.touched || isSubmitted)}"
+                    id="department" class="form border" placeholder="Department" appendTo="body"
+                    formControlName="department">
+                    <ng-option *ngFor="let department of customerDepartments"
+                      [value]="department._id">{{department.departmentName}}</ng-option>
+                    <ng-template ng-footer-tmp>
+                      <a (click)="createCustomerDepartment()"
+                        class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full font-medium">
+                        + Create Department
+                      </a>
+                    </ng-template>
+
+                  </ng-select>
+                </div>
+
 
               </div>
               <div class="mb-2 text-red-700 text-sm" *ngIf="hasContactDetailsErrors()">
@@ -115,7 +133,8 @@
                   for="grid-company-name">
                   Company Address
                 </label>
-                <input formControlName="companyAddress" [class.border-red-500]="f['companyAddress'].invalid && isSubmitted"
+                <input formControlName="companyAddress"
+                  [class.border-red-500]="f['companyAddress'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="text" placeholder="Company Address">
 
@@ -156,7 +175,7 @@
 
 
         <div class="  border border-white p-3 px-6 flex justify-end ">
-          <button  type="button"
+          <button type="button"
             class=" hover:bg-gray-100 text-black font-medium py-2 px-4 rounded text-sm mr-3  border border-gray-300"
             routerLink="/customers">
             Cancel

@@ -7,6 +7,8 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { ToastrService } from 'ngx-toastr';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateDepartmentDialog } from 'src/app/modules/settings/pages/create-department/create-department.component';
 
 @Component({
   selector: 'app-customer-edit',
@@ -15,6 +17,7 @@ import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 })
 export class CustomerEditComponent {
   departments: getDepartment[] = [];
+  customerDepartments: getDepartment[] = [];
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
   customerData!: getCustomer;
@@ -27,10 +30,12 @@ export class CustomerEditComponent {
     private _customerService: CustomerService,
     private _employeeService: EmployeeService,
     private _router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    public dialog: MatDialog,
   ) {
-    this.getCustomerData()
-    this.getDepartment()
+    this.getCustomerData();
+    this.getDepartment();
+    this.getCustomerDepartment();
   }
 
 
@@ -43,7 +48,8 @@ export class CustomerEditComponent {
           firstName: ['', Validators.required],
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
-          phoneNo: ['', [Validators.required]]
+          phoneNo: ['', [Validators.required]],
+          department:['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
@@ -54,13 +60,20 @@ export class CustomerEditComponent {
     });
 
     if (this.customerData && this.departments) {
-      for (let i = 1; i < this.customerData.contactDetails.length; i++) {
-        this.addContactFormGroup();
-      }
+      const { contactDetails, department } = this.customerData;
+    
+      contactDetails.slice(1).forEach(() => this.addContactFormGroup());
+    
       this.customerForm.patchValue(this.customerData);
-      this.customerForm.get('department')?.patchValue(this.customerData.department._id);
-      this.initalLength = this.customerData.contactDetails.length - 1;
+      this.customerForm.get('department')?.patchValue(department._id);
+    
+      contactDetails.forEach((contactDetail, index) => {
+        this.contactDetails.at(index).patchValue({ department: contactDetail.department._id });
+      });
+    
+      this.initalLength = contactDetails.length - 1;
     }
+    
   }
 
   getCustomerData() {
@@ -76,6 +89,24 @@ export class CustomerEditComponent {
     this._profileService.getDepartments().subscribe((res: getDepartment[]) => {
       this.departments = res;
     })
+  }
+
+  getCustomerDepartment() {
+    this._profileService.getCustomerDepartments().subscribe((res: getDepartment[]) => {
+      this.customerDepartments = res;
+    })
+  }
+
+  createCustomerDepartment(){
+    const dialogRef = this.dialog.open(CreateDepartmentDialog, {
+      data: { forCustomer: true }
+    });
+    dialogRef.afterClosed().subscribe(data => {
+      if (data) {
+        data.departmentHead = [data.departmentHead]
+        this.customerDepartments = [...this.customerDepartments, data];
+      }
+    });
   }
 
   get contactDetails(): FormArray {
@@ -116,7 +147,8 @@ export class CustomerEditComponent {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phoneNo: ['', [Validators.required]]
+      phoneNo: ['', [Validators.required]],
+      department:['', [Validators.required]]
     }));
   }
 

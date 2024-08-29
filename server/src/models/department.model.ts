@@ -3,6 +3,7 @@ import { Schema, Document, model, Types } from "mongoose";
 interface Department extends Document {
     departmentName: string;
     departmentHead: Types.ObjectId;
+    forCustomerContact:boolean;
     createdDate: Date;
 }
 
@@ -15,6 +16,10 @@ const departmentSchema = new Schema<Department>({
     departmentHead: {
         type: Schema.Types.ObjectId, 
         ref: 'Employee'
+    },
+    forCustomerContact: {
+        type: Boolean,
+        default: false
     },
     createdDate: {
         type: Date,

@@ -181,6 +181,7 @@ export class DealSheetComponent {
       if (actions.approve && !actions.updating) {
         this._quoteService.approveDeal(quoteData._id).subscribe((res) => {
           if (res.success) {
+            this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()
             if (this.dataSource.data.length == 0) {
               this.isEmpty = true;

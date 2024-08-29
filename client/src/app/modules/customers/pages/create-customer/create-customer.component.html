@@ -1,4 +1,4 @@
-<div class="bg-white m-6">
+-<div class="bg-white m-6">
   <div class="  border-b p-3 px-9 flex justify-between pt-5">
     <h3 class="text-lg font-medium text-gray-800">Create Customer</h3>
   </div>
@@ -90,13 +90,16 @@
                   <ng-select [ngClass]="{'border-red-500':contact.get('department')?.hasError('required') && (contact.get('department')?.touched || isSubmitted)}" id="department" class="form border"
                     placeholder="Department" appendTo="body" formControlName="department"
           >
-                    <!-- <ng-option *ngFor="let department of departments"
-                      [value]="department._id">{{department.departmentName}}</ng-option> -->
+                    <ng-option *ngFor="let department of customerDepartments"
+                      [value]="department._id">{{department.departmentName}}</ng-option>
+                      <ng-template ng-footer-tmp>
+                        <a (click)="createCustomerDepartment()"
+                          class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full font-medium"
+                          >
+                          + Create Department
+                        </a>
+                      </ng-template>
 
-                      <ng-option>IT</ng-option>
-                      <ng-option>Procurement</ng-option>
-                      <ng-option>Finance</ng-option>
-                      <ng-option>Facility</ng-option>
                   </ng-select>
                 </div>
 

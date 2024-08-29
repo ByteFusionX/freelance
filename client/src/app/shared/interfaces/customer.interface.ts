@@ -7,6 +7,7 @@ export interface ContactDetail {
     lastName: string;
     email: string;
     phoneNo:string;
+    department:getDepartment;
 }
 
 export interface getCustomer {

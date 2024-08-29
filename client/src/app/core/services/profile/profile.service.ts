@@ -27,6 +27,10 @@ export class ProfileService {
     return this.http.put<getDepartment>(`${this.api}/department`, department)
   }
 
+  getCustomerDepartments(): Observable<getDepartment[]> {
+    return this.http.get<getDepartment[]>(`${this.api}/department/customer`)
+  }
+
   totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
     return this.http.get<TotalEnquiry[]>(`${this.api}/department/enquiry-count?access=${access}&userId=${userId}`)
   }

@@ -7,10 +7,11 @@ interface ContactDetail {
   lastName: string;
   email: string;
   phoneNo: number;
+  department: Types.ObjectId;
 }
 
 export interface Customer extends Document {
-  clientRef:string;
+  clientRef: string;
   department: Types.ObjectId;
   contactDetails: ContactDetail[];
   companyName: string;
@@ -41,7 +42,12 @@ const contactDetailSchema = new Schema({
   phoneNo: {
     type: Number,
     required: true
-  }
+  },
+  department: {
+    type: Schema.Types.ObjectId,
+    ref: 'Department',
+    required: true,
+  },
 });
 
 const customerSchema = new Schema<Customer>({
@@ -57,7 +63,7 @@ const customerSchema = new Schema<Customer>({
   },
   contactDetails: [
     {
-      type: contactDetailSchema,
+      type: contactDetailSchema,  
       required: true,
     },
   ],

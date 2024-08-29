@@ -9,6 +9,11 @@ export const getDepartments = async (req: Request, res: Response, next: NextFunc
     try {
         const departments = await Department.aggregate([
             {
+                $match: {
+                    forCustomerContact: false
+                },
+            },
+            {
                 $lookup: {
                     from: 'employees', localField: 'departmentHead',
                     foreignField: '_id', as: 'departmentHead'
@@ -57,20 +62,83 @@ export const updateDepartment = async (req: Request, res: Response, next: NextFu
     }
 }
 
+
+export const getCustomerDepartments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departments = await Department.aggregate([
+            {
+                $match: {
+                    forCustomerContact: true
+                },
+            }, 
+            {
+                $lookup: {
+                    from: 'employees', localField: 'departmentHead',
+                    foreignField: '_id', as: 'departmentHead'
+                }
+            },
+        ])
+
+        if (departments.length > 0) {
+            return res.status(200).json(departments);
+        }
+        return res.status(204).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const createCustomerDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departmentData = req.body;
+        const department = new Department(departmentData)
+        const saveDepartment = await (await department.save()).populate(['departmentHead'])
+
+        if (saveDepartment) {
+            return res.status(200).json(saveDepartment)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+export const updateCustomerDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = req.body
+        let department = await Department.findOneAndUpdate(
+            { departmentName: data.departmentName })
+
+        if (department) {
+            department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
+            return res.status(200).json(department)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const totalEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { access, userId } = req.query;
 
         let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
         let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
-    
-        
+
+
         const departmentsWithCounts = await Department.aggregate([
+            {
+                $match: {
+                    forCustomerContact: false
+                },
+            },
             {
                 $lookup: {
                     from: 'enquiries',
                     localField: '_id',
-                    foreignField: 'department', 
+                    foreignField: 'department',
                     as: 'enquiries'
                 }
             },
@@ -124,8 +192,8 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
                 }
             }
         ]);
-        
-        
+
+
 
         if (departmentsWithCounts) return res.status(200).json(departmentsWithCounts);
         return res.status(502).json();

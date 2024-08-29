@@ -196,7 +196,10 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         let { page, row, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = { dealData: { $exists: true }, 'dealData.status': { $ne: 'rejected' } }
+        let matchFilters = {
+            dealData: { $exists: true },
+            'dealData.status': { $nin: ['rejected', 'approved'] }
+        };
 
         let accessFilter = {};
 
@@ -533,9 +536,9 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         const job = new Job(jobData);
         const saveJob = await job.save()
         if (saveJob) {
-            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { dealApproved: true })
+            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { 'dealData.status': 'approved' })
             if (quoteUpdate) {
-                return res.status(200).json({ success: true })
+                return res.status(200).json({ success: true });
             }
         }
 

@@ -6,7 +6,7 @@ const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy')
+        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy ')
 
         if (customers.length > 0) {
             return res.status(200).json(customers);
@@ -80,9 +80,6 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                 $match: filters,
             },
             {
-                $sort: { createdDate: 1 }
-            },
-            {
                 $skip: skipNum
             },
             {
@@ -99,6 +96,40 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
             },
             {
                 $unwind: "$createdBy"
+            },
+            {
+                $unwind: "$contactDetails"
+            },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'contactDetails.department',
+                    foreignField: '_id',
+                    as: 'contactDetails.department'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$contactDetails.department",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    clientRef: { $first: "$clientRef" },
+                    department: { $first: "$department" },
+                    companyName: { $first: "$companyName" },
+                    companyAddress: { $first: "$companyAddress" },
+                    customerEmailId: { $first: "$customerEmailId" },
+                    contactNo: { $first: "$contactNo" },
+                    createdBy: { $first: "$createdBy" },
+                    createdDate: { $first: "$createdDate" },
+                    contactDetails: { $push: "$contactDetails" }, 
+                },
+            },
+            {
+                $sort: { createdDate: 1 }
             },
         ]);
         if (!customerData || !total) return res.status(204).json({ err: 'No enquiry data found' })
@@ -137,10 +168,10 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                 break;
         }
 
-        
+
         const matchFilters = { clientRef: customerId }
         const filters = { $and: [matchFilters, accessFilter] }
-        
+
         const customerExist = await Customer.findOne({ clientRef: customerId });
 
         if (customerExist) {
@@ -155,11 +186,39 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                     $lookup: { from: 'employees', localField: 'createdBy', foreignField: '_id', as: 'createdBy' }
                 },
                 {
+                    $unwind: "$contactDetails"
+                },
+                {
+                    $lookup: {
+                        from: 'departments',
+                        localField: 'contactDetails.department',
+                        foreignField: '_id',
+                        as: 'contactDetails.department'
+                    }
+                },
+                {
+                    $unwind: "$contactDetails.department",
+                },
+                {
                     $unwind: "$department"
                 },
                 {
                     $unwind: "$createdBy"
-                }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        clientRef: { $first: "$clientRef" },
+                        department: { $first: "$department" },
+                        companyName: { $first: "$companyName" },
+                        companyAddress: { $first: "$companyAddress" },
+                        customerEmailId: { $first: "$customerEmailId" },
+                        contactNo: { $first: "$contactNo" },
+                        createdBy: { $first: "$createdBy" },
+                        createdDate: { $first: "$createdDate" },
+                        contactDetails: { $push: "$contactDetails" }, 
+                    },
+                },
             ])
 
             if (customerData[0]) {
@@ -234,7 +293,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 
 export const editCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy,companyAddress } = req.body
+        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy, companyAddress } = req.body
         const updatedCustomer = await Customer.findOneAndUpdate({ _id: id }, {
             $set: {
                 department: department,

@@ -25,7 +25,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<CreateDepartmentDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: getDepartment,
+    @Inject(MAT_DIALOG_DATA) public data: { forCustomer: boolean, department: getDepartment },
     private _employeeService: EmployeeService,
     private _profileService: ProfileService,
   ) { }
@@ -35,11 +35,11 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.head.setValue(null)
-    if (this.data) {
-      let fullName = this.data.departmentHead[0].firstName + ' ' + this.data.departmentHead[0].lastName
+    if (this.data.department) {
+      let fullName = this.data.department.departmentHead[0].firstName + ' ' + this.data.department.departmentHead[0].lastName
       this.newDepartment = false
       this.name.disable()
-      this.name.setValue(this.data.departmentName)
+      this.name.setValue(this.data.department.departmentName)
       this.head.setValue(fullName)
     }
     this.employeesList$ = this._employeeService.getAllEmployees()
@@ -55,9 +55,17 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
       this.errorTimeout()
     }
 
-    if (this.name.value && this.head.value) {
+    if (this.name.value && this.head.value && !this.data.forCustomer) {
       this.subscriptions.add(this._profileService.setDepartment(
-        { departmentName: this.name.value, departmentHead: this.head.value, createdDate: Date.now() })
+        { departmentName: this.name.value, forCustomerContact: false, departmentHead: this.head.value, createdDate: Date.now() })
+        .subscribe((data) => {
+          if (data) {
+            this.dialogRef.close(data)
+          }
+        }))
+    } else if (this.name.value && this.data.forCustomer) {
+      this.subscriptions.add(this._profileService.setDepartment(
+        { departmentName: this.name.value, forCustomerContact: true, createdDate: Date.now() })
         .subscribe((data) => {
           if (data) {
             this.dialogRef.close(data)
@@ -67,10 +75,18 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   }
 
   onUpdate() {
-    let curHead = this.data.departmentHead[0].firstName + ' ' + this.data.departmentHead[0].lastName
-    if (this.head.value && this.head.value != curHead) {
+    let curHead = this.data.department.departmentHead[0].firstName + ' ' + this.data.department.departmentHead[0].lastName
+    if (this.head.value && this.head.value != curHead && !this.data.forCustomer) {
       this.subscriptions.add(this._profileService.updateDepartment(
-        { departmentName: this.data.departmentName, departmentHead: this.head.value, createdDate: this.data.createdDate })
+        { departmentName: this.data.department.departmentName, departmentHead: this.head.value, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact })
+        .subscribe(data => {
+          if (data) {
+            this.dialogRef.close(data)
+          }
+        }))
+    } else if (this.head.value && this.head.value != curHead && this.data.forCustomer) {
+      this.subscriptions.add(this._profileService.updateDepartment(
+        { departmentName: this.data.department.departmentName, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact})
         .subscribe(data => {
           if (data) {
             this.dialogRef.close(data)
@@ -79,10 +95,10 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
     }
   }
 
-  errorTimeout(){
-    setTimeout(()=>{
+  errorTimeout() {
+    setTimeout(() => {
       this.nameError = false
-    },3000)
+    }, 3000)
   }
 
   ngOnDestroy(): void {

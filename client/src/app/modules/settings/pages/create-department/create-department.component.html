@@ -15,7 +15,7 @@
                 <p *ngIf="nameError" class="text-red-500 italic text-sm">Please enter department name</p>
             </div>
         </div>
-        <div class="mt-2 flex justify-between items-center">
+        <div class="mt-2 flex justify-between items-center" *ngIf="!data.forCustomer">
             <label for="employee" class="me-3 text-gray-700">Department Head:</label>
             <div class="w-80">
                 <ng-select id="employee" class="filter" placeholder="Emloyees" appendTo="body" [formControl]="head">
