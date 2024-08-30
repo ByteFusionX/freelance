@@ -15,6 +15,7 @@ export interface Customer extends Document {
   department: Types.ObjectId;
   contactDetails: ContactDetail[];
   companyName: string;
+  customerType: string;
   companyAddress: string;
   customerEmailId: string;
   contactNo: number;
@@ -68,6 +69,10 @@ const customerSchema = new Schema<Customer>({
     },
   ],
   companyName: {
+    type: String,
+    required: true,
+  },
+  customerType: {
     type: String,
     required: true,
   },

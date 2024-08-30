@@ -15,6 +15,7 @@ import { CustomersComponent } from './customers.component';
 import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
+import { pipeModule } from 'src/app/shared/pipes/pipe.module';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
     SkeltonLoadingComponent,
     FormsModule,
     NgSelectModule,
-    PaginationComponent
+    PaginationComponent,
+    pipeModule
   ]
 })
 export class CustomersModule { }

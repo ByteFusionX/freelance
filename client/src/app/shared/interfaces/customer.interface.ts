@@ -19,6 +19,7 @@ export interface getCustomer {
     companyAddress: string;
     customerEmailId: string;
     contactNo: number;
+    customerType:string;
 }
 
 export interface getFilteredCustomer {

@@ -121,6 +121,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                     department: { $first: "$department" },
                     companyName: { $first: "$companyName" },
                     companyAddress: { $first: "$companyAddress" },
+                    customerType: { $first: "$customerType" },
                     customerEmailId: { $first: "$customerEmailId" },
                     contactNo: { $first: "$contactNo" },
                     createdBy: { $first: "$createdBy" },
@@ -213,6 +214,7 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                         companyName: { $first: "$companyName" },
                         companyAddress: { $first: "$companyAddress" },
                         customerEmailId: { $first: "$customerEmailId" },
+                        customerType: { $first: "$customerType" },
                         contactNo: { $first: "$contactNo" },
                         createdBy: { $first: "$createdBy" },
                         createdDate: { $first: "$createdDate" },
@@ -299,7 +301,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 
 export const editCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, department, contactDetails, companyName, customerEmailId, contactNo, companyAddress } = req.body;
+        const { id, department, contactDetails, companyName, customerEmailId, contactNo, companyAddress, customerType } = req.body;
         const companyNameTrimmed = companyName.trim();
         const companyExist = await Customer.findOne({ companyName: new RegExp(`^${companyNameTrimmed}$`, 'i'), _id: { $ne: id } })
         if (companyExist) {
@@ -313,6 +315,7 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
                 customerEmailId: customerEmailId,
                 companyAddress: companyAddress,
                 contactNo: contactNo,
+                customerType: customerType,
             }
         })
         return res.status(200).json(updatedCustomer)

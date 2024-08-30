@@ -51,8 +51,9 @@ export class CreateCustomerDialog {
       companyName: ['', Validators.required],
       companyAddress: ['', Validators.required],
       customerEmailId: ['', [Validators.required, Validators.email]],
+      customerType:['', Validators.required],
       contactNo: ['', Validators.required],
-      createdBy: ['', Validators.required]
+      createdBy: ['', Validators.required],
     });
   }
 
