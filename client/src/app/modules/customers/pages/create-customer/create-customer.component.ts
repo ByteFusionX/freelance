@@ -21,6 +21,7 @@ export class CreateCustomerDialog {
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
   isSaving: boolean = false;
+  customerExist: boolean = false;
 
   constructor(
     private _fb: FormBuilder,
@@ -44,7 +45,7 @@ export class CreateCustomerDialog {
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
           phoneNo: ['', [Validators.required]],
-          department:['', [Validators.required]]
+          department: ['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
@@ -68,7 +69,7 @@ export class CreateCustomerDialog {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNo: ['', [Validators.required]],
-      department:['', [Validators.required]]
+      department: ['', [Validators.required]]
     }));
   }
 
@@ -88,7 +89,7 @@ export class CreateCustomerDialog {
     })
   }
 
-  createCustomerDepartment(){
+  createCustomerDepartment() {
     const dialogRef = this.dialog.open(CreateDepartmentDialog, {
       data: { forCustomer: true }
     });
@@ -119,14 +120,20 @@ export class CreateCustomerDialog {
   }
 
   onSubmit(): void {
+    this.customerExist = false
     this.isSubmitted = true;
     this.isSaving = true;
     let userId = this._employeeService.employeeToken().id;
     this.customerForm.patchValue({ createdBy: userId })
     if (this.customerForm.valid) {
-      this._customerService.createCustomer(this.customerForm.value).subscribe((res: getCustomer) => {
-        this.toastr.success('Customer added!', 'Success')
-        this._router.navigate(['/customers']);
+      this._customerService.createCustomer(this.customerForm.value).subscribe((res: any) => {
+        if (res.companyExist) {
+          this.customerExist = true
+          this.isSaving = false;
+        } else {
+          this.toastr.success('Customer added!', 'Success')
+          this._router.navigate(['/customers']);
+        }
       })
     } else {
       this.toastr.warning('Check the fields properly!', 'Warning !');

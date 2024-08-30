@@ -6,7 +6,7 @@ const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy ')
+        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy')
 
         if (customers.length > 0) {
             return res.status(200).json(customers);
@@ -125,7 +125,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                     contactNo: { $first: "$contactNo" },
                     createdBy: { $first: "$createdBy" },
                     createdDate: { $first: "$createdDate" },
-                    contactDetails: { $push: "$contactDetails" }, 
+                    contactDetails: { $push: "$contactDetails" },
                 },
             },
             {
@@ -216,7 +216,7 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                         contactNo: { $first: "$contactNo" },
                         createdBy: { $first: "$createdBy" },
                         createdDate: { $first: "$createdDate" },
-                        contactDetails: { $push: "$contactDetails" }, 
+                        contactDetails: { $push: "$contactDetails" },
                     },
                 },
             ])
@@ -276,6 +276,12 @@ export const getCustomerCreators = async (req: Request, res: Response, next: Nex
 export const createCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const customerData = req.body
+        customerData.companyName = customerData.companyName.trim();
+        const companyExist = await Customer.findOne({ companyName: new RegExp(`^${customerData.companyName}$`, 'i') })
+        
+        if (companyExist) {
+            return res.status(200).json({ companyExist: true })
+        }
         let clientId: string = await generateClientRef(customerData.createdDate);
         customerData.clientRef = clientId;
 
@@ -293,7 +299,12 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 
 export const editCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy, companyAddress } = req.body
+        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy, companyAddress } = req.body;
+        const companyNameTrimmed = companyName.trim();
+        const companyExist = await Customer.findOne({ companyName: new RegExp(`^${companyNameTrimmed}$`, 'i'), _id: { $ne: id } })
+        if (companyExist) {
+            return res.status(200).json({ companyExist: true })
+        }
         const updatedCustomer = await Customer.findOneAndUpdate({ _id: id }, {
             $set: {
                 department: department,

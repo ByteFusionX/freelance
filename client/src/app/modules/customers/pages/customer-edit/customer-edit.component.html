@@ -126,6 +126,10 @@
                 <input formControlName="companyName" [class.border-red-500]="f['companyName'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="text" placeholder="Company Name">
+                  <div class="text-red-700 text-sm mt-1"
+                  *ngIf="customerExist">
+                  Company Already Exist
+                </div>
 
               </div>
               <div class="w-1/2 px-3 mb-3 md:mb-0">
@@ -137,7 +141,7 @@
                   [class.border-red-500]="f['companyAddress'].invalid && isSubmitted"
                   class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                   type="text" placeholder="Company Address">
-
+                 
               </div>
             </div>
 

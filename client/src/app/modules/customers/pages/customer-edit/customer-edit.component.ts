@@ -23,6 +23,7 @@ export class CustomerEditComponent {
   customerData!: getCustomer;
   initalLength: number = 0;
   isSaving: boolean = false;
+  customerExist: boolean = false;
 
   constructor(
     private _fb: FormBuilder,
@@ -49,7 +50,7 @@ export class CustomerEditComponent {
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
           phoneNo: ['', [Validators.required]],
-          department:['', [Validators.required]]
+          department: ['', [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
@@ -61,19 +62,19 @@ export class CustomerEditComponent {
 
     if (this.customerData && this.departments) {
       const { contactDetails, department } = this.customerData;
-    
+
       contactDetails.slice(1).forEach(() => this.addContactFormGroup());
-    
+
       this.customerForm.patchValue(this.customerData);
       this.customerForm.get('department')?.patchValue(department._id);
-    
+
       contactDetails.forEach((contactDetail, index) => {
         this.contactDetails.at(index).patchValue({ department: contactDetail.department._id });
       });
-    
+
       this.initalLength = contactDetails.length - 1;
     }
-    
+
   }
 
   getCustomerData() {
@@ -97,7 +98,7 @@ export class CustomerEditComponent {
     })
   }
 
-  createCustomerDepartment(){
+  createCustomerDepartment() {
     const dialogRef = this.dialog.open(CreateDepartmentDialog, {
       data: { forCustomer: true }
     });
@@ -124,6 +125,7 @@ export class CustomerEditComponent {
   onSubmit(): void {
     this.isSubmitted = true;
     this.isSaving = true;
+    this.customerExist = false;
     let userId = this._employeeService.employeeToken().id;
     this.customerForm.patchValue({ createdBy: userId })
     if (this.customerForm.valid) {
@@ -131,9 +133,14 @@ export class CustomerEditComponent {
       const customer = this.customerForm.value
       customer.id = this.customerData._id
 
-      this._customerService.editCustomer(customer).subscribe((res: getCustomer) => {
-        this.toastr.success('Customer Updated Succesfully');
-        this._router.navigate(['/customers'])
+      this._customerService.editCustomer(customer).subscribe((res: any) => {
+        if (res.companyExist) {
+          this.customerExist = true
+          this.isSaving = false;
+        } else {
+          this.toastr.success('Customer Updated Succesfully');
+          this._router.navigate(['/customers'])
+        }
       })
     } else {
       this.toastr.warning('Check the fields properly!', 'Warning !');
@@ -148,7 +155,7 @@ export class CustomerEditComponent {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNo: ['', [Validators.required]],
-      department:['', [Validators.required]]
+      department: ['', [Validators.required]]
     }));
   }
 
