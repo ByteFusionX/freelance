@@ -299,7 +299,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
 
 export const editCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id, department, contactDetails, companyName, customerEmailId, contactNo, createdBy, companyAddress } = req.body;
+        const { id, department, contactDetails, companyName, customerEmailId, contactNo, companyAddress } = req.body;
         const companyNameTrimmed = companyName.trim();
         const companyExist = await Customer.findOne({ companyName: new RegExp(`^${companyNameTrimmed}$`, 'i'), _id: { $ne: id } })
         if (companyExist) {
@@ -313,7 +313,6 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
                 customerEmailId: customerEmailId,
                 companyAddress: companyAddress,
                 contactNo: contactNo,
-                createdBy: createdBy
             }
         })
         return res.status(200).json(updatedCustomer)
