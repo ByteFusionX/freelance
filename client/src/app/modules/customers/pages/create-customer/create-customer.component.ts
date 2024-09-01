@@ -45,13 +45,13 @@ export class CreateCustomerDialog {
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
           phoneNo: ['', [Validators.required]],
-          department: ['', [Validators.required]]
+          department: [null, [Validators.required]]
         })
       ]),
       companyName: ['', Validators.required],
       companyAddress: ['', Validators.required],
       customerEmailId: ['', [Validators.required, Validators.email]],
-      customerType:['', Validators.required],
+      customerType:[null, Validators.required],
       contactNo: ['', Validators.required],
       createdBy: ['', Validators.required],
     });
@@ -70,7 +70,7 @@ export class CreateCustomerDialog {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNo: ['', [Validators.required]],
-      department: ['', [Validators.required]]
+      department: [null, [Validators.required]]
     }));
   }
 

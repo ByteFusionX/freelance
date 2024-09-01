@@ -106,12 +106,18 @@ export class CreateQuotatationComponent {
 
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
-    this.subscriptions.add(
-      this.enquiryData$.subscribe((data) => {
-        this.quoteForm.patchValue({ client: data?.client._id, department: data?.department._id, enqId: data?._id, items:data?.preSale.items })
-        this.onChange(data?.client._id as string);
-        this.quoteForm.patchValue({ attention: data?.contact._id })
-      })
+    this.subscriptions.add(this.enquiryData$.subscribe((data) => {
+      const items = data?.preSale?.items ?? []; 
+      this.quoteForm.patchValue({ 
+        client: data?.client._id, 
+        department: data?.department._id, 
+        enqId: data?._id, 
+        items: items 
+      });
+      this.onChange(data?.client._id as string);
+      this.quoteForm.patchValue({ attention: data?.contact._id });
+    })
+    
     )
   }
 

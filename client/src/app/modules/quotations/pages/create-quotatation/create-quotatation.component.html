@@ -128,7 +128,7 @@
 
             <ng-container *ngIf="!isEdit ;else quoteItemBlock">
 
-                <ng-container *ngIf="enquiryData$ | async as enquiryData ;else quoteItemBlock">
+                <ng-container *ngIf="(enquiryData$ | async)?.preSale?.items?.length ;else quoteItemBlock">
                     <div class="relative overflow-x-auto my-6 ">
                         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
                             <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
@@ -169,7 +169,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <ng-container *ngFor="let item of enquiryData.preSale.items">
+                                <ng-container *ngFor="let item of  (enquiryData$ | async)?.preSale?.items ?? []">
                                     <tr>
                                         <td colspan="9" class="border px-6 py-2 bg-gray-50 ">
                                             <div class="flex justify-center items-center text-md text-black font-medium uppercase">
