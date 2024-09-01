@@ -6,11 +6,23 @@
 
             <div class="flex justify-end gap-4 items-center ">
 
-                <button  *ngIf="dataSource.data.length"
-                            class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs"
-                            (click)="generateReport()">
-                            Generate Report
-                        </button>
+                <button *ngIf="dataSource.data.length"
+                    class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs"
+                    (click)="generateReport()">
+                    Generate Report
+                </button>
+                <div
+                    class="h-10 inline-flex items-center justify-between text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] pl-[20px] pr-[8px]">
+                    <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="ngModelChange()"
+                        placeholder="Search by QuoteId" (keyup.enter)="onSearch()"
+                        class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
+                    <div class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer"
+                        (click)="onSearch()">
+
+                        <ng-icon name="heroMagnifyingGlass" class="text-sm text-gray-600  hover:text-violet-700 m-1.5">
+                        </ng-icon>
+                    </div>
+                </div>
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-1"
                     [matMenuTriggerFor]="beforeMenu" mat-button>
                     <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
@@ -21,6 +33,7 @@
                 </div>
                 <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto  w-96">
                     <div class="p-4" (click)="handleNotClose($event)">
+
                         <form [formGroup]="formData" (ngSubmit)="onSubmit()">
                             <div class="flex justify-between items-center mb-2">
                                 <label for="fromDate" class="font-medium"> From:</label>
@@ -78,7 +91,8 @@
                     </div>
                 </mat-menu>
 
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm whitespace-nowrap"
+                <button
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm whitespace-nowrap"
                     routerLink="/quotations/create">
                     + Create Quote
                 </button>
@@ -98,44 +112,45 @@
         </div>
         <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
             <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
-    
+
                 <ng-container matColumnDef="date">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden min-w-[116px]">
                         Date </th>
                     <td mat-cell *matCellDef="let element"> {{element.date | date:'dd/MM/yyyy'}} </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="quoteId">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Quote Id </th>
-                    <td mat-cell *matCellDef="let element"> <a 
+                    <td mat-cell *matCellDef="let element"> <a
                             class="text-purple-600 font-medium">{{element.quoteId}}</a> </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="customerName">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Customer </th>
                     <td mat-cell *matCellDef="let element"> {{element.client.companyName}} </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="description">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Description </th>
                     <td mat-cell *matCellDef="let element"> {{element.subject}} </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="salesPerson">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Sales Person </th>
-                    <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+' '+element.createdBy.lastName}}
+                    <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName+'
+                        '+element.createdBy.lastName}}
                     </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="department">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
@@ -146,15 +161,17 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Amount </th>
-                    <td mat-cell *matCellDef="let element"> {{ calculateDiscoutPrice(element) | numberFormatter }} {{element.currency}} </td>
+                    <td mat-cell *matCellDef="let element"> {{ calculateDiscoutPrice(element) | numberFormatter }}
+                        {{element.currency}} </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="status">
                     <th *matHeaderCellDef
                         class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
                         Status </th>
                     <td mat-cell *matCellDef="let element;let i= index" class="">
-                        <div (click)="onStatus($event,element.status)" *ngIf="!element.lpoValue" class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
+                        <div (click)="onStatus($event,element.status)" *ngIf="!element.lpoValue"
+                            class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
                             [matMenuTriggerFor]="beforeMenu" mat-button>
                             <p class="mx-2 text-sm whitespace-nowrap">{{element.status}}</p>
                             <div class="mt-1">
@@ -162,12 +179,13 @@
                             </div>
                         </div>
                         <mat-menu #beforeMenu="matMenu" class="mt-2 h-auto mat-elevation-z0 border">
-                            <div class="" >
-                                <div  *ngFor="let status of quoteStatuses">
-                                <p  class="p-2 hover:bg-violet-200 cursor-pointer   px-[12px]  text-dark  text-[15px] " *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
-                                    {{status}}</p>
+                            <div class="">
+                                <div *ngFor="let status of quoteStatuses">
+                                    <p class="p-2 hover:bg-violet-200 cursor-pointer   px-[12px]  text-dark  text-[15px] "
+                                        *ngIf="status !== element.status" (click)="updateStatus(i,element._id,status)">
+                                        {{status}}</p>
                                 </div>
-                                
+
                             </div>
                         </mat-menu>
                         <div class="w-full flex justify-center items-center" *ngIf="element.lpoValue">
@@ -180,30 +198,35 @@
                         </div>
                     </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="action">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
                         Action </th>
                     <td mat-cell *matCellDef="let element; let i=index" class="">
                         <div class="flex justify-end items-center gap-2">
-                            <div (click)="onClickLpo(element,$event)" *ngIf="element.status == 'Won' && !element.lpoValue "
-                            matTooltip="Upload Lpo" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                            <div (click)="onClickLpo(element,$event)"
+                                *ngIf="element.status == 'Won' && !element.lpoValue " matTooltip="Upload Lpo"
+                                matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroDocumentArrowUp"></ng-icon>
                             </div>
-                            <div (click)="onViewLpo(element,$event)" *ngIf="element.status == 'Won' && element.lpoValue "
-                            matTooltip="View Lpo" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                            <div (click)="onViewLpo(element,$event)"
+                                *ngIf="element.status == 'Won' && element.lpoValue " matTooltip="View Lpo"
+                                matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center">
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </div>
-                            <div (click)="onPreviewDeal(false,element,$event)" *ngIf="element.status == 'Won' && element.lpoValue && element.dealData"
-                            matTooltip="Deal Status" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                            <div (click)="onPreviewDeal(false,element,$event)"
+                                *ngIf="element.status == 'Won' && element.lpoValue && element.dealData"
+                                matTooltip="Deal Status" matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center">
                                 <ng-icon name="heroClipboardDocumentCheck" class="text-black"></ng-icon>
                             </div>
-                            <div (click)="onConvertToDealSheet(element,$event,i)" *ngIf="element.status == 'Won' && element.lpoValue && !element.dealData"
-                            matTooltip="Convert To Deal Sheet" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                            <div (click)="onConvertToDealSheet(element,$event,i)"
+                                *ngIf="element.status == 'Won' && element.lpoValue && !element.dealData"
+                                matTooltip="Convert To Deal Sheet" matTooltipPosition="above"
+                                matTooltipClass="mat-tooltip"
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroArrowsRightLeft"></ng-icon>
                             </div>
@@ -214,9 +237,10 @@
                         </div>
                     </td>
                 </ng-container>
-    
+
                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index" class="cursor-pointer hover:bg-gray-100"  (click)="onRowClicks(i)"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index"
+                    class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
             </table>
         </section>
         <div class="w-full bg-white" *ngIf="!isEmpty">

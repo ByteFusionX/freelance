@@ -118,15 +118,16 @@ export interface dealData {
     items: [];
     additionalCosts: { name: string, value: number }[];
     savedDate: string;
-    seenByApprover:boolean;
-    status:string;
-    comments:string[]
+    seenByApprover: boolean;
+    status: string;
+    comments: string[]
 }
 
 
 export interface FilterQuote {
     page: number;
     row: number;
+    search: string;
     salesPerson: string | null;
     customer: string | null;
     fromDate: string | null;
@@ -174,7 +175,7 @@ export type PieChartOptions = {
     legend: ApexLegend;
     dataLabels: ApexDataLabels;
     plotOptions: ApexPlotOptions;
-    colors:any;
+    colors: any;
 };
 
 

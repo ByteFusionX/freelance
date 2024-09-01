@@ -34,9 +34,11 @@ export class QuotationListComponent {
   isLoading: boolean = true;
   isEmpty: boolean = false;
   isFiltered: boolean = false;
+  isEnter: boolean = false;
   lastStatus!: QuoteStatus;
   createQuotation: boolean | undefined = false;
   loader = this.loadingBar.useRef();
+  searchQuery: string = '';
 
   quoteStatuses = Object.values(QuoteStatus);
   displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'action'];
@@ -92,7 +94,18 @@ export class QuotationListComponent {
     this.subscriptions.unsubscribe()
   }
 
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
 
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getQuotations()
+  }
 
   getQuotations() {
     this.isLoading = true;
@@ -104,6 +117,7 @@ export class QuotationListComponent {
     })
 
     let filterData = {
+      search: this.searchQuery,
       page: this.page,
       row: this.row,
       salesPerson: this.selectedSalesPerson,

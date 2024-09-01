@@ -35,8 +35,12 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
 export const getQuotations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
+        let { page, search, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
+
+        let searchRegex = search.split('').join('\\s*');
+        let fullNameRegex = new RegExp(searchRegex, 'i');
+
         let isSalesPerson = salesPerson == null ? true : false;
         let isCustomer = customer == null ? true : false;
         let isDate = fromDate == null || toDate == null ? true : false;
@@ -44,6 +48,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
         let matchFilters = {
             $and: [
+                { quoteId: { $regex: search, $options: 'i' } },
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
                 { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
                 {
