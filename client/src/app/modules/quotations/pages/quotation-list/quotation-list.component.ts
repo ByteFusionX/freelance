@@ -325,6 +325,7 @@ export class QuotationListComponent {
     dialogRef.afterClosed().subscribe((dealData: dealData) => {
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, data._id).subscribe((res) => {
+          this.dataSource.data[index].items = res.items;
           this.dataSource.data[index].dealData = res.dealData;
           this.dataSource._updateChangeSubscription();
         })

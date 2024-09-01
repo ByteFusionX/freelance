@@ -51,16 +51,16 @@
 
                             <ng-container *ngIf="enquiryData$ | async as enquiryData ;else attentionBlock">
                                 <p class="border py-[11px] px-2">
-                                    {{enquiryData.contact.courtesyTitle + '.' + enquiryData.contact.firstName + ' ' +
-                                    enquiryData.contact.lastName}}</p>
+                                    {{enquiryData?.contact?.courtesyTitle + '.' + enquiryData?.contact?.firstName + ' ' +
+                                    enquiryData?.contact?.lastName}}</p>
                             </ng-container>
                         </ng-container>
                         <ng-template #attentionBlock>
                             <ng-select [class.border-red-500]="f['attention'].invalid && submit" class="form border"
                                 bindLabel="_id" formControlName="attention">
                                 <ng-option *ngFor="let contact of contacts"
-                                    [value]="contact._id">{{contact.courtesyTitle +
-                                    '.' + contact.firstName + ' ' + contact.lastName}}</ng-option>
+                                    [value]="contact?._id">{{contact?.courtesyTitle +
+                                    '.' + contact?.firstName + ' ' + contact?.lastName}}</ng-option>
                             </ng-select>
                         </ng-template>
                     </div>
