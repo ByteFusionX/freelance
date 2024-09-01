@@ -541,8 +541,10 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         const job = new Job(jobData);
         const saveJob = await job.save()
         if (saveJob) {
-            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { 'dealData.status': 'approved' })
+            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { 'dealData.status': 'approved', 'dealData.seenedBySalsePerson': false })
             if (quoteUpdate) {
+                const socket = req.app.get('io') as Server;
+                socket.emit("notifications", 'quotation')
                 return res.status(200).json({ success: true });
             }
         }
@@ -562,8 +564,12 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
             return res.status(502).json({ message: 'Deal not found' });
         }
         deal.dealData.status = 'rejected';
+        deal.dealData.seenedBySalsePerson = false
         deal.dealData.comments.push(comment);
         await deal.save();
+
+        const socket = req.app.get('io') as Server;
+        socket.emit("notifications", 'quotation')
 
         return res.status(200).json({ success: true })
 
@@ -856,6 +862,41 @@ const calculateDiscountPrice = (quotation: any): number => {
     };
     return calculateSellingPrice() - quotation.totalDiscount;
 };
+
+export const markAsQuotationSeened = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { quoteId, userId } = req.body;
+
+        if (!quoteId || !userId) {
+            return res.status(400).json({ message: "quoteId and userId are required." });
+        }
+        const updateResult = await Quotation.updateOne(
+            {
+                _id: new ObjectId(quoteId),
+                createdBy: new ObjectId(userId),
+            },
+            {
+                $set: {
+                    "dealData.seenedBySalsePerson": true
+                }
+            }
+        );
+
+        if (updateResult.matchedCount === 0) {
+            return res.status(404).json({ message: "No matching quotation found." });
+        }
+
+        if (updateResult.modifiedCount === 0) {
+            return res.status(304).json({ message: "Quotation was already marked as seen." });
+        }
+
+        return res.status(200).json({ success: true });
+        
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 async function getUSDRated() {
     const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';

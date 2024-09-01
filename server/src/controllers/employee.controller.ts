@@ -402,11 +402,17 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             "preSale.feedback.seenByFeedbackProvider": false,
             'preSale.feedback.feedback': { $exists: false }
         });
+
+        const quotationCount = await quotationModel.countDocuments({
+            createdBy: new ObjectId(userId),
+            "dealData.seenedBySalsePerson": false,
+        })
         const employeeCount = {
             announcementCount,
             assignedJobCount,
             dealSheetCount,
-            feedbackCount
+            feedbackCount,
+            quotationCount
         }
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()

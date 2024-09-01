@@ -68,6 +68,10 @@ export class QuotationService {
     return this.http.post(`${this.api}/quotation/markAsSeenedDeal`, { quoteIds })
   }
 
+  markAsQuotationSeen(quoteId: any, userId: string): Observable<any> {
+    return this.http.post(`${this.api}/quotation/markAsQuotationSeened`, { quoteId, userId })
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {

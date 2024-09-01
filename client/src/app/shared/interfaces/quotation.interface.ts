@@ -121,6 +121,7 @@ export interface dealData {
     seenByApprover: boolean;
     status: string;
     comments: string[]
+    seenedBySalsePerson: boolean
 }
 
 

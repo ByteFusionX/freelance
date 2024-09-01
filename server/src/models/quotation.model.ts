@@ -7,7 +7,7 @@ interface QuoteItemDetail {
     profit: number;
     availability: string;
     supplierName?: string;
-    dealSelected?:boolean;
+    dealSelected?: boolean;
 }
 
 interface QuoteItem {
@@ -25,9 +25,10 @@ interface Deal {
     paymentTerms: string;
     additionalCosts: AdditionalCost[];
     savedDate: Date;
-    seenByApprover:boolean;
-    status:string;
-    comments:string[];
+    seenByApprover: boolean;
+    status: string;
+    comments: string[];
+    seenedBySalsePerson: boolean
 }
 
 interface Quotation extends Document {
@@ -131,17 +132,21 @@ const dealDatas = new Schema<Deal>({
         type: Date,
         required: false,
     },
-    seenByApprover:{
-        type:Boolean,
-        default:false
+    seenByApprover: {
+        type: Boolean,
+        default: false
     },
-    status:{
+    seenedBySalsePerson: {
+        type: Boolean,
+        default: true
+    },
+    status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
     },
     comments: {
-        type:[String],
+        type: [String],
     },
 });
 
