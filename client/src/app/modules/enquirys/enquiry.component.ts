@@ -189,7 +189,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     const presaleDialog = this.dialog.open(AssignPresaleComponent)
     presaleDialog.afterClosed().subscribe((data: any) => {
       if (data) {
-        const presaleData: getEnquiry["preSale"] = {
+        const presaleData: Partial<getEnquiry["preSale"]> = {
           comment: data.comment,
           presaleFiles: data.presaleFile,
           presalePerson: data.presalePerson
@@ -205,10 +205,10 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
         this._enquiryService.assignPresale(formData, enquiryId).subscribe((res) => {
           if (res.success) {
-            this.dataSource.data[index].preSale = presaleData
+            this.dataSource.data[index].preSale = presaleData as getEnquiry["preSale"];
             this.dataSource.data[index].status = 'Assigned To Presales'
             this.dataSource._updateChangeSubscription();
-            this.toaster.success()
+            this.toaster.success('Assinged Presale successfully')
           }
         })
       }

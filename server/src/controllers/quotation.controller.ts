@@ -623,6 +623,11 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         const totalQuotes = await Quotation.aggregate([
             {
+                $match: {
+                    'dealData.status' : {$ne:'approved'}
+                }
+            },
+            {
                 $match: accessFilter
             },
             {

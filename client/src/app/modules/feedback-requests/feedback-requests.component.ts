@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Estimations, feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { ViewCommentComponent } from '../assigned-jobs/pages/view-comment/view-comment.component';
 import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
@@ -127,9 +127,9 @@ export class FeedbackRequestsComponent {
     }
   }
 
-  onViewEstimation(items:QuoteItem[],enqId:string){
+  onViewEstimation(estimation: Estimations, enqId:string){
     this._dialog.open(ViewEstimationComponent, {
-      data:{items,enqId,isEdit:false}
+      data:{estimation,enqId,isEdit:false}
     })
   }
 

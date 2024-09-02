@@ -53,12 +53,28 @@ const feedbackSchema = new Schema({
     },
 })
 
+const estimationSchema = new Schema({
+    items: [],
+    currency: {
+        type: String
+    },
+    totalDiscount: {
+        type: Number
+    },
+    presaleNote: {
+        type: String
+    },
+})
+
 const preSaleSchema = new Schema({
     presalePerson: {
         type: Schema.Types.ObjectId,
         ref: 'Employee',
     },
-    items: [],
+    estimations: {
+        type: estimationSchema
+    },
+    presaleFiles: [],
     comment: {
         type: String
     },

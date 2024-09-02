@@ -107,6 +107,15 @@ export class QuotationEditComponent {
     if (this.quoteData) {
       this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
       this.quoteForm.controls['client'].setValue(this.quoteData.client);
+      this.items.clear()
+      this.quoteData.items.forEach((item: any, index: number) => {
+        this.addItemFormGroup()
+        item.itemDetails.forEach((_: any, ind: number) => {
+          if (ind > 0) {
+            this.addItemDetail(index)
+          }
+        })
+      })
       this.quoteForm.patchValue(this.quoteData);
     }
   }

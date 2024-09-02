@@ -91,7 +91,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         const presale = JSON.parse(req.body.presaleData)
         const presaleFiles = req.files.presaleFiles;
         let enquiryId = req.params.enquiryId;
-
+        console.log(req.files)
         if (presaleFiles) {
             presale.presaleFiles = presaleFiles
         }
@@ -479,7 +479,7 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
         let { enquiryId, feedback } = req.body;
         const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.feedback": feedback,'preSale.feedback.seenByFeedbackRequester':false } }
+            { $set: { "preSale.feedback.feedback": feedback, 'preSale.feedback.seenByFeedbackRequester': false } }
         );
 
         if (result) {
@@ -499,15 +499,21 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
     try {
         let { revisionComment } = req.body;
         let enquiryId = req.params.enquiryId;
-        const result = await enquiryModel.updateOne(
+        const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
             {
                 $push: { 'preSale.revisionComment': revisionComment },
-                status: 'Assigned To Presales'
-            }
+                status: 'Assigned To Presales',
+                $unset: { 'preSale.feedback': 1 },
+                'preSale.seenbyEmployee': false
+            },
+            { new: true }
         );
 
-        if (result.modifiedCount === 0) {
+        const socket = req.app.get('io') as Server;
+        socket.to(result.preSale.presalePerson.toString()).emit("notifications", 'assignedJob')
+
+        if (!result) {
             return res.status(404).send('Enquiry not found or comment not added.');
         }
 
@@ -519,19 +525,25 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
 
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let items = req.body.items;
-        let enquiryId = req.body.enquiryId;
-
+        let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
+        console.log(req.body);
         const enquiryData = await enquiryModel.updateOne(
             { _id: new ObjectId(enquiryId) },
-            { $set: { 'preSale.items': items } }
+            {
+                $set: {
+                    'preSale.estimations.items': items,
+                    'preSale.estimations.currency': currency,
+                    'preSale.estimations.totalDiscount': totalDiscount,
+                    'preSale.estimations.presaleNote': preSaleNote,
+                }
+            }
         );
 
         if (!enquiryData.modifiedCount) {
             return res.status(502).json();
         }
 
-        return res.status(200).json({success:true});
+        return res.status(200).json({ success: true });
     } catch (error) {
         next(error);
     }

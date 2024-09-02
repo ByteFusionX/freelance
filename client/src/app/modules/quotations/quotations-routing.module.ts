@@ -11,6 +11,7 @@ const routes: Routes = [
   {
     path: '', component: QuotationsComponent, children: [
       { path: '',canActivate:[RoleGuard], component: QuotationListComponent },
+      { path: 'report',canActivate:[RoleGuard], component: QuotationListComponent },
       { path: 'create',canActivate:[RoleGuard],  component:CreateQuotatationComponent},
       { path: 'edit',canActivate:[RoleGuard],  component:QuotationEditComponent},
       { path: 'view',canActivate:[RoleGuard],  component:QuotationViewComponent}

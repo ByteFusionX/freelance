@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Estimations, feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { saveAs } from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -149,7 +149,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onSendClicked(index: number) {
-    if (this.dataSource.data[index].preSale.items?.length) {
+    if (this.dataSource.data[index].preSale.estimations) {
       const dialogRef = this._dialog.open(ConfirmationDialogComponent,
         {
           data: {
@@ -190,7 +190,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onFeedback(enquiryId: string, index: number) {
-    if (this.dataSource.data[index].preSale.items?.length) {
+    if (this.dataSource.data[index].preSale.estimations) {
       const dialogRef = this._dialog.open(SelectEmployeeComponent, { width: '400px' });
 
       dialogRef.afterClosed().subscribe((data: { employeeId: string, comment: string }) => {
@@ -245,9 +245,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this._router.navigate(['/assigned-jobs/upload-estimations'], navigationExtras);
   }
 
-  onViewEstimation(items:QuoteItem[],enqId:string) {
+  onViewEstimation(estimation: Estimations, enqId: string) {
     this._dialog.open(ViewEstimationComponent, {
-      data:{items,enqId,isEdit:true}
+      data: { estimation, enqId, isEdit: true }
     })
   }
 

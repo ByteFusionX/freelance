@@ -107,17 +107,30 @@ export class CreateQuotatationComponent {
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
     this.subscriptions.add(this.enquiryData$.subscribe((data) => {
-      const items = data?.preSale?.items ?? []; 
-      this.quoteForm.patchValue({ 
-        client: data?.client._id, 
-        department: data?.department._id, 
-        enqId: data?._id, 
-        items: items 
+      if (data) {
+        this.items.clear()
+        data.preSale.estimations.items.forEach((item: any, index: number) => {
+          this.addItemFormGroup()
+          item.itemDetails.forEach((_: any, ind: number) => {
+            if (ind > 0) {
+              this.addItemDetail(index)
+            }
+          })
+        })
+      }
+      const items = data?.preSale?.estimations?.items ?? [];
+      this.quoteForm.patchValue({
+        client: data?.client._id,
+        department: data?.department._id,
+        enqId: data?._id,
+        items: items,
+        currency: data?.preSale.estimations.currency,
+        totalDiscount: data?.preSale.estimations.totalDiscount
       });
       this.onChange(data?.client._id as string);
       this.quoteForm.patchValue({ attention: data?.contact._id });
     })
-    
+
     )
   }
 

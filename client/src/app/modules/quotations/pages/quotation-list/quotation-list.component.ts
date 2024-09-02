@@ -41,7 +41,7 @@ export class QuotationListComponent {
   searchQuery: string = '';
 
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'action'];
+  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'dealStatus', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()

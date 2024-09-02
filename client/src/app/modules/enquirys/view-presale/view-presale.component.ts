@@ -88,6 +88,52 @@ export class ViewPresaleComponent {
     }, 1000)
   }
 
+  calculateTotalCost(i: number, j: number) {
+    return this.data.preSale.estimations?.items[i].itemDetails[j].quantity * this.data.preSale.estimations?.items[i].itemDetails[j].unitCost;
+  }
+
+  calculateAllTotalCost() {
+    let totalCost = 0;
+    this.data.preSale.estimations?.items.forEach((item, i) => {
+      item.itemDetails.forEach((itemDetail, j) => {
+        totalCost += this.calculateTotalCost(i, j)
+      })
+    })
+    return totalCost;
+  }
+
+  calculateSellingPrice(): number {
+    let totalCost = 0;
+    this.data.preSale.estimations?.items.forEach((item, i) => {
+      item.itemDetails.forEach((itemDetail, j) => {
+        totalCost += this.calculateTotalPrice(i, j)
+      })
+    })
+    return totalCost;
+  }
+
+  calculateUnitPrice(i: number, j: number) {
+    const decimalMargin = this.data.preSale.estimations?.items[i].itemDetails[j].profit / 100;
+    return this.data.preSale.estimations?.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
+  }
+
+  calculateTotalPrice(i: number, j: number) {
+    return this.calculateUnitPrice(i, j) * this.data.preSale.estimations?.items[i].itemDetails[j].quantity;
+  }
+
+  calculateProfitMargin(): number {
+    return this.calculateSellingPrice() - this.calculateAllTotalCost() || 0
+  }
+
+  calculateTotalProfit(): number {
+    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
+  }
+
+  calculateDiscoutPrice(): number {
+    return this.calculateSellingPrice() - this.data.preSale.estimations?.totalDiscount
+  }
+
+
 
   closeModal() {
     this.dialogRef.close()

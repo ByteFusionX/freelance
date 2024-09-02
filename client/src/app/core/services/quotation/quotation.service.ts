@@ -112,10 +112,10 @@ export class QuotationService {
     const tableHeader = [
       { text: 'Sl.\nNo', style: 'tableSlNo' },
       { text: 'Part Number/Description', style: 'tableHeader' },
-      { text: 'QTY', style: 'tableHeader' },
+      { text: 'Qty', style: 'tableHeader' },
       { text: 'Unit', style: 'tableHeader' },
-      { text: 'Unit Price', style: 'tableHeader' },
-      { text: 'Total Cost', style: 'tableHeader' }
+      { text: `Unit Price (${quoteData.currency})`, style: 'tableHeader' },
+      { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' }
     ];
 
     // Table body
@@ -192,12 +192,12 @@ export class QuotationService {
         { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
       ];
       finalAmount = [
-        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
       ];
     } else {
       finalAmount = [
-        { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: (totalCost).toFixed(2), style: 'tableFooter' },
       ];
     }

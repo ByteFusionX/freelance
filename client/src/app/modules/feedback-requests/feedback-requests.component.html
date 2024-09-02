@@ -101,9 +101,9 @@
                         <div class="flex justify-center items-center">
                             <button
                                 class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
-                                *ngIf="element.preSale.items" matTooltip="View Estimations" matTooltipPosition="above"
+                                *ngIf="element.preSale.estimations" matTooltip="View Estimations" matTooltipPosition="above"
                                 matTooltipClass="mat-tooltip"
-                                (click)="onViewEstimation(element.preSale.items,element._id)">
+                                (click)="onViewEstimation(element.preSale.estimations,element._id)">
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </button>
                         </div>

@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
+import { Estimations } from 'src/app/shared/interfaces/enquiry.interface';
 import { QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
@@ -25,6 +26,7 @@ export class UploadEstimationComponent {
   }
 
   quoteForm = this._fb.group({
+    currency: [null, Validators.required],
     items: this._fb.array([
       this._fb.group({
         itemName: ['', Validators.required],
@@ -38,7 +40,9 @@ export class UploadEstimationComponent {
           }),
         ])
       })
-    ])
+    ]),
+    totalDiscount: ['', Validators.required],
+    presaleNote: ['', Validators.required],
   });
 
   getEnquiryId() {
@@ -46,11 +50,26 @@ export class UploadEstimationComponent {
     const isUpload = this._router.url.includes('upload-estimations')
     const isEdit = this._router.url.includes('edit-estimations')
     if (navigation && isUpload) {
+      this.quoteForm.patchValue({ totalDiscount: '0' })
       this.enqId = navigation.extras.state?.['enquiryId']
     } else if (navigation && isEdit) {
-      const items = navigation.extras.state?.['items']
+      const estimations = navigation.extras.state?.['estimation']
       this.enqId = navigation.extras.state?.['enquiryId']
-      this.quoteForm.patchValue({ items: items })
+      this.items.clear()
+      estimations.items.forEach((item: any, index: number) => {
+        this.addItemFormGroup()
+        item.itemDetails.forEach((_: any, ind: number) => {
+          if (ind > 0) {
+            this.addItemDetail(index)
+          }
+        })
+      })
+      this.quoteForm.patchValue({
+        items: estimations.items,
+        currency: estimations.currency,
+        presaleNote: estimations.presaleNote,
+        totalDiscount: estimations.totalDiscount,
+      })
     } else {
       this._router.navigate(['/assigned-jobs']);
     }
@@ -61,7 +80,7 @@ export class UploadEstimationComponent {
   }
 
   getItemDetailsControls(index: number): FormArray {
-    return this.items.at(index).get('itemDetails') as FormArray;
+    return this.items?.at(index)?.get('itemDetails') as FormArray;
   }
 
   addItemFormGroup() {
@@ -90,7 +109,7 @@ export class UploadEstimationComponent {
   }
 
   addItemDetail(index: number): void {
-    this.getItemDetailsControls(index).push(this.createItemDetail());
+    this.getItemDetailsControls(index)?.push(this.createItemDetail());
   }
 
   onRemoveItem(index: number): void {
@@ -101,6 +120,23 @@ export class UploadEstimationComponent {
     this.getItemDetailsControls(i).removeAt(j);
   }
 
+  get f() {
+    return this.quoteForm.controls;
+  }
+
+  calculateSellingPrice(): number {
+    let totalCost = 0;
+    this.items.value.forEach((item: any, i: number) => {
+      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
+        totalCost += this.calculateTotalPrice(i, j)
+      })
+    })
+    return totalCost;
+  }
+
+  calculateTotalProfit(): number {
+    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
+  }
 
   calculateTotalCost(i: number, j: number) {
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
@@ -126,11 +162,19 @@ export class UploadEstimationComponent {
     return totalCost;
   }
 
+  calculateDiscoutPrice(): number {
+    const totalDiscount = Number(this.quoteForm.get('totalDiscount')?.value) ?? 0;
+    return this.calculateSellingPrice() - totalDiscount;
+  }
+
+
   onSubmit() {
     this.submit = true;
     if (this.enqId && this.quoteForm.valid) {
       this.isSaving = true;
-      const postBody = { items: this.quoteForm.value.items, enquiryId: this.enqId }
+      const quoteForm = this.quoteForm.value
+      const postBody = { items: quoteForm.items, enquiryId: this.enqId, currency: quoteForm.currency, preSaleNote: quoteForm.presaleNote, totalDiscount: quoteForm.totalDiscount }
+      console.log(postBody)
       this._enquiryService.uploadEstimations(postBody).subscribe((data) => {
         if (data.success) {
           this.toastr.success('Estimation Updated!', 'Success')

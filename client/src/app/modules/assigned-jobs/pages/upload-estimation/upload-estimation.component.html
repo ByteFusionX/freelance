@@ -6,6 +6,17 @@
         </div>
     </div>
     <div class="relative overflow-x-auto  p-8" [formGroup]="quoteForm">
+        <div class="w-full md:w-1/4 mb-6 md:mb-3">
+            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                for="grid-first-name">
+                Currency
+            </label>
+            <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border"
+                formControlName="currency">
+                <ng-option value="QAR">QAR</ng-option>
+                <ng-option value="USD">USD</ng-option>
+            </ng-select>
+        </div>
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
@@ -142,7 +153,85 @@
             </button>
 
         </div>
+        <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
+            <table class="w-1/2 text-sm text-left rtl:text-right text-black border bg-gray-50">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Cost
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateAllTotalCost().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Selling price
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateSellingPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit margin with %
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateTotalProfit().toFixed(2)}}%
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <table class="w-1/2  text-sm text-left rtl:text-right text-black border bg-gray-100">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Subtotal
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateSellingPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Discount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            <input type="number" placeholder="0" appNoLeadingSpace appNegativeNumber
+                                [class.border-red-500]="f['totalDiscount'].invalid && submit"
+                                class="text-center border  outline-none px-2 py-2 w-4/5"
+                                formControlName="totalDiscount">
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Amount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateDiscoutPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="relative overflow-x-auto mt-6 w-full ">
+            <div class="w-full">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                    for="customerNote">
+                    Note
+                </label>
+
+                <textarea appNoLeadingSpace formControlName="presaleNote"
+                    [class.border-red-500]="f['presaleNote'].invalid && submit" rows="3"
+                    class="mt-2 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    id="customerNote" placeholder="Presale Note"></textarea>
+
+            </div>
+        </div>
     </div>
+
     <div class="px-8 py-6 border-t flex justify-end">
         <div class="flex w-40">
             <button type="button"

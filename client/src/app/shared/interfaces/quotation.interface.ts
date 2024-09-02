@@ -35,7 +35,7 @@ export interface Quotatation {
     date: string;
     department: getDepartment;
     subject: string;
-    currenct: string;
+    currency: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;
@@ -57,7 +57,7 @@ export interface getQuotatation {
     date: string;
     department: getDepartment;
     subject: string;
-    currenct: string;
+    currency: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;
@@ -93,7 +93,7 @@ export interface quotatationForm {
     date: string | null;
     department: string | getDepartment | undefined;
     subject: string;
-    currenct: string;
+    currency: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;

@@ -16,6 +16,15 @@ export interface Enquiry {
     status: string;
 }
 
+export interface Estimations {
+    items: QuoteItem[];
+    currency: string;
+    totalDiscount: number;
+    presaleNote: string;
+}
+
+
+
 export interface getEnquiry {
     _id: string;
     enquiryId: string;
@@ -33,6 +42,7 @@ export interface getEnquiry {
         comment: string;
         feedback?: feedback;
         seenbyEmployee?: boolean;
+        estimations:Estimations
     };
     status: string;
 }

@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
+import { Estimations, feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { saveAs } from 'file-saver'
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -76,9 +76,9 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe()
   }
 
-  onViewEstimation(items:QuoteItem[],enqId:string){
+  onViewEstimation(estimation: Estimations, enqId:string){
     this._dialog.open(ViewEstimationComponent, {
-      data:{items,enqId,isEdit:false}
+      data:{estimation,enqId,isEdit:false}
     })
   }
 

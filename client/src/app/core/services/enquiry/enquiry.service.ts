@@ -49,7 +49,7 @@ export class EnquiryService {
     this.depSubject.next(departmentId)
   }
 
-  uploadEstimations(postBody: { items: any, enquiryId: string }): Observable<{success:boolean}> {
+  uploadEstimations(postBody: any): Observable<{success:boolean}> {
     return this.http.post<{success:boolean}>(`${this.api}/enquiry/upload-estimation`, postBody)
   }
 
