@@ -225,13 +225,13 @@ export class QuotationListComponent {
   }
 
 
-  onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event) {
+  onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,
       totalCost: 0,
       profit: 0,
-      perc: 0
+      perc: 0,
     }
 
     const quoteItems = quoteData.items.map((item) => {
@@ -261,9 +261,11 @@ export class QuotationListComponent {
         width: '900px'
       });
 
+    dialogRef.afterClosed().subscribe(() => {
+      this.dataSource.data[index].dealData.seenedBySalsePerson = true;
+      this.dataSource._updateChangeSubscription()
+    })
   }
-
-
 
   onfilterApplied() {
     this.isFiltered = true;

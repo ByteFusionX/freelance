@@ -20,20 +20,21 @@
                 <div *ngIf="showTabs" class="font-medium">
                     <div class="cursor-pointer mt-2" (click)="onHomeClick()">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
-                            <ng-icon name="heroHome" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Home'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                            <ng-icon name="heroHome" class="text-xl text-gray-600" [matTooltip]="showFullBar?'':'Home'"
+                                matTooltipPosition="right" matTooltipClass="mat-tooltip"
+                                matTooltipClass="text-sm"></ng-icon>
                             <div class="relative w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Home</p>
-                                
-                                    <ng-icon name="heroChevronUp" class="text-gray-600"
-                                        *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
-                                    <ng-template #homeDropDownMenu>
-                                        <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
-                                    </ng-template>
-                                
+
+                                <ng-icon name="heroChevronUp" class="text-gray-600"
+                                    *ngIf="homeDropDown else homeDropDownMenu"></ng-icon>
+                                <ng-template #homeDropDownMenu>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </ng-template>
+
                                 <ng-container *ngIf="(notificationCounts$ | async) as notifications">
-                                    <span *ngIf="notifications.announcementCount > 0 && privileges?.announcement?.viewReport !== 'none'"
+                                    <span
+                                        *ngIf="notifications.announcementCount > 0 && privileges?.announcement?.viewReport !== 'none'"
                                         class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
                                 </ng-container>
                             </div>
@@ -76,8 +77,8 @@
                         routerLinkActive="active" *ngIf="privileges?.customer?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroUserGroup" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Customers'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Customers'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Customers</p>
                                 <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
@@ -89,8 +90,8 @@
                         routerLinkActive="active" *ngIf="privileges?.enquiry?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroQuestionMarkCircle" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Enquiry'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Enquiry'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Enquiry</p>
                                 <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
@@ -103,16 +104,17 @@
                         *ngIf="privileges?.assignedJob?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroIdentification" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Assigned Jobs'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Assigned Jobs'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Assigned Jobs</p>
                                 <div class="flex items-center justify-center gap-1">
                                     <div *ngIf="(notificationCounts$ | async) as notifications">
-                                        <div *ngIf="notifications.assignedJobCount" class="flex justify-center items-center">
+                                        <div *ngIf="notifications.assignedJobCount"
+                                            class="flex justify-center items-center">
                                             <div
                                                 class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
-                                                <p >{{notifications.assignedJobCount}}</p>
+                                                <p>{{notifications.assignedJobCount}}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -127,8 +129,8 @@
                         *ngIf="privileges?.assignedJob?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroCheckCircle" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Completed Jobs'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Completed Jobs'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Completed Jobs</p>
                                 <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
@@ -141,11 +143,22 @@
                         routerLinkActive="active" *ngIf="privileges?.quotation?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroNewspaper" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Quotations'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Quotations'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Quotations</p>
-                                <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                <div class="flex items-center justify-center gap-1">
+                                    <div *ngIf="(notificationCounts$ | async) as notifications">
+                                        <div *ngIf="notifications.quotationCount"
+                                            class="flex justify-center items-center">
+                                            <div
+                                                class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
+                                                <p>{{notifications.quotationCount}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,13 +167,14 @@
                         routerLinkActive="active" *ngIf="privileges?.dealSheet && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroClipboardDocumentCheck" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Deal Sheet'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Deal Sheet'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Deal Sheet</p>
                                 <div class="flex items-center justify-center gap-1">
                                     <div *ngIf="(notificationCounts$ | async) as notifications">
-                                        <div *ngIf="notifications.dealSheetCount" class="flex justify-center items-center">
+                                        <div *ngIf="notifications.dealSheetCount"
+                                            class="flex justify-center items-center">
                                             <div
                                                 class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
                                                 <p>{{notifications.dealSheetCount}}</p>
@@ -177,8 +191,8 @@
                         routerLinkActive="active" *ngIf="privileges?.jobSheet?.viewReport != 'none'  && showTabs">
                         <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
                             <ng-icon name="heroBriefcase" class="text-xl text-gray-600"
-                                    [matTooltip]="showFullBar?'':'Job Sheet'" matTooltipPosition="right"
-                                    matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
+                                [matTooltip]="showFullBar?'':'Job Sheet'" matTooltipPosition="right"
+                                matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Job Sheet</p>
                                 <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>

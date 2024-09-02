@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {  approveDeal, getDealSheet, getNextQuoteId, getQuotations, getReportDetails, markAsSeenDeal, rejectDeal, saveDealSheet, saveQuotation, totalQuotation, updateQuotation, updateQuoteStatus, uploadLpo } from "../controllers/quotation.controller";
+import {  approveDeal, getDealSheet, getNextQuoteId, getQuotations, getReportDetails, markAsQuotationSeened, markAsSeenDeal, rejectDeal, saveDealSheet, saveQuotation, totalQuotation, updateQuotation, updateQuoteStatus, uploadLpo } from "../controllers/quotation.controller";
 const quoteRouter = Router()
 const upload = require("../common/multer.storage")
 
@@ -17,5 +17,6 @@ quoteRouter.post('/report', getReportDetails)
 quoteRouter.get('/total', totalQuotation)
 quoteRouter.post('/nextQuoteId', getNextQuoteId)
 quoteRouter.post('/markAsSeenedDeal', markAsSeenDeal);
+quoteRouter.post('/markAsQuotationSeened', markAsQuotationSeened);
 
 export default quoteRouter;

@@ -9,7 +9,7 @@ import { NotificationCounts } from 'src/app/shared/interfaces/notification.inter
     providedIn: 'root'
 })
 export class NotificationService {
-    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount:0, feedbackCount:0 });
+    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0 , quotationCount : 0 });
     notificationCounts$ = this.notificationsSubject.asObservable();
     api: string = environment.api
 
@@ -49,6 +49,9 @@ export class NotificationService {
             case 'feedbackRequest':
                 updatedCounts.feedbackCount += 1;
                 break;
+            case 'quotation':
+                updatedCounts.quotationCount += 1;
+                break;
         }
 
         this.notificationsSubject.next(updatedCounts);
@@ -61,23 +64,28 @@ export class NotificationService {
 
         switch (notificationType) {
             case 'announcement':
-                if(updatedCounts.announcementCount){
+                if (updatedCounts.announcementCount) {
                     updatedCounts.announcementCount -= value;
                 }
                 break;
             case 'assignedJob':
-                if(updatedCounts.assignedJobCount){
+                if (updatedCounts.assignedJobCount) {
                     updatedCounts.assignedJobCount -= value;
                 }
                 break;
             case 'dealSheet':
-                if(updatedCounts.dealSheetCount){
+                if (updatedCounts.dealSheetCount) {
                     updatedCounts.dealSheetCount -= value;
                 }
                 break;
             case 'feedbackRequest':
-                if(updatedCounts.feedbackCount){
+                if (updatedCounts.feedbackCount) {
                     updatedCounts.feedbackCount -= value;
+                }
+                break;
+            case 'quotation':
+                if (updatedCounts.quotationCount) {
+                    updatedCounts.quotationCount -= value;
                 }
                 break;
         }
@@ -93,7 +101,6 @@ export class NotificationService {
 
     authSocketIo(token: string) {
         this.socket.emit('auth', token);
-
     }
 }
 

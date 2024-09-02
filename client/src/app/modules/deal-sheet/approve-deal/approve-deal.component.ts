@@ -1,33 +1,53 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { dealData, priceDetails, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { UpdatedealsheetComponent } from '../updatedealsheet-component/updatedealsheet-component.component';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { ViewCommentComponent } from '../../assigned-jobs/pages/view-comment/view-comment.component';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-approve-deal',
   templateUrl: './approve-deal.component.html',
   styleUrls: ['./approve-deal.component.css']
 })
-export class ApproveDealComponent {
+export class ApproveDealComponent implements OnInit {
   isApproving: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<ApproveDealComponent>,
     private _dialog: MatDialog,
     private _quoteService: QuotationService,
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService,
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean }
   ) {
+  }
+
+  userId!: string
+
+  ngOnInit(): void {
+    this._employeeService.employeeData$.subscribe((data) => {
+      if (data?._id) {
+        this.userId = data?._id;
+      }
+    })
+    if (this.data.quoteData.dealData.seenedBySalsePerson === false) {
+      console.log('aijksghfighkasdf')
+      this._quoteService.markAsQuotationSeen(this.data.quoteData._id, this.userId).subscribe((res: any) => {
+        if (res.success) {
+          this._notificationService.decrementNotificationCount('quotation', 1)
+        }
+      })
+    }
   }
 
 
   onClose() {
     this.dialogRef.close()
   }
-
-
 
   onUpdate() {
     this.dialogRef.close({ approve: false, updating: true })
@@ -48,7 +68,7 @@ export class ApproveDealComponent {
   openReview() {
     this._dialog.open(ViewCommentComponent, {
       data: { comment: this.data.quoteData.dealData.comments[0] },
-      width:'500px'
+      width: '500px'
     });
   }
 
