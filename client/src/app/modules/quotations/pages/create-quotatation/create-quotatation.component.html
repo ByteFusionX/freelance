@@ -118,7 +118,7 @@
                         </label>
                         <ng-container *ngIf="!isEdit ;else currencyBlock">
 
-                            <ng-container *ngIf="enquiryData$ | async as enquiryData ;else departemntBlock">
+                            <ng-container *ngIf="enquiryData$ | async as enquiryData ;else currencyBlock">
                                 <p class="border py-[11px] px-2">
                                     {{enquiryData.preSale.estimations.currency}}</p>
                             </ng-container>
