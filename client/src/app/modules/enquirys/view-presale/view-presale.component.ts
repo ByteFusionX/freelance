@@ -4,7 +4,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import saveAs from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 
 @Component({
@@ -28,8 +30,26 @@ export class ViewPresaleComponent {
     public dialogRef: MatDialogRef<ViewPresaleComponent>,
     @Inject(MAT_DIALOG_DATA) public data: getEnquiry,
     private _enquiryService: EnquiryService,
+    private _employeeService: EmployeeService,
+    private _notificationService: NotificationService,
     private toast: ToastrService,
   ) { }
+
+  ngOnInit(): void {
+    
+    this._employeeService.employeeData$.subscribe((data) => {
+      if (data?._id) {
+        if (this.data.preSale.seenbySalesPerson === false && this.data.salesPerson._id == data._id) {
+          this._enquiryService.markAsSeenEstimation(this.data._id).subscribe((res: any) => {
+            if (res.success) {
+              this._notificationService.decrementNotificationCount('enquiry', 1)
+            }
+          })
+        }
+      }
+    })
+  }
+
 
 
   validateComments() {

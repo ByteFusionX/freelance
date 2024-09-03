@@ -175,6 +175,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     event.stopPropagation()
     const presaleDialog = this.dialog.open(ViewPresaleComponent, { data: enquiryData })
     presaleDialog.afterClosed().subscribe((success: boolean) => {
+      this.dataSource.data[i].preSale.seenbySalesPerson = true;
       if (success) {
         this.dataSource.data[i].status = 'Assigned To Presales'
         this.dataSource._updateChangeSubscription();

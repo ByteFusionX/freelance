@@ -85,6 +85,10 @@ const preSaleSchema = new Schema({
         type: Boolean,
         default: false
     },
+    seenbySalesPerson: {
+        type: Boolean,
+        default: false
+    },
     revisionComment: {
         type: [String],
         default: []

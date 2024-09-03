@@ -4,4 +4,5 @@ export interface NotificationCounts {
     dealSheetCount : number
     feedbackCount : number
     quotationCount : number
+    enquiryCount : number
 }

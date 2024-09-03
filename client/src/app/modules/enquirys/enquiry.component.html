@@ -127,8 +127,9 @@
                         </div>
                         <ng-template #elseBlock>
                             <div *ngFor="let file of element.attachments">
-                                <p class="w-32 truncate ... hover:text-violet-600" matTooltip="Download File" (click)="onDownloadClicks(file)"
-                                matTooltipPosition="right" matTooltipClass="mat-tooltip">{{file.originalname}}</p>
+                                <p class="w-32 truncate ... hover:text-violet-600" matTooltip="Download File"
+                                    (click)="onDownloadClicks(file)" matTooltipPosition="right"
+                                    matTooltipClass="mat-tooltip">{{file.originalname}}</p>
                             </div>
                         </ng-template>
                     </td>
@@ -151,11 +152,15 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Presales </th>
-                    <td mat-cell *matCellDef="let element;let i=index" class="hover:bg-white" (click)="preventClick($event)">
+                    <td mat-cell *matCellDef="let element;let i=index" class="hover:bg-white"
+                        (click)="preventClick($event)">
                         <button type="button"
                             *ngIf="element.preSale && element.preSale.presalePerson && element.status !== 'Assigned To Presales'"
                             (click)="onViewPresale($event,i,element)"
-                            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-2 rounded text-sm whitespace-nowrap">View Estimations</button>
+                            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-2 rounded text-sm whitespace-nowrap relative">View
+                            Estimations
+                                <span *ngIf="element.preSale.seenbySalesPerson === false"  class="absolute top-0 right-0 -mt-1 -mr-1 h-2.5 w-2.5 rounded-full bg-orange-500"></span>
+                        </button>
                         <button type="button" *ngIf="!element.preSale" (click)="onAssignPresale($event,element._id,i)"
                             class="bg-orange-500 hover:bg-orange-400 text-white font-medium p-2 rounded text-sm whitespace-nowrap ">Assign
                             to Presale</button>

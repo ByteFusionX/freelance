@@ -294,9 +294,13 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 export const updateEnquiryStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let data = req.body
-        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status } })
+        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status, 'preSale.seenbySalesPerson': false } })
             .populate(['client', 'department', 'salesPerson'])
-        if (update) return res.status(200).json(update)
+        if (update) {
+            const socket = req.app.get('io') as Server;
+            socket.to(update.salesPerson._id.toString()).emit("notifications", 'enquiry')
+            return res.status(200).json(update)
+        }
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -655,6 +659,28 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+
+export const markAsSeenEstimation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enquiryId: string = req.body.enquiryId
+
+
+        const result = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            { $set: { 'preSale.seenbySalesPerson': true } }
+        );
+
+        console.log(result)
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        next(error);
+    }
+};
 
 export const markAsSeenJob = async (req: Request, res: Response, next: NextFunction) => {
     try {

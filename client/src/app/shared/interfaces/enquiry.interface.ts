@@ -31,7 +31,7 @@ export interface getEnquiry {
     client: getCustomer;
     contact: ContactDetail;
     department: getDepartment;
-    salesPerson: { _id: string, firstName: string, lastName: string }[];
+    salesPerson: { _id: string, firstName: string, lastName: string };
     title: string;
     date: string;
     attachments: Files[];
@@ -42,6 +42,7 @@ export interface getEnquiry {
         comment: string;
         feedback?: feedback;
         seenbyEmployee?: boolean;
+        seenbySalesPerson?: boolean;
         estimations:Estimations
     };
     status: string;

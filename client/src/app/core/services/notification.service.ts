@@ -9,7 +9,7 @@ import { NotificationCounts } from 'src/app/shared/interfaces/notification.inter
     providedIn: 'root'
 })
 export class NotificationService {
-    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0 , quotationCount : 0 });
+    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0, quotationCount: 0, enquiryCount: 0 });
     notificationCounts$ = this.notificationsSubject.asObservable();
     api: string = environment.api
 
@@ -52,6 +52,9 @@ export class NotificationService {
             case 'quotation':
                 updatedCounts.quotationCount += 1;
                 break;
+            case 'enquiry':
+                updatedCounts.enquiryCount += 1;
+                break;
         }
 
         this.notificationsSubject.next(updatedCounts);
@@ -86,6 +89,11 @@ export class NotificationService {
             case 'quotation':
                 if (updatedCounts.quotationCount) {
                     updatedCounts.quotationCount -= value;
+                }
+                break;
+            case 'enquiry':
+                if (updatedCounts.enquiryCount) {
+                    updatedCounts.enquiryCount -= value;
                 }
                 break;
         }

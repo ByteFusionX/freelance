@@ -94,7 +94,18 @@
                                 matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
                             <div class="w-48 flex justify-between ml-3" [class.hidden]="!showFullBar">
                                 <p class="mt-0.5">Enquiry</p>
-                                <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                <div class="flex items-center justify-center gap-1">
+                                    <div *ngIf="(notificationCounts$ | async) as notifications">
+                                        <div *ngIf="notifications.enquiryCount"
+                                            class="flex justify-center items-center">
+                                            <div
+                                                class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
+                                                <p>{{notifications.enquiryCount}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ng-icon name="heroChevronRight" class="text-gray-600"></ng-icon>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -407,12 +407,19 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             createdBy: new ObjectId(userId),
             "dealData.seenedBySalsePerson": false,
         })
+
+        const enquiryCount = await enquiryModel.countDocuments({
+            salesPerson: new ObjectId(userId),
+            "preSale.seenbySalesPerson": false,
+            status: 'Work In Progress'
+        })
         const employeeCount = {
             announcementCount,
             assignedJobCount,
             dealSheetCount,
             feedbackCount,
-            quotationCount
+            quotationCount,
+            enquiryCount
         }
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
