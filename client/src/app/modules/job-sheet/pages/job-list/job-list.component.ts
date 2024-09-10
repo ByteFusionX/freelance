@@ -16,6 +16,7 @@ import { getQuotatation, Quotatation } from 'src/app/shared/interfaces/quotation
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { LoadingBarService } from '@ngx-loading-bar/core';
+import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
@@ -23,13 +24,16 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 })
 export class JobListComponent {
   selectedDateFormat: string = "monthly";
+  selectedEmployee: string | null = null;
   selectedFile!: string | undefined;
   progress: number = 0
   reportDate: string = '';
 
   lastStatus!: JobStatus;
   jobStatuses = Object.values(JobStatus);
+  employees$!: Observable<getCreators[]>;
 
+  totalLpoValue: number = 0;
   total: number = 0;
   page: number = 1;
   row: number = 10;
@@ -60,6 +64,7 @@ export class JobListComponent {
 
 
   ngOnInit() {
+    this.employees$ = this._jobService.getJobSalesPerson();
     this.getAllJobs()
   }
 
@@ -99,6 +104,7 @@ export class JobListComponent {
     let filterData = {
       page: this.page,
       row: this.row,
+      salesPerson: this.selectedEmployee,
       status: this.selectedStatus,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
@@ -112,6 +118,7 @@ export class JobListComponent {
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
+          this.totalLpoValue = data.totalLpo;
           this.isEmpty = false;
           this.isLoading = false;
         },
@@ -165,7 +172,7 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
-  onViewDealSheet(quoteData: Quotatation,salesPerson:any,customer:any){
+  onViewDealSheet(quoteData: Quotatation, salesPerson: any, customer: any) {
     quoteData.createdBy = salesPerson;
     quoteData.client = customer;
     let priceDetails = {
@@ -198,12 +205,12 @@ export class JobListComponent {
 
     this._dialog.open(ApproveDealComponent,
       {
-        data: { approval:false, quoteData, quoteItems, priceDetails },
-        width: '900px'
+        data: { approval: false, quoteData, quoteItems, priceDetails },
+        width: '1200x'
       });
   }
 
-  onPreviewPdf(quotedData:getQuotatation,salesPerson:any,customer:any,attention:any) {
+  onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
     this.loader.start()
     quotedData.createdBy = salesPerson;
     quotedData.client = customer;
@@ -213,7 +220,7 @@ export class JobListComponent {
     pdfDoc.then((pdf) => {
       pdf.getBlob((blob: Blob) => {
         let url = window.URL.createObjectURL(blob);
-        
+
         let dialogRef = this._dialog.open(QuotationPreviewComponent,
           {
             data: url
@@ -253,16 +260,20 @@ export class JobListComponent {
   }
 
 
-  generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string }) {
+  generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string, download: boolean }) {
     if (dateRange.selectedMonth && dateRange.selectedYear) {
       this.getJobsForPdf(dateRange.selectedMonth, dateRange.selectedYear).subscribe(() => {
         this.reportDate = `${dateRange.selectedMonthName} - ${dateRange.selectedYear}`;
-        this.generatePdfAfterDataFetch();
+        if (dateRange.download) {
+          this.generatePdfAfterDataFetch();
+        }
       });
     } else {
       this.getJobsForPdf(undefined, dateRange.selectedYear).subscribe(() => {
         this.reportDate = `${dateRange.selectedYear}`;
-        this.generatePdfAfterDataFetch();
+        if (dateRange.download) {
+          this.generatePdfAfterDataFetch();
+        }
       });
     }
   }
@@ -273,6 +284,7 @@ export class JobListComponent {
       page: this.page,
       row: this.row,
       status: this.selectedStatus,
+      salesPerson: this.selectedEmployee,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear
     };
@@ -299,7 +311,7 @@ export class JobListComponent {
 
   generatePdfAfterDataFetch() {
     if (!this.isEmpty) {
-      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'LPO Val.', 'Status'];
+      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote','Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
         return [
           data.jobId,
@@ -308,11 +320,12 @@ export class JobListComponent {
           `${data.salesPersonDetails[0].firstName} ${data.salesPersonDetails[0].lastName}`,
           data.departmentDetails[0].departmentName,
           data.quotation[0].quoteId,
-          data.lpoValue,
+          data.quotation[0].dealData.dealId,
+          data.quotation[0].lpoValue,
           data.status
         ];
       });
-      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto'];
+      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto','auto', 'auto'];
       this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width);
     } else {
       this.toast.warning('No Data to generate Report');

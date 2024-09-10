@@ -78,7 +78,7 @@ export class EnquiryService {
     return this.http.get<FeedbackTable>(`${this.api}/enquiry/feedback-request/${employeeId}?page=${page}&row=${row}`)
   }
 
-  giveFeedback(feedbackBody: { enquiryId: string, feedback: string }) {
+  giveFeedback(feedbackBody: { enquiryId: string, feedback: string ,feedbackId:string }) {
     return this.http.patch(`${this.api}/enquiry/give-feedback`, feedbackBody)
   }
 
@@ -98,8 +98,8 @@ export class EnquiryService {
     return this.http.post(`${this.api}/enquiry/markAsSeenEstimation`, { enquiryId })
   }
 
-  markFeedbackResponseAsViewed(enqId: any): Observable<any> {
-    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`, { enqId })
+  markFeedbackResponseAsViewed(enqId: any,feedbackId:any): Observable<any> {
+    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`, { enqId,feedbackId })
   }
 
   markFeedbackAsViewed(enqIds: string): Observable<any> {

@@ -25,7 +25,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         if (req.body.presalePerson) {
             const presalePerson = JSON.parse(req.body.presalePerson)
             const presaleComment = JSON.parse(req.body.presaleComment)
-            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [], comment: presaleComment }
+            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [], comment: presaleComment, newFeedbackAccess: false }
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
             }
@@ -96,7 +96,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
             presale.presaleFiles = presaleFiles
         }
 
-        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales' } });
+        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales', 'preSale.newFeedbackAccess': true } });
         const socket = req.app.get('io') as Server;
         socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
         if (update.modifiedCount) return res.status(200).json({ success: true })
@@ -271,16 +271,43 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
             {
-                $lookup: { from: 'employees', localField: 'preSale.feedback.employeeId', foreignField: '_id', as: 'preSale.feedback.employeeId' }
+                $lookup: {
+                    from: 'employees',
+                    localField: 'preSale.feedback.employeeId',
+                    foreignField: '_id',
+                    as: 'employeeDetails'
+                }
+            },
+            {
+                $addFields: {
+                    "preSale.feedback": {
+                        $map: {
+                            input: "$preSale.feedback",
+                            as: "feedback",
+                            in: {
+                                $mergeObjects: [
+                                    "$$feedback",
+                                    {
+                                        employeeId: {
+                                            $arrayElemAt: [
+                                                {
+                                                    $filter: {
+                                                        input: "$employeeDetails",
+                                                        as: "emp",
+                                                        cond: { $eq: ["$$emp._id", "$$feedback.employeeId"] }
+                                                    }
+                                                }, 0
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
             },
             {
                 $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
-            },
-            {
-                $unwind: {
-                    path: "$preSale.feedback.employeeId",
-                    preserveNullAndEmptyArrays: true
-                }
             }
         ])
 
@@ -294,7 +321,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 export const updateEnquiryStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let data = req.body
-        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status, 'preSale.seenbySalesPerson': false } })
+        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status, 'preSale.seenbySalesPerson': false, 'preSale.newFeedbackAccess': true } })
             .populate(['client', 'department', 'salesPerson'])
         if (update) {
             const socket = req.app.get('io') as Server;
@@ -387,9 +414,20 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
     try {
         const { employeeId, enquiryId, comment } = req.body;
 
+        const newFeedback = {
+            employeeId,
+            comment,
+            requestedDate: Date.now(),
+            seenByFeedbackProvider: false,
+            seenByFeedbackRequester: false,
+        };
+
         const result = await enquiryModel.findOneAndUpdate(
             { _id: enquiryId },
-            { $set: { "preSale.feedback.employeeId": employeeId, "preSale.feedback.comment": comment, "preSale.feedback.requestedDate": Date.now(), "preSale.feedback.seenByFeedbackProvider": false } },
+            {
+                $push: { "preSale.feedback": newFeedback },
+                $set: { 'preSale.newFeedbackAccess': false }
+            },
             { new: true }
         ).populate('client')
             .populate('department')
@@ -401,15 +439,16 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
 
         if (result) {
             const socket = req.app.get('io') as Server;
-            socket.to(employeeId).emit("notifications", 'feedbackRequest')
-            return res.status(200).json(result)
+            socket.to(employeeId).emit("notifications", 'feedbackRequest');
+            return res.status(200).json(result);
         }
 
-        return res.status(502).json()
+        return res.status(502).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
+
 
 export const getFeedbackRequestsById = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -480,22 +519,29 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
 
 export const giveFeedback = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let { enquiryId, feedback } = req.body;
+        let { enquiryId, feedbackId, feedback } = req.body;
+
         const result = await enquiryModel.findOneAndUpdate(
-            { _id: enquiryId },
-            { $set: { "preSale.feedback.feedback": feedback, 'preSale.feedback.seenByFeedbackRequester': false } }
+            { _id: enquiryId, "preSale.feedback._id": feedbackId },
+            {
+                $set: {
+                    "preSale.feedback.$.feedback": feedback,
+                    "preSale.feedback.$.seenByFeedbackRequester": false
+                }
+            },
+            { new: true }
         );
 
         if (result) {
             const socket = req.app.get('io') as Server;
             const presalePerson = result.preSale.presalePerson.toString();
-            socket.to(presalePerson).emit("notifications", 'assignedJob')
-            return res.status(200).json({ success: true })
+            socket.to(presalePerson).emit("notifications", 'assignedJob');
+            return res.status(200).json({ success: true });
         }
 
-        return res.status(502).json()
+        return res.status(502).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
@@ -508,8 +554,8 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
             {
                 $push: { 'preSale.revisionComment': revisionComment },
                 status: 'Assigned To Presales',
-                $unset: { 'preSale.feedback': 1 },
-                'preSale.seenbyEmployee': false
+                'preSale.seenbyEmployee': false,
+                'preSale.newFeedbackAccess': true
             },
             { new: true }
         );
@@ -702,19 +748,20 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const markAsSeenFeeback = async (req: Request, res: Response, next: NextFunction) => {
+export const markAsSeenFeedback = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const enqIds: string = req.body.enqIds;
+        const { enqId, feedbackId } = req.body;
+
         const result = await enquiryModel.updateOne(
-            { _id: new ObjectId(enqIds) },
-            { $set: { 'preSale.feedback.seenByFeedbackProvider': true } },
+            { _id: new ObjectId(enqId), "preSale.feedback._id": feedbackId },
+            { $set: { "preSale.feedback.$.seenByFeedbackProvider": true } }
         );
 
         if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: 'No enquiries found' });
+            return res.status(404).json({ message: 'No matching feedback found' });
         }
 
-        res.status(200).json({ message: 'Enquiries marked as seen', result });
+        res.status(200).json({ message: 'Feedback marked as seen', result });
     } catch (error) {
         next(error);
     }
@@ -722,22 +769,21 @@ export const markAsSeenFeeback = async (req: Request, res: Response, next: NextF
 
 export const markFeedbackResponseAsViewed = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const enqId: string = req.body.enqId;
+        const { enqId, feedbackId } = req.body;
 
-        const result = await enquiryModel.updateMany(
-            { _id: enqId },
-            { 'preSale.feedback.seenByFeedbackRequester': true },
+        const result = await enquiryModel.updateOne(
+            { _id: enqId, "preSale.feedback._id": feedbackId },
+            { $set: { "preSale.feedback.$.seenByFeedbackRequester": true } },
             { new: true }
         );
 
         if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: 'No enquiries found' });
+            return res.status(404).json({ message: 'No feedback found' });
         }
 
-        res.status(200).json({ message: 'Enquiries marked as seen', result });
+        res.status(200).json({ message: 'Feedback response marked as viewed', result });
     } catch (error) {
         next(error);
     }
 };
-
 

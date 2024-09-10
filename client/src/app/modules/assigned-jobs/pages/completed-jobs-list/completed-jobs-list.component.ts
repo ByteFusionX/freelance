@@ -23,7 +23,7 @@ import { ViewEstimationComponent } from '../view-estimation/view-estimation.comp
 export class CompletedJobsListComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'presaleFiles','feedbacks'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'presaleFiles', 'feedbacks'];
   dataSource = new MatTableDataSource<getEnquiry>();
   isLoading: boolean = true;
   isEmpty: boolean = false
@@ -59,7 +59,7 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
     })
 
     this.subscriptions.add(
-      this._enquiryService.getPresale(this.page, this.row, 'completed',access, userId).subscribe({
+      this._enquiryService.getPresale(this.page, this.row, 'completed', access, userId).subscribe({
         next: (data) => {
           this.dataSource.data = data.enquiry;
           this.total = data.total;
@@ -76,17 +76,17 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe()
   }
 
-  onViewEstimation(estimation: Estimations, enqId:string){
+  onViewEstimation(estimation: Estimations, enqId: string) {
     this._dialog.open(ViewEstimationComponent, {
-      data:{estimation,enqId,isEdit:false}
+      data: { estimation, enqId, isEdit: false }
     })
   }
 
-  viewFeedback(feedback: feedback) {
-
+  viewFeedback(feedback: feedback[], enqId: string, index: number) {
     this._dialog.open(ViewFeedbackComponent, {
-      data: feedback
-    });
+      data: { feedback, enqId },
+      width: '400px'
+    })
   }
 
   onViewComment(comment: string, revisionComment: string[]) {
@@ -135,6 +135,6 @@ export class CompletedJobsListComponent implements OnInit, OnDestroy {
   handleNotClose(event: MouseEvent) {
     event.stopPropagation();
   }
-  
+
 }
 

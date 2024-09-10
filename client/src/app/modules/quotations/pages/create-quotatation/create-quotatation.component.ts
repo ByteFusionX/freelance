@@ -107,7 +107,7 @@ export class CreateQuotatationComponent {
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
     this.subscriptions.add(this.enquiryData$.subscribe((data) => {
-      if (data) {
+      if (data && data?.preSale?.estimations?.items?.length) {
         this.items.clear()
         data.preSale.estimations.items.forEach((item: any, index: number) => {
           this.addItemFormGroup()
@@ -124,8 +124,8 @@ export class CreateQuotatationComponent {
         department: data?.department._id,
         enqId: data?._id,
         items: items,
-        currency: data?.preSale.estimations.currency,
-        totalDiscount: data?.preSale.estimations.totalDiscount
+        currency: data?.preSale?.estimations?.currency ?? null,
+        totalDiscount: data?.preSale?.estimations?.totalDiscount ?? 0
       });
       this.onChange(data?.client._id as string);
       this.quoteForm.patchValue({ attention: data?.contact._id });

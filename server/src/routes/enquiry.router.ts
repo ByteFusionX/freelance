@@ -13,7 +13,7 @@ import {
     giveRevision,
     presalesCount,
     markAsSeenJob,
-    markAsSeenFeeback,
+    markAsSeenFeedback,
     markFeedbackResponseAsViewed,
     uploadEstimations,
     markAsSeenEstimation
@@ -33,7 +33,7 @@ equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/upload-estimation', uploadEstimations)
 equiRouter.post('/markAsSeenEstimation', markAsSeenEstimation);
 equiRouter.post('/markAsSeenedJob', markAsSeenJob);
-equiRouter.post('/markAsSeenFeeback', markAsSeenFeeback);
+equiRouter.post('/markAsSeenFeeback', markAsSeenFeedback);
 equiRouter.patch('/markAsSeenFeebackResponse', markFeedbackResponseAsViewed);
 equiRouter.get('/presales/count', presalesCount)
 

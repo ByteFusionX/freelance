@@ -13,19 +13,22 @@ export class ViewFeedbackComponent {
 
   constructor(
     private dialogRef: MatDialogRef<ViewFeedbackComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {feedback:feedback,enqId:string},
+    @Inject(MAT_DIALOG_DATA) public data: { feedback: feedback[], enqId: string },
     private _enquiryService: EnquiryService,
     private _notificationService: NotificationService,
   ) { }
 
-  ngOnInit(){
-    if(!this.data.feedback.seenByFeedbackRequester && this.data.feedback.feedback){
-      this._enquiryService.markFeedbackResponseAsViewed(this.data.enqId).subscribe((res)=>{
-        if(res){
-          this._notificationService.decrementNotificationCount('assignedJob',1)
-        }
-      })
-    }
+  ngOnInit() {
+    console.log(this.data.feedback)
+    this.data.feedback.forEach((feedback) => {
+      if (!feedback.seenByFeedbackRequester && feedback.feedback) {
+        this._enquiryService.markFeedbackResponseAsViewed(this.data.enqId, feedback._id).subscribe((res) => {
+          if (res) {
+            this._notificationService.decrementNotificationCount('assignedJob', 1)
+          }
+        })
+      }
+    })
   }
 
   closeModal() {

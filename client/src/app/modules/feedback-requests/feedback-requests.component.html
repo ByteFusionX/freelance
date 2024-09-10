@@ -118,7 +118,7 @@
                     <td mat-cell *matCellDef="let element; let i=index">
                         <div class="w-full flex justify-center items-center">
                             <button *ngIf="!element?.preSale?.feedback?.feedback"
-                                (click)="onGiveFeedback(element._id,i)"
+                                (click)="onGiveFeedback(element._id,i,element.preSale.feedback._id)"
                                 class="w-8 h-8 rounded-full bg-violet-800 hover:bg-violet-600  border border-gray-300 hover:border-gray-500 flex justify-center items-center"
                                 matTooltip="Give Feedback" matTooltipPosition="above"
                                 matTooltipClass="mat-tooltip"><ng-icon name="heroChatBubbleBottomCenterText"

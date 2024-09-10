@@ -258,7 +258,7 @@ export class QuotationListComponent {
     const dialogRef = this._dialog.open(ApproveDealComponent,
       {
         data: { approval, quoteData, quoteItems, priceDetails, quoteView: true },
-        width: '900px'
+        width: '1200px'
       });
 
     dialogRef.afterClosed().subscribe(() => {
@@ -321,7 +321,7 @@ export class QuotationListComponent {
     const dialogRef = this._dialog.open(DealFormComponent,
       {
         data: data,
-        width: '900px'
+        width: '1200px'
       });
 
     dialogRef.afterClosed().subscribe((dealData: dealData) => {

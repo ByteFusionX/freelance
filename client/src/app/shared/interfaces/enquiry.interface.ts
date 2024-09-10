@@ -40,7 +40,7 @@ export interface getEnquiry {
         presaleFiles: Files[] | null;
         items?: QuoteItem[];
         comment: string;
-        feedback?: feedback;
+        feedback?: feedback[];
         seenbyEmployee?: boolean;
         seenbySalesPerson?: boolean;
         estimations:Estimations
@@ -94,6 +94,7 @@ export interface Files {
 }
 
 export interface feedback {
+    _id?:string,
     employeeId:getEmployee,
     feedback:string
     seenByFeedbackProvider:boolean,

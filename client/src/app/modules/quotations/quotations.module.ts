@@ -59,7 +59,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
         ResizableModule,
         pipeModule,
         MatTooltipModule,
-    NgApexchartsModule,
+        NgApexchartsModule,
     ]
 })
 export class QuotationsModule { }

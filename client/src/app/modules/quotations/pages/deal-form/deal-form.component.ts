@@ -1,18 +1,23 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { fileEnterState } from 'src/app/modules/enquirys/enquiry-animations';
 import { Quotatation, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-deal-form',
   templateUrl: './deal-form.component.html',
-  styleUrls: ['./deal-form.component.css']
+  styleUrls: ['./deal-form.component.css'],
+  animations: [fileEnterState],
 })
 export class DealFormComponent {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+
   isSaving: boolean = false;
   isSubmitted: boolean = false;
   isAllSelected: boolean = false;
   costForm!: FormGroup;
+  selectedFiles: any[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<DealFormComponent>,
@@ -24,7 +29,8 @@ export class DealFormComponent {
     this.costForm = this.fb.group({
       paymentTerms: ['', Validators.required],
       items: this.fb.array(this.data.items.map(item => this.createItemGroup(item))),
-      costs: this.fb.array([], this.additionalCostsValidator())
+      costs: this.fb.array([], this.additionalCostsValidator()),
+      attachments: [],
     });
   }
 
@@ -52,7 +58,9 @@ export class DealFormComponent {
       unitCost: [detail.unitCost],
       profit: [detail.profit],
       availability: [detail.availability],
-      supplierName: ['', this.supplierNameValidator()]
+      supplierName: ['', this.supplierNameValidator()],
+      phoneNo: ['', this.supplierNameValidator()],
+      email: ['', [this.supplierNameValidator(), Validators.email]],
     });
   }
 
@@ -94,23 +102,49 @@ export class DealFormComponent {
     this.isAllSelected = allSelected;
   }
 
+  onFileSelected(event: any) {
+    let files = event.target.files
+    for (let i = 0; i < files.length; i++) {
+      const newFile = files[i]
+      const exist = (this.selectedFiles as File[]).some((file: File) => file.name === newFile.name)
+      if (!exist) {
+        (this.selectedFiles as File[]).push(files[i])
+      }
+    }
+  }
+
+  onFileRemoved(index: number) {
+    (this.selectedFiles as File[]).splice(index, 1)
+    this.fileInput.nativeElement.value = '';
+  }
+
+  setUpFormData(): FormData {
+    let formData = new FormData();
+
+    let data = this.costForm.value;
+    const updatedItems = data.items.map((item: any) => ({
+      ...item,
+      itemDetails: item.itemDetails.map((detail: any) => ({
+        ...detail,
+        supplierName: detail.supplierName,
+        phoneNo: detail.phoneNo,
+        email: detail.email,
+      }))
+    }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      formData.append('attachments', (this.selectedFiles[i] as Blob))
+    }
+
+    return formData;
+  }
+
   onSubmit() {
     this.isSubmitted = true;
     if (this.costForm.valid) {
       this.isSaving = true;
-      const formValue = this.costForm.value;
-      const updatedItems = formValue.items.map((item: any) => ({
-        ...item,
-        itemDetails: item.itemDetails.map((detail: any) => ({
-          ...detail,
-          supplierName: detail.supplierName
-        }))
-      }));
-
-      this.dialogRef.close({
-        ...formValue,
-        items: updatedItems
-      });
+      const formData = this.setUpFormData()
+      this.dialogRef.close(formData);
     }
   }
 
@@ -130,6 +164,10 @@ export class DealFormComponent {
       }
       return null;
     };
+  }
+
+  get f() {
+    return this.costForm.controls;
   }
 
   supplierNameValidator(): ValidatorFn {

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, filter } from 'rxjs';
+import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 import { JobStatus, JobTable, filterJob, getJob } from 'src/app/shared/interfaces/job.interface';
 import { QuoteStatus } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
@@ -28,5 +29,9 @@ export class JobService {
 
   totalJobs(access?: string, userId?: string): Observable<{ total: number }> {
     return this.http.get<{ total: number }>(`${this.apiUrl}/job/total?access=${access}&userId=${userId}`)
+  }
+
+  getJobSalesPerson(): Observable<getCreators[]> {
+    return this.http.get<getCreators[]>(`${this.apiUrl}/job/sales`)
   }
 }

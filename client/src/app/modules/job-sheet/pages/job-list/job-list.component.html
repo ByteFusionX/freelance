@@ -4,9 +4,16 @@
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <div class="flex gap-2">
                 <h3>Job Sheet</h3>
-                <p *ngIf="reportDate" class="text-sm font-normal bg-purple-200 px-4 gap-2 flex justify-center items-center">{{reportDate}} <ng-icon (click)="onRemoveReport()" class="hover:text-red-500 cursor-pointer" name="heroXMark"></ng-icon></p>
+                <p *ngIf="reportDate"
+                    class="text-sm font-normal bg-purple-200 px-4 gap-2 flex justify-center items-center">{{reportDate}}
+                    <ng-icon (click)="onRemoveReport()" class="hover:text-red-500 cursor-pointer"
+                        name="heroXMark"></ng-icon>
+                </p>
             </div>
-            <div class="flex justify-end gap-4">
+            <div class="flex justify-end items-center gap-4">
+                <div *ngIf="!isLoading && !isEmpty" class="flex justify-end items-center  h-full">
+                    <p class="text-lg font-medium">Total LPO Value: {{ totalLpoValue }}</p>
+                </div>
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
                     [matMenuTriggerFor]="beforeMenu" mat-button>
                     <ng-icon name="heroArrowDownCircle"></ng-icon>
@@ -24,10 +31,16 @@
                     </div>
 
                 </mat-menu>
-                <div class="w-48" (click)="handleNotClose($event)">
+                <div class="w-80 flex gap-2" (click)="handleNotClose($event)">
 
-
-                    <div>
+                    <div class="w-full">
+                        <ng-select appNoLeadingSpace [(ngModel)]="selectedEmployee" class="filter-createdby"
+                            placeholder="Sales Person" appendTo="body" (change)="onfilterApplied()">
+                            <ng-option *ngFor="let employee of employees$ | async"
+                                [value]="employee._id">{{employee.fullName}}</ng-option>
+                        </ng-select>
+                    </div>
+                    <div  class="w-full">
                         <ng-select [(ngModel)]="selectedStatus" class=" filter " placeholder="Status" appendTo="body"
                             (change)="onfilterApplied()">
                             <ng-option *ngFor="let status of status" [value]="status.value">{{status.value}}</ng-option>
@@ -50,6 +63,7 @@
                 <p class="m-2 text-center text-gray-500">No Data</p>
             </div>
         </div>
+
         <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
 
             <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
@@ -94,16 +108,22 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Quotations </th>
-                    <td mat-cell *matCellDef="let element"class="hover:text-purple-600 hover:font-semibold cursor-pointer" 
-                    matTooltip="Preview Quote" matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onPreviewPdf(element.quotation[0],element.salesPersonDetails[0],element.clientDetails[0],element.attention[0])"> {{element.quotation[0].quoteId}} </td>
+                    <td mat-cell *matCellDef="let element"
+                        class="hover:text-purple-600 hover:font-semibold cursor-pointer" matTooltip="Preview Quote"
+                        matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                        (click)="onPreviewPdf(element.quotation[0],element.salesPersonDetails[0],element.clientDetails[0],element.attention[0])">
+                        {{element.quotation[0].quoteId}} </td>
                 </ng-container>
-                
+
                 <ng-container matColumnDef="dealSheet">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden ">
                         Deal Sheet </th>
-                    <td mat-cell *matCellDef="let element" class="hover:text-purple-600 hover:font-semibold cursor-pointer" 
-                    matTooltip="View Deal" matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onViewDealSheet(element.quotation[0],element.salesPersonDetails[0],element.clientDetails[0])"> {{element.quotation[0].dealData.dealId}} </td>
+                    <td mat-cell *matCellDef="let element"
+                        class="hover:text-purple-600 hover:font-semibold cursor-pointer" matTooltip="View Deal"
+                        matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                        (click)="onViewDealSheet(element.quotation[0],element.salesPersonDetails[0],element.clientDetails[0])">
+                        {{element.quotation[0].dealData.dealId}} </td>
                 </ng-container>
 
                 <ng-container matColumnDef="lpo">
@@ -177,12 +197,12 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
-            <div class="w-full bg-white" *ngIf="!isEmpty">
-                <app-pagination [page]="page" [row]="row" [total]="total"
-                    (changeData)="onPageNumberClick($event)"></app-pagination>
-            </div>
 
         </section>
+        <div class="w-full bg-white" *ngIf="!isEmpty">
+            <app-pagination [page]="page" [row]="row" [total]="total"
+                (changeData)="onPageNumberClick($event)"></app-pagination>
+        </div>
     </div>
     <div>
 

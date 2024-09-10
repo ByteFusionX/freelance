@@ -11,6 +11,7 @@ export interface Enquiry {
         presalePerson: string;
         presaleFiles: string[];
         comment:string;
+        newFeedbackAccess:boolean;
     };
     status: string;
 }

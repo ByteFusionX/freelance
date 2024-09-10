@@ -24,6 +24,7 @@ export interface Files {
 
 export interface JobTable {
     total: number;
+    totalLpo: number;
     job: getJob[];
 }
 

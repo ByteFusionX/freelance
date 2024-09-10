@@ -2,7 +2,7 @@ import { ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlot
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 import { getEmployee } from "./employee.interface";
-import { getEnquiry } from "./enquiry.interface";
+import { Files, getEnquiry } from "./enquiry.interface";
 
 export interface QuoteItem {
     itemName: string;
@@ -18,6 +18,8 @@ export interface QuoteItemDetail {
     availability: string;
     dealSelected: boolean;
     supplierName: string;
+    phoneNo: string;
+    email: string;
 }
 
 export interface File {
@@ -122,6 +124,7 @@ export interface dealData {
     status: string;
     comments: string[]
     seenedBySalsePerson: boolean
+    attachments:Files[]
 }
 
 

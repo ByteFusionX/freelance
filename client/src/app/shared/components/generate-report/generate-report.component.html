@@ -1,12 +1,11 @@
 <div class="flex mb-2 gap-4">
     <label for="monthlyReport">
         <input type="radio" name="reportType" id="monthlyReport" [(ngModel)]="selectedDateFormat" value="monthly"
-             checked>
+            checked>
         Monthly
     </label>
     <label for="yearlyReport">
-        <input type="radio" name="reportType" id="yearlyReport" [(ngModel)]="selectedDateFormat" value="yearly"
-            >
+        <input type="radio" name="reportType" id="yearlyReport" [(ngModel)]="selectedDateFormat" value="yearly">
         Yearly
     </label>
 </div>
@@ -36,7 +35,13 @@
     class="text-red-600 text-sm">Please Ensure all field is selected</p>
 <p *ngIf="( !selectedYear && isSubmitted)&& selectedDateFormat == 'yearly'" class="text-red-600 text-sm">Please Ensure
     all field is selected</p>
-<button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3"
-    (click)="onGenerate()">
-    Filter & Generate Report (pdf)
-</button>
+<div class="flex gap-2 justify-center items-center">
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm my-3"
+        (click)="onGenerate(false)">
+        Filter
+    </button>
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm my-3"
+        (click)="onGenerate(true)">
+        Generate Report (pdf)
+    </button>
+</div>

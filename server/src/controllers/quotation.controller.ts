@@ -497,10 +497,16 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
     }
 }
 
-export const saveDealSheet = async (req: Request, res: Response, next: NextFunction) => {
+export const saveDealSheet = async (req: any, res: Response, next: NextFunction) => {
     try {
+        const dealFiles = req.files;
+        let files = [];
+        if (dealFiles) {
+            files = dealFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
+        }
 
-        const { paymentTerms, items, costs } = req.body;
+        const { paymentTerms, items, costs } = JSON.parse(req.body.dealData);
+        
         let dealId: string = await generateDealId();
 
         const createdDate = new Date()
@@ -511,8 +517,9 @@ export const saveDealSheet = async (req: Request, res: Response, next: NextFunct
                 paymentTerms,
                 additionalCosts: costs,
                 savedDate: createdDate,
-                status: 'pending'
-            }
+                status: 'pending',
+                attachments: files
+            },
         }
 
         const socket = req.app.get('io') as Server;
@@ -630,7 +637,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
         const totalQuotes = await Quotation.aggregate([
             {
                 $match: {
-                    'dealData.status' : {$ne:'approved'}
+                    'dealData.status': { $ne: 'approved' }
                 }
             },
             {
@@ -896,7 +903,7 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         }
 
         return res.status(200).json({ success: true });
-        
+
     } catch (error) {
         next(error);
     }

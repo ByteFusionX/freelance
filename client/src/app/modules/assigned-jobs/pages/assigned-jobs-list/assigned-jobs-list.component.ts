@@ -217,18 +217,25 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
-  viewFeedback(feedback: feedback, enqId: string, index: number) {
+  viewFeedback(feedback: feedback[], enqId: string, index: number) {
+
     this._dialog.open(ViewFeedbackComponent, {
       data: { feedback, enqId },
       width: '400px'
     }).afterClosed().subscribe(() => {
       const feedbackRes = this.dataSource.data[index].preSale.feedback;
 
-      if (feedbackRes && feedback.feedback) {
-        feedbackRes.seenByFeedbackRequester = true;
+      if (feedbackRes && feedback.length) {
+        feedbackRes.forEach((feedback)=>{
+          feedback.seenByFeedbackRequester = true;
+        })
         this.dataSource._updateChangeSubscription()
       }
     })
+  }
+
+  hasUnseenFeedback(feedback: feedback[]): boolean {
+    return feedback.some((fb: any) => !fb.seenByFeedbackRequester && fb.feedback);
   }
 
   onViewComment(comment: string, revisionComment: string[]) {

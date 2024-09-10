@@ -96,9 +96,11 @@ export class FeedbackRequestsComponent {
   updateNotViewedFeebackIds() {
     this.notViewedfeedbackIds.clear();
     this.dataSource.data.forEach(enquiry => {
-      if (!enquiry.preSale.feedback?.seenByFeedbackProvider) {
-        this.notViewedfeedbackIds.add(enquiry._id);
-      }
+      enquiry.preSale.feedback?.forEach((feedback) => {
+        if (!feedback?.seenByFeedbackProvider) {
+          this.notViewedfeedbackIds.add(enquiry._id);
+        }
+      })
     });
   }
 
@@ -127,9 +129,9 @@ export class FeedbackRequestsComponent {
     }
   }
 
-  onViewEstimation(estimation: Estimations, enqId:string){
+  onViewEstimation(estimation: Estimations, enqId: string) {
     this._dialog.open(ViewEstimationComponent, {
-      data:{estimation,enqId,isEdit:false}
+      data: { estimation, enqId, isEdit: false }
     })
   }
 
@@ -177,14 +179,14 @@ export class FeedbackRequestsComponent {
     )
   }
 
-  onGiveFeedback(enquiryId: string, index: number) {
+  onGiveFeedback(enquiryId: string, index: number, feedbackId: string) {
     let dialog = this._dialog.open(GiveFeedbackComponent, {
       width: '500px',
     })
 
     dialog.afterClosed().subscribe((feedback: string) => {
       if (feedback) {
-        const feedbackBody = { enquiryId, feedback }
+        const feedbackBody = { enquiryId, feedback, feedbackId }
         this._enquiryService.giveFeedback(feedbackBody).subscribe((res: any) => {
           if (res.success) {
             this.dataSource.data.splice(index, 1);

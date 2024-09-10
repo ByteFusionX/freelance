@@ -16,7 +16,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
   ],
 })
 export class GenerateReportComponent {
-  @Output() generatePdf: EventEmitter<{selectedMonth?: number, selectedYear: number,selectedMonthName?:string}> = new EventEmitter();
+  @Output() generatePdf: EventEmitter<{selectedMonth?: number, selectedYear: number,selectedMonthName?:string, download:boolean }> = new EventEmitter();
 
   selectedDateFormat:string = 'monthly';
   selectedMonth!: string;
@@ -64,16 +64,16 @@ export class GenerateReportComponent {
   }
 
 
-  onGenerate(){
+  onGenerate(isDownload:boolean){
     this.isSubmitted = true;
     if(this.selectedDateFormat == 'monthly'){
       if(this.selectedMonth && this.selectedYear){
         const monthIndex = this.AllMonths.indexOf(this.selectedMonth) + 1;
-        this.generatePdf.emit({ selectedMonth:monthIndex,selectedYear:this.selectedYear,selectedMonthName:this.selectedMonth });
+        this.generatePdf.emit({ selectedMonth:monthIndex,selectedYear:this.selectedYear,selectedMonthName:this.selectedMonth, download:isDownload });
       }
     }else{
       if(this.selectedYear){
-        this.generatePdf.emit({ selectedYear:this.selectedYear });
+        this.generatePdf.emit({ selectedYear:this.selectedYear, download:isDownload  });
       }
     }
   }

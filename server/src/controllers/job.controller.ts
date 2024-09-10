@@ -7,8 +7,10 @@ const { ObjectId } = require('mongodb')
 
 export const jobList = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, status, selectedMonth, selectedYear, access, userId } = req.body;
+        let { page, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
+        console.log(salesPerson)
         let isStatus = status == null ? true : false;
+        let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
@@ -69,6 +71,9 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
             {
+                $match: { $or: [{ 'quotation.createdBy': new ObjectId(salesPerson) }, { 'quotation.createdBy': { $exists: isSalesPerson } }] }
+            },
+            {
                 $lookup: { from: 'customers', localField: 'quotation.client', foreignField: '_id', as: 'clientDetails' }
             },
             {
@@ -100,13 +105,19 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
         ]);
 
-        const jobTotal: { total: number }[] = await jobModel.aggregate([
-            
+        const jobTotal: { total: number, lpoValueSum: number }[] = await jobModel.aggregate([
+
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
             {
+                $unwind: "$quotation"
+            },
+            {
                 $lookup: { from: 'employees', localField: 'quotation.createdBy', foreignField: '_id', as: 'salesPersonDetails' }
+            },
+            {
+                $match: { $or: [{ 'quotation.createdBy': new ObjectId(salesPerson) }, { 'quotation.createdBy': { $exists: isSalesPerson } }] }
             },
             {
                 $match: matchFilters
@@ -115,15 +126,15 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $match: accessFilter
             },
             {
-                $group: { _id: null, total: { $sum: 1 } }
+                $group: { _id: null, total: { $sum: 1 }, lpoValueSum: { $sum: "$quotation.lpoValue" } }
             },
             {
-                $project: { total: 1, _id: 0 }
+                $project: { total: 1, _id: 0, lpoValueSum: 1, }
             }
         ]).exec();
 
         if (jobTotal.length) {
-            return res.status(200).json({ total: jobTotal[0].total, job: jobData });
+            return res.status(200).json({ total: jobTotal[0].total, totalLpo: jobTotal[0].lpoValueSum, job: jobData });
         } else {
             return res.status(504).json({ err: 'No job data found' });
         }
@@ -134,7 +145,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
 export const totalJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let {  access, userId } = req.query;
+        let { access, userId } = req.query;
 
         let accessFilter = {};
 
@@ -162,7 +173,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
         }
 
         const jobTotal: { total: number }[] = await jobModel.aggregate([
-            
+
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
@@ -210,3 +221,47 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
     }
 }
 
+
+export const getJobSalesPerson = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const customers = await jobModel.aggregate([
+            {
+                $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotaion' }
+            },
+            {
+                $unwind: "$quotaion"
+            },
+            {
+                $group: {
+                    _id: "$quotaion.createdBy",
+                    count: { $sum: 1 }
+                },
+            },
+            {
+                $lookup: { from: 'employees', localField: '_id', foreignField: '_id', as: 'createdBy' }
+            },
+            {
+                $unwind: "$createdBy"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdBy: 1
+                }
+            },
+            {
+                $project: {
+                    _id: "$createdBy._id",
+                    fullName: { $concat: ["$createdBy.firstName", " ", "$createdBy.lastName"] }
+                }
+            }
+        ]);
+        if (customers.length > 0) {
+            return res.status(200).json(customers);
+        }
+        return res.status(204).json()
+    } catch (error) {
+        next(error)
+    }
+}

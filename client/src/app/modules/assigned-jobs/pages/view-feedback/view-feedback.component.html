@@ -1,24 +1,28 @@
-
-    <div class="bg-white rounded-lg shadow-lg w-full">
-        <div class="border-b px-4 py-3 flex justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">Feedback</h3>
-            <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="closeModal()">
-                <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
-            </button>
-        </div>
-        <div class="px-8 py-5">
-            <div class="mb-4 py-4 px-4  border-2 border-gray-200 rounded-lg" [ngClass]="{'border border-orange-500': data.feedback.seenByFeedbackRequester == false}">
+<div class="bg-white rounded-lg shadow-lg w-full">
+    <div class="border-b px-4 py-3 flex justify-between">
+        <h3 class="text-lg font-semibold text-gray-900">Feedback</h3>
+        <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="closeModal()">
+            <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+        </button>
+    </div>
+    <div class="px-8 py-5">
+        <ng-container *ngFor="let feedback of data.feedback">
+            <div class="mb-4 py-4 px-4  border-2 border-gray-200 rounded-lg"
+                [ngClass]="{'border border-orange-500': feedback.seenByFeedbackRequester == false}">
                 <div class="flex justify-between items-center w-full">
                     <div>
-                        <h4 *ngIf="data?.feedback?.employeeId?.firstName" class="text-md font-semibold">{{ data.feedback.employeeId.firstName + ' ' + data.feedback.employeeId.lastName }}
+                        <h4 *ngIf="feedback?.employeeId?.firstName" class="text-md font-semibold">{{
+                            feedback.employeeId.firstName + ' ' + feedback.employeeId.lastName }}
                         </h4>
-                        <p *ngIf="data.feedback.feedback; else noFeedback">{{ data.feedback.feedback }}</p>
+                        <p *ngIf="feedback.feedback; else noFeedback">{{ feedback.feedback }}</p>
                     </div>
                     <ng-template #noFeedback>
                         <p class="text-gray-500 italic">No feedback has been received yet</p>
                     </ng-template>
-                    <span *ngIf="data.feedback.seenByFeedbackRequester == false" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
+                    <span *ngIf="feedback.seenByFeedbackRequester == false"
+                        class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
                 </div>
             </div>
-        </div>
+        </ng-container>
     </div>
+</div>

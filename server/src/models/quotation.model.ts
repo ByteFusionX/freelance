@@ -1,4 +1,5 @@
 import { Schema, Document, model, Types } from "mongoose";
+import FilesSchema from "./files.model";
 
 interface QuoteItemDetail {
     detail: string;
@@ -7,6 +8,8 @@ interface QuoteItemDetail {
     profit: number;
     availability: string;
     supplierName?: string;
+    email?: string;
+    phoneNo?: string;
     dealSelected?: boolean;
 }
 
@@ -28,7 +31,8 @@ interface Deal {
     seenByApprover: boolean;
     status: string;
     comments: string[];
-    seenedBySalsePerson: boolean
+    seenedBySalsePerson: boolean;
+    attachments: [];
 }
 
 interface Quotation extends Document {
@@ -85,8 +89,15 @@ const quoteItemDetailsSchema = new Schema<QuoteItemDetail>({
     supplierName: {
         type: String,
         required: false,
-    }
-    ,
+    },
+    email: {
+        type: String,
+        required: false,
+    },
+    phoneNo: {
+        type: String,
+        required: false,
+    },
     dealSelected: {
         type: Boolean,
         required: false,
@@ -132,6 +143,7 @@ const dealDatas = new Schema<Deal>({
         type: Date,
         required: false,
     },
+    attachments: [],
     seenByApprover: {
         type: Boolean,
         default: false
