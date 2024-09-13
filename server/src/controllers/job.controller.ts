@@ -7,14 +7,16 @@ const { ObjectId } = require('mongodb')
 
 export const jobList = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
-        console.log(salesPerson)
+        let { page, search, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
+        
+        let searchRegex = search.split('').join('\\s*');        
         let isStatus = status == null ? true : false;
         let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
             $and: [
+                { jobId: { $regex: search, $options: 'i' } },
                 { $or: [{ status: status }, { status: { $exists: isStatus } }] },
             ]
         };

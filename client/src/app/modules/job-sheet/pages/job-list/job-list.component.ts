@@ -28,7 +28,9 @@ export class JobListComponent {
   selectedFile!: string | undefined;
   progress: number = 0
   reportDate: string = '';
+  searchQuery: string = '';
 
+  isEnter: boolean = false;
   lastStatus!: JobStatus;
   jobStatuses = Object.values(JobStatus);
   employees$!: Observable<getCreators[]>;
@@ -90,6 +92,20 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getAllJobs()
+  }
+
+
   displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status'];
 
   getAllJobs(selectedMonth?: number, selectedYear?: number) {
@@ -102,6 +118,7 @@ export class JobListComponent {
       userId = employee?._id
     })
     let filterData = {
+      search: this.searchQuery,
       page: this.page,
       row: this.row,
       salesPerson: this.selectedEmployee,
@@ -281,6 +298,7 @@ export class JobListComponent {
   getJobsForPdf(selectedMonth?: number, selectedYear?: number): Observable<JobTable> {
     this.isLoading = true;
     let filterData = {
+      search: this.searchQuery,
       page: this.page,
       row: this.row,
       status: this.selectedStatus,

@@ -29,8 +29,7 @@ export class DealFormComponent {
     this.costForm = this.fb.group({
       paymentTerms: ['', Validators.required],
       items: this.fb.array(this.data.items.map(item => this.createItemGroup(item))),
-      costs: this.fb.array([], this.additionalCostsValidator()),
-      attachments: [],
+      costs: this.fb.array([], this.additionalCostsValidator())
     });
   }
 
@@ -94,10 +93,16 @@ export class DealFormComponent {
     });
   }
 
-  onItemCheckboxChange() {
+  onItemCheckboxChange(i: number, j: number, event: any) {
     const allSelected = this.items.controls.every(item => {
       return this.getItemDetailsArray(item).every(detail => detail.get('dealSelected')?.value === true);
     });
+
+    if (!event.target.checked) {
+      this.getItemDetailsArray(this.items.controls[i])[j].get('supplierName')?.setValue('')
+      this.getItemDetailsArray(this.items.controls[i])[j].get('phoneNo')?.setValue('')
+      this.getItemDetailsArray(this.items.controls[i])[j].get('email')?.setValue('')
+    }
 
     this.isAllSelected = allSelected;
   }

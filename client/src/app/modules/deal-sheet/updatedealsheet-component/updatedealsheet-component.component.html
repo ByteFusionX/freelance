@@ -48,12 +48,18 @@
             <th scope="col" class="border-l border-r border-t text-center min-w-[90px]">
               <div class="px-2 py-3">Supplier Name</div>
             </th>
+            <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+              <div class="px-2 py-3">Phone No.</div>
+            </th>
+            <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+              <div class="px-2 py-3">Email Id</div>
+            </th>
           </tr>
         </thead>
         <tbody formArrayName="items">
           <ng-container *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
             <tr>
-              <td colspan="8" class="border px-6 py-2 bg-gray-50">
+              <td colspan="10" class="border px-6 py-2 bg-gray-50">
                 <div class="flex justify-center items-center text-md text-black font-medium uppercase">
                   {{ item.get('itemName')?.value }}
                 </div>
@@ -63,7 +69,7 @@
               <ng-container *ngFor="let detail of getItemDetailsArray(item); let j = index" [formGroupName]="j">
                 <tr class="border-b text-gray-400" [ngClass]="{'text-gray-800': detail.get('dealSelected')?.value}">
                   <td class="px-6 border font-normal py-2 whitespace-pre-line">
-                    <input type="checkbox" formControlName="dealSelected" (change)="onItemCheckboxChange()">
+                    <input type="checkbox" formControlName="dealSelected" (change)="onItemCheckboxChange(i,j,$event)">
                   </td>
 
                   <td class="px-6 border font-normal py-2 whitespace-pre-line">
@@ -100,9 +106,31 @@
                       Supplier name is required
                     </div>
                   </td>
+                  <td class="px-2 py-2 border text-center" *ngIf="detail.get('dealSelected')?.value">
+                    <input formControlName="phoneNo" type="text"
+                      class="w-[150px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      placeholder="Enter Phone No.">
+                    <div *ngIf="detail.get('phoneNo')?.hasError('supplierNameRequired') && isSubmitted"
+                      class="text-red-500 text-xs">
+                      Phone No. is required
+                    </div>
+                  </td>
+                  <td class="px-2 py-2 border text-center" *ngIf="detail.get('dealSelected')?.value">
+                    <input formControlName="email" type="text"
+                      class="w-[150px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      placeholder="Enter Email">
+                    <div *ngIf="detail.get('email')?.hasError('supplierNameRequired') && isSubmitted"
+                      class="text-red-500 text-xs">
+                      Email is required
+                    </div>
+                    <div *ngIf="detail.get('email')?.hasError('email') && isSubmitted"
+                      class="text-red-500 text-xs">
+                      Email should be valid
+                    </div>
+                  </td>
                 </tr>
               </ng-container>
-          </ng-container>
+            </ng-container>
           </ng-container>
         </tbody>
       </table>
@@ -126,6 +154,55 @@
         <button type="button"
           class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm mt-2"
           (click)="addCost()">+ Add Additional Cost</button>
+      </div>
+
+      <div class="w-full mt-4">
+        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold " for="grid-zip">
+          Attachment
+        </label>
+        <div class="flex gap-4">
+          <div class="w-1/2 ">
+            <div [class.border-red-500]="!this.selectedFiles.length && isSubmitted"
+              class="flex border items-center justify-start px-3 mt-2 bg-gray-200 py-2 cursor-pointer h-fit"
+              (click)="fileInput.click()">
+              <div class="font-medium flex items-center text-sm py-1">
+                <ng-icon name="heroPaperClip" class="text-xl text-gray-600 mr-2">
+                </ng-icon>
+                Select Files
+              </div>
+              <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
+                (change)="onFileSelected($event)">
+
+            </div>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                <span>File type: doc,pdf,types of images</span>
+              </p>
+            </div>
+          </div>
+
+          <div *ngIf="selectedFiles.length" class="overflow-hidden  w-1/2">
+            <p class="">Selected Files</p>
+            <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
+              <div class="flex justify-between items-center">
+                <div class="flex">
+                  <ng-icon name="heroDocumentArrowUp"></ng-icon>
+                  <ng-container *ngIf="file.name; else dataFiles">
+                    <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.name}}" matTooltipPosition="above"
+                      matTooltipClass="mat-tooltip">{{file.name}}</p>
+                  </ng-container>
+                  <ng-template #dataFiles>
+                    <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.originalname}}" matTooltipPosition="above"
+                      matTooltipClass="mat-tooltip">{{file.originalname}}</p>
+                  </ng-template>
+                </div>
+                <div>
+                  <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </form>
   </div>

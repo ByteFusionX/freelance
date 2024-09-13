@@ -1,6 +1,7 @@
 import { Quotatation } from "./quotation.interface";
 
 export interface filterJob {
+    search:string;
     page: number;
     row: number;
     status: number;

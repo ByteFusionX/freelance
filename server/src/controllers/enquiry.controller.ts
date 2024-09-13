@@ -25,7 +25,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
         if (req.body.presalePerson) {
             const presalePerson = JSON.parse(req.body.presalePerson)
             const presaleComment = JSON.parse(req.body.presaleComment)
-            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [], comment: presaleComment, newFeedbackAccess: false }
+            enquiryData.preSale = { presalePerson: presalePerson, presaleFiles: [], comment: presaleComment, newFeedbackAccess: true }
             if (presaleFiles) {
                 enquiryData.preSale.presaleFiles = presaleFiles
             }

@@ -1,18 +1,23 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { priceDetails, Quotatation, QuoteItem, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
+import { fileEnterState } from '../../enquirys/enquiry-animations';
 
 @Component({
   selector: 'app-updatedealsheet-component',
   templateUrl: './updatedealsheet-component.component.html',
-  styleUrls: ['./updatedealsheet-component.component.css']
+  styleUrls: ['./updatedealsheet-component.component.css'],
+  animations: [fileEnterState],
 })
 export class UpdatedealsheetComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+
   costForm!: FormGroup;
   isSubmitted = false;
   isAllSelected = false;
   isSaving = false;
+  selectedFiles: any[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean },
@@ -27,35 +32,63 @@ export class UpdatedealsheetComponent implements OnInit {
       costs: this.fb.array([], this.additionalCostsValidator())
     });
 
-    console.log(this.costForm.value);
+    this.selectedFiles = this.data.quoteData.dealData.attachments;
+  }
+
+  setUpFormData(): FormData {
+    let formData = new FormData();
+
+    let data = this.costForm.value;
+    const updatedItems = data.items.map((item: any) => ({
+      ...item,
+      itemDetails: item.itemDetails.map((detail: any) => ({
+        ...detail,
+        supplierName: detail.supplierName,
+        phoneNo: detail.phoneNo,
+        email: detail.email,
+      }))
+    }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      formData.append('attachments', (this.selectedFiles[i] as Blob))
+    }
+
+    return formData;
   }
 
   onSubmit() {
     this.isSubmitted = true;
-
-    if (this.costForm.invalid) {
-      return;
+    if (this.costForm.valid) {
+      this.isSaving = true;
+      const formData = this.setUpFormData()
+      this.dialogRef.close(formData);
     }
-    this.isSaving = true;
-    const formValue = this.costForm.value;
-    const updatedItems = formValue.items.map((item: any) => ({
-      ...item,
-      itemDetails: item.itemDetails.map((detail: any) => ({
-        ...detail,
-        supplierName: detail.supplierName
-      }))
-    }));
-
-    this.dialogRef.close({
-      ...formValue,
-      items: updatedItems
-    });
-
   }
 
   get items(): FormArray {
     return this.costForm.get('items') as FormArray;
   }
+
+  get f() {
+    return this.costForm.controls;
+  }
+
+  onFileSelected(event: any) {
+    let files = event.target.files
+    for (let i = 0; i < files.length; i++) {
+      const newFile = files[i]
+      const exist = (this.selectedFiles as File[]).some((file: File) => file.name === newFile.name)
+      if (!exist) {
+        (this.selectedFiles as File[]).push(files[i])
+      }
+    }
+  }
+
+  onFileRemoved(index: number) {
+    (this.selectedFiles as File[]).splice(index, 1)
+    this.fileInput.nativeElement.value = '';
+  }
+
 
   createItemGroup(item: QuoteItem): FormGroup {
     return this.fb.group({
@@ -72,7 +105,9 @@ export class UpdatedealsheetComponent implements OnInit {
       unitCost: [detail.unitCost || 0],
       profit: [detail.profit || 0],
       availability: [detail.availability || ''],
-      supplierName: [detail.supplierName, this.supplierNameValidator()] // Apply supplierNameValidator here
+      supplierName: [detail.supplierName, this.supplierNameValidator()],
+      phoneNo: ['', this.supplierNameValidator()],
+      email: ['', [this.supplierNameValidator(), Validators.email]],
     });
   }
 
@@ -110,10 +145,16 @@ export class UpdatedealsheetComponent implements OnInit {
     };
   }
 
-  onItemCheckboxChange() {
+  onItemCheckboxChange(i: number, j: number, event: any) {
     const allSelected = this.items.controls.every(item => {
       return this.getItemDetailsArray(item).every(detail => detail.get('dealSelected')?.value === true);
     });
+
+    if (!event.target.checked) {
+      this.getItemDetailsArray(this.items.controls[i])[j].get('supplierName')?.setValue('')
+      this.getItemDetailsArray(this.items.controls[i])[j].get('phoneNo')?.setValue('')
+      this.getItemDetailsArray(this.items.controls[i])[j].get('email')?.setValue('')
+    }
 
     this.isAllSelected = allSelected;
   }

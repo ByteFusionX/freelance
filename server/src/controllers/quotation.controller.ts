@@ -507,6 +507,7 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
 
         const { paymentTerms, items, costs } = JSON.parse(req.body.dealData);
         
+        
         let dealId: string = await generateDealId();
 
         const createdDate = new Date()
