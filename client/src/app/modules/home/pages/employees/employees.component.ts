@@ -20,7 +20,7 @@ export class EmployeesComponent {
   isEmpty: boolean = false;
   createEmployee: boolean | undefined = false;
 
-  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo'];
+  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'target'];
 
   dataSource = new MatTableDataSource<getEmployee>()
   filteredData = new MatTableDataSource<getEmployee>()
