@@ -11,22 +11,31 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { FormBuilder, FormControl } from '@angular/forms';
 import { GeneratePdfReport } from 'src/app/core/services/generateReport.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-
+import { ApproveDealComponent } from 'src/app/modules/deal-sheet/approve-deal/approve-deal.component';
+import { getQuotatation, Quotatation } from 'src/app/shared/interfaces/quotation.interface';
+import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
+import { LoadingBarService } from '@ngx-loading-bar/core';
+import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css']
 })
 export class JobListComponent {
-
   selectedDateFormat: string = "monthly";
+  selectedEmployee: string | null = null;
   selectedFile!: string | undefined;
   progress: number = 0
   reportDate: string = '';
+  searchQuery: string = '';
 
+  isEnter: boolean = false;
   lastStatus!: JobStatus;
   jobStatuses = Object.values(JobStatus);
+  employees$!: Observable<getCreators[]>;
 
+  totalLpoValue: number = 0;
   total: number = 0;
   page: number = 1;
   row: number = 10;
@@ -40,7 +49,7 @@ export class JobListComponent {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
-
+  loader = this.loadingBar.useRef();
 
   private subscriptions = new Subscription();
 
@@ -51,10 +60,13 @@ export class JobListComponent {
     private _fb: FormBuilder,
     private _generatePdfSerive: GeneratePdfReport,
     private _employeeService: EmployeeService,
+    private _quotationService: QuotationService,
+    private loadingBar: LoadingBarService
   ) { }
 
 
   ngOnInit() {
+    this.employees$ = this._jobService.getJobSalesPerson();
     this.getAllJobs()
   }
 
@@ -80,7 +92,21 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
-  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'lpo', 'lpoValue', 'status'];
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getAllJobs()
+  }
+
+
+  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status'];
 
   getAllJobs(selectedMonth?: number, selectedYear?: number) {
     this.isLoading = true;
@@ -92,20 +118,24 @@ export class JobListComponent {
       userId = employee?._id
     })
     let filterData = {
+      search: this.searchQuery,
       page: this.page,
       row: this.row,
+      salesPerson: this.selectedEmployee,
       status: this.selectedStatus,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
       access: access,
       userId: userId
     }
+
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
         next: (data: JobTable) => {
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
+          this.totalLpoValue = data.totalLpo;
           this.isEmpty = false;
           this.isLoading = false;
         },
@@ -125,9 +155,9 @@ export class JobListComponent {
   }
 
   onDownloadClicks(file: any) {
-    this.selectedFile = file.filename
+    this.selectedFile = file.fileName
     this.subscriptions.add(
-      this._jobService.downloadFile(file.filename)
+      this._jobService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {
             if (event.type === HttpEventType.DownloadProgress) {
@@ -159,6 +189,70 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
+  onViewDealSheet(quoteData: Quotatation, salesPerson: any, customer: any) {
+    quoteData.createdBy = salesPerson;
+    quoteData.client = customer;
+    let priceDetails = {
+      totalSellingPrice: 0,
+      totalCost: 0,
+      profit: 0,
+      perc: 0
+    }
+
+    const quoteItems =  quoteData.dealData.updatedItems.map((item) => {
+      let itemSelected = 0;
+
+      item.itemDetails.map((itemDetail) => {
+        if (itemDetail.dealSelected) {
+          itemSelected++;
+          priceDetails.totalSellingPrice += itemDetail.unitCost / (1 - (itemDetail.profit / 100)) * itemDetail.quantity;
+          priceDetails.totalCost += itemDetail.quantity * itemDetail.unitCost;
+          return itemDetail
+        }
+        return;
+      })
+
+      if (itemSelected) return item;
+
+      return;
+    });
+
+    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
+      return acc += curr.value;
+    }, 0)
+
+    priceDetails.totalCost += totalAdditionalValue;
+    priceDetails.totalSellingPrice -= quoteData.totalDiscount;
+    priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
+    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
+
+    this._dialog.open(ApproveDealComponent,
+      {
+        data: { approval: false, quoteData, quoteItems, priceDetails },
+        width: '1200x'
+      });
+  }
+
+  onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
+    this.loader.start()
+    quotedData.createdBy = salesPerson;
+    quotedData.client = customer;
+    quotedData.attention = attention;
+    let quoteData: getQuotatation = quotedData;
+    const pdfDoc = this._quotationService.generatePDF(quoteData)
+    pdfDoc.then((pdf) => {
+      pdf.getBlob((blob: Blob) => {
+        let url = window.URL.createObjectURL(blob);
+
+        let dialogRef = this._dialog.open(QuotationPreviewComponent,
+          {
+            data: url
+          });
+      });
+    });
+    this.loader.complete()
+  }
+
   onStatus(event: Event, status: JobStatus) {
     event.stopPropagation()
     this.lastStatus = status
@@ -188,48 +282,37 @@ export class JobListComponent {
     })
   }
 
-  filteredStatuses(selectedStatus: string): JobStatus[] {
-    const allStatuses = Object.values(JobStatus);
-    let filteredStatuses: JobStatus[] = [];
 
-    let statusReached = false;
-
-    allStatuses.forEach((status) => {
-      if (status === selectedStatus) {
-        statusReached = true;
-      }
-      if (statusReached) {
-        filteredStatuses.push(status);
-      }
-    });
-
-    return filteredStatuses;
-  }
-
-  generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string }) {
+  generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string, download: boolean }) {
     if (dateRange.selectedMonth && dateRange.selectedYear) {
       this.getJobsForPdf(dateRange.selectedMonth, dateRange.selectedYear).subscribe(() => {
         this.reportDate = `${dateRange.selectedMonthName} - ${dateRange.selectedYear}`;
-        this.generatePdfAfterDataFetch();
+        if (dateRange.download) {
+          this.generatePdfAfterDataFetch();
+        }
       });
     } else {
       this.getJobsForPdf(undefined, dateRange.selectedYear).subscribe(() => {
         this.reportDate = `${dateRange.selectedYear}`;
-        this.generatePdfAfterDataFetch();
+        if (dateRange.download) {
+          this.generatePdfAfterDataFetch();
+        }
       });
     }
   }
-  
+
   getJobsForPdf(selectedMonth?: number, selectedYear?: number): Observable<JobTable> {
     this.isLoading = true;
     let filterData = {
+      search: this.searchQuery,
       page: this.page,
       row: this.row,
       status: this.selectedStatus,
+      salesPerson: this.selectedEmployee,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear
     };
-  
+
     return this._jobService.getJobs(filterData).pipe(
       tap((data: JobTable) => {
         this.dataSource.data = [...data.job];
@@ -249,10 +332,10 @@ export class JobListComponent {
       })
     );
   }
-  
+
   generatePdfAfterDataFetch() {
     if (!this.isEmpty) {
-      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'LPO Val.', 'Status'];
+      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote','Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
         return [
           data.jobId,
@@ -261,17 +344,18 @@ export class JobListComponent {
           `${data.salesPersonDetails[0].firstName} ${data.salesPersonDetails[0].lastName}`,
           data.departmentDetails[0].departmentName,
           data.quotation[0].quoteId,
-          data.lpoValue,
+          data.quotation[0].dealData.dealId,
+          data.quotation[0].lpoValue,
           data.status
         ];
       });
-      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto'];
+      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto','auto', 'auto'];
       this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width);
     } else {
       this.toast.warning('No Data to generate Report');
     }
   }
-  
+
 
   onRemoveReport() {
     this.reportDate = ''

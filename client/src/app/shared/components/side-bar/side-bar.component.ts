@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy } from '@angular/core';
 import { buttonSlideState, dropDownMenuSate, sideBarState } from './side-bar.animation';
 import { NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
@@ -7,6 +7,10 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Privileges } from '../../interfaces/employee.interface';
+import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
+import { Observable, Subscription } from 'rxjs';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationCounts } from '../../interfaces/notification.interface';
 
 @Component({
   selector: 'app-side-bar',
@@ -16,25 +20,37 @@ import { Privileges } from '../../interfaces/employee.interface';
   standalone: true,
   imports: [CommonModule, IconsModule, AppRoutingModule, MatTooltipModule]
 })
-export class SideBarComponent implements AfterViewInit {
-
+export class SideBarComponent implements AfterViewInit, OnDestroy {
+  notificationCounts$!: Observable<NotificationCounts>;
   @Input() showFullBar: boolean = true
   homeDropDown: boolean = false;
+  activeLink: string = '';
 
   showTabs: boolean = false;
-  privileges!:Privileges | undefined;
+  privileges!: Privileges | undefined;
+  notifyCount!: number
+  notViewedPresaleCount!: number
+  mySubscription: Subscription = new Subscription()
 
   constructor(
     private eref: ElementRef,
     private router: Router,
     private _employeeService: EmployeeService,
-  ) { }
+    private _notificationService: NotificationService
+  ) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.activeLink = event.urlAfterRedirects;
+      }
+    });
+  }
 
-  ngOnInit(){
-    this.checkPermission()
+  ngOnInit() {
+    this.checkPermission();
+    this.notificationCounts$ = this._notificationService.notificationCounts$;
     setTimeout(() => {
       this.showTabs = true;
-    }, 1000);
+    }, 2000);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -69,5 +85,11 @@ export class SideBarComponent implements AfterViewInit {
 
   onHomeClick() {
     this.homeDropDown = !this.homeDropDown
+  }
+
+  ngOnDestroy(): void {
+    if (this.mySubscription) {
+      this.mySubscription.unsubscribe()
+    }
   }
 }

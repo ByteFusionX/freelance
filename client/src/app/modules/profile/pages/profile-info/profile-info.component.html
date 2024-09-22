@@ -2,8 +2,7 @@
     <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
         <div class="flex">
             <div class="w-40">
-                <img src="assets/images/avatar.avif"
-                    alt="">
+                <img src="assets/images/avatar.avif" alt="">
             </div>
             <div class=" px-4">
                 <div class="flex gap-1">
@@ -12,7 +11,8 @@
                 </div>
                 <div class="mt-1 ml-1" *ngIf="employeeData$ | async as employeeData; else profileBlock">
                     <p class="text-lg">{{employeeData.firstName}} {{employeeData.lastName}}</p>
-                    <span class="text-sm">{{employeeData.category.categoryName}} - {{employeeData.category.role | titlecase}}</span>
+                    <span class="text-sm">{{employeeData.category.categoryName}} - {{employeeData.category.role |
+                        titlecase}}</span>
                     <div class="mt-3">
                         <p>{{employeeData.email}}</p>
                         <p>{{employeeData.contactNo}}</p>
@@ -24,16 +24,24 @@
             </div>
         </div>
     </div>
-    <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
+    <div *ngIf="companyDetails; else noCompanyDetails" class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
+
         <div class="mb-5">
-            <div class="flex gap-1">
-                <i><ng-icon name="heroBuildingOffice" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
-                <p class="font-medium text-orange-400 "> Organization Details:</p>
+            <div class="flex gap-1 items-center">
+                <div class="flex items-center gap-1">
+                    <i><ng-icon name="heroBuildingOffice" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+                    <p class="font-medium text-orange-400"> Organization Details:</p>
+                </div>
+                <button
+                    class="ml-auto bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm flex items-center gap-2"
+                    (click)="updateCompanyDetails()">
+                    <ng-icon name="heroPencilSquare"></ng-icon>
+                    Edit
+                </button>
             </div>
             <p class="text-gray-600 mt-1">
-                <span class="">Neuron Technologies</span> <br>
-                A versatile technology integrator with unparalleled array of products and services to encompass every
-                need an enterprise will endure in field of digital information and technology.
+                <span>{{companyDetails.name}}</span> <br>
+                {{companyDetails.description}}
             </p>
         </div>
 
@@ -43,72 +51,26 @@
                 <i><ng-icon name="heroMapPin" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
                 <p class="font-medium text-orange-400">Address:</p>
             </div>
-            <p class="text-gray-600 mt-1">Neuron Technologies, <br>
-                Umm Ghuwailina, street No.950, <br>
-                Area No.27 , Doha-Qatar</p>
+            <p class="text-gray-600 mt-1">{{companyDetails.name}}, <br>
+                {{companyDetails.address.street}}, <br>
+                {{companyDetails.address.area}}, <br>
+                {{companyDetails.address.city}} - {{companyDetails.address.country}}
+            </p>
         </div>
     </div>
-    <div class="w-full h-full bg-white p-10 m-2 rounded-md">
-        <div class="mb-3 flex justify-between">
-            <div class="flex gap-1">
-                <i><ng-icon name="heroBuildingLibrary" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
-                <p class="font-medium text-orange-400">Department:</p>
-            </div>
-            <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md text-sm"
-                (click)="onCreateClicks()" *ngIf="!openCreateForm">+ Add
-                Department</button>
+    <ng-template #noCompanyDetails>
+        <div class="w-full h-64 bg-white p-10 m-2 mb-5 rounded-md flex justify-center items-center flex-col">
+
+            <h1>No Company Details available.</h1>
+            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+                (click)="updateCompanyDetails()">
+                + Add Company Details
+            </button>
+
         </div>
-        <div>
-            <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
-                <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
-                    <!-- Position Column -->
-                    <ng-container matColumnDef="position">
-                        <th *matHeaderCellDef
-                            class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                            No </th>
-                        <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
-                    </ng-container>
 
-                    <!-- Name Column -->
-                    <ng-container matColumnDef="name">
-                        <th *matHeaderCellDef
-                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                            Name </th>
-                        <td mat-cell *matCellDef="let element"> {{element.departmentName}} </td>
-                    </ng-container>
 
-                    <!-- head Column -->
-                    <ng-container matColumnDef="head">
-                        <th *matHeaderCellDef
-                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                            Head </th>
-                        <td mat-cell *matCellDef="let element"> {{element.departmentHead[0].firstName}} {{element.departmentHead[0].lastName}}</td>
-                    </ng-container>
+    </ng-template>
 
-                    <!-- date Column -->
-                    <ng-container matColumnDef="date">
-                        <th *matHeaderCellDef
-                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                            Created Date </th>
-                        <td mat-cell *matCellDef="let element"> {{element.createdDate | date: 'dd/MM/yyyy'}} </td>
-                    </ng-container>
-
-                    <!-- action Column -->
-                    <ng-container matColumnDef="action">
-                        <th *matHeaderCellDef
-                            class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                            Action </th>
-                        <td mat-cell *matCellDef="let element; let i=index">
-                            <ng-icon class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare" (click)="onEditClick(i)"></ng-icon>
-                        </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                </table>
-                <app-skelton-loading *ngIf="isLoading" [lineLength]="2"></app-skelton-loading>
-            </div>
-        </div>
-    </div>
 </div>
 <div class="w-full p-5 bg-white"></div>

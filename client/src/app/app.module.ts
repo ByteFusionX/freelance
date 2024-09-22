@@ -16,7 +16,9 @@ import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.in
 import { ResizableModule } from './shared/components/resizable/resizable.module';
 import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
-
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+import { environment } from 'src/environments/environment';
+const config:SocketIoConfig = { url: environment.api, options: {} };
 
 @NgModule({
   declarations: [
@@ -41,6 +43,7 @@ import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
     ResizableModule,
     LoadingBarModule,
     LoadingBarRouterModule,
+    SocketIoModule.forRoot(config),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

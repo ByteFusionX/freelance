@@ -26,15 +26,15 @@
   src: url('./assets/font/static/Jost-Medium.ttf');
 }
 
-.font-semibold{
+.font-semibold {
   font-family: "Jost-semibold, sans-serif";
 }
 
-.font-bold{
+.font-bold {
   font-family: "Jost-bold, sans-serif";
 }
 
-.font-medium{
+.font-medium {
   font-family: "Jost-medium, sans-serif";
 }
 
@@ -127,4 +127,9 @@ input[type="number"] {
 
 .highlighted-text {
   color: orange !important;
+}
+
+
+.cdk-overlay-pane {
+  max-width: 90vw !important;
 }

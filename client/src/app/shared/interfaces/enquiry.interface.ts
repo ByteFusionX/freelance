@@ -1,5 +1,7 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
+import { getEmployee } from "./employee.interface";
+import { QuoteItem } from "./quotation.interface";
 
 export interface Enquiry {
     enquiryId: string;
@@ -14,21 +16,35 @@ export interface Enquiry {
     status: string;
 }
 
+export interface Estimations {
+    items: QuoteItem[];
+    currency: string;
+    totalDiscount: number;
+    presaleNote: string;
+}
+
+
+
 export interface getEnquiry {
     _id: string;
     enquiryId: string;
     client: getCustomer;
     contact: ContactDetail;
     department: getDepartment;
-    salesPerson: { _id: string, firstName: string, lastName: string }[];
+    salesPerson: { _id: string, firstName: string, lastName: string };
     title: string;
     date: string;
     attachments: Files[];
     preSale: {
         presalePerson: string;
-        presaleFile: Files[] | null;
+        presaleFiles: Files[] | null;
+        items?: QuoteItem[];
+        comment: string;
+        feedback?: feedback[];
+        seenbyEmployee?: boolean;
+        seenbySalesPerson?: boolean;
+        estimations:Estimations
     };
-    assignedFiles: Files[];
     status: string;
 }
 
@@ -37,9 +53,15 @@ export interface EnquiryTable {
     enquiry: getEnquiry[];
 }
 
-export interface TotalEnquiry {
+export interface FeedbackTable {
     total: number;
-    department: getDepartment[];
+    feedbacks: getEnquiry[];
+}
+
+export interface TotalEnquiry {
+    totalEnquiries: number;
+    departmentId: string;
+    departmentName: string;
     enquiry?: getEnquiry[];
 }
 
@@ -71,8 +93,18 @@ export interface Files {
     size: number,
 }
 
+export interface feedback {
+    _id?:string,
+    employeeId:getEmployee,
+    feedback:string
+    seenByFeedbackProvider:boolean,
+    seenByFeedbackRequester:boolean
+}
+
 export interface Presale {
     presalePerson: string;
     presaleFile: File[];
-    presalePersonName:string;
+    comment: string;
+    presalePersonName: string;
+    feedback: feedback
 };

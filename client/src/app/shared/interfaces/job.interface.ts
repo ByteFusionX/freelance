@@ -1,6 +1,7 @@
 import { Quotatation } from "./quotation.interface";
 
 export interface filterJob {
+    search:string;
     page: number;
     row: number;
     status: number;
@@ -11,9 +12,8 @@ export interface filterJob {
 export interface getJob {
     _id: string;
     jobId:string;
-    enquiryId: string;
     quoteId:string;
-    quotation:Quotatation;
+    quotation:Quotatation[];
     status:string;
     createdDate:string
 }
@@ -25,6 +25,7 @@ export interface Files {
 
 export interface JobTable {
     total: number;
+    totalLpo: number;
     job: getJob[];
 }
 

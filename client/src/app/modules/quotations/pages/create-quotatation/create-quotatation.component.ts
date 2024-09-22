@@ -16,7 +16,8 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { customerNoteValidator } from 'src/app/shared/validators/quoation.validator';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
+import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -36,8 +37,8 @@ export class CreateQuotatationComponent {
 
   quoteForm!: FormGroup;
   departments: getDepartment[] = [];
-  customerNotes: string[] = customerNotes;
-  termsAndConditions: string[] = termsAndConditions;
+  customerNotes!: Note[];
+  termsAndConditions!: Note[];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
 
@@ -72,6 +73,7 @@ export class CreateQuotatationComponent {
 
     this.getAllCustomers();
     this.getDepartment();
+    this.getNotes();
     this.tokenData = this._employeeService.employeeToken();
 
     this.quoteForm = this._fb.group({
@@ -96,35 +98,43 @@ export class CreateQuotatationComponent {
         })
       ]),
       totalDiscount: ['', Validators.required],
-      customerNote: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
-      termsAndCondition: this._fb.group({
-        defaultNote: [null],
-        text: [''],
-      }, { validator: this.customerNoteValidator } as AbstractControlOptions),
+      customerNote: ['', Validators.required],
+      termsAndCondition: ['', Validators.required],
       createdBy: [''],
       enqId: ['']
     });
 
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
-    this.subscriptions.add(
-      this.enquiryData$.subscribe((data) => {
-        this.quoteForm.patchValue({ client: data?.client._id, department: data?.department._id, enqId: data?._id })
-        this.onChange(data?.client._id as string);
-        this.quoteForm.patchValue({ attention: data?.contact._id })
-      })
+    this.subscriptions.add(this.enquiryData$.subscribe((data) => {
+      if (data && data?.preSale?.estimations?.items?.length) {
+        this.items.clear()
+        data.preSale.estimations.items.forEach((item: any, index: number) => {
+          this.addItemFormGroup()
+          item.itemDetails.forEach((_: any, ind: number) => {
+            if (ind > 0) {
+              this.addItemDetail(index)
+            }
+          })
+        })
+      }
+      const items = data?.preSale?.estimations?.items ?? [];
+      this.quoteForm.patchValue({
+        client: data?.client._id,
+        department: data?.department._id,
+        enqId: data?._id,
+        items: items,
+        currency: data?.preSale?.estimations?.currency ?? null,
+        totalDiscount: data?.preSale?.estimations?.totalDiscount ?? 0
+      });
+      this.onChange(data?.client._id as string);
+      this.quoteForm.patchValue({ attention: data?.contact._id });
+    })
+
     )
   }
 
-  customerNoteValidator(formGroup: FormGroup) {
-    const defaultNote = formGroup.get('defaultNote')?.value;
-    const text = formGroup.get('text')?.value;
 
-    return (defaultNote || text) ? null : { required: true };
-  }
 
   get items(): FormArray {
     return this.quoteForm.get('items') as FormArray;
@@ -174,11 +184,39 @@ export class CreateQuotatationComponent {
     })
   }
 
+  getNotes() {
+    this._profileService.getNotes().subscribe((res: Notes) => {
+      this.customerNotes = res.customerNotes
+      this.termsAndConditions = res.termsAndConditions
+    })
+  }
+
   get f() {
     return this.quoteForm.controls;
   }
 
+  onCustomerNote(event: Note, noteType: string) {
+    if (noteType == 'customerNotes') {
+      const customerNote = this.quoteForm.value.customerNote;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.customerNote + nextLine + event.note;
+      this.quoteForm.patchValue({ customerNote: note })
+    } else if (noteType == 'termsAndConditions') {
+      const customerNote = this.quoteForm.value.termsAndCondition;
+      let nextLine = ''
+      if (customerNote) {
+        nextLine = '\n'
+      }
+      const note = this.quoteForm.value.termsAndCondition + nextLine + event.note;
+      this.quoteForm.patchValue({ termsAndCondition: note })
+    }
+  }
+
   onChange(change: string) {
+    this.quoteForm.controls['attention'].patchValue(undefined)
     this.contacts = []
     this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {

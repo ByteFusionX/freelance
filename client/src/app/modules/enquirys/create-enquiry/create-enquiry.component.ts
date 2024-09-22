@@ -41,7 +41,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   isSaving: boolean = false;
   isQuoting: boolean = false;
-  assignedPresale:boolean = false;
+  assignedPresale: boolean = false;
 
   today = new Date().toISOString().substring(0, 10)
   enquiryForm = this._fb.group({
@@ -85,6 +85,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   }
 
   onChange(change: string) {
+    this.enquiryForm.controls.contact.patchValue(undefined)
     this.contacts = []
     this.config.notFoundText = 'Wait a few Seconds..';
     if (change && this.customers$) {
@@ -135,6 +136,7 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
     if (this.preSaleFiles) {
       formData.append('presalePerson', JSON.stringify(this.preSaleFiles.presalePerson));
+      formData.append('presaleComment', JSON.stringify(this.preSaleFiles.comment));
       for (let i = 0; i < this.preSaleFiles.presaleFile.length; i++) {
         formData.append('presaleFiles', (this.preSaleFiles.presaleFile[i] as Blob))
       }

@@ -7,12 +7,16 @@ interface ContactDetail {
   lastName: string;
   email: string;
   phoneNo: number;
+  department: Types.ObjectId;
 }
 
 export interface Customer extends Document {
+  clientRef: string;
   department: Types.ObjectId;
   contactDetails: ContactDetail[];
   companyName: string;
+  customerType: string;
+  companyAddress: string;
   customerEmailId: string;
   contactNo: number;
   createdBy: Types.ObjectId;
@@ -37,12 +41,22 @@ const contactDetailSchema = new Schema({
     required: true,
   },
   phoneNo: {
-    type:Number,
-  required:true
-  }
+    type: Number,
+    required: true
+  },
+  department: {
+    type: Schema.Types.ObjectId,
+    ref: 'Department',
+    required: true,
+  },
 });
 
 const customerSchema = new Schema<Customer>({
+  clientRef: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   department: {
     type: Schema.Types.ObjectId,
     ref: 'Department',
@@ -50,11 +64,19 @@ const customerSchema = new Schema<Customer>({
   },
   contactDetails: [
     {
-      type: contactDetailSchema,
+      type: contactDetailSchema,  
       required: true,
     },
   ],
   companyName: {
+    type: String,
+    required: true,
+  },
+  customerType: {
+    type: String,
+    required: true,
+  },
+  companyAddress: {
     type: String,
     required: true,
   },
@@ -74,7 +96,7 @@ const customerSchema = new Schema<Customer>({
   createdDate: {
     type: Date,
     default: Date.now
-}
+  }
 });
 
 export default model<Customer>("Customer", customerSchema);

@@ -1,5 +1,5 @@
 import { Schema, Document, model, Types } from "mongoose";
-import { Customer } from "./customer.model";
+import FilesSchema from "./files.model";
 
 interface QuoteItemDetail {
     detail: string;
@@ -7,16 +7,33 @@ interface QuoteItemDetail {
     unitCost: number;
     profit: number;
     availability: string;
-}
-
-interface DefaultAndText {
-    defaultNote: string;
-    text: string;
+    supplierName?: string;
+    email?: string;
+    phoneNo?: string;
+    dealSelected?: boolean;
 }
 
 interface QuoteItem {
     itemName: string;
     itemDetails: QuoteItemDetail[]
+}
+
+interface AdditionalCost {
+    name: string;
+    value: number;
+}
+
+interface Deal {
+    dealId: string;
+    paymentTerms: string;
+    additionalCosts: AdditionalCost[];
+    savedDate: Date;
+    seenByApprover: boolean;
+    status: string;
+    comments: string[];
+    seenedBySalsePerson: boolean;
+    attachments: [];
+    updatedItems: QuoteItem[];
 }
 
 interface Quotation extends Document {
@@ -29,12 +46,12 @@ interface Quotation extends Document {
     currency: string;
     items: QuoteItem[];
     totalDiscount: number;
-    customerNote: DefaultAndText;
-    termsAndCondition: DefaultAndText;
+    customerNote: string;
+    termsAndCondition: string;
     status: string;
     createdBy: Types.ObjectId;
     lpoFiles: [];
-    lpoSubmitted: boolean;
+    dealData: Deal;
     enqId: Types.ObjectId;
 }
 
@@ -69,6 +86,22 @@ const quoteItemDetailsSchema = new Schema<QuoteItemDetail>({
         type: String,
         required: true,
     },
+    supplierName: {
+        type: String,
+        required: false,
+    },
+    email: {
+        type: String,
+        required: false,
+    },
+    phoneNo: {
+        type: String,
+        required: false,
+    },
+    dealSelected: {
+        type: Boolean,
+        required: false,
+    }
 });
 
 const quoteItem = new Schema<QuoteItem>({
@@ -78,6 +111,57 @@ const quoteItem = new Schema<QuoteItem>({
     },
     itemDetails: {
         type: [quoteItemDetailsSchema],
+        required: true,
+    },
+});
+
+const additionalCostSchema = new Schema<AdditionalCost>({
+    name: {
+        type: String,
+        required: false,
+    },
+    value: {
+        type: Number,
+        required: false,
+    }
+});
+
+const dealDatas = new Schema<Deal>({
+    dealId: {
+        type: String,
+        required: false,
+    },
+    paymentTerms: {
+        type: String,
+        required: false,
+    },
+    additionalCosts: {
+        type: [additionalCostSchema],
+        required: false,
+    },
+    savedDate: {
+        type: Date,
+        required: false,
+    },
+    attachments: [],
+    seenByApprover: {
+        type: Boolean,
+        default: false
+    },
+    seenedBySalsePerson: {
+        type: Boolean,
+        default: true
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    },
+    comments: {
+        type: [String],
+    },
+    updatedItems: {
+        type: [quoteItem],
         required: true,
     },
 });
@@ -123,11 +207,11 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     customerNote: {
-        type: Object,
+        type: String,
         required: true,
     },
     termsAndCondition: {
-        type: Object,
+        type: String,
         required: true,
     },
     status: {
@@ -141,9 +225,8 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     lpoFiles: [],
-    lpoSubmitted: {
-        type: Boolean,
-        default: false
+    dealData: {
+        type: dealDatas
     },
     enqId: {
         type: Schema.Types.ObjectId,

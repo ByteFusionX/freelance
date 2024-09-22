@@ -1,12 +1,16 @@
+import { HttpEventType } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationExtras, Router } from '@angular/router';
+import saveAs from 'file-saver';
+import { ToastrService } from 'ngx-toastr';
+import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
-import { QuotationPreviewComponent } from '../quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-quotation-view',
@@ -21,7 +25,9 @@ export class QuotationViewComponent {
   constructor(
     private _router: Router,
     private quotationService: QuotationService,
+    private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
+    private toast: ToastrService,
   ) {
     this.getQuoteData();
   }
@@ -73,6 +79,24 @@ export class QuotationViewComponent {
 
   }
 
+  onDownloadClicks(file: any) {
+      this._enquiryService.downloadFile(file.filename)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
+          }
+        })
+  }
+
   calculateTotalCost(i: number, j: number) {
     return this.quoteData.items[i].itemDetails[j].quantity * this.quoteData.items[i].itemDetails[j].unitCost;
   }
@@ -104,6 +128,10 @@ export class QuotationViewComponent {
       })
     })
     return totalCost;
+  }
+
+  calculateProfitMargin(): number {
+    return this.calculateSellingPrice() - this.calculateAllTotalCost() || 0
   }
 
   calculateTotalProfit(): number {

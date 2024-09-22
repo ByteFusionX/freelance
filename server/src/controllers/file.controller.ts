@@ -49,9 +49,8 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
     try {
         const fileName = req.query.file;
         const enquiryId = req.query.enquiryId;
-        const uploadsDir = path.resolve(__dirname, '../..', 'uploads');
+        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
         const filePath = path.join(uploadsDir, fileName as string);
-        console.log(filePath);
 
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);

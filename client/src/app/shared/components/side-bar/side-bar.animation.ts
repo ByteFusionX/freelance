@@ -7,7 +7,7 @@ export const sideBarState = trigger('sideBarTrigger', [
         opacity: 1
     })),
     state('reduce', style({
-        width: '2.1rem',
+        width: '2.5rem',
     })),
     transition('default => reduce', animate('200ms')),
     transition('reduce => default', animate('200ms')),

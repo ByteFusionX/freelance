@@ -20,10 +20,12 @@ import { UploadLpoComponent } from './pages/upload-lpo/upload-lpo.component';
 import { UploadFileComponent } from "../../shared/components/upload-file/upload-file.component";
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { ResizableModule } from 'src/app/shared/components/resizable/resizable.module';
-import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
-import { QuotationPreviewComponent } from './pages/quotation-preview/quotation-preview.component';
 import { pipeModule } from 'src/app/shared/pipes/pipe.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DealFormComponent } from './pages/deal-form/deal-form.component';
+import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
+import { ViewReportComponent } from './pages/view-report/view-report.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 
 @NgModule({
@@ -34,7 +36,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         QuotationViewComponent,
         QuotationEditComponent,
         UploadLpoComponent,
-        QuotationPreviewComponent,
+        DealFormComponent,
+        ViewLpoComponent,
+        ViewReportComponent,
     ],
     providers: [DatePipe],
     imports: [
@@ -53,10 +57,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         UploadFileComponent,
         PaginationComponent,
         ResizableModule,
-        NgxExtendedPdfViewerModule,
         pipeModule,
-        MatTooltipModule
-         
+        MatTooltipModule,
+        NgApexchartsModule,
     ]
 })
 export class QuotationsModule { }

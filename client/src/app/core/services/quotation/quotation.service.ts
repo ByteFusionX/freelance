@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, QuoteStatus, getQuotation, Quotatation, quotatationForm, getQuotatation, nextQuoteData, dealData, FilterDeal, getDealSheet, ReportDetails } from 'src/app/shared/interfaces/quotation.interface';
 import { environment } from 'src/environments/environment';
 
 import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs
+
 
 @Injectable({
   providedIn: 'root'
@@ -28,12 +27,24 @@ export class QuotationService {
     return this.http.post<getQuotation>(`${this.api}/quotation/get`, filterData)
   }
 
+  getQuotationReport(filterData: FilterQuote): Observable<ReportDetails> {
+    return this.http.post<ReportDetails>(`${this.api}/quotation/report`, filterData)
+  }
+
+  getDealSheet(filterData: FilterDeal): Observable<getDealSheet> {
+    return this.http.post<getDealSheet>(`${this.api}/quotation/deal/get`, filterData)
+  }
+
   getNextQuoteId(quoteData: nextQuoteData): Observable<{ quoteId: string }> {
     return this.http.post<{ quoteId: string }>(`${this.api}/quotation/nextQuoteId`, quoteData)
   }
 
   updateQuoteStatus(quoteId: string, status: QuoteStatus): Observable<QuoteStatus> {
     return this.http.patch<QuoteStatus>(`${this.api}/quotation/status/${quoteId}`, { status })
+  }
+
+  saveDealSheet(dealDatas: dealData, quoteId?: string): Observable<Quotatation> {
+    return this.http.patch<Quotatation>(`${this.api}/quotation/deal/${quoteId}`, dealDatas)
   }
 
   totalQuotations(access?: string, userId?: string): Observable<{ total: number }> {
@@ -44,6 +55,23 @@ export class QuotationService {
   uploadLpo(lpoData: FormData): Observable<any> {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
   }
+
+  approveDeal(quoteId?: string): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId })
+  }
+
+  rejectDeal(comment: string, quoteId?: string): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/reject`, { quoteId, comment })
+  }
+
+  markDealAsViewed(quoteIds: any): Observable<any> {
+    return this.http.post(`${this.api}/quotation/markAsSeenedDeal`, { quoteIds })
+  }
+
+  markAsQuotationSeen(quoteId: any, userId: string): Observable<any> {
+    return this.http.post(`${this.api}/quotation/markAsQuotationSeened`, { quoteId, userId })
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {
@@ -88,10 +116,10 @@ export class QuotationService {
     const tableHeader = [
       { text: 'Sl.\nNo', style: 'tableSlNo' },
       { text: 'Part Number/Description', style: 'tableHeader' },
-      { text: 'QTY', style: 'tableHeader' },
+      { text: 'Qty', style: 'tableHeader' },
       { text: 'Unit', style: 'tableHeader' },
-      { text: 'Unit Price', style: 'tableHeader' },
-      { text: 'Total Cost', style: 'tableHeader' }
+      { text: `Unit Price (${quoteData.currency})`, style: 'tableHeader' },
+      { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' }
     ];
 
     // Table body
@@ -110,21 +138,41 @@ export class QuotationService {
         const totalPrice = unitPrice * detail.quantity;
         totalCost += totalPrice;
 
-        const segments = detail.detail.split('**');
+        const segments = detail.detail
+        const result = [];
 
-        const formattedSegments = segments.map((segment, index) => {
-          if (segment.includes('{') && segment.includes('}')) {
-            const regex = /\{(.*?)\}/g;
-            const replacedValue = segment.replace(regex, '$1');
-            return { text: replacedValue, color: 'orange' }; 
+        // Regular expression to match the patterns, including spaces
+        const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
+        let match;
+
+        while ((match = regex.exec(segments)) !== null) {
+          const [fullMatch] = match;
+
+          if (fullMatch.startsWith('**')) {
+            if (fullMatch.includes('{') && fullMatch.includes('}')) {
+              // Bold placeholder: **{text}**
+              const text = fullMatch.slice(3, -3).trim(); // Remove **{ and }**
+              result.push({ text, bold: true, color: 'orange' });
+            } else {
+              // Bold text: **text**
+              const text = fullMatch.slice(2, -2); // Remove **, don't trim spaces
+              result.push({ text, bold: true });
+            }
+          } else if (fullMatch.startsWith('{') && fullMatch.endsWith('}')) {
+            // Placeholder: {text}
+            const text = fullMatch.slice(1, -1).trim(); // Remove { and }
+            result.push({ text, color: 'orange' });
           } else {
-            return index % 2 === 0 ? { text: segment } : { text: segment, bold: true };
+            // Regular text (including spaces)
+            const text = fullMatch; // No trim, preserve spaces
+            if (text) result.push({ text });
           }
-        });
-        
+        }
+
+
         tableBody.push([
           { text: serialNumber++, style: 'tableText', alignment: 'center' },
-          { text: formattedSegments, style: 'tableText' },
+          { text: result, style: 'tableText' },
           { text: detail.quantity, style: 'tableText', alignment: 'center' },
           { text: 'Ea', style: 'tableText', alignment: 'center' },
           { text: unitPrice.toFixed(2), style: 'tableText', alignment: 'center' },
@@ -133,42 +181,71 @@ export class QuotationService {
       });
     });
 
-    const tableFooter = [
-      { text: 'Total Amount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+    const totalAmount = [
+      { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
       { text: totalCost.toFixed(2), style: 'tableFooter' },
     ];
+
+
+    let discount;
+    let finalAmount;
+
+    if (quoteData.totalDiscount != 0) {
+      discount = [
+        { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
+      ];
+      finalAmount = [
+        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
+      ];
+    } else {
+      finalAmount = [
+        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: (totalCost).toFixed(2), style: 'tableFooter' },
+      ];
+    }
+
+
+
+    let body;
+    if (quoteData.totalDiscount == 0) {
+      body = [
+        tableHeader,
+        ...tableBody,
+        finalAmount
+      ]
+    } else {
+      body = [
+        tableHeader,
+        ...tableBody,
+        totalAmount,
+        discount,
+        finalAmount
+      ]
+    }
 
     const table = {
       table: {
         headerRows: 1,
         widths: [20, '*', 25, 40, 60, 60],
-        body: [
-          tableHeader,
-          ...tableBody,
-          tableFooter
-        ],
-
+        body: body,
       }
     };
 
-    let termsAndConditions = '';
-    if (quoteData.termsAndCondition.defaultNote) {
-      termsAndConditions += `${quoteData.termsAndCondition.defaultNote}\n`;
-    }
-    if (quoteData.termsAndCondition.text) {
-      termsAndConditions += `${quoteData.termsAndCondition.text}`;
-    }
-
-    let customerNotes = '';
-    if (quoteData.customerNote.defaultNote) {
-      customerNotes += `${quoteData.customerNote.defaultNote}\n`;
-    }
-    if (quoteData.customerNote.text) {
-      customerNotes += `${quoteData.customerNote.text}`;
+    (pdfMake as any).fonts = {
+      EBGaramond: {
+        normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
+        bold: `${window.location.origin}/assets/font/EBGaramond-Bold.ttf`,
+        italics: `${window.location.origin}/assets/font/EBGaramond-Italic.ttf`,
+      }
     }
 
 
     const documentDefinition: any = {
+      defaultStyle: {
+        font: 'EBGaramond'
+      },
       background: {
         image: await this.getBase64ImageFromURL(
           "../../assets/images/logo.webp"
@@ -221,9 +298,9 @@ export class QuotationService {
           table: {
             widths: [78.66, '*', 43.24, '*', 73.60, 'auto'],
             body: [
-              [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 5 }, {}, {}, {}, {}],
+              [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 4 }, {}, {}, {}, { text: ['Total Pages : 0', { pageReference: 'lastPage' }], alignment: 'left', style: 'pageNumber' }],
               [{ style: 'tableHead', text: 'Attention:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.attention.courtesyTitle + ' ' + quoteData.attention.firstName + ' ' + quoteData.attention.lastName}`, alignment: 'left', colSpan: 3, bold: true }, {}, {}, { style: 'tableHead', text: 'Date:', alignment: 'left' }, { style: 'tableHead', text: '14-03-2024', alignment: 'left' }],
-              [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: '', alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: '', alignment: 'left' }],
+              [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyAddress, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.clientRef, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Client Tel:', alignment: 'left' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'FAX:', alignment: 'center' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'Salesperson:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}`, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Subject:', alignment: 'left' }, { style: 'tableHead', text: quoteData.subject, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Quote Ref:', alignment: 'left' }, { style: 'quoteId', text: quoteData.quoteId, alignment: 'left' }],
             ]
@@ -234,14 +311,14 @@ export class QuotationService {
         { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text', margin: [0, 10, 0, 15] },
         table,
         { text: 'TERMS & CONDITIONS', style: 'subHeading' },
-        { text: termsAndConditions, style: 'text' },
+        { text: quoteData.termsAndCondition, style: 'text' },
         { text: 'Notes', style: 'subHeading' },
-        { text: customerNotes, style: 'text' }, {
+        { text: quoteData.customerNote, style: 'text' }, {
           columns: [
             {
               text: [
                 { text: 'Thanking you\nFor ', style: 'footerText' },
-                { text: 'Neuron Technologies W.L.L', style: 'footerBoldText' }]
+                { text: 'Neuron Technologies W.L.L', style: 'footerBoldText', id: 'lastPage' }]
             },
             {
               image: await this.getBase64ImageFromURL(
@@ -250,7 +327,7 @@ export class QuotationService {
               width: 90,
               margin: [30, 5, 0, 0]
             },
-            { text: 'Subin Suresh\nMob: - +974 55007257\nE: sales@neuron.com.qa', style: 'footerText', alignment: 'right' },
+            { text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}\nMob: - ${quoteData.createdBy.contactNo}\nE: ${quoteData.createdBy.email}`, style: 'footerText', alignment: 'right' },
           ],
           margin: [0, 10, 0, 0],
           pageBreak: 'avoid'
@@ -333,9 +410,6 @@ export class QuotationService {
           margin: [5, 10, 0, 0],
           bold: true
         }
-      },
-      defaultStyle: {
-        // alignment: 'justify'
       }
 
     }
@@ -343,6 +417,17 @@ export class QuotationService {
 
     const pdfDoc = pdfMake.createPdf(documentDefinition);
     return pdfDoc
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 

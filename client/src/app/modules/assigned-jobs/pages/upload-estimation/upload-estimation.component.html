@@ -1,0 +1,249 @@
+<div class="bg-white m-6">
+    <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
+
+        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+            <h3 class="font-semibold">Upload Estimation</h3>
+        </div>
+    </div>
+    <div class="relative overflow-x-auto  p-8" [formGroup]="quoteForm">
+        <div class="w-full md:w-1/4 mb-6 md:mb-3">
+            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                for="grid-first-name">
+                Currency
+            </label>
+            <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border"
+                formControlName="currency">
+                <ng-option value="QAR">QAR</ng-option>
+                <ng-option value="USD">USD</ng-option>
+            </ng-select>
+        </div>
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                    <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
+                        key="itemDetail">
+                        <div class="px-6 py-3">Item Details</div>
+
+                    </th>
+                    <th scope="col" resizable key="qty"
+                        class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
+                        <div class="px-2 py-3">QTY</div>
+                    </th>
+                    <th scope="col" resizable key="unitCost"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Unit Cost</div>
+                    </th>
+                    <th scope="col" resizable key="totalCost"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Total Cost</div>
+                    </th>
+                    <th scope="col" resizable key="profit"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Profit</div>
+                    </th>
+                    <th scope="col" resizable key="unitPrice"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Unit Price</div>
+                    </th>
+                    <th scope="col" resizable key="totalPrice"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Total Price</div>
+                    </th>
+                    <th scope="col" resizable key="avbl"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center min-w-[90px]">
+                        <div class="px-2 py-3">AVBL.</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody formArrayName="items">
+                <ng-container *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+                    <tr>
+                        <td colspan="9" class="border px-6 py-3 bg-gray-50 ">
+                            <div class="flex justify-center items-center">
+                                <label for="">ITEM NAME : </label>
+                                <input formControlName="itemName" type="text"
+                                    [class.border-red-500]="quoteForm.get('items.' + i + '.itemName')?.invalid && submit"
+                                    class="appearance-none block bg-white text-gray-700 border border-gray-200 rounded py-2 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 ml-2 w-3/6">
+                                <button type="button"
+                                    class="ml-2 bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+                                    (click)="addItemDetail(i)">
+                                    + Add Item Detail
+                                </button>
+                                <button type="button" *ngIf="i!==0"
+                                    class="ml-2 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded text-sm"
+                                    (click)="onRemoveItem(i)">
+                                    × Remove Item
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <ng-container formArrayName="itemDetails">
+                        <ng-container *ngFor="let detail of getItemDetailsControls(i).controls; let j=index">
+                            <tr [formGroupName]="j">
+                                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('detail')?.invalid && submit"
+                                    class="border px-6 py-3">
+                                    <textarea appNoLeadingSpace formControlName="detail"
+                                        class="w-full font-normal appearance-none block  rounded py-3 px-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        type="text" placeholder="Type / copy the item here." #inputTextArea></textarea>
+                                    <div class="h-5 w-full ">
+
+                                        <button type="button" (click)="applyFormatting(i, j, inputTextArea)"
+                                            class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                            matTooltip="Bold" matTooltipPosition="above">B</button>
+
+                                        <button type="button" (click)="applyHighlighter(i, j, inputTextArea)"
+                                            class="text-bold hover:bg-gray-300 rounded-full px-2 text-black text-lg"
+                                            matTooltip="Highlight" matTooltipPosition="above">H</button>
+                                    </div>
+                                </td>
+                                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && submit"
+                                    class="border px-2 py-2 text-center">
+                                    <input appNoLeadingSpace formControlName="quantity"
+                                        class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        type="number" placeholder="00">
+                                </td>
+                                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('unitCost')?.invalid && submit"
+                                    class="border px-6 py-3">
+                                    <input appNoLeadingSpace formControlName="unitCost"
+                                        class="font-normal appearance-none block w-full text-center rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        type="number" placeholder="00.00">
+                                </td>
+                                <td class="px-6 py-3 border-l border-b border-t text-center">
+                                    <p>{{ calculateTotalCost(i,j) }}</p>
+                                </td>
+                                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('profit')?.invalid && submit"
+                                    class="border py-2 px-6 text-center">
+                                    <div class="flex justify-center items-center">
+                                        <input appNoLeadingSpace formControlName="profit"
+                                            class="font-normal appearance-none block w-6 text-right rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                            type="number" placeholder="00">
+                                        <p class="ml-0.5 mb-0.5">%</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-3 border-l border-b border-t text-center">
+                                    <p>{{ calculateUnitPrice(i,j).toFixed(2) }}</p>
+                                </td>
+                                <td class="px-6 py-3 border-l border-b border-t text-center">
+                                    <p>{{ calculateTotalPrice(i,j).toFixed(2) }}</p>
+                                </td>
+                                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('availability')?.invalid && submit"
+                                    class="border px-2 py-2 text-center">
+                                    <input appNoLeadingSpace formControlName="availability"
+                                        class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                        placeholder="AVBL.">
+                                </td>
+                                <td class="px-2 py-2 border text-center" *ngIf="j!==0">
+                                    <ng-icon name="heroXMark" class="text-md p-0 m-0 cursor-pointer text-red-600 mx-2"
+                                        (click)="onRemoveItemDetail(i,j)"></ng-icon>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                </ng-container>
+
+            </tbody>
+        </table>
+
+
+        <div class="w-full flex justify-start items-center mt-3 gap-3">
+            <button type="button"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+                (click)="addItemFormGroup()">
+                + Add Item
+            </button>
+
+        </div>
+        <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
+            <table class="w-1/2 text-sm text-left rtl:text-right text-black border bg-gray-50">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Cost
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateAllTotalCost().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Selling price
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateSellingPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit margin with %
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateTotalProfit().toFixed(2)}}%
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <table class="w-1/2  text-sm text-left rtl:text-right text-black border bg-gray-100">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Subtotal
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateSellingPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Discount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            <input type="number" placeholder="0" appNoLeadingSpace appNegativeNumber
+                                [class.border-red-500]="f['totalDiscount'].invalid && submit"
+                                class="text-center border  outline-none px-2 py-2 w-4/5"
+                                formControlName="totalDiscount">
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Amount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{calculateDiscoutPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="relative overflow-x-auto mt-6 w-full ">
+            <div class="w-full">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                    for="customerNote">
+                    Note
+                </label>
+
+                <textarea appNoLeadingSpace formControlName="presaleNote"
+                    [class.border-red-500]="f['presaleNote'].invalid && submit" rows="3"
+                    class="mt-2 appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    id="customerNote" placeholder="Presale Note"></textarea>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="px-8 py-6 border-t flex justify-end">
+        <div class="flex w-40">
+            <button type="button"
+                class=" hover:bg-gray-100 text-black font-medium py-2 px-4 rounded text-sm mr-3  border border-gray-300"
+                routerLink="/assigned-jobs">
+                Cancel
+            </button>
+            <button type="submit" (click)="onSubmit()" [disabled]="isSaving"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2">
+                <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+                Save
+            </button>
+        </div>
+    </div>
+</div>

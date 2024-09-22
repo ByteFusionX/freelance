@@ -11,7 +11,6 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
     const employeeService = inject(EmployeeService)
 
-
     const employee = employeeService.employeeToken()
     const employeeId = employee.employeeId
     return employeeService.getEmployee(employeeId).pipe(
@@ -68,6 +67,13 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                 }
                 break;
 
+            case '/assigned-jobs/completed':
+                if (privileges?.assignedJob?.viewReport == 'none') {
+                    router.navigate(['/home']);
+                    return false;
+                }
+                break;
+
             case '/quotations':
                 if (privileges?.quotation?.viewReport == 'none') {
                     router.navigate(['/home']);
@@ -87,6 +93,23 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                     router.navigate(['/home']);
                     return false;
                 }
+                break;
+
+            case '/deal-sheet':
+                if (privileges?.dealSheet == false) {
+                    router.navigate(['/home']);
+                    return false;
+                }
+                break;
+
+            case '/settings':
+                if (privileges) {
+                    if (!Object.values(privileges.portalManagement).some(value => value === true)) {
+                        router.navigate(['/home']);
+                        return false;
+                    }
+                }
+
                 break;
 
             default:

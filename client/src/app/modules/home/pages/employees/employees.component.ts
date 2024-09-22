@@ -16,11 +16,11 @@ import { NavigationExtras, Router } from '@angular/router';
 export class EmployeesComponent {
 
   isLoading: boolean = true;
-  isEnter:boolean = false;
+  isEnter: boolean = false;
   isEmpty: boolean = false;
   createEmployee: boolean | undefined = false;
 
-  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo'];
+  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'target'];
 
   dataSource = new MatTableDataSource<getEmployee>()
   filteredData = new MatTableDataSource<getEmployee>()
@@ -51,8 +51,8 @@ export class EmployeesComponent {
     )
   }
 
-  ngModelChange(){
-    if(this.searchQuery == '' && this.isEnter){
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
       this.onSearch();
       this.isEnter = !this.isEnter;
     }
@@ -81,9 +81,9 @@ export class EmployeesComponent {
       row: this.row,
       search: this.searchQuery,
       access: access,
-      userId:userId
+      userId: userId
     }
-    
+
     this.subscriptions.add(
       this._employeeService.getEmployees(filterData)
         .subscribe({
@@ -109,18 +109,22 @@ export class EmployeesComponent {
     const dialogRef = this.dialog.open(CreateEmployeeDialog);
     dialogRef.afterClosed().subscribe((data) => {
       if (data) {
-        this.getEmployees()
+        if (this.dataSource.data.length < 10) {
+          this.total++;
+          this.dataSource.data.push(data);
+          this.dataSource._updateChangeSubscription();
+        }
         this._toast.success('Employee Created Successfully')
       }
     });
   }
 
-  onRowClicks(index:number){
+  onRowClicks(index: number) {
     let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data
     };
-    this._router.navigate(['/home', 'employees', 'view'],navigationExtras);
+    this._router.navigate(['/home', 'employees', 'view' , data.employeeId], navigationExtras);
   }
 
   checkPermission() {

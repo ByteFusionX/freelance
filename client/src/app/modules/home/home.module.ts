@@ -7,7 +7,6 @@ import { EmployeesComponent } from './pages/employees/employees.component';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
-import { CreateEmployeeDialog } from './pages/employees/create-employee/create-employee.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AnnouncementsComponent } from './pages/announcements/announcements.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
@@ -19,16 +18,18 @@ import { ConfettiComponentComponent } from 'src/app/shared/components/confetti-c
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
+import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 @NgModule({
   declarations: [
     HomeComponent,
     EmployeesComponent,
-    CreateEmployeeDialog,
     DashboardComponent,
     AnnouncementsComponent,
     CreateCategoryComponent,
     ViewEmployeeComponent,
+    EditEmployeeComponent,
 
   ],
   imports: [
@@ -44,7 +45,8 @@ import { ViewEmployeeComponent } from './pages/employees/view-employee/view-empl
     NgSelectModule,
     SkeltonLoadingComponent,
     ConfettiComponentComponent,
-    PaginationComponent
+    PaginationComponent,
+    MatSidenavModule
   ]
 })
 export class HomeModule { }

@@ -21,7 +21,7 @@ export class CustomersListComponent {
   isEmpty: boolean = false;
   createCustomer:boolean | undefined = false;
 
-  displayedColumns: string[] = ['position', 'name', 'createdBy', 'department'];
+  displayedColumns: string[] = ['position', 'clientRef','name', 'createdBy', 'department'];
 
   dataSource = new MatTableDataSource<getCustomer>()
   filteredData = new MatTableDataSource<getCustomer>()
@@ -99,7 +99,7 @@ export class CustomersListComponent {
     const navigationExtras: NavigationExtras = {
       state: data
     };
-    this._router.navigate(['/customers/view'], navigationExtras);
+    this._router.navigate([`/customers/view/${data.clientRef}`], navigationExtras);
   }
 
   checkPermission() {
