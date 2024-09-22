@@ -18,7 +18,6 @@ import { DealFormComponent } from '../deal-form/deal-form.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UploadLpoComponent {
-  lpoValue!: number;
   selectedFiles: File[] = []
   lpoFiles = [];
 
@@ -48,22 +47,21 @@ export class UploadLpoComponent {
 
     this.submit = true;
     if (this.selectedFiles.length && this.data) {
-      if (this.lpoValue) {
-        this.isSaving = true;
-        let formData = new FormData();
-        formData.append('quoteId', this.data._id as string)
-        formData.append('lpoValue', this.lpoValue as unknown as string)
-        for (let i = 0; i < this.selectedFiles.length; i++) {
-          formData.append('files', this.selectedFiles[i] as Blob)
-        }
-        this._quoationService.uploadLpo(formData).subscribe((quote: Quotatation) => {
-          if (quote) {
-            this.isSaving = false;
-            this.dialogRef.close(quote)
-          }
 
-        })
+      this.isSaving = true;
+      let formData = new FormData();
+      formData.append('quoteId', this.data._id as string)
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        formData.append('files', this.selectedFiles[i] as Blob)
       }
+      this._quoationService.uploadLpo(formData).subscribe((quote: Quotatation) => {
+        if (quote) {
+          this.isSaving = false;
+          this.dialogRef.close(quote)
+        }
+
+      })
+
     } else {
       this.error = true;
     }

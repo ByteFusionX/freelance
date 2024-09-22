@@ -117,7 +117,7 @@ export enum QuoteStatus {
 export interface dealData {
     dealId: string;
     paymentTerms: string;
-    items: [];
+    updatedItems: QuoteItem[];
     additionalCosts: { name: string, value: number }[];
     savedDate: string;
     seenByApprover: boolean;

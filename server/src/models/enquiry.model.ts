@@ -33,7 +33,7 @@ interface QuoteItem {
 const feedbackSchema = new Schema({
     _id: {
         type: Schema.Types.ObjectId,
-        default: () => new Types.ObjectId() 
+        default: () => new Types.ObjectId()
     },
     employeeId: {
         type: Types.ObjectId
@@ -85,9 +85,9 @@ const preSaleSchema = new Schema({
     feedback: {
         type: [feedbackSchema]
     },
-    newFeedbackAccess:{
-        type:Boolean,
-        default:true
+    newFeedbackAccess: {
+        type: Boolean,
+        default: true
     },
     seenbyEmployee: {
         type: Boolean,
@@ -100,6 +100,10 @@ const preSaleSchema = new Schema({
     revisionComment: {
         type: [String],
         default: []
+    },
+    createdDate: {
+        type: Date,
+        default: Date.now()
     }
 })
 

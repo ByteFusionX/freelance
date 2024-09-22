@@ -91,12 +91,11 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         const presale = JSON.parse(req.body.presaleData)
         const presaleFiles = req.files.presaleFiles;
         let enquiryId = req.params.enquiryId;
-        console.log(req.files)
         if (presaleFiles) {
             presale.presaleFiles = presaleFiles
         }
 
-        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales', 'preSale.newFeedbackAccess': true } });
+        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales', 'preSale.newFeedbackAccess': true, 'preSale.createdDate': Date.now() } });
         const socket = req.app.get('io') as Server;
         socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
         if (update.modifiedCount) return res.status(200).json({ success: true })
@@ -555,7 +554,8 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
                 $push: { 'preSale.revisionComment': revisionComment },
                 status: 'Assigned To Presales',
                 'preSale.seenbyEmployee': false,
-                'preSale.newFeedbackAccess': true
+                'preSale.newFeedbackAccess': true,
+                'preSale.createdDate': Date.now()
             },
             { new: true }
         );

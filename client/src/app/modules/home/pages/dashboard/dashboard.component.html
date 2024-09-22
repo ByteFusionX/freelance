@@ -1,33 +1,130 @@
-<div>
-    <div class="md:p-8 p-5">
-        <div class="w-full bg-white rounded-md  shadow-md">
-            <div class="md:flex p-10">
-                <div class="md:w-1/2">
-                    <p class="text-4xl font-medium mt-2">Hey
-                        <span class="capitalize" *ngIf="userData$ | async as user">{{user.firstName + ' '+
-                            user.lastName}}</span>,<br>
-
-                    </p>
-                    <p class="text-3xl font-medium mt-2">Welcome to Neuron Technologies</p>
-                    <div class="mt-3">
-                        <p class="text-gray-800"> A versatile technology integrator with unparalleled array of products
-                            and services to encompass every need an enterprise will endure in field of digital
-                            information and technology.</p>
-                    </div>
-                    <div class="mt-5">
-                        <button class="py-2 px-4 bg-violet-600 text-white rounded hover:bg-violet-500"
-                            (click)="onClickLearnButton()">Learn
-                            More</button>
-                    </div>
+<mat-drawer-container class="example-container" hasBackdrop="false" autosize>
+    <mat-drawer #drawer mode="side" position="end" class="w-64 p-5 bg-white shadow-lg">
+        <div class="flex flex-col space-y-5">
+            <!-- Filter Header -->
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold">Filter Options</h3>
+                <button (click)="drawer.close()" class="text-gray-500 hover:text-gray-800">
+                    <ng-icon name="heroXMark" class="text-xl"></ng-icon>
+                </button>
+            </div>
+            <!-- Year Filter -->
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Year</p>
+                <div class="flex flex-col space-y-2">
+                    <ng-container *ngFor="let year of getYears()">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" class="form-checkbox text-blue-600" />
+                            <span class="ml-2 text-gray-700">{{ year }}</span>
+                        </label>
+                    </ng-container>
                 </div>
-                <div class="md: w-1/2">
-                    <div class="flex justify-center">
-                        <img src="assets/images/active-panel.webp" alt="" width="" class="w-[450px]">
+            </div>
+
+            <!-- Month Filter -->
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Month</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex flex-col space-y-2">
+                        <ng-container *ngFor="let month of getMonths() | slice:0:6">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox text-blue-600" />
+                                <span class="ml-2 text-gray-700">{{ month }}</span>
+                            </label>
+                        </ng-container>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <ng-container *ngFor="let month of getMonths() | slice:6:12">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox text-blue-600" />
+                                <span class="ml-2 text-gray-700">{{ month }}</span>
+                            </label>
+                        </ng-container>
                     </div>
                 </div>
             </div>
+            <!-- Department Filter -->
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Departments</p>
+                <div class="flex flex-col space-y-2">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="form-checkbox text-blue-600" />
+                        <span class="ml-2 text-gray-700">ICT</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="form-checkbox text-blue-600" />
+                        <span class="ml-2 text-gray-700">ELV</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="form-checkbox text-blue-600" />
+                        <span class="ml-2 text-gray-700">Other</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sales Person Filter -->
+            <div>
+                <p class="font-semibold text-gray-800 mb-2">Sales Person</p>
+                <!-- <ng-select [items]="salesPersons" [(ngModel)]="selectedSalesPersons" [multiple]="true" bindLabel="name"
+                    class="w-full">
+                </ng-select> -->
+            </div>
         </div>
-        <div class="w-full bg-white rounded-md mt-5  shadow-md" *ngIf="privileges?.dashboard?.totalEnquiry">
+    </mat-drawer>
+
+    <div>
+        <div class="md:p-8 p-5">
+            <div class="w-full  flex justify-end">
+                <div (click)="drawer.toggle()"
+                    class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-2 bg-white"
+                    mat-button>
+                    <ng-icon name="heroAdjustmentsHorizontal"></ng-icon>
+                    <p class="mx-2 text-sm whitespace-nowrap">Filter By</p>
+                </div>
+            </div>
+            <div class="w-full flex gap-3">
+                <div class="w-2/6 flex flex-col gap-3">
+                    <!-- Check if metrics are loading -->
+                    <ng-container *ngIf="(dashboardMetrics$ | async) as metrics; else loading">
+                        <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
+                            <p class="font-semibold text-sm">{{ metric.name }}</p>
+                            <p class="font-bold text-[1.7rem]">
+                                {{ metric.type === 'QAR' ? metric.value.toFixed(2) : metric.value }} {{ metric.type }}
+                            </p>
+                            <p class="font-medium text-gray-800 text-xs">
+                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' + metric.type }}
+                                {{ metric.lastWeekName }} this week
+                            </p>
+                        </div>
+                    </ng-container>
+            
+                    <!-- Loading skeleton -->
+                    <ng-template #loading>
+                        <div class="bg-white p-2 rounded-md">
+                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
+                        </div>
+                        <div class="bg-white p-2 rounded-md">
+                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
+                        </div>
+                        <div class="bg-white p-2 rounded-md">
+                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
+                        </div>
+                        <div class="bg-white p-2 rounded-md">
+                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
+                        </div>
+                        <div class="bg-white p-2 rounded-md">
+                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="w-3/5 bg-red-400 h-3">
+
+                    
+                </div>
+                <div class="w-2/5 bg-slate-500 h-3"></div>
+            </div>
+            
+            <!-- <div class="w-full bg-white rounded-md mt-5  shadow-md" *ngIf="privileges?.dashboard?.totalEnquiry">
             <div class="p-10">
                 <p class="text-md font-medium">Total no of Enquires</p>
                 <div class="md:grid grid-cols-3 gap-10 mt-5">
@@ -155,13 +252,15 @@
                         [dataLabels]="chartOptions.dataLabels!"></apx-chart>
                 </div>
             </div>
+        </div> -->
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="w-full h-10 bg-white relative">
+        <!-- Footer -->
+        <!-- <div class="w-full h-10 bg-white relative">
         <div class="absolute bottom-0 right-0">
             <a href="https://github.com/ByteFusionX" class="text-xs underline text-violet-800 ">ByteFusionX</a>
         </div>
+    </div> -->
     </div>
-</div>
+
+</mat-drawer-container>

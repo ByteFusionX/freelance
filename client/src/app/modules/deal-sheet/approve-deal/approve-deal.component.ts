@@ -51,6 +51,7 @@ export class ApproveDealComponent implements OnInit {
   }
 
 
+
   onClose() {
     this.dialogRef.close()
   }

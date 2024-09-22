@@ -150,7 +150,7 @@ export class DealSheetComponent {
       perc: 0
     }
 
-    const quoteItems = quoteData.items.map((item) => {
+    const quoteItems =  quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
 
       item.itemDetails.map((itemDetail) => {
@@ -174,7 +174,7 @@ export class DealSheetComponent {
     const dialogRef = this._dialog.open(ApproveDealComponent,
       {
         data: { approval, quoteData, quoteItems, priceDetails },
-        width: '900px'
+        width: '1200px'
       });
 
     dialogRef.afterClosed().subscribe((actions: { approve: boolean, updating: boolean }) => {

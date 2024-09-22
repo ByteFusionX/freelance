@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ChartOptions } from './dashboard.chart';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
-import { Observable, Subscription } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { getEmployee, Privileges } from 'src/app/shared/interfaces/employee.interface';
@@ -10,6 +10,8 @@ import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
 import { JobService } from 'src/app/core/services/job/job.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { DashboardService } from 'src/app/core/services/dashboard.service';
+import { Metric } from 'src/app/shared/interfaces/dasbhoard.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,7 +29,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   graphCategory: string[] = [];
   showChart: boolean = false
   privileges!: Privileges | undefined;
-  noDataForChart:boolean = false;
+  noDataForChart: boolean = false;
 
   userId!: string | undefined;
   enquiryAccess!: string | undefined;
@@ -45,15 +47,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   jobs$!: Observable<{ total: number }>;
   presales$!: Observable<{ pending: number, completed: number }>;
 
+  dashboardMetrics$!: Observable<Metric[]>
+
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
 
   constructor(
     private _enquiryService: EnquiryService,
-    private _profileService: ProfileService,
+    private _dashboardService: DashboardService,
     private _employeeService: EmployeeService,
-    private _quotationService: QuotationService,
-    private _jobService: JobService,
     private router: Router
   ) { }
 
@@ -61,34 +63,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.userData$ = this._employeeService.employeeData$
     this._employeeService.employeeData$.subscribe((employee) => {
       if (employee) {
-        this.privileges = employee?.category?.privileges
         this.userId = employee?._id;
-
-        if (this.privileges?.dashboard?.totalEnquiry) {
-          this.enquiryAccess = employee?.category.privileges.enquiry.viewReport
-          this.enquiries$ = this._profileService.totalEnquiries(this.enquiryAccess, this.userId);
-          this.enquiryLoading()
-        }
-
-        if (this.privileges?.dashboard?.totalQuote) {
-          this.quoteAccess = employee?.category.privileges.quotation.viewReport;
-          this.quotations$ = this._quotationService.totalQuotations(this.quoteAccess, this.userId)
-          this.quoteLoading();
-        }
-
-        if (this.privileges?.dashboard?.totalJobs) {
-          this.jobAccess = employee?.category.privileges.jobSheet.viewReport
-          this.jobs$ = this._jobService.totalJobs(this.jobAccess, this.userId)
-          this.jobLoading();
-        }
-
-        if (this.privileges?.dashboard?.totalPresale) {
-          this.presales$ = this._enquiryService.presalesCounts(this.jobAccess, this.userId)
-          this.presalesLoading();
-        }
-
-        if (this.privileges?.dashboard?.EnquiryChart) {
-          this.getChartDetails()
+        if (this.userId) {
+          this.dashboardMetrics$ = this._dashboardService.getDashboardMetrics(this.userId, {}).pipe(
+            map(metrics => metrics.sort((a, b) => a.rank - b.rank))
+          );
         }
       }
     })
@@ -200,9 +179,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           let index = this.graphCategory.indexOf(date)
           dep.data[index] = item.total
         })
-        if(data.length){
+        if (data.length) {
           this.chartDetails()
-        }else{
+        } else {
           this.noDataForChart = true
         }
       })
@@ -238,6 +217,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showChart = true;
   }
 
+  getYears(): number[] {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let year = 2024; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years.reverse();
+  }
+
+  getMonths(): string[] {
+    return [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+  }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe()

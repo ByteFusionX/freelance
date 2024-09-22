@@ -22,7 +22,7 @@
 
 
 
-      <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4">
+      <table class="w-fit text-sm text-left rtl:text-right text-gray-500 border mb-4">
         <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
           <tr>
             <th scope="col" class=" border-l border-r border-t text-center">
@@ -37,16 +37,19 @@
               <div class="px-2 py-3">QTY</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Unit Selling Price</div>
-            </th>
-            <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Total Selling Price</div>
-            </th>
-            <th scope="col" class="border-l border-r border-t   text-center">
               <div class="px-6 py-3">Unit Cost</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
               <div class="px-6 py-3">Total Cost</div>
+            </th>
+            <th scope="col" class="border-l border-r border-t hover:border-r-slate-950  text-center">
+              <div class="px-6 py-3">Profit</div>
+            </th>
+            <th scope="col" class="border-l border-r border-t   text-center">
+              <div class="px-6 py-3">Unit Selling Price</div>
+            </th>
+            <th scope="col" class="border-l border-r border-t   text-center">
+              <div class="px-6 py-3">Total Selling Price</div>
             </th>
 
             <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
@@ -74,27 +77,55 @@
               <tr class=" border-b text-gray-400" [formGroupName]="j"
                 [ngClass]="{'text-gray-800':detail.get('dealSelected')?.value}">
                 <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line ">
-                  <input type="checkbox" name="" id="" formControlName="dealSelected" (change)="onItemCheckboxChange(i,j,$event)">
+                  <input type="checkbox" name="" id="" formControlName="dealSelected"
+                    (change)="onItemCheckboxChange(i,j,$event)">
                 </th>
+
                 <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
                   <div [innerHTML]="detail.get('detail')?.value | parseBracketsText | parseBoldText"></div>
                 </th>
-                <td class="px-2 border text-center">
-                  {{ detail.get('quantity')?.value }}
+
+                <td
+                  [class.border-red-500]="getItemDetailsControls(i).controls[j].get('quantity')?.invalid && isSubmitted"
+                  class="border px-2 py-2 text-center">
+                  <input appNoLeadingSpace formControlName="quantity" *ngIf="detail.get('dealSelected')?.value"
+                    class="w-10 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    type="number" placeholder="00">
+                  <p *ngIf="!detail.get('dealSelected')?.value"> {{ detail.get('quantity')?.value }} </p>
                 </td>
-                <td class="px-2 py-2 border text-center">
-                  {{ (detail.get('unitCost')?.value / (1 - (detail.get('profit')?.value / 100))).toFixed(2) }}
+
+                <td
+                  [class.border-red-500]="getItemDetailsControls(i).controls[j].get('unitCost')?.invalid && isSubmitted"
+                  class="border px-6 py-3">
+                  <input appNoLeadingSpace formControlName="unitCost" *ngIf="detail.get('dealSelected')?.value"
+                    class="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                    type="number" placeholder="00.00">
+                  <p *ngIf="!detail.get('dealSelected')?.value">{{ detail.get('unitCost')?.value.toFixed(2) }}</p>
                 </td>
-                <td class="px-2 py-2 border text-center">
-                  {{ ((detail.get('unitCost')?.value / (1 - (detail.get('profit')?.value / 100))) *
-                  detail.get('quantity')?.value).toFixed(2) }}
+
+                <td class="px-6 py-3 border-l border-b border-t text-center">
+                  <p>{{ calculateTotalCost(i,j) }}</p>
                 </td>
-                <td class="px-2 py-2 border text-center">
-                  {{ detail.get('unitCost')?.value.toFixed(2) }}
+
+                <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('profit')?.invalid && isSubmitted"
+                  class="border py-2 px-6 text-center">
+                  <div class="flex justify-center items-center">
+                    <input appNoLeadingSpace formControlName="profit" *ngIf="detail.get('dealSelected')?.value"
+                      class="w-8 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      type="number" placeholder="00">
+                    <p *ngIf="!detail.get('dealSelected')?.value">{{ detail.get('profit')?.value }}</p>
+                    <p class="ml-0.5 mb-0.5">%</p>
+                  </div>
                 </td>
-                <td class="py-2 text-center">
-                  {{ (detail.get('quantity')?.value * detail.get('unitCost')?.value).toFixed(2) }}
+
+                <td class="px-6 py-3 border-l border-b border-t text-center">
+                  <p>{{ calculateUnitPrice(i,j).toFixed(2) }}</p>
                 </td>
+
+                <td class="px-6 py-3 border-l border-b border-t text-center">
+                  <p>{{ calculateTotalPrice(i,j).toFixed(2) }}</p>
+                </td>
+
                 <td class="px-2 py-2 border text-center" *ngIf="detail.get('dealSelected')?.value">
                   <input formControlName="supplierName" type="text"
                     class="w-[150px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
@@ -121,8 +152,7 @@
                     class="text-red-500 text-xs">
                     Email is required
                   </div>
-                  <div *ngIf="detail.get('email')?.hasError('email') && isSubmitted"
-                    class="text-red-500 text-xs">
+                  <div *ngIf="detail.get('email')?.hasError('email') && isSubmitted" class="text-red-500 text-xs">
                     Email should be valid
                   </div>
                 </td>
