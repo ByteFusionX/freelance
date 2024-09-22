@@ -1,15 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ChartOptions } from './dashboard.chart';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { map, Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { getEmployee, Privileges } from 'src/app/shared/interfaces/employee.interface';
-import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
-import { JobService } from 'src/app/core/services/job/job.service';
-import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
 import { Metric } from 'src/app/shared/interfaces/dasbhoard.interface';
 
@@ -56,7 +53,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _dashboardService: DashboardService,
     private _employeeService: EmployeeService,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -75,9 +72,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.dateCategories()
   }
-
-
-
 
   enquiryLoading() {
     this.subscriptions.add(
@@ -236,4 +230,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe()
   }
+
 }

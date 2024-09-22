@@ -20,6 +20,10 @@ import { CreateCategoryComponent } from './pages/employees/create-category/creat
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
 import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { GaugeChartComponent } from 'src/app/shared/components/charts/gauge-chart/gauge-chart.component';
+import { DoughnutChartComponent } from 'src/app/shared/components/charts/doughnut-chart/doughnut-chart.component';
+import { HalfDoughnutChartComponent } from 'src/app/shared/components/charts/half-doughnut-chart/half-doughnut-chart.component';
+import { LineChartComponent } from 'src/app/shared/components/charts/line-chart/line-chart.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +34,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     CreateCategoryComponent,
     ViewEmployeeComponent,
     EditEmployeeComponent,
-
   ],
   imports: [
     CommonModule,
@@ -46,7 +49,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     SkeltonLoadingComponent,
     ConfettiComponentComponent,
     PaginationComponent,
-    MatSidenavModule
+    MatSidenavModule,
+    GaugeChartComponent,
+    DoughnutChartComponent,
+    HalfDoughnutChartComponent,
+    LineChartComponent,
   ]
 })
 export class HomeModule { }

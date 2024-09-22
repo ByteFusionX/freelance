@@ -83,7 +83,7 @@
                 </div>
             </div>
             <div class="w-full flex gap-3">
-                <div class="w-2/6 flex flex-col gap-3">
+                <div class="w-1/4 flex flex-col gap-3">
                     <!-- Check if metrics are loading -->
                     <ng-container *ngIf="(dashboardMetrics$ | async) as metrics; else loading">
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
@@ -117,11 +117,31 @@
                         </div>
                     </ng-template>
                 </div>
-                <div class="w-3/5 bg-red-400 h-3">
-
-                    
+                <div class="w-3/4 h-full grid grid-cols-2 gap-3">
+                    <div class="bg-white">
+                        <app-gauge-chart></app-gauge-chart>
+                    </div>
+                    <div class="bg-white">
+                       <app-doughnut-chart></app-doughnut-chart> 
+                    </div>
+                    <div class="col-span-2 bg-white">
+                        <h3 class="text-center pt-3 text-lg ">Performance Graph (Gross Profit)</h3>
+                        <app-line-chart></app-line-chart>
+                    </div>
+                    <div class="bg-white col-span-2">
+                        <h3 class="text-center py-3 text-lg">Sales Conversion</h3>
+                        <div class="flex justify-between">
+                            <div>
+                                <h3 class="text-center py-3 text-lg">Direct</h3>
+                                <app-half-doughnut-chart></app-half-doughnut-chart>
+                            </div>
+                            <div>
+                                <h3 class="text-center py-3 text-lg">Assigned</h3>
+                                <app-half-doughnut-chart></app-half-doughnut-chart>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-2/5 bg-slate-500 h-3"></div>
             </div>
             
             <!-- <div class="w-full bg-white rounded-md mt-5  shadow-md" *ngIf="privileges?.dashboard?.totalEnquiry">
