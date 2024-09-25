@@ -152,7 +152,12 @@
                     <div class="my-3 cursor-pointer"
                         [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'" routerLink="/quotations"
                         routerLinkActive="active" *ngIf="privileges?.quotation?.viewReport != 'none'  && showTabs">
-                        <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
+                        <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center relative">
+                            <div *ngIf="(notificationCounts$ | async) as notifications">
+                                <div *ngIf="notifications.quotationCount && !showFullBar">
+                                    <span class="w-2 h-2 rounded-full bg-orange-500 absolute left-6 top-2"></span>
+                                </div>
+                            </div>
                             <ng-icon name="heroNewspaper" class="text-xl text-gray-600"
                                 [matTooltip]="showFullBar?'':'Quotations'" matTooltipPosition="right"
                                 matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
@@ -176,7 +181,12 @@
                     <div class="my-3 cursor-pointer"
                         [@slideTrigger]="homeDropDown && showFullBar ?'slideDown':'slideUp'" routerLink="/deal-sheet"
                         routerLinkActive="active" *ngIf="privileges?.dealSheet && showTabs">
-                        <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center">
+                        <div class="w-full p-2 rounded-md hover:text-violet-800 flex items-center relative">
+                            <div *ngIf="(notificationCounts$ | async) as notifications">
+                                <div *ngIf="notifications.dealSheetCount && !showFullBar">
+                                    <span class="w-2 h-2 rounded-full bg-orange-500 absolute left-6 top-2"></span>
+                                </div>
+                            </div>
                             <ng-icon name="heroClipboardDocumentCheck" class="text-xl text-gray-600"
                                 [matTooltip]="showFullBar?'':'Deal Sheet'" matTooltipPosition="right"
                                 matTooltipClass="mat-tooltip" matTooltipClass="text-sm"></ng-icon>
