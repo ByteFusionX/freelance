@@ -1,5 +1,8 @@
 import { ObjectId } from "mongodb";
 import { Filters } from "../interface/dashboard.interface";
+import fs from 'fs';
+import path from 'path';
+
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
     const calculateUnitPrice = (i: number, j: number): number => {
@@ -89,4 +92,16 @@ export async function getUSDRated() {
     const response = await fetch(url);
     const jsonResponse = await response.json();
     return jsonResponse;
-} 
+}
+
+export const removeFile = (fileName: string) => {
+    const filePath = path.join(__dirname, '../uploads', fileName);
+
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error(`Error removing file: ${err}`);
+        } else {
+            console.log(`File removed: ${fileName}`);
+        }
+    });
+};

@@ -6,8 +6,8 @@ import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
 import { calculateDiscountPrice, getUSDRated } from "../common/util";
-const { ObjectId } = require('mongodb')
-
+const { ObjectId } = require('mongodb');
+import { removeFile } from '../common/util'
 
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
@@ -501,13 +501,15 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
 export const saveDealSheet = async (req: any, res: Response, next: NextFunction) => {
     try {
         const dealFiles = req.files;
+
         let files = [];
         if (dealFiles) {
             files = dealFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
         }
 
-        const { paymentTerms, items, costs } = JSON.parse(req.body.dealData);
-        
+        const { paymentTerms, items, removedFiles, existingFiles, costs } = JSON.parse(req.body.dealData);
+        files = [...files, ...existingFiles]
+        removedFiles.map((file: any) => removeFile(file.fileName))
         
         let dealId: string = await generateDealId();
 
@@ -752,22 +754,22 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalValues = quotations.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDValue += calculateDiscountPrice(quote,quote.items);
+                acc.totalUSDValue += calculateDiscountPrice(quote, quote.items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARValue += calculateDiscountPrice(quote,quote.items);
+                acc.totalQARValue += calculateDiscountPrice(quote, quote.items);
             }
 
             if (quote.status === quoteStatus.Won) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDWonValue += calculateDiscountPrice(quote,quote.items);
+                    acc.totalUSDWonValue += calculateDiscountPrice(quote, quote.items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARWonValue += calculateDiscountPrice(quote,quote.items);
+                    acc.totalQARWonValue += calculateDiscountPrice(quote, quote.items);
                 }
             } else if (quote.status === quoteStatus.Lost) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDLossValue += calculateDiscountPrice(quote,quote.items);
+                    acc.totalUSDLossValue += calculateDiscountPrice(quote, quote.items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARLossValue += calculateDiscountPrice(quote,quote.items);
+                    acc.totalQARLossValue += calculateDiscountPrice(quote, quote.items);
                 }
             }
             acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
@@ -784,9 +786,9 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalJobAwardedUQ = jobQuoataions.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDJobAwarded += calculateDiscountPrice(quote,quote.items);
+                acc.totalUSDJobAwarded += calculateDiscountPrice(quote, quote.items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARJobAwarded += calculateDiscountPrice(quote,quote.items);
+                acc.totalQARJobAwarded += calculateDiscountPrice(quote, quote.items);
             }
             return acc
         }, {
