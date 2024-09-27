@@ -46,7 +46,13 @@
                         This field is Required
                     </div>
                 </div>
+                <div class="ml-3 mt-2">
+                    <input type="checkbox" id="targetCheck" class="mr-2" formControlName="isSalespersonWithTarget">
+                    <label for="targetCheck">Salesperson with assigned target</label>
+                </div>
             </div>
+            
+
             <div class="max-h-[50vh] overflow-y-scroll">
                 <h3 class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">Access</h3>
                 <div class="flex flex-col" formGroupName="privileges">
@@ -59,28 +65,21 @@
                         </div>
                         <div class="ml-1.5 border-l">
                             <div class="ml-3">
-                                <label><input type="checkbox" class="mr-2" checked disabled>These Datas will be fetched upon the below Access</label>
+                                <label><input type="checkbox" class="mr-2" checked disabled>Comparison of Revenue and Gross Profit</label>
                             </div>
                             <div class="ml-4 border-l">
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalEnquiry" class="mr-2" formControlName="totalEnquiry">
-                                    <label for="totalEnquiry">View Total No of Enquiries</label>
+                                    <input type="radio" value="company" id="companyTarget" class="mr-2"
+                                        formControlName="compareAgainst">
+                                    <label for="companyTarget">against company targets</label>
                                 </div>
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalQuote" class="mr-2" formControlName="totalQuote">
-                                    <label for="totalQuote">View Total No of Quote Submitted</label>
+                                    <input type="radio" value="personal" id="personalTarget" class="mr-2" formControlName="compareAgainst">
+                                    <label for="personalTarget">against personal targets</label>
                                 </div>
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalJobs" class="mr-2" formControlName="totalJobs">
-                                    <label for="totalJobs">View Total No of Jobs Awarded</label>
-                                </div>
-                                <div class="ml-3">
-                                    <input type="checkbox" id="totalPresale" class="mr-2" formControlName="totalPresale">
-                                    <label for="totalPresale">View Presales Report</label>
-                                </div>
-                                <div class="ml-3">
-                                    <input type="checkbox" id="EnquiryChart" class="mr-2" formControlName="EnquiryChart">
-                                    <label for="EnquiryChart">View Enquiry Chart</label>
+                                    <input type="radio" value="both" id="bothPersonalAndCompany" class="mr-2" formControlName="compareAgainst">
+                                    <label for="bothPersonalAndCompany">against both company and personal targets</label>
                                 </div>
                             </div>
                         </div>
@@ -352,6 +351,10 @@
                             <input type="checkbox" id="notesAndTerms" class="mr-2" formControlName="notesAndTerms">
                             <label for="notesAndTerms">Customer Note & Terms and Condition (Create/edit/delete)</label>
                         </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="companyTarget" class="mr-2" formControlName="companyTarget">
+                            <label for="companyTarget">Company Target (Create/edit)</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -360,7 +363,7 @@
     </div>
 
     <div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
-        <button (click)="onClose()"  type="button"
+        <button (click)="onClose()" type="button"
             class="bg-violet-200 hover:bg-violet-300 text-black font-medium py-2 px-4 rounded text-sm">
             Cancel
         </button>

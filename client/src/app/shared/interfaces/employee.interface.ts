@@ -13,6 +13,8 @@ export interface getEmployee {
   category: GetCategory;
   dateOfJoining: string;
   reportingTo: string | null | undefined;
+  salesTarget: SalesTarget;
+  profitTarget: SalesTarget;
 }
 
 export interface getEmployeeDetails {
@@ -28,6 +30,10 @@ export interface getEmployeeDetails {
   category: GetCategory;
   dateOfJoining: string;
   reportingTo: getEmployee | null;
+  salesValue: number;
+  profitValue: number;
+  salesTarget: SalesTarget;
+  profitTarget: SalesTarget;
 }
 
 export interface CreateEmployee {
@@ -45,6 +51,13 @@ export interface CreateEmployee {
   createdBy: string | undefined;
 }
 
+export interface SalesTarget {
+  targetValue: number;
+  badRange: number;
+  moderateRange: number;
+}
+
+
 export interface getCreators {
   _id: string,
   fullName: string
@@ -56,15 +69,18 @@ export interface getEmployeeObject {
 
 
 export interface FilterEmployee {
-  page: number;
-  row: number;
-  search: string;
+  page?: number;
+  row?: number;
+  search?: string;
+  access?: string | undefined;
+  userId?: string | undefined;
 }
 
 export interface GetCategory {
   _id?: string;
   categoryName: string;
   role: string;
+  isSalespersonWithTarget: boolean;
   privileges: Privileges;
 }
 
@@ -76,11 +92,7 @@ export interface getEmployeeByID {
 export interface Privileges {
   dashboard: {
     viewReport: string;
-    totalEnquiry: boolean;
-    totalQuote: boolean;
-    totalJobs: boolean;
-    totalPresale: boolean;
-    EnquiryChart: boolean;
+    compareAgainst: string;
   };
   employee: {
     viewReport: string;
@@ -112,5 +124,6 @@ export interface Privileges {
   portalManagement: {
     department: boolean;
     notesAndTerms: boolean;
+    companyTarget: boolean;
   };
 }

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ApproveDealComponent } from '../approve-deal/approve-deal.component';
 
 @Component({
   selector: 'app-reject-deal',
@@ -13,7 +12,7 @@ export class RejectDealComponent {
 
   constructor(
     private fb: FormBuilder,
-    public dialogRef: MatDialogRef<ApproveDealComponent>,
+    public dialogRef: MatDialogRef<RejectDealComponent>,
   ) {
     this.rejectForm = this.fb.group({
       comment: ['', Validators.required]

@@ -24,7 +24,8 @@ export const getCategory = async (req: Request, res: Response, next: NextFunctio
                     categoryName: 1,
                     role: 1,
                     privileges: 1,
-                    employeeCount: 1
+                    employeeCount: 1,
+                    isSalespersonWithTarget: 1,
                 }
             }
         ]);

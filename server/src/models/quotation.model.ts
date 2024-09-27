@@ -33,6 +33,7 @@ interface Deal {
     comments: string[];
     seenedBySalsePerson: boolean;
     attachments: [];
+    updatedItems: QuoteItem[];
 }
 
 interface Quotation extends Document {
@@ -50,7 +51,6 @@ interface Quotation extends Document {
     status: string;
     createdBy: Types.ObjectId;
     lpoFiles: [];
-    lpoValue: number;
     dealData: Deal;
     enqId: Types.ObjectId;
 }
@@ -160,6 +160,10 @@ const dealDatas = new Schema<Deal>({
     comments: {
         type: [String],
     },
+    updatedItems: {
+        type: [quoteItem],
+        required: true,
+    },
 });
 
 const quotationSchema = new Schema<Quotation>({
@@ -221,9 +225,6 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     lpoFiles: [],
-    lpoValue: {
-        type: Number
-    },
     dealData: {
         type: dealDatas
     },

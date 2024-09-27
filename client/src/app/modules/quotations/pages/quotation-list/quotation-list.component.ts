@@ -234,7 +234,7 @@ export class QuotationListComponent {
       perc: 0,
     }
 
-    const quoteItems = quoteData.items.map((item) => {
+    const quoteItems = quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
 
       item.itemDetails.map((itemDetail) => {
@@ -251,6 +251,12 @@ export class QuotationListComponent {
 
       return;
     });
+
+    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
+      return acc += curr.value;
+    }, 0)
+
+    priceDetails.totalCost += totalAdditionalValue;
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
@@ -321,7 +327,7 @@ export class QuotationListComponent {
     const dialogRef = this._dialog.open(DealFormComponent,
       {
         data: data,
-        width: '1200px'
+        width: '1400px'
       });
 
     dialogRef.afterClosed().subscribe((dealData: dealData) => {

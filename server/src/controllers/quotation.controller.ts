@@ -5,6 +5,7 @@ import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
+import { calculateDiscountPrice, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 
@@ -512,14 +513,14 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
 
         const createdDate = new Date()
         let updateQuoteData = {
-            items: items,
             dealData: {
                 dealId: dealId,
                 paymentTerms,
                 additionalCosts: costs,
                 savedDate: createdDate,
                 status: 'pending',
-                attachments: files
+                attachments: files,
+                updatedItems: items
             },
         }
 
@@ -593,9 +594,8 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
         const lpoFiles = req.files;
         const files = lpoFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
 
-        const lpoValue = req.body.lpoValue;
 
-        const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoValue: lpoValue, lpoFiles: files });
+        const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoFiles: files });
         if (quote) {
             return res.status(200).json(quote);
         }
@@ -752,22 +752,22 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalValues = quotations.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDValue += calculateDiscountPrice(quote);
+                acc.totalUSDValue += calculateDiscountPrice(quote,quote.items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARValue += calculateDiscountPrice(quote);
+                acc.totalQARValue += calculateDiscountPrice(quote,quote.items);
             }
 
             if (quote.status === quoteStatus.Won) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDWonValue += calculateDiscountPrice(quote);
+                    acc.totalUSDWonValue += calculateDiscountPrice(quote,quote.items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARWonValue += calculateDiscountPrice(quote);
+                    acc.totalQARWonValue += calculateDiscountPrice(quote,quote.items);
                 }
             } else if (quote.status === quoteStatus.Lost) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDLossValue += calculateDiscountPrice(quote);
+                    acc.totalUSDLossValue += calculateDiscountPrice(quote,quote.items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARLossValue += calculateDiscountPrice(quote);
+                    acc.totalQARLossValue += calculateDiscountPrice(quote,quote.items);
                 }
             }
             acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
@@ -784,9 +784,9 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalJobAwardedUQ = jobQuoataions.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDJobAwarded += calculateDiscountPrice(quote);
+                acc.totalUSDJobAwarded += calculateDiscountPrice(quote,quote.items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARJobAwarded += calculateDiscountPrice(quote);
+                acc.totalQARJobAwarded += calculateDiscountPrice(quote,quote.items);
             }
             return acc
         }, {
@@ -854,27 +854,7 @@ const generateJobId = async () => {
     }
 }
 
-const calculateDiscountPrice = (quotation: any): number => {
-    const calculateUnitPrice = (i: number, j: number): number => {
-        const decimalMargin = quotation.items[i].itemDetails[j].profit / 100;
-        return quotation.items[i].itemDetails[j].unitCost / (1 - decimalMargin);
-    };
 
-    const calculateTotalPrice = (i: number, j: number): number => {
-        return calculateUnitPrice(i, j) * quotation.items[i].itemDetails[j].quantity;
-    };
-
-    const calculateSellingPrice = (): number => {
-        let totalCost = 0;
-        quotation.items.forEach((item: any, i: number) => {
-            item.itemDetails.forEach((itemDetail: any, j: number) => {
-                totalCost += calculateTotalPrice(i, j);
-            });
-        });
-        return totalCost;
-    };
-    return calculateSellingPrice() - quotation.totalDiscount;
-};
 
 export const markAsQuotationSeened = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -911,9 +891,3 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
 };
 
 
-async function getUSDRated() {
-    const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    return jsonResponse;
-} 

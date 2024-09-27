@@ -19,6 +19,13 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
 import { CreateCategoryComponent } from './pages/employees/create-category/create-category.component';
 import { ViewEmployeeComponent } from './pages/employees/view-employee/view-employee.component';
 import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-employee.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { GaugeChartComponent } from 'src/app/shared/components/charts/gauge-chart/gauge-chart.component';
+import { DoughnutChartComponent } from 'src/app/shared/components/charts/doughnut-chart/doughnut-chart.component';
+import { HalfDoughnutChartComponent } from 'src/app/shared/components/charts/half-doughnut-chart/half-doughnut-chart.component';
+import { LineChartComponent } from 'src/app/shared/components/charts/line-chart/line-chart.component';
+import { pipeModule } from "../../shared/pipes/pipe.module";
+import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
 
 @NgModule({
   declarations: [
@@ -29,7 +36,6 @@ import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-empl
     CreateCategoryComponent,
     ViewEmployeeComponent,
     EditEmployeeComponent,
-
   ],
   imports: [
     CommonModule,
@@ -44,7 +50,14 @@ import { EditEmployeeComponent } from './pages/employees/edit-employee/edit-empl
     NgSelectModule,
     SkeltonLoadingComponent,
     ConfettiComponentComponent,
-    PaginationComponent
-  ]
+    PaginationComponent,
+    MatSidenavModule,
+    GaugeChartComponent,
+    DoughnutChartComponent,
+    HalfDoughnutChartComponent,
+    LineChartComponent,
+    pipeModule,
+    NumberShortenerPipe
+]
 })
 export class HomeModule { }

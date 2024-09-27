@@ -46,6 +46,10 @@
                         This field is Required
                     </div>
                 </div>
+                <div class="ml-3 mt-2">
+                    <input type="checkbox" id="targetCheck" class="mr-2" formControlName="isSalespersonWithTarget">
+                    <label for="targetCheck">Salesperson with assigned target</label>
+                </div>
             </div>
             <div class="max-h-[50vh] overflow-y-scroll">
                 <h3 class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">Access</h3>
@@ -59,28 +63,21 @@
                         </div>
                         <div class="ml-1.5 border-l">
                             <div class="ml-3">
-                                <label><input type="checkbox" class="mr-2" checked disabled>These Datas will be fetched upon the below Access</label>
+                                <label><input type="checkbox" class="mr-2" checked disabled>Comparison of Revenue and Gross Profit</label>
                             </div>
                             <div class="ml-4 border-l">
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalEnquiry" class="mr-2" formControlName="totalEnquiry">
-                                    <label for="totalEnquiry">View Total No of Enquiries</label>
+                                    <input type="radio" value="company" id="companyTarget" class="mr-2"
+                                        formControlName="compareAgainst">
+                                    <label for="companyTarget">against company targets</label>
                                 </div>
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalQuote" class="mr-2" formControlName="totalQuote">
-                                    <label for="totalQuote">View Total No of Quote Submitted</label>
+                                    <input type="radio" value="personal" id="personalTarget" class="mr-2" formControlName="compareAgainst">
+                                    <label for="personalTarget">against personal targets</label>
                                 </div>
                                 <div class="ml-3">
-                                    <input type="checkbox" id="totalJobs" class="mr-2" formControlName="totalJobs">
-                                    <label for="totalJobs">View Total No of Jobs Awarded</label>
-                                </div>
-                                <div class="ml-3">
-                                    <input type="checkbox" id="totalPresale" class="mr-2" formControlName="totalPresale">
-                                    <label for="totalPresale">View Presales Report</label>
-                                </div>
-                                <div class="ml-3">
-                                    <input type="checkbox" id="EnquiryChart" class="mr-2" formControlName="EnquiryChart">
-                                    <label for="EnquiryChart">View Enquiry Chart</label>
+                                    <input type="radio" value="both" id="bothPersonalAndCompany" class="mr-2" formControlName="compareAgainst">
+                                    <label for="bothPersonalAndCompany">against both company and personal targets</label>
                                 </div>
                             </div>
                         </div>
@@ -88,7 +85,8 @@
 
                     <!--- Employee -->
                     <div>
-                        <input type="checkbox" id="employee" class="mr-2" [(ngModel)]="employeeChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="employee" class="mr-2" [(ngModel)]="employeeChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'employee','employeeChecked')">
                         <label for="employee">Employees</label>
                     </div>
@@ -129,7 +127,8 @@
 
                     <!--- Announcement -->
                     <div>
-                        <input type="checkbox" id="announcements" class="mr-2"  [(ngModel)]="announcementChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="announcements" class="mr-2" [(ngModel)]="announcementChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'announcement','announcementChecked')">
                         <label for="announcements">Announcements</label>
                     </div>
@@ -146,7 +145,8 @@
 
                     <!--- Customer -->
                     <div>
-                        <input type="checkbox" id="customer" class="mr-2"  [(ngModel)]="customerChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="customer" class="mr-2" [(ngModel)]="customerChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'customer','customerChecked')">
                         <label for="customer">Customer</label>
                     </div>
@@ -188,7 +188,8 @@
 
                     <!--- Enquiry -->
                     <div>
-                        <input type="checkbox" id="enquiry" class="mr-2" [(ngModel)]="enquiryChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="enquiry" class="mr-2" [(ngModel)]="enquiryChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'enquiry','enquiryChecked')">
                         <label for="enquiry">Enquiry</label>
                     </div>
@@ -230,7 +231,8 @@
 
                     <!--- Assigned Jobs -->
                     <div>
-                        <input type="checkbox" id="assignedJobs" class="mr-2" [(ngModel)]="assignedJobsChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="assignedJobs" class="mr-2" [(ngModel)]="assignedJobsChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'assignedJob','assignedJobsChecked')">
                         <label for="assignedJobs">Assigned Jobs</label>
                     </div>
@@ -255,7 +257,8 @@
 
                     <!--- Quotations -->
                     <div>
-                        <input type="checkbox" id="quotations" class="mr-2" [(ngModel)]="quotationChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="quotations" class="mr-2" [(ngModel)]="quotationChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'quotation','quotationChecked')">
                         <label for="quotations">Quotation</label>
                     </div>
@@ -303,7 +306,8 @@
 
                     <!--- Job Sheet -->
                     <div>
-                        <input type="checkbox" id="jobSheet" class="mr-2"  [(ngModel)]="jobSheetChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="jobSheet" class="mr-2" [(ngModel)]="jobSheetChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'jobSheet','jobSheetChecked')">
                         <label for="jobSheet">Job Sheet</label>
                     </div>
@@ -338,7 +342,8 @@
                     </div>
                     <!--- Portal -->
                     <div>
-                        <input type="checkbox" id="portal" class="mr-2"  [(ngModel)]="portalChecked" [ngModelOptions]="{standalone: true}"
+                        <input type="checkbox" id="portal" class="mr-2" [(ngModel)]="portalChecked"
+                            [ngModelOptions]="{standalone: true}"
                             (change)="onCheckboxChange($event,'portal','portalChecked')">
                         <label for="portal">Portal Management</label>
                     </div>
@@ -351,6 +356,10 @@
                         <div class="ml-3">
                             <input type="checkbox" id="notesAndTerms" class="mr-2" formControlName="notesAndTerms">
                             <label for="notesAndTerms">Customer Note & Terms and Condition (Create/edit/delete)</label>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="companyTarget" class="mr-2" formControlName="companyTarget">
+                            <label for="companyTarget">Company Target (Create/edit)</label>
                         </div>
                     </div>
                 </div>

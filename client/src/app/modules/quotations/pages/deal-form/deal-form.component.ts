@@ -99,6 +99,9 @@ export class DealFormComponent {
     });
 
     if (!event.target.checked) {
+      this.getItemDetailsArray(this.items.controls[i])[j].get('quantity')?.setValue(this.data.items[i].itemDetails[j].quantity)
+      this.getItemDetailsArray(this.items.controls[i])[j].get('unitCost')?.setValue(this.data.items[i].itemDetails[j].unitCost)
+      this.getItemDetailsArray(this.items.controls[i])[j].get('profit')?.setValue(this.data.items[i].itemDetails[j].profit)
       this.getItemDetailsArray(this.items.controls[i])[j].get('supplierName')?.setValue('')
       this.getItemDetailsArray(this.items.controls[i])[j].get('phoneNo')?.setValue('')
       this.getItemDetailsArray(this.items.controls[i])[j].get('email')?.setValue('')
@@ -136,6 +139,7 @@ export class DealFormComponent {
         email: detail.email,
       }))
     }));
+    console.log(updatedItems)
     formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
@@ -175,6 +179,10 @@ export class DealFormComponent {
     return this.costForm.controls;
   }
 
+  getItemDetailsControls(index: number): FormArray {
+    return this.items.at(index).get('itemDetails') as FormArray;
+  }
+
   supplierNameValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const formGroup = control.parent as FormGroup;
@@ -186,6 +194,19 @@ export class DealFormComponent {
       }
       return null;
     };
+  }
+
+  calculateTotalCost(i: number, j: number) {
+    return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
+  }
+
+  calculateUnitPrice(i: number, j: number) {
+    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
+    return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+  }
+
+  calculateTotalPrice(i: number, j: number) {
+    return this.calculateUnitPrice(i, j) * this.getItemDetailsControls(i).controls[j].get('quantity')?.value
   }
 
   onClose() {

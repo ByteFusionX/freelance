@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
+import { calculateDiscountPrice, getUSDRated } from "../common/util";
 
 
 const { ObjectId } = require('mongodb')
@@ -8,8 +9,8 @@ const { ObjectId } = require('mongodb')
 export const jobList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, search, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
-        
-        let searchRegex = search.split('').join('\\s*');        
+
+        let searchRegex = search.split('').join('\\s*');
         let isStatus = status == null ? true : false;
         let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
@@ -128,15 +129,32 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $match: accessFilter
             },
             {
-                $group: { _id: null, total: { $sum: 1 }, lpoValueSum: { $sum: "$quotation.lpoValue" } }
-            },
-            {
-                $project: { total: 1, _id: 0, lpoValueSum: 1, }
+                $project: { total: 1, _id: 0 }
             }
         ]).exec();
 
+        const totalValues = jobData.reduce((acc, job) => {
+            const quote = job?.quotation[0];
+            if (quote.currency == 'USD') {
+                const updatedItems = quote?.dealData?.updatedItems || [];
+                acc.totalUSDValue += calculateDiscountPrice(quote, updatedItems);
+            } else {
+                const updatedItems = quote?.dealData?.updatedItems || [];
+                acc.totalQARValue += calculateDiscountPrice(quote, updatedItems);
+            }
+            return acc;
+        }, {
+            totalUSDValue: 0,
+            totalQARValue: 0,
+        });
+
+        const USDRates = await getUSDRated();
+        const qatarUsdRates = USDRates.usd.qar;
+        const totalLpoValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
+
+
         if (jobTotal.length) {
-            return res.status(200).json({ total: jobTotal[0].total, totalLpo: jobTotal[0].lpoValueSum, job: jobData });
+            return res.status(200).json({ total: jobTotal[0].total, totalLpo: totalLpoValue, job: jobData });
         } else {
             return res.status(504).json({ err: 'No job data found' });
         }

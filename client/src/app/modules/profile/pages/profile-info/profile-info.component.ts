@@ -2,12 +2,13 @@ import { AfterViewInit, Component, DoCheck, OnDestroy, OnInit, ViewChild } from 
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
 import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
 import { Router } from '@angular/router';
 import { EditCompanyDetailsComponent } from '../edit-company-details/edit-company-details.component';
+import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 
 @Component({
   selector: 'app-profile-info',
@@ -22,7 +23,9 @@ export class ProfileInfoComponent {
   employee!: { id: string, employeeId: string }
   employeeData$!: Observable<getEmployee | undefined>
   isLoading: boolean = true
-  companyDetails!:getCompanyDetails|null
+  companyDetails!: getCompanyDetails | null;
+
+
 
   displayedColumns: string[] = ['position', 'name', 'head', 'date', 'action'];
   dataSource: any = new MatTableDataSource()
@@ -30,7 +33,7 @@ export class ProfileInfoComponent {
   constructor(private _profileService: ProfileService,
     public dialog: MatDialog,
     private _employeeService: EmployeeService,
-    private router:Router
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -38,27 +41,25 @@ export class ProfileInfoComponent {
     const employeeId = this.employee.employeeId
     this._employeeService.getEmployeeData(employeeId)
     this.employeeData$ = this._employeeService.employeeData$
-    this.getCompanyDetails()
+    this.getCompanyDetails();
   }
 
 
-getCompanyDetails(){
-  this._profileService.getCompanyDetails().subscribe((res)=>{
-    if(res){
-      this.companyDetails=res
-    }
-  })
-}
+  getCompanyDetails() {
+    this._profileService.getCompanyDetails().subscribe((res) => {
+      if (res) {
+        this.companyDetails = res
+      }
+    })
+  }
 
+  updateCompanyDetails() {
+    const dialogRef = this.dialog.open(EditCompanyDetailsComponent);
 
-
-updateCompanyDetails() {
-  const dialogRef = this.dialog.open(EditCompanyDetailsComponent);
-
-  dialogRef.afterClosed().subscribe((data) => {
-    if (data) {
-      this.getCompanyDetails()
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data) {
+        this.getCompanyDetails();
+      }
+    });
+  }
 }

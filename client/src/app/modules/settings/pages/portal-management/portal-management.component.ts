@@ -4,13 +4,14 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { CreateDepartmentDialog } from '../create-department/create-department.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { NoteFormComponent } from '../note-form/note-form.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { CreateCategoryComponent } from 'src/app/modules/home/pages/employees/create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
 import { EditCategoryComponent } from '../edit-category/edit-category.component';
-import { GetCategory, Privileges } from 'src/app/shared/interfaces/employee.interface';
+import { GetCategory, Privileges, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 
 @Component({
   selector: 'app-portal-management',
@@ -39,6 +40,12 @@ export class PortalManagementComponent {
 
   private subscriptions = new Subscription();
 
+  private companyTargetSubject = new BehaviorSubject<SalesTarget | null>(null);
+  companyTarget$ = this.companyTargetSubject.asObservable();
+
+  private companyGrossProfitSubject = new BehaviorSubject<SalesTarget | null>(null);
+  companyGrossProfit$ = this.companyGrossProfitSubject.asObservable();
+
   constructor(
     private _profileService: ProfileService,
     public dialog: MatDialog,
@@ -49,6 +56,7 @@ export class PortalManagementComponent {
 
 
   ngOnInit() {
+    this.getCompanyTarget();
     const employee = this._employeeService.employeeToken()
     if (employee) {
       const employeeId = employee.employeeId
@@ -233,7 +241,79 @@ export class PortalManagementComponent {
   }
 
 
+  getCompanyTarget() {
+    this.subscriptions.add(
+      this._profileService.getCompanyTargets().subscribe((target: { salesTarget: SalesTarget, grossProfitTarget: SalesTarget }) => {
+        if (target) {
+          console.log(target)
+          this.companyTargetSubject.next(target.salesTarget);
+          this.companyGrossProfitSubject.next(target.grossProfitTarget);
+        }
+      }))
+  }
+
+  //Sales Target (Revenue)
+  onSetCompanyTarget() {
+    const dialogRef = this.dialog.open(SetTargetComponent);
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._profileService.setCompanyTarget(data).subscribe((res) => {
+          if (res) {
+            this.companyTargetSubject.next(res);
+          }
+        })
+      }
+    })
+  }
+
+  editTarget(target: SalesTarget) {
+    const dialogRef = this.dialog.open(SetTargetComponent, {
+      data: target
+    });
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._profileService.setCompanyTarget(data).subscribe((res) => {
+          if (res) {
+            console.log(res);
+
+            this.companyTargetSubject.next(res);
+          }
+        })
+      }
+    })
+  }
+
+  // Gross Profit
+  onSetCompanyGrossProfit() {
+    const dialogRef = this.dialog.open(SetTargetComponent);
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._profileService.setCompanyProfitTarget(data).subscribe((res) => {
+          if (res) {
+            this.companyGrossProfitSubject.next(res);
+          }
+        })
+      }
+    })
+  }
+
+  editGrossProfit(target: SalesTarget) {
+    const dialogRef = this.dialog.open(SetTargetComponent, {
+      data: target
+    });
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._profileService.setCompanyProfitTarget(data).subscribe((res) => {
+          if (res) {
+            this.companyGrossProfitSubject.next(res);
+          }
+        })
+      }
+    })
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe()
   }
 }
+
