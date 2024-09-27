@@ -8,6 +8,7 @@ import enquiryModel from "../models/enquiry.model";
 import quotationModel from "../models/quotation.model";
 import categoryModel, { UserRole } from "../models/category.model";
 import departmentModel from "../models/department.model";
+import { calculateCostPricePipe, calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -112,11 +113,13 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, search, access, userId } = req.body;
+
         let skipNum: number = (page - 1) * row;
 
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
         let total: number = 0;
+
 
         let matchFilters = {
             $or: [
@@ -168,13 +171,13 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             })
 
+        const USDRates = await getUSDRated();
+        const qatarUsdRate = USDRates.usd.qar;
+
         const employeeData = await Employee.aggregate([
             {
                 $match: filters,
-            },
-            {
-                $sort: { employeeId: 1 }
-            },
+            },  
             {
                 $skip: skipNum
             },
@@ -224,9 +227,112 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             },
             {
-                $project: { password: 0 }
-            }
+                $lookup: {
+                    from: 'employees',
+                    localField: 'reportingTo',
+                    foreignField: '_id',
+                    as: 'reportingTo'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'quotations',
+                    localField: '_id',
+                    foreignField: 'createdBy',
+                    as: 'quotation'
+                }
+            },
+            {
+                $unwind: {
+                    path: "$quotation",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    totalSellingPrice: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ['$quotation.currency', 'USD'] },
+                                {
+                                    $multiply: [
+                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                        qatarUsdRate
+                                    ]
+                                },
+                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                            ]
+                        }
+                    },
+                    totalCostPrice:
+                    {
+                        $sum: {
+                            $cond: [
+                                { $eq: ['$quotation.currency', 'USD'] },
+                                {
+                                    $multiply: [
+                                        calculateCostPricePipe('$quotation.dealData.updatedItems'),
+                                        qatarUsdRate
+                                    ]
+                                },
+                                calculateCostPricePipe('$quotation.dealData.updatedItems')
+                            ]
+                        }
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    salesValue: { $sum: '$totalSellingPrice' },
+                    totalCostPrice: { $sum: '$totalCostPrice' },
+                    employeeId: { $first: '$employeeId' }, 
+                    firstName: { $first: '$firstName' },
+                    lastName: { $first: '$lastName' },
+                    email: { $first: '$email' },
+                    contactNo: { $first: '$contactNo' },
+                    designation: { $first: '$designation' },
+                    dob: { $first: '$dob' },
+                    department: { $first: '$department' },
+                    category: { $first: '$category' },
+                    dateOfJoining: { $first: '$dateOfJoining' },
+                    reportingTo: { $first: '$reportingTo' },
+                    userRole: { $first: '$userRole' },
+                    createdBy: { $first: '$createdBy' },
+                    salesTarget: { $first: '$salesTarget' },
+                    profitTarget: { $first: '$profitTarget' },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    salesValue: 1,
+                    profitValue: { $subtract: ['$salesValue', '$totalCostPrice'] },
+                    totalJobAwarded: 1,
+                    lastWeekJobAwarded: 1,
+                    employeeId: 1,
+                    firstName: 1,
+                    lastName: 1,
+                    email: 1,
+                    contactNo: 1,
+                    designation: 1,
+                    dob: Date,
+                    department: 1,
+                    category: 1,
+                    dateOfJoining: 1,
+                    reportingTo: 1,
+                    userRole: 1,
+                    createdBy: 1,
+                    salesTarget: 1,
+                    profitTarget: 1,
+                }
+            },
+            {
+                $sort: { employeeId: 1 }
+            },
         ]);
+
+
 
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
@@ -285,6 +391,44 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
         const saveEmployeeEdit = await Employee.findByIdAndUpdate(
             employeeId,
             updatedEmployeeData,
+            { new: true }).populate('category department reportingTo')
+
+        if (saveEmployeeEdit) {
+            return res.status(200).json(saveEmployeeEdit);
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const setTarget = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const salesTargetReq = req.body;
+        const employeeId = req.params.employeeId;
+
+        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
+            employeeId,
+            { salesTarget: salesTargetReq },
+            { new: true }).populate('category department reportingTo')
+
+        if (saveEmployeeEdit) {
+            return res.status(200).json(saveEmployeeEdit);
+        }
+        return res.status(502).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const setProfitTarget = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const profitTargettReq = req.body;
+        const employeeId = req.params.employeeId;
+
+        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
+            employeeId,
+            { profitTarget: profitTargettReq },
             { new: true }).populate('category department reportingTo')
 
         if (saveEmployeeEdit) {

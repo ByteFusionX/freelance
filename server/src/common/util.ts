@@ -48,30 +48,16 @@ export const buildDashboardFilters = (filters: Filters) => {
 
     if (filters) {
 
-        // Handle multiple years
-        if (filters.years && filters.years.length > 0) {
-            const yearConditions = filters.years.map(year => ({
-                createdDate: {
-                    $gte: new Date(`${year}-01-01`),
-                    $lt: new Date(`${Number(year) + 1}-12-31`)
-                }
-            }));
-            matchFilter['$or'] = yearConditions;
+        if (filters.fromDate && filters.toDate) {
+            matchFilter['createdDate'] = {
+                $gte: new Date(filters.fromDate),
+                $lt: new Date(filters.toDate)
+            };
+        } else if (filters.fromDate) {
+            matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
+        } else if (filters.toDate) {
+            matchFilter['createdDate'] = { $lt: new Date(filters.toDate) };
         }
-
-        // Handle multiple months
-        if (filters.months && filters.months.length > 0 && filters.years) {
-            const monthConditions = filters.months.flatMap(month => {
-                return filters.years.map(year => ({
-                    createdDate: {
-                        $gte: new Date(year, month - 1, 1),
-                        $lt: new Date(year, month, 1)
-                    }
-                }));
-            });
-            matchFilter['$or'] = matchFilter['$or'] ? [...matchFilter['$or'], ...monthConditions] : monthConditions;
-        }
-
         // Handle multiple salesPersons
         if (filters.salesPersonIds && filters.salesPersonIds.length > 0) {
             matchFilter['salesPerson._id'] = { $in: filters.salesPersonIds.map(id => new ObjectId(id)) };
@@ -79,12 +65,119 @@ export const buildDashboardFilters = (filters: Filters) => {
 
         // Handle multiple departments
         if (filters.departments && filters.departments.length > 0) {
-            matchFilter['department._id'] = { $in: filters.departments };
+            matchFilter['department._id'] = { $in: filters.departments.map(depId => new ObjectId(depId)) };
         }
     }
 
+    
     return matchFilter;
 }
+
+export const calculateDiscountPricePipe = (input: string,discount:string) => {
+    return {
+        $subtract: [
+            {
+                $sum: {
+                    $map: {
+                        input: input,
+                        as: 'item',
+                        in: {
+                            $sum: {
+                                $map: {
+                                    input: '$$item.itemDetails',
+                                    as: 'itemDetail',
+                                    in: {
+                                        $multiply: [
+                                            {
+                                                $divide: [
+                                                    '$$itemDetail.unitCost',
+                                                    { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                                                ]
+                                            },
+                                            '$$itemDetail.quantity'
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            discount
+        ]
+    }
+}
+
+export const calculateCostPricePipe = (input: string) => {
+    return {
+        $sum: [
+            {
+                $sum: {
+                    $map: {
+                        input: input,
+                        as: 'item',
+                        in: {
+                            $sum: {
+                                $map: {
+                                    input: '$$item.itemDetails',
+                                    as: 'itemDetail',
+                                    in: {
+                                        $multiply: ['$$itemDetail.quantity', '$$itemDetail.unitCost']
+                                    }
+                                }
+                            }
+                        }
+                    },
+
+                }
+            }, {
+                $sum: {
+                    $map: {
+                        input: '$quotation.dealData.additionalCosts',
+                        as: 'additionalCost',
+                        in: '$$additionalCost.value'
+                    },
+
+                }
+            }
+        ]
+    }
+}
+
+export const months = [
+    { month: 1, name: 'Jan' },
+    { month: 2, name: 'Feb' },
+    { month: 3, name: 'Mar' },
+    { month: 4, name: 'Apr' },
+    { month: 5, name: 'May' },
+    { month: 6, name: 'June' },
+    { month: 7, name: 'July' },
+    { month: 8, name: 'Aug' },
+    { month: 9, name: 'Sep' },
+    { month: 10, name: 'Oct' },
+    { month: 11, name: 'Nov' },
+    { month: 12, name: 'Dec' }
+];
+
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1;
+const currentYear = currentDate.getFullYear();
+
+const getLastSevenMonths = () => {
+    const lastSevenMonths = [];
+    for (let i = 0; i < 7; i++) {
+        const month = (currentMonth - i - 1 + 12) % 12 + 1;
+        const year = currentYear - Math.floor((currentMonth - i - 1) / 12);
+        lastSevenMonths.push({ month, year });
+    }
+    return lastSevenMonths.reverse();
+};
+
+export const lastSevenMonths = getLastSevenMonths().map(({ month, year }) => ({
+    month,
+    name: months.find(m => m.month === month).name,
+    year
+}));
 
 
 export async function getUSDRated() {

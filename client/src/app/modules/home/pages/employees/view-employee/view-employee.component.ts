@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { getEmployeeDetails } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployeeDetails, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
 import { EditEmployeeComponent } from '../edit-employee/edit-employee.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 
 @Component({
   selector: 'app-view-employee',
@@ -63,5 +64,37 @@ export class ViewEmployeeComponent {
       }
     });
   }
+
+  editGrossProfit(target: SalesTarget) {
+    const dialogRef = this.dialog.open(SetTargetComponent, {
+      data: target
+    });
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._employeeService.setProfitTarget(data,this.employeeData._id).subscribe((res) => {
+          if (res) {
+            this.employeeData.profitTarget = res.profitTarget;
+          }
+        })
+      }
+    })
+  }
+
+  editTarget(target: SalesTarget) {
+    const dialogRef = this.dialog.open(SetTargetComponent, {
+      data: target
+    });
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._employeeService.setTarget(data,this.employeeData._id).subscribe((res) => {
+          if (res) {
+            this.employeeData.salesTarget = res.salesTarget;
+
+          }
+        })
+      }
+    })
+  }
+
 
 }

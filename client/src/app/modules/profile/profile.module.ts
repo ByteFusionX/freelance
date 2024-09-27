@@ -13,6 +13,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
 import { EditCompanyDetailsComponent } from './pages/edit-company-details/edit-company-details.component';
+import { pipeModule } from "../../shared/pipes/pipe.module";
 
 
 
@@ -32,7 +33,8 @@ import { EditCompanyDetailsComponent } from './pages/edit-company-details/edit-c
     MatDialogModule,
     NgSelectModule,
     SkeltonLoadingComponent,
-  ],
+    pipeModule
+],
   providers: [ProfileService, EmployeeService]
 })
 export class ProfileModule { }

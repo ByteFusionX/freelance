@@ -3,7 +3,6 @@ import { CelebrationDialogComponent } from './celebration-dialog/celebration-dia
 import { ConfettiComponentComponent } from './confetti-component/confetti-component.component';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CommonModule } from '@angular/common';
-import { QuotationPreviewComponent } from './quotation-preview/quotation-preview.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 

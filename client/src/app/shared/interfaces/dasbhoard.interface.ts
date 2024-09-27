@@ -7,9 +7,28 @@ export interface Metric {
     rank: number;
 }
 
+export interface RevenuePerPerson {
+    name: string;
+    type: string;
+    value: number;
+    lastWeek: number;
+    lastWeekName: string;
+    rank: number;
+}
+
+export interface ProfitPerMonth {
+    profits: number[];
+    months: string[];
+}
+
+export interface SalesConversion {
+    total: number;
+    converted: number;
+}
+
 export interface Filters {
-    years?: number[];
-    months?: number[];
+    fromDate?: string;  
+    toDate?: string;    
     salesPersonIds?: string[];
     departments?: string[];
 }

@@ -1,6 +1,6 @@
 export interface Filters {
-    years?: number[];     
-    months?: number[];          
+    fromDate?: string; 
+    toDate?: string;         
     salesPersonIds?: string[];  
     departments?: string[];      
 }

@@ -24,6 +24,8 @@ import { GaugeChartComponent } from 'src/app/shared/components/charts/gauge-char
 import { DoughnutChartComponent } from 'src/app/shared/components/charts/doughnut-chart/doughnut-chart.component';
 import { HalfDoughnutChartComponent } from 'src/app/shared/components/charts/half-doughnut-chart/half-doughnut-chart.component';
 import { LineChartComponent } from 'src/app/shared/components/charts/line-chart/line-chart.component';
+import { pipeModule } from "../../shared/pipes/pipe.module";
+import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
 
 @NgModule({
   declarations: [
@@ -54,6 +56,8 @@ import { LineChartComponent } from 'src/app/shared/components/charts/line-chart/
     DoughnutChartComponent,
     HalfDoughnutChartComponent,
     LineChartComponent,
-  ]
+    pipeModule,
+    NumberShortenerPipe
+]
 })
 export class HomeModule { }

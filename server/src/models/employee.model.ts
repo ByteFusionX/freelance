@@ -15,7 +15,15 @@ interface Employee extends Document {
     userRole: string;
     password: string;
     createdBy: Types.ObjectId;
+    salesTarget: SalesTarget;
+    profitTarget: SalesTarget;
 }
+
+interface SalesTarget {
+    targetValue: number;
+    badRange: number;
+    moderateRange: number;
+  }
 
 enum UserRole {
     user,
@@ -80,6 +88,12 @@ const employeeSchema = new Schema<Employee>({
         type: Schema.Types.ObjectId,
         ref: 'Employee',
         required:true
+    },
+    salesTarget : {
+        type: Object
+    },
+    profitTarget : {
+        type: Object
     }
 });
 

@@ -1,11 +1,14 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { HomeRoutingModule } from 'src/app/modules/home/home-routing.module';
 import * as echarts from 'echarts';
+import { DashboardService } from 'src/app/core/services/dashboard.service';
+import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
 
 @Component({
   selector: 'app-line-chart',
   standalone: true,
-  imports: [HomeRoutingModule],
+  imports: [HomeRoutingModule, NumberShortenerPipe],
+  providers: [NumberShortenerPipe],
   templateUrl: './line-chart.component.html',
   styleUrls: ['./line-chart.component.css']
 })
@@ -13,25 +16,91 @@ export class LineChartComponent implements OnInit {
 
   @ViewChild('lineChart', { static: true }) lineChart!: ElementRef;
 
+  constructor(
+    private _dashboardService: DashboardService,
+    private numberShortenerPipe: NumberShortenerPipe
+  ) { }
   ngOnInit(): void {
-    let option = {
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
-          type: 'line',
-          smooth: true
-        }
-      ]
-    };
-
     const myChart = echarts.init(this.lineChart.nativeElement);
-    myChart.setOption(option);
+
+    this._dashboardService.graphChart$.subscribe((data) => {
+      const numberShortenerPipe = this.numberShortenerPipe;
+      const maxProfit = Math.max(...data.profitPerMonths.profits)
+      let option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          },
+          valueFormatter: (value:any) => `${value.toFixed(2)} QAR`,
+        },
+        xAxis: {
+          type: 'category',
+          data: data.profitPerMonths.months
+        },
+        yAxis: {
+          type: 'value',
+          max: data.profitTarget.targetValue > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2),
+          axisLabel: {
+            formatter: function (value: number) {
+              return numberShortenerPipe.transform(value)
+            }
+          },
+        },
+        series: [
+          {
+            data: data.profitPerMonths.profits,
+            type: 'line',
+            smooth: true,
+            markArea: {
+              data: [
+                [
+                  {
+
+                    yAxis: '0',
+                    itemStyle: {
+                      color: '#FF7F7F',
+                      opacity: 0.5
+                    },
+                  },
+                  {
+                    yAxis: data.profitTarget.badRange
+                  }
+                ],
+                [
+                  {
+
+                    yAxis: data.profitTarget.badRange,
+                    itemStyle: {
+                      color: '#FFFF00',
+                      opacity: 0.5
+                    },
+                  },
+                  {
+                    yAxis: data.profitTarget.moderateRange
+                  }
+                ],
+                [
+                  {
+
+                    yAxis: data.profitTarget.moderateRange,
+                    itemStyle: {
+                      color: '#90EE90',
+                      opacity: 0.5
+                    },
+                  },
+                  {
+                    yAxis: data.profitTarget.targetValue > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2)
+                  }
+                ],
+              ]
+            },
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+    })
+
   }
 }

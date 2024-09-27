@@ -3,10 +3,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateEmployeeDialog } from './create-employee/create-employee.component';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subscription, filter } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
+import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 
 @Component({
   selector: 'app-employees',
@@ -20,7 +21,7 @@ export class EmployeesComponent {
   isEmpty: boolean = false;
   createEmployee: boolean | undefined = false;
 
-  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'target'];
+  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'salesTarget', 'profitTarget'];
 
   dataSource = new MatTableDataSource<getEmployee>()
   filteredData = new MatTableDataSource<getEmployee>()
@@ -32,6 +33,7 @@ export class EmployeesComponent {
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
+
 
   constructor(
     public dialog: MatDialog,
@@ -91,6 +93,7 @@ export class EmployeesComponent {
             if (data) {
               this.dataSource.data = [...data.employees]
               this.filteredData.data = data.employees;
+              console.log(data.employees)
               this.total = data.total
               this.isLoading = false;
               this.isEmpty = false;
@@ -103,6 +106,52 @@ export class EmployeesComponent {
         })
     )
 
+  }
+
+  getProgressPercentage(targetValue: number, saleValue: number): number {
+    let progress = (saleValue / targetValue) * 100;
+    progress = progress > 100 ? 100 : progress;
+    return progress;
+  }
+
+  getProgressColor(badRange: number, moderateRange: number, saleValue: number): string {
+    if (saleValue < badRange) {
+      return 'bg-red-600';
+    } else if (saleValue < moderateRange) {
+      return 'bg-yellow-500';
+    } else {
+      return 'bg-green-600';
+    }
+  }
+
+  onSetTarget(event: Event, userId: string, index: number) {
+    event.stopPropagation()
+    const dialogRef = this.dialog.open(SetTargetComponent);
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._employeeService.setTarget(data, userId).subscribe((res) => {
+          if (res) {
+            this.dataSource.data[index].salesTarget = res.salesTarget;
+            this.dataSource._updateChangeSubscription();
+          }
+        })
+      }
+    })
+  }
+
+  onSetProfitTarget(event: Event, userId: string, index: number) {
+    event.stopPropagation()
+    const dialogRef = this.dialog.open(SetTargetComponent);
+    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+      if (data) {
+        this._employeeService.setProfitTarget(data, userId).subscribe((res) => {
+          if (res) {
+            this.dataSource.data[index].profitTarget = res.profitTarget;
+            this.dataSource._updateChangeSubscription();
+          }
+        })
+      }
+    })
   }
 
   openDialog() {
@@ -124,7 +173,7 @@ export class EmployeesComponent {
     const navigationExtras: NavigationExtras = {
       state: data
     };
-    this._router.navigate(['/home', 'employees', 'view' , data.employeeId], navigationExtras);
+    this._router.navigate(['/home', 'employees', 'view', data.employeeId], navigationExtras);
   }
 
   checkPermission() {
