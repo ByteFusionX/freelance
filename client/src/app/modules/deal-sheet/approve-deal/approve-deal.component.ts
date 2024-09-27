@@ -57,16 +57,14 @@ export class ApproveDealComponent implements OnInit {
   }
 
   onUpdate() {
-    this.dialogRef.close({ approve: false, updating: true })
     const updateModal = this._dialog.open(UpdatedealsheetComponent, {
       data: this.data
     })
-
+    
     updateModal.afterClosed().subscribe((dealData: dealData) => {
-      // console.log("working ")
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, this.data.quoteData._id).subscribe((res) => {
-          console.log('Updated')
+          this.dialogRef.close({ approve: false, updatedData: res })
         })
       }
     })

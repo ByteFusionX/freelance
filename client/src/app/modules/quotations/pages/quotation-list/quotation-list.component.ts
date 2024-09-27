@@ -267,8 +267,11 @@ export class QuotationListComponent {
         width: '1200px'
       });
 
-    dialogRef.afterClosed().subscribe(() => {
+    dialogRef.afterClosed().subscribe((data:{updatedData?:Quotatation}) => {
       this.dataSource.data[index].dealData.seenedBySalsePerson = true;
+      if(data?.updatedData){
+        this.dataSource.data[index].dealData = data.updatedData.dealData;
+      }
       this.dataSource._updateChangeSubscription()
     })
   }
