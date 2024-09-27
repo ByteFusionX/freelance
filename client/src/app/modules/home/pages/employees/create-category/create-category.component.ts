@@ -33,14 +33,11 @@ export class CreateCategoryComponent {
   categoryForm = this._fb.group({
     categoryName: ['', Validators.required],
     role: ['', Validators.required],
+    isSalespersonWithTarget: [false],
     privileges: this._fb.group({
       dashboard: this._fb.group({
         viewReport: 'all',
-        totalEnquiry: [false],
-        totalQuote: [false],
-        totalJobs: [false],
-        totalPresale: [false],
-        EnquiryChart: [false],
+        compareAgainst: 'company',
       }),
       employee: this._fb.group({
         viewReport: 'none',
@@ -71,10 +68,25 @@ export class CreateCategoryComponent {
       }),
       portalManagement: this._fb.group({
         department: [false],
-        notesAndTerms: [false]
+        notesAndTerms: [false],
+        companyTarget: [false]
       })
     })
   })
+
+  ngOnInit() {
+    const dashboardGroup = this.categoryForm.get('privileges.dashboard') as FormGroup;
+    dashboardGroup.get('compareAgainst')?.disable();
+
+    this.categoryForm.get('isSalespersonWithTarget')?.valueChanges.subscribe((isSalesperson) => {
+      if (!isSalesperson) {
+        dashboardGroup.get('compareAgainst')?.setValue('company');
+        dashboardGroup.get('compareAgainst')?.disable();
+      } else {
+        dashboardGroup.get('compareAgainst')?.enable();
+      }
+    });
+  }
 
   onClose(): void {
     this.dialogRef.close();
@@ -98,9 +110,9 @@ export class CreateCategoryComponent {
     if (this.categoryForm.valid) {
       this.isSaving = true;
 
-      const categoryData: GetCategory = this.categoryForm.value as GetCategory;
+      const categoryData = this.categoryForm.getRawValue() ;
 
-      this._employeeService.createCategory(categoryData).subscribe({
+      this._employeeService.createCategory(categoryData as unknown as GetCategory).subscribe({
         next: (data) => {
           this.isSaving = false;
           this.dialogRef.close(data)

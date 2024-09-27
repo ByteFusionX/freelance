@@ -14,6 +14,7 @@ import { CreateDepartmentDialog } from './pages/create-department/create-departm
 import { SettingsRoutingModule } from './settings-routing.module';
 import { PortalManagementComponent } from './pages/portal-management/portal-management.component';
 import { EditCategoryComponent } from './pages/edit-category/edit-category.component';
+import { pipeModule } from "../../shared/pipes/pipe.module";
 
 
 
@@ -34,7 +35,8 @@ import { EditCategoryComponent } from './pages/edit-category/edit-category.compo
     MatDialogModule,
     NgSelectModule,
     SkeltonLoadingComponent,
-  ],
+    pipeModule
+],
   providers: [ProfileService, EmployeeService]
 })
 export class SettingsModule { }

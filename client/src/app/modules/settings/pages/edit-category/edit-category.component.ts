@@ -34,14 +34,11 @@ export class EditCategoryComponent {
   categoryForm = this._fb.group({
     categoryName: ['', Validators.required],
     role: ['', Validators.required],
+    isSalespersonWithTarget: [false],
     privileges: this._fb.group({
       dashboard: this._fb.group({
         viewReport: 'all',
-        totalEnquiry: [false],
-        totalQuote: [false],
-        totalJobs: [false],
-        totalPresale: [false],
-        EnquiryChart: [false],
+        compareAgainst: 'company',
       }),
       employee: this._fb.group({
         viewReport: 'none',
@@ -72,13 +69,27 @@ export class EditCategoryComponent {
       }),
       portalManagement: this._fb.group({
         department: [false],
-        notesAndTerms: [false]
+        notesAndTerms: [false],
+        companyTarget: [false]
       })
     })
   })
 
   ngOnInit() {
     this.updateChecks(this.data.privileges)
+    const dashboardGroup = this.categoryForm.get('privileges.dashboard') as FormGroup;
+
+    if (!this.data.isSalespersonWithTarget) {
+      dashboardGroup.get('compareAgainst')?.disable();
+    }
+    this.categoryForm.get('isSalespersonWithTarget')?.valueChanges.subscribe((isSalesperson) => {
+      if (!isSalesperson) {
+        dashboardGroup.get('compareAgainst')?.setValue('company');
+        dashboardGroup.get('compareAgainst')?.disable();
+      } else {
+        dashboardGroup.get('compareAgainst')?.enable();
+      }
+    });
     this.categoryForm.patchValue(this.data)
   }
 
@@ -118,9 +129,9 @@ export class EditCategoryComponent {
     if (this.categoryForm.valid) {
       this.isSaving = true;
 
-      const categoryData: GetCategory = this.categoryForm.value as GetCategory;
+      const categoryData = this.categoryForm.getRawValue();
 
-      this._employeeService.updateCategory(categoryData, this.data._id).subscribe({
+      this._employeeService.updateCategory(categoryData as unknown as GetCategory, this.data._id).subscribe({
         next: (data) => {
           this.isSaving = false;
           this.dialogRef.close(data)

@@ -3,17 +3,14 @@ import { Schema, Document, model, Types } from "mongoose";
 interface Category extends Document {
   categoryName: string;
   role: string;
+  isSalespersonWithTarget: boolean,
   privileges: Privileges;
 }
 
 export interface Privileges {
   dashboard: {
     viewReport: string;
-    totalEnquiry: boolean;
-    totalQuote: boolean;
-    totalJobs: boolean;
-    totalPresale: boolean;
-    EnquiryChart: boolean;
+    compareAgainst: string;
   };
   employee: {
     viewReport: string;
@@ -45,6 +42,7 @@ export interface Privileges {
   portalManagement: {
     department: boolean;
     notesAndTerms: boolean;
+    companyTarget: boolean;
   };
 }
 
@@ -64,6 +62,10 @@ const categorySchema = new Schema<Category>({
     type: String,
     enum: UserRole,
     required: true,
+  },
+  isSalespersonWithTarget: {
+    type: Boolean,
+    default:false
   },
   privileges: {
     type: Object,
