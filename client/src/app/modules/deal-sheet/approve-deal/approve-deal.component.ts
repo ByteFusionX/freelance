@@ -35,7 +35,7 @@ export class ApproveDealComponent implements OnInit {
   userId!: string
 
   ngOnInit(): void {
-    console.log(this.data.quoteData.dealData)
+    // console.log(this.data.quoteData.dealData)
     this._employeeService.employeeData$.subscribe((data) => {
       if (data?._id) {
         this.userId = data?._id;
@@ -57,16 +57,14 @@ export class ApproveDealComponent implements OnInit {
   }
 
   onUpdate() {
-    this.dialogRef.close({ approve: false, updating: true })
     const updateModal = this._dialog.open(UpdatedealsheetComponent, {
       data: this.data
     })
-
+    
     updateModal.afterClosed().subscribe((dealData: dealData) => {
-      console.log("working ")
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, this.data.quoteData._id).subscribe((res) => {
-          console.log('Updated')
+          this.dialogRef.close({ approve: false, updatedData: res })
         })
       }
     })

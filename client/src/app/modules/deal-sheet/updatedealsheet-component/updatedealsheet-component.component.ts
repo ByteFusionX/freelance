@@ -18,6 +18,8 @@ export class UpdatedealsheetComponent implements OnInit {
   isAllSelected = false;
   isSaving = false;
   selectedFiles: any[] = [];
+  removedFiles: any[] = [];
+  existingFiles: any[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean },
@@ -28,11 +30,12 @@ export class UpdatedealsheetComponent implements OnInit {
   ngOnInit() {
     this.costForm = this.fb.group({
       paymentTerms: [this.data.quoteData.dealData.paymentTerms || '', Validators.required],
-      items: this.fb.array(this.data.quoteData.items.map(item => this.createItemGroup(item))),
+      items: this.fb.array(this.data.quoteItems.map(item => this.createItemGroup(item as QuoteItem))),
       costs: this.fb.array([], this.additionalCostsValidator())
     });
 
     this.selectedFiles = this.data.quoteData.dealData.attachments;
+    this.existingFiles = [...this.selectedFiles]
   }
 
   setUpFormData(): FormData {
@@ -46,9 +49,9 @@ export class UpdatedealsheetComponent implements OnInit {
         supplierName: detail.supplierName,
         phoneNo: detail.phoneNo,
         email: detail.email,
-      }))
+      })),
     }));
-    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }
@@ -85,8 +88,9 @@ export class UpdatedealsheetComponent implements OnInit {
   }
 
   onFileRemoved(index: number) {
-    (this.selectedFiles as File[]).splice(index, 1)
-    this.fileInput.nativeElement.value = '';
+    let removedFiles = (this.selectedFiles as File[]).splice(index, 1)
+    this.existingFiles.splice(index, 1)
+    this.removedFiles.push(...removedFiles)
   }
 
 
@@ -95,6 +99,7 @@ export class UpdatedealsheetComponent implements OnInit {
       itemName: [item.itemName || ''],
       itemDetails: this.fb.array(item.itemDetails.map(detail => this.createItemDetailGroup(detail)))
     });
+
   }
 
   createItemDetailGroup(detail: QuoteItemDetail): FormGroup {
@@ -106,8 +111,8 @@ export class UpdatedealsheetComponent implements OnInit {
       profit: [detail.profit || 0],
       availability: [detail.availability || ''],
       supplierName: [detail.supplierName, this.supplierNameValidator()],
-      phoneNo: ['', this.supplierNameValidator()],
-      email: ['', [this.supplierNameValidator(), Validators.email]],
+      phoneNo: [detail.phoneNo, this.supplierNameValidator()],
+      email: [detail.email, [this.supplierNameValidator(), Validators.email]],
     });
   }
 
@@ -195,5 +200,9 @@ export class UpdatedealsheetComponent implements OnInit {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  getItemDetailsControls(index: number): FormArray {
+    return this.items.at(index).get('itemDetails') as FormArray;
   }
 }
