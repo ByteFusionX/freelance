@@ -17,7 +17,7 @@ export class dateFutureDirective implements Validator {
       const inputDate = new Date(control.value).setHours(0,0,0,0);
       const currentDate = new Date().setHours(0,0,0,0)
 
-      console.log("hits")
+      // console.log("hits")
       if (inputDate > currentDate) {
           return { 'futureDate': true }; 
         } else {

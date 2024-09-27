@@ -35,7 +35,7 @@ export class ApproveDealComponent implements OnInit {
   userId!: string
 
   ngOnInit(): void {
-    console.log(this.data.quoteData.dealData)
+    // console.log(this.data.quoteData.dealData)
     this._employeeService.employeeData$.subscribe((data) => {
       if (data?._id) {
         this.userId = data?._id;
@@ -63,7 +63,7 @@ export class ApproveDealComponent implements OnInit {
     })
 
     updateModal.afterClosed().subscribe((dealData: dealData) => {
-      console.log("working ")
+      // console.log("working ")
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, this.data.quoteData._id).subscribe((res) => {
           console.log('Updated')

@@ -26,9 +26,10 @@ export class UpdatedealsheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log(this.data)
     this.costForm = this.fb.group({
       paymentTerms: [this.data.quoteData.dealData.paymentTerms || '', Validators.required],
-      items: this.fb.array(this.data.quoteData.items.map(item => this.createItemGroup(item))),
+      items: this.fb.array(this.data.quoteItems.map(item => this.createItemGroup(item as QuoteItem))),
       costs: this.fb.array([], this.additionalCostsValidator())
     });
 
@@ -95,6 +96,7 @@ export class UpdatedealsheetComponent implements OnInit {
       itemName: [item.itemName || ''],
       itemDetails: this.fb.array(item.itemDetails.map(detail => this.createItemDetailGroup(detail)))
     });
+    
   }
 
   createItemDetailGroup(detail: QuoteItemDetail): FormGroup {
@@ -106,8 +108,8 @@ export class UpdatedealsheetComponent implements OnInit {
       profit: [detail.profit || 0],
       availability: [detail.availability || ''],
       supplierName: [detail.supplierName, this.supplierNameValidator()],
-      phoneNo: ['', this.supplierNameValidator()],
-      email: ['', [this.supplierNameValidator(), Validators.email]],
+      phoneNo: [detail.phoneNo, this.supplierNameValidator()],
+      email: [detail.email, [this.supplierNameValidator(), Validators.email]],
     });
   }
 
@@ -195,5 +197,9 @@ export class UpdatedealsheetComponent implements OnInit {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  getItemDetailsControls(index: number): FormArray {
+    return this.items.at(index).get('itemDetails') as FormArray;
   }
 }
