@@ -24,8 +24,6 @@ export class GaugeChartComponent implements OnInit {
     const myChart = echarts.init(this.gaugeChart.nativeElement);
 
     this._dashboardService.guageChart$.subscribe((report) => {
-      console.log(report)
-      console.log(new Date().getTime())
       let criticalRange = (report.badRange / report.targetValue)
       let moderateRange = (report.moderateRange / report.targetValue)
       let revenue = (report.companyRevenue / report.targetValue)
@@ -81,7 +79,6 @@ export class GaugeChartComponent implements OnInit {
               distance: -30,
               rotate: 'tangential',
               formatter: function (value: number) {
-                console.log(value)
                 if (value === 0) {
                   return '0';
                 } else if (value.toFixed(1) === criticalRange.toFixed(1)) {
@@ -117,7 +114,6 @@ export class GaugeChartComponent implements OnInit {
         ]
       };
 
-      console.log(option);
       myChart.setOption(option);
     })
 

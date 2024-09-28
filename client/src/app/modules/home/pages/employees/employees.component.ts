@@ -93,7 +93,6 @@ export class EmployeesComponent {
             if (data) {
               this.dataSource.data = [...data.employees]
               this.filteredData.data = data.employees;
-              console.log(data.employees)
               this.total = data.total
               this.isLoading = false;
               this.isEmpty = false;

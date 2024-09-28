@@ -19,7 +19,6 @@ export class ViewFeedbackComponent {
   ) { }
 
   ngOnInit() {
-    console.log(this.data.feedback)
     this.data.feedback.forEach((feedback) => {
       if (!feedback.seenByFeedbackRequester && feedback.feedback) {
         this._enquiryService.markFeedbackResponseAsViewed(this.data.enqId, feedback._id).subscribe((res) => {

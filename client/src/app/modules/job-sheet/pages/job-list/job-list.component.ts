@@ -131,9 +131,7 @@ export class JobListComponent {
 
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
-        next: (data: JobTable) => {
-          console.log(data);
-          
+        next: (data: JobTable) => {       
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
@@ -236,8 +234,6 @@ export class JobListComponent {
   }
 
   onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
-    console.log(quotedData,salesPerson,customer,attention);
-    
     this.loader.start()
     quotedData.createdBy = salesPerson;
     quotedData.client = customer;

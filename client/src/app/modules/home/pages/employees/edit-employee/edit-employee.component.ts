@@ -63,7 +63,6 @@ export class EditEmployeeComponent {
     this.getCategory();
     this.departments$ = this._profileService.getDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
-    console.log(this.data);
     
     this.employeeForm.patchValue({
       firstName: this.data.employeeData.firstName,

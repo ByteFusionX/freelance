@@ -122,7 +122,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
         if (entry.isIntersecting) {
           const jobId = entry.target.getAttribute('id');
           if (jobId && this.notViewedJobIds.has(jobId)) {
-            console.log(jobId)
             this.markJobAsViewed(jobId)
             this.notViewedJobIds.delete(jobId);
           }

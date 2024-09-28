@@ -174,7 +174,6 @@ export class UploadEstimationComponent {
       this.isSaving = true;
       const quoteForm = this.quoteForm.value
       const postBody = { items: quoteForm.items, enquiryId: this.enqId, currency: quoteForm.currency, preSaleNote: quoteForm.presaleNote, totalDiscount: quoteForm.totalDiscount }
-      console.log(postBody)
       this._enquiryService.uploadEstimations(postBody).subscribe((data) => {
         if (data.success) {
           this.toastr.success('Estimation Updated!', 'Success')

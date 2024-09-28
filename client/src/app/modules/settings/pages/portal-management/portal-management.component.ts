@@ -245,7 +245,6 @@ export class PortalManagementComponent {
     this.subscriptions.add(
       this._profileService.getCompanyTargets().subscribe((target: { salesTarget: SalesTarget, grossProfitTarget: SalesTarget }) => {
         if (target) {
-          console.log(target)
           this.companyTargetSubject.next(target.salesTarget);
           this.companyGrossProfitSubject.next(target.grossProfitTarget);
         }
@@ -274,8 +273,6 @@ export class PortalManagementComponent {
       if (data) {
         this._profileService.setCompanyTarget(data).subscribe((res) => {
           if (res) {
-            console.log(res);
-
             this.companyTargetSubject.next(res);
           }
         })

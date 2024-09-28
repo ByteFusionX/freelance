@@ -35,7 +35,6 @@ export class ApproveDealComponent implements OnInit {
   userId!: string
 
   ngOnInit(): void {
-    // console.log(this.data.quoteData.dealData)
     this._employeeService.employeeData$.subscribe((data) => {
       if (data?._id) {
         this.userId = data?._id;

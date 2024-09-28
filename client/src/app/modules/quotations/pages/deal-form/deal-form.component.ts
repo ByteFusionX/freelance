@@ -139,7 +139,6 @@ export class DealFormComponent {
         email: detail.email,
       }))
     }));
-    console.log(updatedItems)
     formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
