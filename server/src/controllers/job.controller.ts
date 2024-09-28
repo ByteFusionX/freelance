@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
-import { calculateDiscountPrice, getUSDRated } from "../common/util";
+import { calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
 
 
 const { ObjectId } = require('mongodb')
@@ -57,6 +57,9 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 break;
         }
 
+        const USDRates = await getUSDRated();
+        const qatarUsdRate = USDRates.usd.qar;
+
         const jobData = await jobModel.aggregate([
             {
                 $match: matchFilters
@@ -74,10 +77,16 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
             {
+                $unwind: "$quotation"
+            },
+            {
                 $match: { $or: [{ 'quotation.createdBy': new ObjectId(salesPerson) }, { 'quotation.createdBy': { $exists: isSalesPerson } }] }
             },
             {
                 $lookup: { from: 'customers', localField: 'quotation.client', foreignField: '_id', as: 'clientDetails' }
+            },
+            {
+                $unwind: "$clientDetails"
             },
             {
                 $lookup: { from: 'departments', localField: 'quotation.department', foreignField: '_id', as: 'departmentDetails' }
@@ -93,20 +102,33 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                                 $filter: {
                                     input: '$clientDetails.contactDetails',
                                     as: 'contact',
-                                    cond: {
-                                        $eq: ['$$contact._id', '$quotation.attention']
-                                    }
+                                    cond: { $eq: ['$$contact._id', '$quotation.attention'] }
                                 }
                             },
                             0
                         ]
-                    }
-                }
+                    },
+                    lpoValue: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ['$quotation.currency', 'USD'] },
+                                {
+                                    $multiply: [
+                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                        qatarUsdRate
+                                    ]
+                                },
+                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                            ]
+                        }
+                    },
+                },
             },
             {
                 $match: accessFilter
             },
         ]);
+        
 
         const jobTotal: { total: number, lpoValueSum: number }[] = await jobModel.aggregate([
 
@@ -134,7 +156,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         ]).exec();
 
         const totalValues = jobData.reduce((acc, job) => {
-            const quote = job?.quotation[0];
+            const quote = job?.quotation;
             if (quote.currency == 'USD') {
                 const updatedItems = quote?.dealData?.updatedItems || [];
                 acc.totalUSDValue += calculateDiscountPrice(quote, updatedItems);
@@ -148,9 +170,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             totalQARValue: 0,
         });
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRates = USDRates.usd.qar;
-        const totalLpoValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
+        const totalLpoValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRate);
 
 
         if (jobTotal.length) {

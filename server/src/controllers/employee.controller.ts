@@ -316,7 +316,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                     email: 1,
                     contactNo: 1,
                     designation: 1,
-                    dob: Date,
+                    dob: 1,
                     department: 1,
                     category: 1,
                     dateOfJoining: 1,

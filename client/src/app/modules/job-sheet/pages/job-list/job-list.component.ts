@@ -132,6 +132,8 @@ export class JobListComponent {
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
         next: (data: JobTable) => {
+          console.log(data);
+          
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
@@ -234,6 +236,8 @@ export class JobListComponent {
   }
 
   onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
+    console.log(quotedData,salesPerson,customer,attention);
+    
     this.loader.start()
     quotedData.createdBy = salesPerson;
     quotedData.client = customer;
@@ -339,18 +343,18 @@ export class JobListComponent {
       const tableData = this.dataSource.data.map((data: any) => {
         return [
           data.jobId,
-          data.clientDetails[0].companyName,
-          data.quotation[0].subject,
+          data.clientDetails.companyName,
+          data.quotation.subject,
           `${data.salesPersonDetails[0].firstName} ${data.salesPersonDetails[0].lastName}`,
           data.departmentDetails[0].departmentName,
-          data.quotation[0].quoteId,
-          data.quotation[0].dealData.dealId,
-          data.quotation[0].lpoValue,
+          data.quotation.quoteId,
+          data.quotation.dealData.dealId,
+          data.quotation.lpoValue,
           data.status
         ];
       });
       const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto','auto', 'auto'];
-      this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width);
+      this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width)
     } else {
       this.toast.warning('No Data to generate Report');
     }
