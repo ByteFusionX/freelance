@@ -508,9 +508,13 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
         }
 
         const { paymentTerms, items, removedFiles, existingFiles, costs } = JSON.parse(req.body.dealData);
-        files = [...files, ...existingFiles]
-        removedFiles.map((file: any) => removeFile(file.fileName))
-        
+        if (existingFiles && removedFiles) {
+            files = [...files, ...existingFiles];
+            removedFiles.map((file: any) => removeFile(file.fileName))
+        } else {
+            files = [...files]
+        }
+
         let dealId: string = await generateDealId();
 
         const createdDate = new Date()
