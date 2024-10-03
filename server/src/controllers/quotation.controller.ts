@@ -114,7 +114,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 $match: filters,
             },
             {
-                $sort: { createdDate: 1 }
+                $sort: { _id: -1 }
             },
             {
                 $skip: skipNum
