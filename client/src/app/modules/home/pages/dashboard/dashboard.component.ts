@@ -66,19 +66,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public chartOptions!: Partial<ChartOptions>;
 
   constructor(
-    private _enquiryService: EnquiryService,
     private _dashboardService: DashboardService,
     private _employeeService: EmployeeService,
     private _profileService: ProfileService,
-    private router: Router,
     private _fb: FormBuilder,
     private _toaster:ToastrService
   ) {
     this.filterForm = this._fb.group({
       fromDate: [''],
       toDate: [''],
-      salesPersonIds: [[]],
-      departments: [[]]
+      salesPersonIds: [],
+      departments: []
     });
   }
 
@@ -109,7 +107,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
     this.getDashboardReports();
-    this.dateCategories();
   }
 
   getDashboardReports() {
@@ -186,6 +183,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this._employeeService.getEmployees(filterData).subscribe((employees) => {
       this.salesPersons = employees.employees;
+      console.log(this.salesPersons)
     })
   }
 
@@ -225,145 +223,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.filtered = false;
     this.filterForm.reset()
     this.getDashboardReports();
-  }
-
-
-  enquiryLoading() {
-    this.subscriptions.add(
-      this.enquiries$.subscribe({
-        next: ((data) => {
-          if (data) {
-            this.isEnquiryLoading = false
-          }
-        }),
-        error: ((err) => {
-          this.isEnquiryLoading = true
-        })
-      })
-    )
-  }
-
-  presalesLoading() {
-    this.subscriptions.add(
-      this.presales$.subscribe({
-        next: ((data) => {
-          if (data) {
-            this.isPresalesLoading = false
-          }
-        }),
-        error: ((err) => {
-          this.isPresalesLoading = true
-        })
-      })
-    )
-  }
-
-  quoteLoading() {
-    this.subscriptions.add(
-      this.quotations$.subscribe({
-        next: ((data) => {
-          if (data) {
-            this.isQuoteLoading = false
-          }
-        }),
-        error: ((err) => {
-          this.isQuoteLoading = true
-        })
-      })
-    )
-  }
-
-  jobLoading() {
-    this.subscriptions.add(
-      this.jobs$.subscribe({
-        next: ((data) => {
-          if (data) {
-            this.isJobLoading = false
-          }
-        }),
-        error: ((err) => {
-          this.isJobLoading = true
-        })
-      })
-    )
-  }
-
-  dateCategories() {
-    let currentDate = new Date();
-    for (let i = 0; i < 12; i++) {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-      const formattedDate = `${year}-${month.toString().padStart(2, '0')}`;
-      this.graphCategory.unshift(formattedDate);
-      currentDate.setMonth(currentDate.getMonth() - 1);
-    }
-  }
-
-  onDepartmentSelect(departmentId: string | undefined) {
-    if (departmentId) {
-      this._enquiryService.depSubject.next(departmentId)
-      this.router.navigate(['/enquiry'])
-    }
-  }
-
-  onClickLearnButton() {
-    window.open('https://neuron.com.qa/')
-  }
-
-  getChartDetails() {
-    this.subscriptions.add(
-      this._enquiryService.monthlyEnquiries(this.enquiryAccess, this.userId).subscribe((data) => {
-        data.map((item) => {
-          const dateArray: number[] = new Array(12).fill(0)
-          let depName = item.department[0].departmentName.toUpperCase()
-          let dep = this.graphSeries.find((ser) => ser.name == depName)
-
-          if (!dep) {
-            let obj = { name: depName, data: dateArray }
-            this.graphSeries.push(obj)
-            dep = this.graphSeries[this.graphSeries.length - 1]
-          }
-
-          let date: string = `${item.year}-${item.month.toString().padStart(2, '0')}`
-          let index = this.graphCategory.indexOf(date)
-          dep.data[index] = item.total
-        })
-        if (data.length) {
-          this.chartDetails()
-        } else {
-          this.noDataForChart = true
-        }
-      })
-    )
-  }
-
-  chartDetails() {
-    this.chartOptions = {
-      series: this.graphSeries,
-      chart: {
-        height: 350,
-        type: "area",
-        toolbar: {
-          show: true,
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: "smooth"
-      },
-      xaxis: {
-        type: "datetime",
-        categories: this.graphCategory
-      },
-      tooltip: {
-        x: {
-          format: "dd/MM/yy HH:mm"
-        }
-      }
-    };
-    this.showChart = true;
   }
 
   getYears(): number[] {

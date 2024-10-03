@@ -305,7 +305,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     salesValue: 1,
                     profitValue: { $subtract: ['$salesValue', '$totalCostPrice'] },
                     totalJobAwarded: 1,

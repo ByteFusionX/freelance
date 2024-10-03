@@ -239,16 +239,16 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
 
         switch (access) {
             case 'created':
-                accessFilter = { salesPerson: new ObjectId(userId) };
+                accessFilter = { 'salesPerson._id': new ObjectId(userId) };
                 break;
             case 'reported':
-                accessFilter = { salesPerson: { $in: reportedToUserIds } };
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
                 accessFilter = {
                     $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
+                        { 'salesPerson._id': new ObjectId(userId) },
+                        { 'salesPerson._id': { $in: reportedToUserIds } }
                     ]
                 };
                 break;
@@ -262,6 +262,7 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
         sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
         const enqTotal = await enquiryModel.aggregate([
+            { $match: { status: { $ne: 'Quoted' } } },
             {
                 $unset: "createdDate"
             },
@@ -289,7 +290,7 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 $group: {
                     _id: null,
                     totalEnquiries: { $sum: 1 },
-                    lastWeekEnquiries: {
+                lastWeekEnquiries: {
                         $sum: {
                             '$cond': [
                                 { $gte: ['$createdDate', sevenDaysAgo] },
@@ -308,6 +309,8 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 }
             }
         ]).exec();
+
+        
 
         return enqTotal[0];
     } catch (error) {

@@ -49,15 +49,21 @@ export const buildDashboardFilters = (filters: Filters) => {
     if (filters) {
 
         if (filters.fromDate && filters.toDate) {
+            const toDate = new Date(filters.toDate);
+            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
+
             matchFilter['createdDate'] = {
                 $gte: new Date(filters.fromDate),
-                $lt: new Date(filters.toDate)
+                $lt: toDate
             };
         } else if (filters.fromDate) {
             matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
         } else if (filters.toDate) {
-            matchFilter['createdDate'] = { $lt: new Date(filters.toDate) };
+            const toDate = new Date(filters.toDate);
+            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
+            matchFilter['createdDate'] = { $lt: toDate };
         }
+
         // Handle multiple salesPersons
         if (filters.salesPersonIds && filters.salesPersonIds.length > 0) {
             matchFilter['salesPerson._id'] = { $in: filters.salesPersonIds.map(id => new ObjectId(id)) };
@@ -69,11 +75,13 @@ export const buildDashboardFilters = (filters: Filters) => {
         }
     }
 
-    
+    console.log(JSON.stringify(matchFilter));
+
     return matchFilter;
 }
 
-export const calculateDiscountPricePipe = (input: string,discount:string) => {
+
+export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {
         $subtract: [
             {
