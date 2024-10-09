@@ -200,6 +200,10 @@ export class QuotationListComponent {
     this.lastStatus = status
   }
 
+  preventClick(event: Event) {
+    event.stopPropagation()
+  }
+
   updateStatus(i: number, quoteId: string, status: QuoteStatus) {
     this.dataSource.data[i].status = this.lastStatus;
     this.filteredData.data[i].status = this.lastStatus;

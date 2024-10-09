@@ -10,15 +10,19 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
     try {
         let { page, search, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
 
-        let searchRegex = search.split('').join('\\s*');
         let isStatus = status == null ? true : false;
         let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
             $and: [
-                { jobId: { $regex: search, $options: 'i' } },
-                { $or: [{ status: status }, { status: { $exists: isStatus } }] },
+                {
+                    $or: [
+                        { jobId: { $regex: search, $options: 'i' } },
+                        { 'clientDetails.companyName': { $regex: search, $options: 'i' } }
+                    ]
+                },
+                { $or: [{ status: status }, { status: { $exists: isStatus } }] }
             ]
         };
 
@@ -57,22 +61,14 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 break;
         }
 
+        console.log(access);
+        
+
+
         const USDRates = await getUSDRated();
         const qatarUsdRate = USDRates.usd.qar;
 
         const jobData = await jobModel.aggregate([
-            {
-                $match: matchFilters
-            },
-            {
-                $sort: { createdDate: -1 }
-            },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
@@ -87,6 +83,15 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
             {
                 $unwind: "$clientDetails"
+            },
+            {
+                $sort: { createdDate: -1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
             },
             {
                 $lookup: { from: 'departments', localField: 'quotation.department', foreignField: '_id', as: 'departmentDetails' }
@@ -125,10 +130,10 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 },
             },
             {
-                $match: accessFilter
+                $match: { ...accessFilter, ...matchFilters }
             },
         ]);
-        
+
 
         const jobTotal: { total: number, lpoValueSum: number }[] = await jobModel.aggregate([
 
@@ -145,15 +150,20 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $match: { $or: [{ 'quotation.createdBy': new ObjectId(salesPerson) }, { 'quotation.createdBy': { $exists: isSalesPerson } }] }
             },
             {
-                $match: matchFilters
+                $lookup: { from: 'customers', localField: 'quotation.client', foreignField: '_id', as: 'clientDetails' }
             },
             {
-                $match: accessFilter
+                $unwind: "$clientDetails"
             },
             {
-                $project: { total: 1, _id: 0 }
-            }
+                $match: { ...accessFilter, ...matchFilters }
+            },
+            {
+                $count: "total"
+            },
         ]).exec();
+
+
 
         const totalValues = jobData.reduce((acc, job) => {
             const quote = job?.quotation;

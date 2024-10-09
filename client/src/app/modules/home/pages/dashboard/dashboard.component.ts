@@ -4,7 +4,7 @@ import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { BehaviorSubject, filter, map, Observable, Subscription } from 'rxjs';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { getEmployee, Privileges, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee, Privileges, RangeTarget, Target } from 'src/app/shared/interfaces/employee.interface';
 import { opacityState } from 'src/app/shared/animations/animations.triggers';
 import { Router } from '@angular/router';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
@@ -22,45 +22,34 @@ import { ToastrService } from 'ngx-toastr';
 })
 
 export class DashboardComponent implements OnInit, OnDestroy {
-
-  quotes!: number;
-  jobs!: number;
-  presales!: { pending: number, completed: number };
-  graphSeries: { name: string, data: number[] }[] = [];
-  graphCategory: string[] = [];
-  showChart: boolean = false
-  privileges!: Privileges | undefined;
-  noDataForChart: boolean = false;
-
   userId!: string | undefined;
-  enquiryAccess!: string | undefined;
-  quoteAccess!: string | undefined;
-  jobAccess!: string | undefined;
 
-  isEnquiryLoading: boolean = true;
-  isQuoteLoading: boolean = true;
-  isJobLoading: boolean = true;
-  isPresalesLoading: boolean = true;
-
-  enquiries$!: Observable<TotalEnquiry[]>;
   userData$!: Observable<getEmployee | undefined>;
-  quotations$!: Observable<{ total: number }>;
-  jobs$!: Observable<{ total: number }>;
-  presales$!: Observable<{ pending: number, completed: number }>;
 
   dashboardMetrics$!: Observable<Metric[]>;
-  salesTarget!: SalesTarget;
-  grossProfitTarget!: SalesTarget;
+
+  salesTarget!: RangeTarget;
+  grossProfitTarget!: RangeTarget;
+  targets!: Target[];
+
+  jobAccess:boolean = true;
 
   filterForm!: FormGroup;
   departments: getDepartment[] = [];
+  years: string[] = [];
   salesPersons: getEmployee[] = [];
 
   selectedTarget!: string;
+  selectedTargetYear: string = 'total';
+  selectedSalespersonName: string = ''
 
   filtered: boolean = false;
   bothTarget: boolean = false;
   ngSelectLoading: boolean = false;
+  disablePersonalTarget: boolean = false;
+
+  minDate!: string;
+  maxDate!: string;
 
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
@@ -70,7 +59,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private _employeeService: EmployeeService,
     private _profileService: ProfileService,
     private _fb: FormBuilder,
-    private _toaster:ToastrService
+    private _toaster: ToastrService
   ) {
     this.filterForm = this._fb.group({
       fromDate: [''],
@@ -81,75 +70,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.getDepartments();
     this.getSalesPerson();
-
-    this.userData$ = this._employeeService.employeeData$;
-    this.userData$.subscribe((res) => {
-      const compareAgainst = res?.category.privileges.dashboard.compareAgainst
-      if (compareAgainst == 'personal' && res?.salesTarget && res?.profitTarget) {
-        this.salesTarget = res?.salesTarget;
-        this.grossProfitTarget = res?.profitTarget;
-      } else if (compareAgainst == 'company') {
-        this._profileService.getCompanyTargets().subscribe((res) => {
-          this.salesTarget = res.salesTarget;
-          this.grossProfitTarget = res.grossProfitTarget;
-        })
-      } else if (compareAgainst == 'both') {
-        this._profileService.getCompanyTargets().subscribe((res) => {
-          this.salesTarget = res.salesTarget;
-          this.grossProfitTarget = res.grossProfitTarget;
-        })
-        this.selectedTarget = 'company';
-        this.bothTarget = true;
-      }
-    })
-
-
+    this.getDepartments();
+    this.getSalesTarget(true);
     this.getDashboardReports();
   }
 
   getDashboardReports() {
-    this._employeeService.employeeData$.subscribe((employee) => {
-      if (employee) {
-        this.userId = employee?._id;
-        if (this.userId) {
-          this.dashboardMetrics$ = this._dashboardService.getDashboardMetrics(this.userId, this.filterForm.value).pipe(
-            map(metrics => {
-              const sortedMetrics = metrics.sort((a, b) => a.rank - b.rank);
+    this.subscriptions.add(
+      this._employeeService.employeeData$.subscribe((employee) => {
+        if (employee) {
+          this.userId = employee?._id;
+          if (this.userId) {
+            this.dashboardMetrics$ = this._dashboardService.getDashboardMetrics(this.userId, this.filterForm.value).pipe(
+              map(metrics => {
+                const sortedMetrics = metrics.sort((a, b) => a.rank - b.rank);
 
-              let companyRevenue = 0;
-              sortedMetrics.forEach((metric) => {
-                if (metric.name === 'Revenue Achieved') {
-                  companyRevenue = metric.value;
-                }
-              });
-              this.updateGuageReports(companyRevenue);
-              return sortedMetrics;
-            })
-          );
+                let companyRevenue = 0;
+                sortedMetrics.forEach((metric) => {
+                  if (metric.name === 'Revenue Achieved') {
+                    companyRevenue = metric.value;
+                  }
+                });
+                this.updateGuageReports(companyRevenue);
+                return sortedMetrics;
+              })
+            );
+            this.subscriptions.add(
+              this._dashboardService.getRevenuePerSalesperson(this.userId, this.filterForm.value).subscribe((res) => {
+                this._dashboardService.updateDonutChart(res)
+              })
+            )
 
-          this._dashboardService.getRevenuePerSalesperson(this.userId, this.filterForm.value).subscribe((res) => {
-            this._dashboardService.updateDonutChart(res)
-          })
+            this.subscriptions.add(
+              this._dashboardService.getGrossProfitForLastSevenMonths(this.userId, this.filterForm.value).subscribe((res) => {
+                this._dashboardService.updateGraphChart({ profitPerMonths: res, profitTarget: this.grossProfitTarget })
+              })
+            )
 
-          this._dashboardService.getGrossProfitForLastSevenMonths(this.userId, this.filterForm.value).subscribe((res) => {
-            this._dashboardService.updateGraphChart({ profitPerMonths: res, profitTarget: this.grossProfitTarget })
-          })
+            this.subscriptions.add(
+              this._dashboardService.getEnquirySalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
+                this._dashboardService.updateEnquiryConversions(res)
+              })
+            )
 
-          this._dashboardService.getEnquirySalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
-            this._dashboardService.updateEnquiryConversions(res)
-          })
+            this.subscriptions.add(
+              this._dashboardService.getPresaleJobSalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
+                this._dashboardService.updatePresaleConversions(res)
+              })
+            )
 
-          this._dashboardService.getPresaleJobSalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
-            this._dashboardService.updatePresaleConversions(res)
-          })
-
-
-
+          }
         }
-      }
-    })
+      })
+    )
   }
 
   updateGuageReports(companyRevenue: number) {
@@ -160,18 +134,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getDepartments() {
-    this._profileService.getDepartments().subscribe((departments) => {
-      this.departments = departments;
-    })
+    this.subscriptions.add(
+      this._profileService.getDepartments().subscribe((departments) => {
+        this.departments = departments;
+      })
+    )
   }
 
   getSalesPerson() {
     let access;
     let userId;
-    this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.employee.viewReport
-      userId = employee?._id
-    })
+    this.subscriptions.add(
+      this._employeeService.employeeData$.subscribe((employee) => {
+        access = employee?.category.privileges.employee.viewReport
+        let jobAccess = employee?.category.privileges.jobSheet.viewReport;
+        this.jobAccess = jobAccess && jobAccess !== 'none' ? true : false
+        userId = employee?._id
+      })
+    )
 
     let filterData = {
       page: 1,
@@ -181,21 +161,55 @@ export class DashboardComponent implements OnInit, OnDestroy {
       userId: userId
     }
 
-    this._employeeService.getEmployees(filterData).subscribe((employees) => {
-      this.salesPersons = employees.employees;
-      console.log(this.salesPersons)
+    if (access && access !== 'none') {
+      this._employeeService.getEmployees(filterData).subscribe((employees) => {
+        this.salesPersons = employees.employees;
+      })
+    }
+  }
+
+  getSalesTarget(reset: boolean) {
+    this.userData$ = this._employeeService.employeeData$;
+    this.userData$.subscribe((res) => {
+      const compareAgainst = reset ? res?.category.privileges.dashboard.compareAgainst : this.selectedTarget;
+      if (reset) {
+        this.disablePersonalTarget = res?.targets && res.targets.length ? false : true;
+      }
+
+      if (compareAgainst == 'personal' && res?.targets) {
+        this.handleTargets(res.targets);
+      } else if (compareAgainst == 'company' || compareAgainst == 'both') {
+        this.subscriptions.add(
+          this._profileService.getCompanyTargets().subscribe((res) => {
+            this.handleTargets(res.targets);
+          })
+        )
+        if (compareAgainst == 'both' && reset) {
+          this.selectedTarget = 'company';
+          this.bothTarget = true;
+        }
+      }
     })
   }
 
   onCompareChange() {
     this.ngSelectLoading = true;
-    if (this.selectedTarget == 'personal') {
+    this.selectedTargetYear = 'total';
+    this.onTargetYearChange();
+
+    const salesPersonIds = this.filterForm.get('salesPersonIds')?.value;
+    const oneSalesPersonSelected = Array.isArray(salesPersonIds) && salesPersonIds.length === 1;
+
+    if (this.selectedTarget == 'personal' && oneSalesPersonSelected) {
+      const salesPerson = this.salesPersons.find((person) => person._id == salesPersonIds[0])
+      if (salesPerson?.targets && salesPerson.targets.length) {
+        this.handleTargets(salesPerson?.targets);
+        this.ngSelectLoading = false;
+      }
+    } else if (this.selectedTarget == 'personal') {
       this.userData$.subscribe((res) => {
-        if (res?.salesTarget && res?.profitTarget) {
-          this.salesTarget = res?.salesTarget;
-          this.grossProfitTarget = res?.profitTarget;
-          this._dashboardService.updateGuageChart(this.salesTarget)
-          this._dashboardService.updateGraphChart({ profitTarget: this.grossProfitTarget })
+        if (res?.targets && res?.targets) {
+          this.handleTargets(res.targets);
           this.ngSelectLoading = false;
         } else {
           this.ngSelectLoading = false;
@@ -205,23 +219,87 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }).unsubscribe()
     } else if (this.selectedTarget == 'company') {
       this._profileService.getCompanyTargets().subscribe((res) => {
-        this.salesTarget = res.salesTarget;
-        this.grossProfitTarget = res.grossProfitTarget;
-        this._dashboardService.updateGuageChart(this.salesTarget)
-        this._dashboardService.updateGraphChart({ profitTarget: this.grossProfitTarget })
+        this.handleTargets(res.targets);
         this.ngSelectLoading = false;
       })
     }
   }
 
-  onSubmit() {
-    this.filtered = true;
-    this.getDashboardReports()
+  onTargetYearChange() {
+    if (this.selectedTargetYear == 'total') {
+      this.minDate = ''
+      this.maxDate = ''
+    } else {
+      this.minDate = `${this.selectedTargetYear}-01-01`
+      this.maxDate = `${this.selectedTargetYear}-12-31`
+    }
+    this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
+    this.getDashboardReports();
+
+    this.getSalesTarget(false)
   }
 
-  onClear() {
+
+  handleTargets(targets: Target[]) {
+    this.years = targets.map((target) => target.year);
+    const extractedData = this.extractRevenueAndProfitTargets(targets);
+    this.salesTarget = extractedData?.salesRevenue as RangeTarget;
+    this.grossProfitTarget = extractedData?.grossProfit as RangeTarget;
+    this._dashboardService.updateGuageChart(this.salesTarget);
+    this._dashboardService.updateGraphChart({ profitTarget: this.grossProfitTarget });
+  }
+
+  extractRevenueAndProfitTargets(targets: Target[]) {
+    if (this.selectedTargetYear == 'total') {
+      return targets.reduce((acc, curr) => {
+        acc.grossProfit = {
+          criticalRange: acc.grossProfit.criticalRange + curr.grossProfit.criticalRange,
+          moderateRange: acc.grossProfit.moderateRange + curr.grossProfit.moderateRange,
+          targetValue: acc.grossProfit.targetValue + curr.grossProfit.targetValue,
+        };
+
+        acc.salesRevenue = {
+          criticalRange: acc.salesRevenue.criticalRange + curr.salesRevenue.criticalRange,
+          moderateRange: acc.salesRevenue.moderateRange + curr.salesRevenue.moderateRange,
+          targetValue: acc.salesRevenue.targetValue + curr.salesRevenue.targetValue,
+        };
+
+        return acc;
+      }, {
+        salesRevenue: { targetValue: 0, criticalRange: 0, moderateRange: 0 },
+        grossProfit: { targetValue: 0, criticalRange: 0, moderateRange: 0 },
+      });
+    } else {
+      return targets.find((target) => target.year == this.selectedTargetYear)
+    }
+  }
+
+  onFilter() {
+    this.filtered = true;
+
+    const salesPersonIds = this.filterForm.get('salesPersonIds')?.value;
+    const oneSalesPersonSelected = Array.isArray(salesPersonIds) && salesPersonIds.length === 1;
+
+    if (oneSalesPersonSelected) {
+      const salesPerson = this.salesPersons.find((person) => person._id == salesPersonIds[0])
+      this.selectedSalespersonName = `(${salesPerson?.firstName} ${salesPerson?.lastName})`
+      this.disablePersonalTarget = salesPerson?.targets && salesPerson.targets.length ? false : true;
+      if (this.selectedTarget == 'personal' && salesPerson?.targets && salesPerson.targets.length) {
+        this.handleTargets(salesPerson?.targets);
+      }
+    } else {
+      this.selectedSalespersonName = ''
+    }
+
+    this.getDashboardReports();
+  }
+
+  onClearFilter() {
     this.filtered = false;
-    this.filterForm.reset()
+    this.filterForm.reset();
+    this.selectedSalespersonName = '';
+    this.getSalesTarget(true)
+    this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
   }
 

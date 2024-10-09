@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
-import { getEmployee, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
 import { Router } from '@angular/router';
 import { EditCompanyDetailsComponent } from '../edit-company-details/edit-company-details.component';

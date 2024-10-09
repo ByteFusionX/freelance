@@ -6,7 +6,8 @@ import { Department, getDepartment } from 'src/app/shared/interfaces/department.
 import { NoteDelete, NotePatch, NotePost, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
-import { SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { Target } from 'src/app/shared/interfaces/employee.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -64,15 +65,15 @@ export class ProfileService {
     return this.http.patch<getCompanyDetails>(`${this.api}/company/updateCompanyDetails`, companyDetails)
   }
 
-  setCompanyTarget(target: SalesTarget):Observable<SalesTarget> {
-    return this.http.patch<SalesTarget>(`${this.api}/company/setTarget`, target)
+  setCompanyTarget(target: Target): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/company/setTarget`, target)
   }
 
-  setCompanyProfitTarget(target: SalesTarget):Observable<SalesTarget> {
-    return this.http.patch<SalesTarget>(`${this.api}/company/setProfitTarget`, target)
+  updateCompanyTarget(id: string, target: Target): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/company/update-target/${id}`, target)
   }
 
-  getCompanyTargets():Observable<{salesTarget:SalesTarget,grossProfitTarget:SalesTarget}> {
-    return this.http.get<{salesTarget:SalesTarget,grossProfitTarget:SalesTarget}>(`${this.api}/company/target`)
+  getCompanyTargets(): Observable<{ targets: Target[] }> {
+    return this.http.get<{ targets: Target[] }>(`${this.api}/company/target`)
   }
 }

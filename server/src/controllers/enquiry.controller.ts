@@ -95,7 +95,21 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
             presale.presaleFiles = presaleFiles
         }
 
-        const update = await enquiryModel.updateOne({ _id: enquiryId }, { $set: { preSale: presale, status: 'Assigned To Presales', 'preSale.newFeedbackAccess': true, 'preSale.createdDate': Date.now() } });
+        const update = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            {
+                $set: {
+                    preSale: {
+                        ...presale,
+                        newFeedbackAccess: true,
+                        createdDate: Date.now(),
+                    },
+                    status: 'Assigned To Presales'
+                }
+            }
+        );
+
+        console.log(update);
         const socket = req.app.get('io') as Server;
         socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
         if (update.modifiedCount) return res.status(200).json({ success: true })
@@ -227,12 +241,15 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         }
 
         if (filter == 'completed') {
-            accessFilter.status = 'Work In Progress'
+            accessFilter.status = { $ne: 'Assigned To Presales' }
         }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
                 $match: accessFilter
+            },
+            {
+                $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -245,14 +262,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 $match: accessFilter
             },
             {
-                $addFields: {
-                    lastNumber: {
-                        $toInt: { $arrayElemAt: [{ $split: ["$enquiryId", "-"] }, -1] }
-                    }
-                }
+                $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
             },
             {
-                $sort: { lastNumber: -1 }
+                $sort: { 'preSale.createdDate': -1 }
             },
             {
                 $skip: skipNum
@@ -307,7 +320,8 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
-            }
+            },
+
         ])
 
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -525,7 +539,8 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
             {
                 $set: {
                     "preSale.feedback.$.feedback": feedback,
-                    "preSale.feedback.$.seenByFeedbackRequester": false
+                    "preSale.feedback.$.seenByFeedbackRequester": false,
+                    'preSale.newFeedbackAccess': true,
                 }
             },
             { new: true }
@@ -576,7 +591,7 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
         let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
-        console.log(req.body);
+
         const enquiryData = await enquiryModel.updateOne(
             { _id: new ObjectId(enquiryId) },
             {

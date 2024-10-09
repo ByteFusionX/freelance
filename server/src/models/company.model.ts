@@ -1,24 +1,10 @@
-import { Schema, Document, model, Types } from "mongoose";
-
-interface Company extends Document {
-  name: String;
-  description: String;
-  address: Address;
-  salesTarget: SalesTarget;
-  grossProfitTarget: SalesTarget;
-}
-
-interface SalesTarget {
-  targetValue: number;
-  badRange: number;
-  moderateRange: number;
-}
+import { Schema, Document, model } from "mongoose";
 
 interface Address {
-  street: String;
-  area: String;
-  city: String;
-  country: String;
+  street: string;
+  area: string;
+  city: string;
+  country: string;
 }
 
 const addressSchema = new Schema<Address>({
@@ -40,6 +26,56 @@ const addressSchema = new Schema<Address>({
   },
 });
 
+interface Target {
+  _id: string;
+  year:number;
+  salesRevenue:RangeTarget;
+  grossProfit:RangeTarget;
+}
+
+interface RangeTarget{
+  targetValue: number;
+  criticalRange: number;
+  moderateRange: number;
+}
+
+const rangeSchema = new Schema<RangeTarget>({
+  targetValue: {
+    type: Number,
+    required: true,
+  },
+  criticalRange: {
+    type: Number,
+    required: true,
+  },
+  moderateRange: {
+    type: Number,
+    required: true,
+  },
+});
+
+const targetSchema = new Schema<Target>({
+  year: {
+    type: Number,
+    required: true,
+  },
+  salesRevenue:{
+    type:rangeSchema,
+    required: true,
+  },
+  grossProfit:{
+    type:rangeSchema,
+    required: true,
+  },
+});
+
+interface Company extends Document {
+  name: string;
+  description: string;
+  address: Address;
+  targets: Target[];
+}
+
 const companySchema = new Schema<Company>({
   name: {
     type: String,
@@ -53,13 +89,9 @@ const companySchema = new Schema<Company>({
     type: addressSchema,
     required: true,
   },
-  salesTarget: {
-    type: Object
-  },
-  grossProfitTarget: {
-    type: Object
+  targets: {
+    type: [targetSchema],
   },
 });
-
 
 export default model<Company>("Company", companySchema);

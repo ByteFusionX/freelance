@@ -10,24 +10,21 @@
                 </button>
             </div>
 
+
             <!-- Year Filter -->
             <div class="flex justify-between items-center mb-2">
                 <label for="fromDate" class="font-medium"> From:</label>
-                <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate"
+                <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate" onkeydown="return false"
+                    [min]="minDate" [max]="maxDate"
                     class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
                     required="true">
-            </div>
-            <div class="text-orange-500 text-sm" *ngIf="filterForm.get('fromDate')?.hasError('futureDate')">
-                Please choose a date on or before today's date.
             </div>
             <div class="flex justify-between  items-center">
                 <label for="toDate" class="font-medium"> To:</label>
-                <input dateFutureDirective type="date" id="toDate" formControlName="toDate"
+                <input dateFutureDirective type="date" id="toDate" formControlName="toDate" onkeydown="return false"
+                    [min]="minDate" [max]="maxDate"
                     class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
                     required="true">
-            </div>
-            <div class="text-orange-500 text-sm" *ngIf="filterForm.get('toDate')?.hasError('futureDate')">
-                Please choose a date on or before today's date.
             </div>
 
             <!-- Department Filter -->
@@ -44,7 +41,7 @@
             </div>
 
             <!-- Sales Person Filter -->
-            <div>
+            <div *ngIf="salesPersons.length">
                 <p class="font-semibold text-gray-800 mb-2">Sales Person</p>
                 <ng-select [multiple]="true" formControlName="salesPersonIds">
 
@@ -56,10 +53,10 @@
 
             <button
                 class="bg-orange-600 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded text-sm w-full my-3"
-                *ngIf="filtered" (click)="onClear()">x Clear All Filters</button>
+                *ngIf="filtered" (click)="onClearFilter()">x Clear All Filters</button>
             <button
                 class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full my-3"
-                (click)="onSubmit()">Apply Filter</button>
+                (click)="onFilter()">Apply Filter</button>
         </div>
 
     </mat-drawer>
@@ -67,9 +64,10 @@
     <div>
         <div class="md:p-8 p-5">
             <div class="w-full  flex justify-end items-center mb-3 gap-3">
-                <ng-container *ngIf="bothTarget">
+
+                <ng-container *ngIf="bothTarget && jobAccess">
                     <label for="">Compare Against : </label>
-                    <ng-select [loading]="ngSelectLoading"  [searchable]="false" [clearable]="false"
+                    <ng-select [loading]="ngSelectLoading" [searchable]="false" [clearable]="false"
                         [(ngModel)]="selectedTarget" (change)="onCompareChange()">
                         <ng-template ng-loadingspinner-tmp>
                             <div role="status" class="ml-2">
@@ -87,7 +85,21 @@
                             </div>
                         </ng-template>
                         <ng-option value="company">Company Target </ng-option>
-                        <ng-option value="personal">Personal Target </ng-option>
+                        <ng-option [disabled]="disablePersonalTarget" value="personal">
+                            <div [title]="selectedSalespersonName">
+                                Personal Target {{selectedSalespersonName}} 
+                            </div>
+                        </ng-option>
+                    </ng-select>
+                </ng-container>
+                <ng-container *ngIf="jobAccess">
+                    <label for="">Target Year : </label>
+                    <ng-select [(ngModel)]="selectedTargetYear" [clearable]="false" (change)="onTargetYearChange()">
+
+                        <ng-option value="total">Total</ng-option>
+                        <ng-option *ngFor="let year of years" [value]="year">{{
+                            year }}</ng-option>
+
                     </ng-select>
                 </ng-container>
                 <div (click)="drawer.toggle()"
@@ -99,8 +111,8 @@
                         By</p>
                 </div>
             </div>
-            <div class="w-full flex gap-3">
-                <div class="w-1/4 flex flex-col gap-3">
+            <div class="w-full flex gap-3"  [ngClass]="!jobAccess ? 'flex-col': 'flex-row'" >
+                <div [ngClass]="!jobAccess ? 'grid grid-cols-4 gap-4 w-full' : 'flex flex-col w-1/4 gap-3'" class="p-3">
                     <!-- Check if metrics are loading -->
                     <ng-container *ngIf="(dashboardMetrics$ | async) as metrics; else loading">
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
@@ -109,34 +121,22 @@
                                 {{ metric.type === 'QAR' ? metric.value.toFixed(2) : metric.value }} {{ metric.type }}
                             </p>
                             <p class="font-medium text-gray-800 text-xs">
-                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' +
-                                metric.type }}
+                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' + metric.type }}
                                 {{ metric.lastWeekName }} this week
                             </p>
                         </div>
                     </ng-container>
-
+                
                     <!-- Loading skeleton -->
                     <ng-template #loading>
-                        <div class="bg-white p-2 rounded-md">
-                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
-                        </div>
-                        <div class="bg-white p-2 rounded-md">
-                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
-                        </div>
-                        <div class="bg-white p-2 rounded-md">
-                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
-                        </div>
-                        <div class="bg-white p-2 rounded-md">
-                            <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
-                        </div>
-                        <div class="bg-white p-2 rounded-md">
+                        <div class="bg-white p-2 rounded-md" *ngFor="let i of [1,2,3,4,5]">
                             <app-skelton-loading [lineLength]="0" class="col-span-3"></app-skelton-loading>
                         </div>
                     </ng-template>
                 </div>
+                
                 <div class="w-3/4 h-full grid grid-cols-2 gap-3">
-                    <div class="bg-white">
+                    <div class="bg-white" *ngIf="jobAccess">
                         <h3 class="text-center pt-3 -mb-10 text-lg ">Target Revenue</h3>
                         <app-gauge-chart></app-gauge-chart>
 
@@ -156,11 +156,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white">
+                    <div class="bg-white" *ngIf="jobAccess">
                         <h3 class="text-center pt-3  text-lg ">Revenue Per Sales Person</h3>
                         <app-doughnut-chart></app-doughnut-chart>
                     </div>
-                    <div class="col-span-2 bg-white">
+                    <div class="col-span-2 bg-white" *ngIf="jobAccess">
                         <h3 class="text-center pt-3 text-lg ">Performance Graph (Gross Profit)</h3>
                         <app-line-chart></app-line-chart>
                     </div>

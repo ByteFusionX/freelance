@@ -13,7 +13,7 @@
             <div class="flex justify-end items-center gap-4">
                
                 <div *ngIf="!isLoading && !isEmpty" class="flex justify-end items-center  h-full">
-                    <p class="text-lg font-medium">Total LPO Value: {{ totalLpoValue.toFixed(2) }}</p>
+                    <p class="text-lg font-medium">Total LPO Value: {{ totalLpoValue.toFixed(2) }}  QAR</p>
                 </div>
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
                     [matMenuTriggerFor]="beforeMenu" mat-button>
@@ -35,7 +35,7 @@
                 <div
                 class="h-10 inline-flex items-center justify-between text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] pl-[20px] pr-[8px]">
                 <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="ngModelChange()"
-                    placeholder="Search by JobId" (keyup.enter)="onSearch()"
+                    placeholder="Search by JobId/customer" (keyup.enter)="onSearch()"
                     class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
                 <div class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer"
                     (click)="onSearch()">
@@ -169,7 +169,7 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         LPO Value </th>
-                    <td mat-cell *matCellDef="let element"> {{element.lpoValue.toFixed(2)}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.lpoValue.toFixed(2)}} QAR </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">

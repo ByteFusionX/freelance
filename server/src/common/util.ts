@@ -43,7 +43,7 @@ export const calculateTotalCost = (quotation: any, items: any): number => {
     return totalCost;
 }
 
-export const buildDashboardFilters = (filters: Filters) => {
+export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     const matchFilter: any = {};
 
     if (filters) {
@@ -65,8 +65,10 @@ export const buildDashboardFilters = (filters: Filters) => {
         }
 
         // Handle multiple salesPersons
-        if (filters.salesPersonIds && filters.salesPersonIds.length > 0) {
+        if (filters.salesPersonIds && filters.salesPersonIds.length > 0 && !accessFilter['salesPerson._id']) {
             matchFilter['salesPerson._id'] = { $in: filters.salesPersonIds.map(id => new ObjectId(id)) };
+        } else if (filters.salesPersonIds && filters.salesPersonIds.length > 0 && accessFilter['salesPerson._id']) {
+            accessFilter['salesPerson._id'] = ''
         }
 
         // Handle multiple departments
@@ -75,11 +77,35 @@ export const buildDashboardFilters = (filters: Filters) => {
         }
     }
 
-    console.log(JSON.stringify(matchFilter));
-
-    return matchFilter;
+    return { ...accessFilter, ...matchFilter };
 }
 
+
+export const getDateRange = (fromDate: string, toDate: string) => {
+    let gte: Date, lte: string | number | Date;
+
+    const currentDate = new Date();
+    console.log(fromDate, toDate);
+
+    if (!toDate && !fromDate) {
+        gte = new Date(currentDate);
+        gte.setFullYear(currentDate.getFullYear() - 1);
+        lte = currentDate;
+    } else if (!fromDate && toDate) {
+        lte = new Date(toDate);
+        gte = new Date(lte);
+        gte.setFullYear(lte.getFullYear() - 1);
+    } else if (fromDate && !toDate) {
+        gte = new Date(fromDate);
+        lte = currentDate;
+    } else if (fromDate && toDate) {
+
+        gte = new Date(fromDate);
+        lte = new Date(toDate);
+    }
+
+    return { gte, lte };
+}
 
 export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {
@@ -171,21 +197,35 @@ const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1;
 const currentYear = currentDate.getFullYear();
 
-const getLastSevenMonths = () => {
-    const lastSevenMonths = [];
-    for (let i = 0; i < 7; i++) {
+const getLastCountedMonths = (monthCount: number, currentMonth: number, currentYear: number) => {
+    const lastMonths = [];
+    for (let i = 0; i < monthCount; i++) {
         const month = (currentMonth - i - 1 + 12) % 12 + 1;
         const year = currentYear - Math.floor((currentMonth - i - 1) / 12);
-        lastSevenMonths.push({ month, year });
+        lastMonths.push({ month, year });
     }
-    return lastSevenMonths.reverse();
+    return lastMonths.reverse();
 };
 
-export const lastSevenMonths = getLastSevenMonths().map(({ month, year }) => ({
-    month,
-    name: months.find(m => m.month === month).name,
-    year
-}));
+export const lastRangedMonths = (dateRange: any) => {
+    const start = new Date(dateRange.gte);
+    const end = new Date(dateRange.lte);
+
+    const yearsDifference = end.getFullYear() - start.getFullYear();
+    const monthsDifference = end.getMonth() - start.getMonth();
+
+    // Calculate the total number of months in the range
+    const monthsCount = (yearsDifference * 12) + monthsDifference + 1; // Add 1 to include the start month
+
+    const currentMonth = end.getMonth() + 1; // getMonth() is 0-indexed, so add 1
+    const currentYear = end.getFullYear();
+
+    return getLastCountedMonths(monthsCount, currentMonth, currentYear).map(({ month, year }) => ({
+        month,
+        name: months.find(m => m.month === month)?.name || "Unknown",
+        year
+    }));
+}
 
 
 export async function getUSDRated() {

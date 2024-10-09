@@ -55,14 +55,14 @@ export const updateCompanyDetails = async (req: Request, res: Response, next: Ne
 }
 
 
-export const getCompanyTarget = async (req: Request, res: Response, next: NextFunction) => {
+export const getCompanyTargets = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const companyTarget = await Company.findOne({
-            salesTarget: { $exists: true },
-        }).select('salesTarget grossProfitTarget');
+            targets: { $exists: true },
+        }).select('targets');
 
         if (companyTarget) {
-            return res.status(200).json({salesTarget: companyTarget.salesTarget,grossProfitTarget:companyTarget.grossProfitTarget});
+            return res.status(200).json({ targets: companyTarget.targets });
         }
         return res.status(204).json();
     } catch (error) {
@@ -72,50 +72,81 @@ export const getCompanyTarget = async (req: Request, res: Response, next: NextFu
 
 export const setCompanyTarget = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const salesTarget = req.body;
+        const { year, salesRevenue, grossProfit } = req.body;
 
+        const existingCompany = await Company.findOne({
+            targets: {
+                $elemMatch: {
+                    year: year
+                }
+            }
+        });
+
+
+        if (existingCompany) {
+            return res.status(409).json({
+                message: `Target with year ${year} already exists.`,
+            });
+        }
 
         const companyUpdate = await Company.findOneAndUpdate(
             {},
             {
-                $set: {
-                    salesTarget: salesTarget,
+                $push: {
+                    targets: {
+                        year,
+                        salesRevenue,
+                        grossProfit,
+                    },
                 }
             },
             { upsert: true, new: true }
         );
 
         if (companyUpdate) {
-            return res.status(200).json(companyUpdate.salesTarget)
+            return res.status(200).json(companyUpdate.targets);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        next(error)
-
+        next(error);
     }
-}
+};
 
-export const setProfitTarget = async (req: Request, res: Response, next: NextFunction) => {
+export const updateCompanyTarget = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const grossProfitTarget = req.body;
+        const target = req.body;
+        const targetId = req.params.targetId;
 
+        const targetWithYearExists = await Company.findOne({
+            "targets.year": target.year
+        });
 
+        if (targetWithYearExists) {
+            console.log(targetWithYearExists);
+            
+            const isDuplicate = targetWithYearExists.targets.some((t, i) =>
+                t._id !== targetId && t.year == target.year
+            );
+
+            if (isDuplicate) {
+                return res.status(409).json({
+                    message: `A target with year ${target.year} already exists.`,
+                });
+            }
+        }
+        console.log(targetId)
         const companyUpdate = await Company.findOneAndUpdate(
-            {},
-            {
-                $set: {
-                    grossProfitTarget: grossProfitTarget,
-                }
-            },
-            { upsert: true, new: true }
+            { "targets._id": targetId },
+            { $set: { "targets.$": target } },
+            { new: true }
         );
+        
 
         if (companyUpdate) {
-            return res.status(200).json(companyUpdate.grossProfitTarget)
+            return res.status(200).json(companyUpdate.targets);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        next(error)
-
+        next(error);
     }
-}
+};

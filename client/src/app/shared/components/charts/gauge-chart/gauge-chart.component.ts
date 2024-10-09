@@ -24,7 +24,7 @@ export class GaugeChartComponent implements OnInit {
     const myChart = echarts.init(this.gaugeChart.nativeElement);
 
     this._dashboardService.guageChart$.subscribe((report) => {
-      let criticalRange = (report.badRange / report.targetValue)
+      let criticalRange = (report.criticalRange / report.targetValue)
       let moderateRange = (report.moderateRange / report.targetValue)
       let revenue = (report.companyRevenue / report.targetValue)
 
@@ -82,7 +82,7 @@ export class GaugeChartComponent implements OnInit {
                 if (value === 0) {
                   return '0';
                 } else if (value.toFixed(1) === criticalRange.toFixed(1)) {
-                  return numberShortenerPipe.transform(report.badRange); // Use pipe here
+                  return numberShortenerPipe.transform(report.criticalRange); // Use pipe here
                 } else if (value.toFixed(1) === moderateRange.toFixed(1)) {
                   return numberShortenerPipe.transform(report.moderateRange); // Use pipe here
                 } else if (value === 1) {

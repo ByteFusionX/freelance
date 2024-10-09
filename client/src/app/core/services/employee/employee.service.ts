@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { CreateEmployee, FilterEmployee, GetCategory, getEmployee, getEmployeeByID, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { CreateEmployee, FilterEmployee, GetCategory, getEmployee, getEmployeeByID, Target } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
@@ -36,12 +36,12 @@ export class EmployeeService {
     return this.http.patch<getEmployee>(`${this.api}/employee/edit`, employeeData)
   }
 
-  setTarget(tagetValues: SalesTarget, userId?: string): Observable<getEmployee> {
-    return this.http.patch<getEmployee>(`${this.api}/employee/setTarget/${userId}`, tagetValues)
+  setTarget(tagetValues: Target, userId?: string): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/employee/setTarget/${userId}`, tagetValues)
   }
 
-  setProfitTarget(tagetValues: SalesTarget, userId?: string): Observable<getEmployee> {
-    return this.http.patch<getEmployee>(`${this.api}/employee/setProfitTarget/${userId}`, tagetValues)
+  updateTarget(tagetValues: Target, id: string, userId?: string): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/employee/update-target/${userId}/${id}`, tagetValues)
   }
 
   createCategory(categroyData: GetCategory) {

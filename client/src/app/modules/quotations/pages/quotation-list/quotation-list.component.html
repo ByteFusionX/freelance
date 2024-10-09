@@ -110,7 +110,7 @@
                 <p class="m-2 text-center text-gray-500">No Data</p>
             </div>
         </div>
-        <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
+        <section class="mat-elevation-z8 h-fit max-h-[calc(100vh-40vh)] overflow-auto" tabindex="0">
             <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
 
                 <ng-container matColumnDef="date">
@@ -169,7 +169,8 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
                         Status </th>
-                    <td mat-cell *matCellDef="let element;let i= index" class="">
+                    <td mat-cell *matCellDef="let element;let i= index" class="hover:bg-white"
+                    (click)="preventClick($event)">
                         <div (click)="onStatus($event,element.status)" *ngIf="!element.lpoFiles.length"
                             class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
                             [matMenuTriggerFor]="beforeMenu" mat-button>
@@ -202,7 +203,8 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100 text-center  px-[4px] py-[16px]  text-dark  text-[15px] font-medium border-none before:hidden">
                         Deal Status </th>
-                    <td mat-cell *matCellDef="let element;let i= index" class="">
+                    <td mat-cell *matCellDef="let element;let i= index" class="hover:bg-white"
+                    (click)="preventClick($event)">
                         <div class="w-full flex justify-center items-center" *ngIf="element?.dealData?.status">
                             <div [ngSwitch]="element.dealData.status"
                                 class="flex items-center space-x-2">
@@ -231,7 +233,8 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[12px] py-[16px] text-center  text-dark  text-[15px] font-medium border-none before:hidden">
                         Action </th>
-                    <td mat-cell *matCellDef="let element; let i=index" class="">
+                    <td mat-cell *matCellDef="let element; let i=index" class="hover:bg-white"
+                    (click)="preventClick($event)">
                         <div class="flex justify-end items-center gap-2">
                             <div (click)="onClickLpo(element,$event)"
                                 *ngIf="element.status == 'Won' && !element.lpoFiles.length " matTooltip="Upload Lpo"

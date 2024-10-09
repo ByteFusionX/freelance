@@ -13,8 +13,7 @@ export interface getEmployee {
   category: GetCategory;
   dateOfJoining: string;
   reportingTo: string | null | undefined;
-  salesTarget: SalesTarget;
-  profitTarget: SalesTarget;
+  targets: Target[];
 }
 
 export interface getEmployeeDetails {
@@ -32,9 +31,23 @@ export interface getEmployeeDetails {
   reportingTo: getEmployee | null;
   salesValue: number;
   profitValue: number;
-  salesTarget: SalesTarget;
-  profitTarget: SalesTarget;
+  targets: Target[];
 }
+
+
+export interface Target {
+  _id?:string;
+  year: string;
+  salesRevenue: RangeTarget;
+  grossProfit: RangeTarget;
+}
+
+export interface RangeTarget {
+  targetValue: number;
+  criticalRange: number;
+  moderateRange: number;
+}
+
 
 export interface CreateEmployee {
   employeeId: string;
@@ -49,12 +62,6 @@ export interface CreateEmployee {
   dateOfJoining: string;
   reportingTo: string | null | undefined;
   createdBy: string | undefined;
-}
-
-export interface SalesTarget {
-  targetValue: number;
-  badRange: number;
-  moderateRange: number;
 }
 
 

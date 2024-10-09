@@ -11,7 +11,7 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, items: ItemDetail[], comment: string, revisionComment: string[] };
+    preSale: { presalePerson: Types.ObjectId, items: QuoteItem[], comment: string, revisionComment: string[] };
     assignedFiles: []
     status: string;
     attachments: []

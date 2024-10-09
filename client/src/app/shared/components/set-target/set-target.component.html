@@ -1,56 +1,138 @@
-<div class=" flex items-center justify-center bg-gray-900 bg-opacity-50">
-    <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
-        <!-- Modal Title -->
-        <h2 class="text-xl font-semibold text-center mb-4">Set Target Range</h2>
+<div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between ">
+    <h3 class="text-md font-medium">Set Target Range</h3>
+    <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="cancel()">
+        <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+    </button>
+</div>
 
-        <!-- Target Value Input -->
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2" for="target-value">Target Assigned</label>
-            <input type="number" id="target-value" [(ngModel)]="targetValue" #target="ngModel"
-                class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-indigo-500"
-                placeholder="Enter Target Value" required />
-            <div *ngIf="target.invalid && target.touched" class="text-red-500 text-sm">Target is required</div>
-        </div>
+<div class="flex items-center justify-center  bg-opacity-50">
+    <form [formGroup]="targetForm" class="bg-white p-6 w-full max-w-4xl">
 
-        <!-- Range Section -->
-        <div class="space-y-4">
-            <h3 class="text-gray-700 font-medium mb-2">Set Ranges (up to {{targetValue}})</h3>
-
-            <!-- Bad Range -->
-            <div class="p-4 bg-red-100 rounded">
-                <label class="block text-red-700 font-semibold mb-1">Critical Target</label>
-                <div class="flex space-x-2">
-                    <input type="number" placeholder="To" [(ngModel)]="badRange" #bad="ngModel"
-                        class="w-full p-2 border border-gray-300 rounded" [max]="targetValue" required />
-                </div>
-                <div *ngIf="badRange > targetValue" class="text-red-500 text-sm">Bad range cannot exceed target value.
-                </div>
+        <div class="grid grid-cols-2 gap-6 mb-3">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2" for="year">Year</label>
+                <select id="year" formControlName="year" class="w-full p-2 border border-gray-300 rounded">
+                    <option [value]="2023">2023</option>
+                    <option [value]="2024">2024</option>
+                    <option [value]="2025">2025</option>
+                    <option [value]="2026">2026</option>
+                    <option [value]="2027">2027</option>
+                    <option [value]="2028">2028</option>
+                    <option [value]="2029">2029</option>
+                    <option [value]="2030">2030</option>
+                    <option [value]="2031">2031</option>
+                </select>
+                <small *ngIf="targetForm.get('year')?.invalid && submitted" class="text-red-500">
+                    Year is required
+                </small>
             </div>
-
-            <!-- Moderate Range -->
-            <div class="p-4 bg-yellow-100 rounded">
-                <label class="block text-yellow-700 font-semibold mb-1"> Moderate Target</label>
-                <div class="flex space-x-2">
-                    <input type="number" placeholder="To" [(ngModel)]="moderateRange" #moderate="ngModel"
-                        class="w-full p-2 border border-gray-300 rounded" [max]="targetValue" required />
-                </div>
-                <div *ngIf=" moderateRange >= targetValue " class="text-red-500 text-sm">Moderate range cannot exceed
-                    target value .</div>
-                <div *ngIf="  badRange > moderateRange" class="text-red-500 text-sm">Moderate range cannot below bad
-                    range
-                    value .</div>
-            </div>
-
         </div>
 
-        <!-- Action Buttons -->
-        <div class="mt-6 flex justify-between">
-            <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                (click)="cancel()">Cancel</button>
-            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" (click)="submit()"
-                [disabled]="target.invalid || badRange > targetValue || moderateRange >= targetValue ||  badRange > moderateRange">
-                Set Target
-            </button>
-        </div>
-    </div>
+        <table class="border border-gray-300 w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-4 py-2 text-left"> </th>
+                    <th class="px-4 py-2 text-left">Sales Revenue</th>
+                    <th class="px-4 py-2 text-left">Gross Profit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Target Assigned Row -->
+                <tr class="bg-white">
+                    <td class="px-4 py-3">Target Assigned</td>
+                    <td class="px-4 py-3" formGroupName="salesRevenue">
+                        <div class="relative flex space-x-2">
+                            <input type="number" id="target-value" formControlName="targetValue"
+                                class="w-full p-2 border border-gray-300 rounded pr-10 focus:outline-none focus:border-indigo-500"
+                                placeholder="Enter Target Value" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('salesRevenue.targetValue')?.invalid && submitted"
+                            class="text-red-500">
+                            Target is required
+                        </small>
+                    </td>
+                    <td class="px-4 py-3" formGroupName="grossProfit">
+                        <div class="relative flex space-x-2">
+                            <input type="number" id="target-value" formControlName="targetValue"
+                                class="w-full p-2 border border-gray-300 rounded pr-10 focus:outline-none focus:border-indigo-500"
+                                placeholder="Enter Target Value" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('grossProfit.targetValue')?.invalid && submitted"
+                            class="text-red-500">
+                            Target is required
+                        </small>
+                    </td>
+                </tr>
+
+                <!-- Critical Target Row -->
+                <tr class="bg-red-50">
+                    <td class="px-4 py-3">Critical Target</td>
+                    <td class="px-4 py-3" formGroupName="salesRevenue">
+                        <div class="relative flex space-x-2">
+                            <input type="number" placeholder="To" formControlName="criticalRange"
+                            [ngClass]="{'border-red-500': targetForm.get('salesRevenue.criticalRange')?.hasError('invalidCriticalRange') && submitted}"
+                                class="w-full p-2 border border-gray-300 rounded pr-10" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('salesRevenue')?.hasError('invalidCriticalRange') && targetForm.get('salesRevenue.targetValue')?.valid"
+                            class="text-red-500">
+                            Critical range cannot exceed target value.
+                        </small>
+                    </td>
+                    <td class="px-4 py-3" formGroupName="grossProfit">
+                        <div class="relative flex space-x-2">
+                            <input type="number" placeholder="To" formControlName="criticalRange"
+                            [ngClass]="{'border-red-500': targetForm.get('grossProfit')?.hasError('invalidCriticalRange') && submitted}"
+                                class="w-full p-2 border border-gray-300 rounded pr-10" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('grossProfit')?.hasError('invalidCriticalRange') && targetForm.get('grossProfit.targetValue')?.valid"
+                            class="text-red-500">
+                            Critical range cannot exceed target value.
+                        </small>
+                    </td>
+                </tr>
+
+                <!-- Moderate Target Row -->
+                <tr class="bg-yellow-50">
+                    <td class="px-4 py-3">Moderate Target</td>
+                    <td class="px-4 py-3" formGroupName="salesRevenue">
+                        <div class="relative flex space-x-2">
+                            <input type="number" placeholder="To" formControlName="moderateRange"
+                            [ngClass]="{'border-red-500': targetForm.get('salesRevenue')?.hasError('invalidModerateRange') && submitted}"
+                                class="w-full p-2 border border-gray-300 rounded pr-10" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('salesRevenue')?.hasError('invalidModerateRange') && targetForm.get('salesRevenue.targetValue')?.valid" class="text-red-500">
+                            Moderate range must be more than <br> critical range and less than target value.
+                        </small>
+                    </td>
+                    <td class="px-4 py-3" formGroupName="grossProfit">
+                        <div class="relative flex space-x-2">
+                            <input type="number" placeholder="To" formControlName="moderateRange"
+                            [ngClass]="{'border-red-500': targetForm.get('grossProfit')?.hasError('invalidModerateRange') && submitted}"
+                                class="w-full p-2 border border-gray-300 rounded pr-10" required />
+                            <span class="absolute right-2 top-2 text-gray-700">QAR</span>
+                        </div>
+                        <small *ngIf="targetForm.get('grossProfit')?.hasError('invalidModerateRange') && targetForm.get('grossProfit.targetValue')?.valid"  class="text-red-500">
+                            Moderate range must be more than <br> critical range and less than target value.
+                        </small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>
+
+<div class="border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
+    <button class="bg-orange-600 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded text-sm" type="button"
+        (click)="cancel()">
+        Cancel
+    </button>
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+        (click)="submit()">
+        Set Target
+    </button>
 </div>

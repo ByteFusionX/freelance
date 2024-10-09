@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject, filter } from 'rxjs';
 import { Filters, Metric, ProfitPerMonth, RevenuePerPerson, SalesConversion } from 'src/app/shared/interfaces/dasbhoard.interface';
-import { SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { RangeTarget } from 'src/app/shared/interfaces/employee.interface';
 
 import { environment } from 'src/environments/environment';
 
@@ -14,12 +14,12 @@ export class DashboardService {
 
     private gaugeChartSubject = new BehaviorSubject<{
         targetValue: number;
-        badRange: number;
+        criticalRange: number;
         moderateRange: number;
         companyRevenue: number;
       }>({
         targetValue: 0,
-        badRange: 0,
+        criticalRange: 0,
         moderateRange: 0,
         companyRevenue: 0,
       });
@@ -28,7 +28,7 @@ export class DashboardService {
     private donutChartSubject = new Subject<{ name: string, value: number }[]>();
     donutChart$ = this.donutChartSubject.asObservable();
 
-    private graphChartSubject = new BehaviorSubject<{ profitPerMonths: ProfitPerMonth, profitTarget: SalesTarget }>({profitPerMonths: {months:[],profits:[]}, profitTarget: {badRange:0,moderateRange:0,targetValue:0}});
+    private graphChartSubject = new BehaviorSubject<{ profitPerMonths: ProfitPerMonth, profitTarget: RangeTarget }>({profitPerMonths: {months:[],profits:[]}, profitTarget: {criticalRange:0,moderateRange:0,targetValue:0}});
     graphChart$ = this.graphChartSubject.asObservable();
 
     private enquiryConvesionSubject = new Subject<SalesConversion>();
@@ -71,7 +71,7 @@ export class DashboardService {
         this.donutChartSubject.next(data)
     }
 
-    updateGraphChart(data: { profitPerMonths?: ProfitPerMonth, profitTarget?: SalesTarget }) {
+    updateGraphChart(data: { profitPerMonths?: ProfitPerMonth, profitTarget?: RangeTarget }) {
         const newValue = {
             ...this.graphChartSubject.getValue(),
             ...data

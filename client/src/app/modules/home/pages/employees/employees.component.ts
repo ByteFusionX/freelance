@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CreateEmployeeDialog } from './create-employee/create-employee.component';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { getEmployee, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, Subscription, filter } from 'rxjs';
 import { NavigationExtras, Router } from '@angular/router';
@@ -21,7 +21,7 @@ export class EmployeesComponent {
   isEmpty: boolean = false;
   createEmployee: boolean | undefined = false;
 
-  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo', 'salesTarget', 'profitTarget'];
+  displayedColumns: string[] = ['employeeId', 'name', 'department', 'email', 'contactNo'];
 
   dataSource = new MatTableDataSource<getEmployee>()
   filteredData = new MatTableDataSource<getEmployee>()
@@ -125,32 +125,32 @@ export class EmployeesComponent {
 
   onSetTarget(event: Event, userId: string, index: number) {
     event.stopPropagation()
-    const dialogRef = this.dialog.open(SetTargetComponent);
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
-      if (data) {
-        this._employeeService.setTarget(data, userId).subscribe((res) => {
-          if (res) {
-            this.dataSource.data[index].salesTarget = res.salesTarget;
-            this.dataSource._updateChangeSubscription();
-          }
-        })
-      }
-    })
+    // const dialogRef = this.dialog.open(SetTargetComponent);
+    // dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+    //   if (data) {
+    //     this._employeeService.setTarget(data, userId).subscribe((res) => {
+    //       if (res) {
+    //         this.dataSource.data[index].salesTarget = res.salesTarget;
+    //         this.dataSource._updateChangeSubscription();
+    //       }
+    //     })
+    //   }
+    // })
   }
 
   onSetProfitTarget(event: Event, userId: string, index: number) {
     event.stopPropagation()
-    const dialogRef = this.dialog.open(SetTargetComponent);
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
-      if (data) {
-        this._employeeService.setProfitTarget(data, userId).subscribe((res) => {
-          if (res) {
-            this.dataSource.data[index].profitTarget = res.profitTarget;
-            this.dataSource._updateChangeSubscription();
-          }
-        })
-      }
-    })
+    // const dialogRef = this.dialog.open(SetTargetComponent);
+    // dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+    //   if (data) {
+    //     this._employeeService.setProfitTarget(data, userId).subscribe((res) => {
+    //       if (res) {
+    //         this.dataSource.data[index].profitTarget = res.profitTarget;
+    //         this.dataSource._updateChangeSubscription();
+    //       }
+    //     })
+    //   }
+    // })
   }
 
   openDialog() {

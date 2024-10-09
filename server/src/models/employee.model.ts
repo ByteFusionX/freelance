@@ -15,15 +15,51 @@ interface Employee extends Document {
     userRole: string;
     password: string;
     createdBy: Types.ObjectId;
-    salesTarget: SalesTarget;
-    profitTarget: SalesTarget;
+    targets: Target[];
 }
 
-interface SalesTarget {
+interface Target {
+    _id: string;
+    year:number;
+    salesRevenue:RangeTarget;
+    grossProfit:RangeTarget;
+  }
+  
+  interface RangeTarget{
     targetValue: number;
-    badRange: number;
+    criticalRange: number;
     moderateRange: number;
   }
+  
+  const rangeSchema = new Schema<RangeTarget>({
+    targetValue: {
+      type: Number,
+      required: true,
+    },
+    criticalRange: {
+      type: Number,
+      required: true,
+    },
+    moderateRange: {
+      type: Number,
+      required: true,
+    },
+  });
+  
+  const targetSchema = new Schema<Target>({
+    year: {
+      type: Number,
+      required: true,
+    },
+    salesRevenue:{
+      type:rangeSchema,
+      required: true,
+    },
+    grossProfit:{
+      type:rangeSchema,
+      required: true,
+    },
+  });  
 
 enum UserRole {
     user,
@@ -87,14 +123,11 @@ const employeeSchema = new Schema<Employee>({
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'Employee',
-        required:true
+        required: true
     },
-    salesTarget : {
-        type: Object
+    targets: {
+      type: [targetSchema], 
     },
-    profitTarget : {
-        type: Object
-    }
 });
 
 employeeSchema.index({ firstName: 1, lastName: 1 })

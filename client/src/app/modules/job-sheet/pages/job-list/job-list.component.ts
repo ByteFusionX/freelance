@@ -285,15 +285,15 @@ export class JobListComponent {
 
   generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string, download: boolean }) {
     if (dateRange.selectedMonth && dateRange.selectedYear) {
+      this.reportDate = `${dateRange.selectedMonthName} - ${dateRange.selectedYear}`;
       this.getJobsForPdf(dateRange.selectedMonth, dateRange.selectedYear).subscribe(() => {
-        this.reportDate = `${dateRange.selectedMonthName} - ${dateRange.selectedYear}`;
         if (dateRange.download) {
           this.generatePdfAfterDataFetch();
         }
       });
     } else {
+      this.reportDate = `${dateRange.selectedYear}`;
       this.getJobsForPdf(undefined, dateRange.selectedYear).subscribe(() => {
-        this.reportDate = `${dateRange.selectedYear}`;
         if (dateRange.download) {
           this.generatePdfAfterDataFetch();
         }
@@ -303,6 +303,12 @@ export class JobListComponent {
 
   getJobsForPdf(selectedMonth?: number, selectedYear?: number): Observable<JobTable> {
     this.isLoading = true;
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.jobSheet.viewReport
+      userId = employee?._id
+    })
     let filterData = {
       search: this.searchQuery,
       page: this.page,
@@ -310,13 +316,16 @@ export class JobListComponent {
       status: this.selectedStatus,
       salesPerson: this.selectedEmployee,
       selectedMonth: selectedMonth,
-      selectedYear: selectedYear
+      selectedYear: selectedYear,
+      access: access,
+      userId: userId      
     };
 
     return this._jobService.getJobs(filterData).pipe(
       tap((data: JobTable) => {
         this.dataSource.data = [...data.job];
         this.filteredData.data = data.job;
+        this.totalLpoValue = data.totalLpo;
         this.total = data.total;
         this.isEmpty = false;
         this.isLoading = false;

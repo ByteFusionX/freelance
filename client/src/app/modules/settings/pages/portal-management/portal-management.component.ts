@@ -10,7 +10,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
 import { CreateCategoryComponent } from 'src/app/modules/home/pages/employees/create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
 import { EditCategoryComponent } from '../edit-category/edit-category.component';
-import { GetCategory, Privileges, SalesTarget } from 'src/app/shared/interfaces/employee.interface';
+import { GetCategory, Privileges, Target } from 'src/app/shared/interfaces/employee.interface';
 import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 
 @Component({
@@ -21,7 +21,10 @@ import { SetTargetComponent } from 'src/app/shared/components/set-target/set-tar
 export class PortalManagementComponent {
   privileges!: Privileges | undefined;
 
+  isTargetEmpty: boolean = false
+
   openCreateForm: boolean = false;
+  isTargetLoading: boolean = true
   isDepartmentLoading: boolean = true
   isCustomerDepartmentLoading: boolean = true
   isNotesLoading: boolean = true
@@ -32,19 +35,18 @@ export class PortalManagementComponent {
   customerDepartmentDisplayedColumns: string[] = ['position', 'name', 'date'];
   cstcDisplayedColumns: string[] = ['customerNote', 'termsCondition'];
   categoryDisplayedColumns: string[] = ['slNo', 'categoryName', 'role', 'count', 'action'];
+  companyTargetColumns: string[] = ['year', 'targetType', 'targetValue', 'critical', 'moderate', 'action'];
+  
+  targets: Target[] = [];
 
   departmentDataSource: any = new MatTableDataSource();
   customerDepartmentDataSource: any = new MatTableDataSource();
   cstcDataSource: any = new MatTableDataSource();
   categoryDataSource: any = new MatTableDataSource();
+  compnayTargetDataSource: any = new MatTableDataSource();
 
   private subscriptions = new Subscription();
 
-  private companyTargetSubject = new BehaviorSubject<SalesTarget | null>(null);
-  companyTarget$ = this.companyTargetSubject.asObservable();
-
-  private companyGrossProfitSubject = new BehaviorSubject<SalesTarget | null>(null);
-  companyGrossProfit$ = this.companyGrossProfitSubject.asObservable();
 
   constructor(
     private _profileService: ProfileService,
@@ -56,7 +58,6 @@ export class PortalManagementComponent {
 
 
   ngOnInit() {
-    this.getCompanyTarget();
     const employee = this._employeeService.employeeToken()
     if (employee) {
       const employeeId = employee.employeeId
@@ -66,6 +67,22 @@ export class PortalManagementComponent {
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
         this.privileges = employee?.category?.privileges;
+
+        if (this.privileges?.portalManagement?.companyTarget) {
+          this.subscriptions.add(
+            this._profileService.getCompanyTargets().subscribe((data) => {
+              if (data) {
+                this.compnayTargetDataSource.data = this.expandData(data.targets)
+                this.compnayTargetDataSource._updateChangeSubscription()
+                this.isTargetEmpty = false;
+              } else {
+                this.isTargetEmpty = true;
+              }
+              this.isTargetLoading = false;
+            })
+          )
+        }
+
         if (this.privileges?.portalManagement?.department) {
           this.subscriptions.add(
             this._profileService.getDepartments().subscribe((data) => {
@@ -76,6 +93,7 @@ export class PortalManagementComponent {
             })
           )
         }
+
 
         if (this.privileges?.portalManagement?.department) {
           this.subscriptions.add(
@@ -240,73 +258,67 @@ export class PortalManagementComponent {
     });
   }
 
-
-  getCompanyTarget() {
-    this.subscriptions.add(
-      this._profileService.getCompanyTargets().subscribe((target: { salesTarget: SalesTarget, grossProfitTarget: SalesTarget }) => {
-        if (target) {
-          this.companyTargetSubject.next(target.salesTarget);
-          this.companyGrossProfitSubject.next(target.grossProfitTarget);
-        }
-      }))
-  }
-
-  //Sales Target (Revenue)
-  onSetCompanyTarget() {
+  addCompanyTarget() {
     const dialogRef = this.dialog.open(SetTargetComponent);
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+    dialogRef.afterClosed().subscribe((data: Target) => {
       if (data) {
-        this._profileService.setCompanyTarget(data).subscribe((res) => {
-          if (res) {
-            this.companyTargetSubject.next(res);
+        this._profileService.setCompanyTarget(data).subscribe({
+          next: (res) => {
+            this.compnayTargetDataSource.data =  this.expandData(res);
+            this.compnayTargetDataSource._updateChangeSubscription()
+          },
+          error: (error) => {
+            this._toast.warning(error.error.message)
           }
         })
       }
     })
   }
 
-  editTarget(target: SalesTarget) {
+  editTarget(id:string) {
+
+    const target = this.targets.find(target => target._id == id)
     const dialogRef = this.dialog.open(SetTargetComponent, {
       data: target
     });
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
+    dialogRef.afterClosed().subscribe((data: Target) => {
       if (data) {
-        this._profileService.setCompanyTarget(data).subscribe((res) => {
-          if (res) {
-            this.companyTargetSubject.next(res);
+        this._profileService.updateCompanyTarget(id, data).subscribe({
+          next: (res) => {
+            this.compnayTargetDataSource.data = this.expandData(res);
+            this.compnayTargetDataSource._updateChangeSubscription()
+          },
+          error: (error) => {
+            console.log(error);
+
+            this._toast.warning(error.error.message)
           }
         })
       }
     })
   }
 
-  // Gross Profit
-  onSetCompanyGrossProfit() {
-    const dialogRef = this.dialog.open(SetTargetComponent);
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
-      if (data) {
-        this._profileService.setCompanyProfitTarget(data).subscribe((res) => {
-          if (res) {
-            this.companyGrossProfitSubject.next(res);
-          }
-        })
+  expandData(data: Target[]) {
+    this.targets = data;
+    return data.flatMap((element) => [
+      {
+        year: element.year,
+        _id:element._id,
+        targetType: 'Sales Revenue',
+        criticalRange: element.salesRevenue.criticalRange,
+        targetValue: element.salesRevenue.targetValue,
+        moderateRange: element.salesRevenue.moderateRange,
+        isFirstRow: true,
+        rowspan: 2
+      },
+      {
+        targetType: 'Gross Profit',
+        criticalRange: element.grossProfit.criticalRange,
+        targetValue: element.grossProfit.targetValue,
+        moderateRange: element.grossProfit.moderateRange,
+        isFirstRow: false
       }
-    })
-  }
-
-  editGrossProfit(target: SalesTarget) {
-    const dialogRef = this.dialog.open(SetTargetComponent, {
-      data: target
-    });
-    dialogRef.afterClosed().subscribe((data: SalesTarget) => {
-      if (data) {
-        this._profileService.setCompanyProfitTarget(data).subscribe((res) => {
-          if (res) {
-            this.companyGrossProfitSubject.next(res);
-          }
-        })
-      }
-    })
+    ]);
   }
 
   ngOnDestroy() {

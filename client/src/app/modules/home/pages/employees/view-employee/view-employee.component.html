@@ -14,6 +14,7 @@
     <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">
 
         <div class="w-full ">
+            
             <div class="relative overflow-x-auto  w-full flex gap-6">
                 <table class="w-full text-md text-left rtl:text-right text-black border ">
                     <tbody>
@@ -106,85 +107,89 @@
       
 </div>
 
-<div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 ml-2">
-    <!-- Company Sales Target Card -->
-    <div 
-        class="md:w-1/2 p-6 bg-white border  rounded-lg"  *ngIf="employeeData.salesTarget as salesTarget">
-
-        <div class="flex items-center mb-6">
-            <!-- Icon for Goal/Target -->
-            <svg class="w-6 h-7 text-violet-700 mr-4" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512"
-                style="enable-background:new 0 0 512 512;" xml:space="preserve">
-                <g>
-                    <path d="M490.7,256h-21.3c0,59-23.8,112.2-62.5,150.8c-38.7,38.6-91.9,62.5-150.9,62.5c-59,0-112.2-23.8-150.9-62.5
-                    C66.5,368.2,42.7,315,42.7,256c0-59,23.8-112.2,62.5-150.9C143.8,66.5,197,42.7,256,42.7c59,0,112.2,23.8,150.9,62.5
-                    c38.6,38.7,62.5,91.9,62.5,150.9H490.7H512C512,114.6,397.4,0,256,0C114.6,0,0,114.6,0,256c0,141.4,114.6,256,256,256
-                    c141.4,0,256-114.6,256-256H490.7z M384,256h21.3c0-82.4-66.9-149.3-149.3-149.3c-82.4,0-149.3,66.9-149.3,149.3
-                    c0,82.4,66.9,149.3,149.3,149.3c82.4,0,149.3-66.9,149.3-149.3H384h-21.3c0,29.5-11.9,56-31.3,75.4c-19.4,19.4-45.9,31.3-75.4,31.3
-                    c-29.5,0-56-11.9-75.4-31.3c-19.4-19.4-31.3-45.9-31.3-75.4c0-29.5,11.9-56,31.3-75.4c19.4-19.4,45.9-31.3,75.4-31.3
-                    c29.5,0,56,11.9,75.4,31.3c19.4,19.4,31.3,45.9,31.3,75.4H384z M277.3,256h21.3c0-23.6-19.1-42.6-42.7-42.7
-                    c-23.6,0-42.6,19.1-42.7,42.7c0,23.6,19.1,42.6,42.7,42.7c23.6,0,42.6-19.1,42.7-42.7H277.3H256l0,0v0v0H277.3z" />
-                </g>
-            </svg>
-
-            <h2 class="text-2xl font-bold text-black">Employee Sales Target</h2>
+<div class="w-full h-full bg-white p-10 m-2 rounded-md" *ngIf="employeeData.category.isSalespersonWithTarget">
+    <div class="mb-3 flex justify-between">
+        <div class="flex gap-1">
+            <i><ng-icon name="heroBuildingLibrary" class="text-orange-400 text-lg mt-[1px]"></ng-icon></i>
+            <p class="font-medium text-orange-400">Yearly Targets for Profit and Sales Revenue:</p>
         </div>
-
-        <div class="mb-6">
-            <p class="text-lg font-semibold text-gray-700">
-                Target Value: <span class="text-violet-700 font-bold">{{ salesTarget.targetValue | numberFormatter }} QAR</span>
-            </p>
-        </div>
-
-        <div class="flex items-center mb-4">
-            <span class="w-32 font-medium text-red-600">Critical Target:</span>
-            <span class="text-gray-700">{{ salesTarget.badRange | numberFormatter }} QAR</span>
-        </div>
-
-        <div class="flex items-center">
-            <span class="w-32 font-medium text-yellow-500">Moderate Target:</span>
-            <span class="text-gray-700">{{ salesTarget.moderateRange | numberFormatter }} QAR</span>
-        </div>
-
-        <div class="mt-6">
-            <button (click)="editTarget(salesTarget)" class="px-4 py-1 bg-violet-700 text-white rounded-md shadow hover:bg-violet-800">
-                Edit
-            </button>
-        </div>
+        <button class="bg-violet-700 px-3 py-2 text-white hover:bg-violet-600 rounded-md text-sm"
+            (click)="addCompanyTarget()">+ Add Target</button>
     </div>
+    <div>
+        
+        <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border" >
+            <table mat-table [dataSource]="targetDataSource" class="rounded-lg table-fixed">
+                <!-- year Column -->
+                <ng-container matColumnDef="year">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100 px-[20px] py-[16px] text-start text-dark  text-[15px] font-bold border-none before:hidden ">
+                        Year </th>
+                    <ng-container *matCellDef="let element; let i=index">
+                        <td mat-cell *ngIf="element.year" class=" font-semibold" [attr.rowspan]="2">
+                            {{element.year}} </td>
 
-    <!-- Company Gross Profit Card -->
-    <div  *ngIf="employeeData.profitTarget as profitTarget"
-        class="md:w-1/2 p-6 bg-white border  rounded-lg ">
+                    </ng-container>
+                </ng-container>
 
-        <div class="flex items-center mb-6">
-            <!-- Icon for Gross Profit -->
-            <svg version="1.1" id="Layer_1" class="w-6 h-7 text-green-700 mr-4" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 68.04" style="enable-background:new 0 0 122.88 68.04" xml:space="preserve"><g><path d="M2.03,56.52c-2.66,2.58-2.72,6.83-0.13,9.49c2.58,2.66,6.83,2.72,9.49,0.13l27.65-26.98l23.12,22.31 c2.67,2.57,6.92,2.49,9.49-0.18l37.77-38.22v19.27c0,3.72,3.01,6.73,6.73,6.73s6.73-3.01,6.73-6.73V6.71h-0.02 c0-1.74-0.67-3.47-2-4.78c-1.41-1.39-3.29-2.03-5.13-1.91H82.4c-3.72,0-6.73,3.01-6.73,6.73c0,3.72,3.01,6.73,6.73,6.73h17.63 L66.7,47.2L43.67,24.97c-2.6-2.5-6.73-2.51-9.33,0.03L2.03,56.52L2.03,56.52z"/></g></svg>
+                <!-- targetType Column -->
+                <ng-container matColumnDef="targetType">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden ">
+                        Target Type </th>
+                    <td mat-cell *matCellDef="let element" class="border-l"> {{element.targetType}} </td>
+                </ng-container>
 
-            <h2 class="text-2xl font-bold text-black">Employee Gross Profit Target</h2>
+                <!-- targetValue Column -->
+                <ng-container matColumnDef="targetValue">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Target Value </th>
+                    <td mat-cell *matCellDef="let element"> {{element.targetValue  | numberFormatter}} QAR</td>
+                </ng-container>
+
+                <!-- critical Column -->
+                <ng-container matColumnDef="critical">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Critical </th>
+                    <td mat-cell *matCellDef="let element" class="text-red-600"> {{element.criticalRange  | numberFormatter}} QAR </td>
+                </ng-container>
+
+                <!-- moderate Column -->
+                <ng-container matColumnDef="moderate">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Moderate </th>
+                    <td mat-cell *matCellDef="let element" class="text-orange-400"> {{element.moderateRange  | numberFormatter}} QAR
+                    </td>
+
+                </ng-container>
+
+                <ng-container matColumnDef="action">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Action </th>
+                        <ng-container *matCellDef="let element; let i=index">
+                            <td mat-cell *ngIf="element._id" [attr.rowspan]="2" class="border-l center-content">
+                                <ng-icon class="cursor-pointer hover:text-purple-600" name="heroPencilSquare" (click)="editTarget(element._id)">
+                                </ng-icon>
+                            </td>
+                        </ng-container>
+                        
+
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="targetColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: targetColumns;"></tr>
+            </table>
+            <app-skelton-loading *ngIf="isTargetLoading" [lineLength]="2"></app-skelton-loading>
         </div>
-
-        <div class="mb-6">
-            <p class="text-lg font-semibold text-gray-700">
-                Gross Profit Value: <span class="text-green-700 font-bold">{{ profitTarget.targetValue | numberFormatter }} QAR</span>
-            </p>
-        </div>
-
-        <div class="flex items-center mb-4">
-            <span class="w-32 font-medium text-red-600">Critical Profit:</span>
-            <span class="text-gray-700">{{ profitTarget.badRange | numberFormatter }} QAR</span>
-        </div>
-
-        <div class="flex items-center">
-            <span class="w-32 font-medium text-yellow-500">Moderate Profit:</span>
-            <span class="text-gray-700">{{ profitTarget.moderateRange | numberFormatter }} QAR</span>
-        </div>
-
-        <div class="mt-6">
-            <button (click)="editGrossProfit(profitTarget)" class="px-4 py-1 bg-green-700 text-white rounded-md shadow hover:bg-green-800">
-                Edit
-            </button>
+        <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+            <div class="p-3  flex flex-col justify-center items-center">
+                <img src="assets/images/empty.png" alt="">
+                <p class="m-2 text-center text-gray-500">No Targets </p>
+            </div>
         </div>
     </div>
 </div>

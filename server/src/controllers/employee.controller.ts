@@ -177,7 +177,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
         const employeeData = await Employee.aggregate([
             {
                 $match: filters,
-            },  
+            },
             {
                 $skip: skipNum
             },
@@ -221,12 +221,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             },
             {
-                $unwind: {
-                    path: "$reportingTo",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
                 $lookup: {
                     from: 'employees',
                     localField: 'reportingTo',
@@ -235,96 +229,9 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             },
             {
-                $lookup: {
-                    from: 'quotations',
-                    localField: '_id',
-                    foreignField: 'createdBy',
-                    as: 'quotation'
-                }
-            },
-            {
                 $unwind: {
-                    path: "$quotation",
+                    path: "$reportingTo",
                     preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $addFields: {
-                    totalSellingPrice: {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                            ]
-                        }
-                    },
-                    totalCostPrice:
-                    {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateCostPricePipe('$quotation.dealData.updatedItems'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateCostPricePipe('$quotation.dealData.updatedItems')
-                            ]
-                        }
-                    },
-                },
-            },
-            {
-                $group: {
-                    _id: '$_id',
-                    salesValue: { $sum: '$totalSellingPrice' },
-                    totalCostPrice: { $sum: '$totalCostPrice' },
-                    employeeId: { $first: '$employeeId' }, 
-                    firstName: { $first: '$firstName' },
-                    lastName: { $first: '$lastName' },
-                    email: { $first: '$email' },
-                    contactNo: { $first: '$contactNo' },
-                    designation: { $first: '$designation' },
-                    dob: { $first: '$dob' },
-                    department: { $first: '$department' },
-                    category: { $first: '$category' },
-                    dateOfJoining: { $first: '$dateOfJoining' },
-                    reportingTo: { $first: '$reportingTo' },
-                    userRole: { $first: '$userRole' },
-                    createdBy: { $first: '$createdBy' },
-                    salesTarget: { $first: '$salesTarget' },
-                    profitTarget: { $first: '$profitTarget' },
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    salesValue: 1,
-                    profitValue: { $subtract: ['$salesValue', '$totalCostPrice'] },
-                    totalJobAwarded: 1,
-                    lastWeekJobAwarded: 1,
-                    employeeId: 1,
-                    firstName: 1,
-                    lastName: 1,
-                    email: 1,
-                    contactNo: 1,
-                    designation: 1,
-                    dob: 1,
-                    department: 1,
-                    category: 1,
-                    dateOfJoining: 1,
-                    reportingTo: 1,
-                    userRole: 1,
-                    createdBy: 1,
-                    salesTarget: 1,
-                    profitTarget: 1,
                 }
             },
             {
@@ -404,41 +311,90 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
 
 export const setTarget = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const salesTargetReq = req.body;
+        const { year, salesRevenue, grossProfit } = req.body;
+
         const employeeId = req.params.employeeId;
 
-        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
-            employeeId,
-            { salesTarget: salesTargetReq },
-            { new: true }).populate('category department reportingTo')
+        const existingTarget = await Employee.findOne({
+            _id: employeeId,
+            targets: {
+                $elemMatch: {
+                    year: year
+                }
+            }
+        });
 
-        if (saveEmployeeEdit) {
-            return res.status(200).json(saveEmployeeEdit);
+
+        if (existingTarget) {
+            return res.status(409).json({
+                message: `A target with year ${year} already exists.`,
+            });
         }
-        return res.status(502).json()
+
+        const employeeTargetUpdate = await Employee.findOneAndUpdate(
+            { _id: employeeId },
+            {
+                $push: {
+                    targets: {
+                        year,
+                        salesRevenue,
+                        grossProfit
+                    },
+                }
+            },
+            { upsert: true, new: true }
+        );
+
+        if (employeeTargetUpdate) {
+            return res.status(200).json(employeeTargetUpdate.targets);
+        }
+        return res.status(204).json();
+
     } catch (error) {
         next(error)
     }
 }
 
-export const setProfitTarget = async (req: Request, res: Response, next: NextFunction) => {
+export const updateTarget = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const profitTargettReq = req.body;
+        const target = req.body;
+
         const employeeId = req.params.employeeId;
+        const targetId = req.params.targetId;
 
-        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
-            employeeId,
-            { profitTarget: profitTargettReq },
-            { new: true }).populate('category department reportingTo')
+        const employee = await Employee.findOne({
+            _id: employeeId,
+            "targets.year": target.year,
+        });
 
-        if (saveEmployeeEdit) {
-            return res.status(200).json(saveEmployeeEdit);
+        if (employee) {
+            const isDuplicate = employee.targets.some((t, i) =>
+                t._id !== targetId && t.year == target.year
+            );
+
+            if (isDuplicate) {
+                return res.status(409).json({
+                    message: `A target with year ${target.year} already exists.`,
+                });
+            }
         }
-        return res.status(502).json()
+
+
+        const employeeTargetUpdate = await Employee.findOneAndUpdate(
+            { _id: employeeId, "targets._id": targetId },
+            { $set: { "targets.$": target } },
+            { new: true }
+        );
+
+        if (employeeTargetUpdate) {
+            return res.status(200).json(employeeTargetUpdate.targets);
+        }
+        return res.status(204).json();
     } catch (error) {
         next(error)
     }
 }
+
 
 export const changePasswordOfEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {

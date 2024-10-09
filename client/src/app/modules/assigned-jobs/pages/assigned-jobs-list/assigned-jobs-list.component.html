@@ -132,7 +132,7 @@
                                 <ng-icon name="heroChatBubbleBottomCenterText" class="text-black"></ng-icon>
 
                             </button>
-                            <button *ngIf="!element.preSale.newFeedbackAccess"
+                            <button *ngIf="element.preSale.feedback.length"
                                 [ngClass]="{'border-orange-500': hasUnseenFeedback(element.preSale.feedback)}"
                                 class="w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center"
                                 matTooltip="View Feedback" matTooltipPosition="above" matTooltipClass="mat-tooltip"

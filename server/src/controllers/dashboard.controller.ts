@@ -3,12 +3,10 @@ import quotationModel from "../models/quotation.model";
 import { ObjectId } from "mongodb"
 import employeeModel from "../models/employee.model";
 import jobModel from "../models/job.model";
-import { buildDashboardFilters, calculateCostPricePipe, calculateDiscountPrice, calculateTotalCost, getUSDRated, lastSevenMonths, months, calculateDiscountPricePipe } from "../common/util";
+import { buildDashboardFilters, calculateCostPricePipe, calculateDiscountPrice, calculateTotalCost, getUSDRated, lastRangedMonths, months, calculateDiscountPricePipe, getDateRange } from "../common/util";
 import categoryModel, { Privileges } from "../models/category.model";
 import { Filters } from "../interface/dashboard.interface";
 import enquiryModel from "../models/enquiry.model";
-import { totalEnquiries } from "./department.controller";
-import { totalQuotation } from "./quotation.controller";
 
 
 export const getDashboardMetrics = async (req: Request, res: Response, next: NextFunction) => {
@@ -42,16 +40,17 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
                     method: getQuotations,
                     metrics: [
                         { name: 'Total No. oF Quote Submitted', type: 'No.', key: 'totalQuotations', lastKey: 'lastWeekQuotations', lastWeekName: 'quoations', rank: 4 },
-                        { name: 'Total Quote Value', type: 'QAR', key: 'totalQuoteValue', lastKey: 'lastWeekQuoteValue', lastWeekName: 'quote valued', rank: 5 },
+                        { name: 'Total Submitted Quote Value', type: 'QAR', key: 'totalQuoteValue', lastKey: 'lastWeekQuoteValue', lastWeekName: 'quote valued', rank: 5 },
                     ]
                 },
                 assignedJobs: {
                     privilege: privileges.assignedJob.viewReport,
                     method: getAssignedJobs,
                     metrics: [
-                        { name: 'No. of Assigned Jobs', type: 'No.', key: 'totalAssignedJobs', lastKey: 'lastWeekAssignedJobs', lastWeekName: 'completed jobs', rank: 7 },
-                        { name: 'Jobs Awarded from Assigned Jobs', type: 'No.', key: 'jobAwarded', lastKey: 'lastWeekJobAwarded', lastWeekName: 'jobs awarded', rank: 8 },
-                        { name: 'Revenue from Assigned Jobs', type: 'QAR', key: 'revenue', lastKey: 'lastWeekRevenue', lastWeekName: 'revenue', rank: 9 },
+                        { name: 'No. of Assigned Jobs', type: 'No.', key: 'totalAssignedJobs', lastKey: 'lastWeekAssignedJobs', lastWeekName: 'assigned jobs', rank: 7 },
+                        { name: 'No. of Completed Jobs', type: 'No.', key: 'totalCompletedJob', lastKey: 'lastWeekCompletedJob', lastWeekName: 'completed jobs', rank: 8 },
+                        { name: 'Jobs Awarded from Assigned Jobs', type: 'No.', key: 'jobAwarded', lastKey: 'lastWeekJobAwarded', lastWeekName: 'jobs awarded', rank: 9 },
+                        { name: 'Revenue from Assigned Jobs', type: 'QAR', key: 'revenue', lastKey: 'lastWeekRevenue', lastWeekName: 'revenue', rank: 10 },
                     ]
                 },
             };
@@ -139,7 +138,7 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                $match: buildDashboardFilters(filters,accessFilter)
             },
             {
                 $addFields: {
@@ -256,6 +255,8 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
             default:
                 break;
         }
+        console.log(accessFilter)
+        console.log(!accessFilter['salesPerson._id'])   
 
         const currentDate = new Date();
         const sevenDaysAgo = new Date(currentDate);
@@ -284,7 +285,7 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                $match: buildDashboardFilters(filters,accessFilter)
             },
             {
                 $group: {
@@ -354,6 +355,11 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
 
         const quoteTotal = await quotationModel.aggregate([
             {
+                $match:{
+                    status: { $ne : 'Work In Progress'}
+                }
+            },
+            {
                 $addFields: {
                     createdDate: "$date"
                 }
@@ -371,7 +377,7 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                $match: buildDashboardFilters(filters,accessFilter)
             },
             {
                 $addFields: {
@@ -439,7 +445,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
         let accessFilter: any = {};
         switch (access) {
             case 'assigned':
-                accessFilter['preSale.presalePerson'] = new ObjectId(userId);
+                accessFilter['salesPerson._id'] = new ObjectId(userId);
                 break;
             default:
                 break;
@@ -469,7 +475,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                $match: buildDashboardFilters(filters,accessFilter)
             },
             {
                 $facet: {
@@ -485,20 +491,41 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                         {
                             $match: {
                                 createdDate: { $gte: oneWeekAgo },
-                                status: 'Work In Progress'
+                                status: 'Assigned To Presales'
                             }
                         },
                         { $count: "lastWeek" }
-                    ]
+                    ],
+                    totalCompletedJob: [
+                        {
+                            $match: {
+                                status: {$ne: 'Assigned To Presales'}
+                            }
+                        },
+                        { $count: "total" }
+                    ],
+                    lastWeekCompletedJob: [
+                        {
+                            $match: {
+                                createdDate: { $gte: oneWeekAgo },
+                                status: {$ne: 'Assigned To Presales'}
+                            }
+                        },
+                        { $count: "lastWeek" }
+                    ],
                 }
             },
             {
                 $project: {
                     totalAssignedJobs: { $ifNull: [{ $arrayElemAt: ["$totalCount.total", 0] }, 0] },
-                    lastWeekAssignedJobs: { $ifNull: [{ $arrayElemAt: ["$lastWeekCount.lastWeek", 0] }, 0] }
+                    lastWeekAssignedJobs: { $ifNull: [{ $arrayElemAt: ["$lastWeekCount.lastWeek", 0] }, 0] },
+                    totalCompletedJob: { $ifNull: [{ $arrayElemAt: ["$totalCompletedJob.total", 0] }, 0] },
+                    lastWeekCompletedJob: { $ifNull: [{ $arrayElemAt: ["$lastWeekCompletedJob.lastWeek", 0] }, 0] },
                 }
             }
         ]).exec();
+
+        console.log(assignedJobCount)
 
 
 
@@ -542,7 +569,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters) }
+                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters,accessFilter) }
             },
             {
                 $addFields: {
@@ -625,7 +652,9 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
             let employeesReportingToUser = await employeeModel.find({ reportingTo: userId }, '_id');
             let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
 
-            switch (privileges.employee.viewReport) {
+            switch (privileges.jobSheet.viewReport) {
+                case 'none':
+                    return res.status(204) 
                 case 'created':
                     accessFilter = { 'salesPerson._id': new ObjectId(userId) };
                     break;
@@ -644,6 +673,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                 default:
                     break;
             }
+            
 
             const USDRates = await getUSDRated();
             const qatarUsdRates = USDRates.usd.qar;
@@ -669,7 +699,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     $unwind: "$department"
                 },
                 {
-                    $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                    $match: buildDashboardFilters(filters,accessFilter)
                 },
                 {
                     $group: {
@@ -752,128 +782,130 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                         ]
                     };
                     break;
-    
+                    
                 default:
                     break;
             }
+            
+            const dateRange = getDateRange(filters.fromDate,filters.toDate)
 
-            const currentDate = new Date();
-            const sevenMonthsAgo = new Date(currentDate);
-            sevenMonthsAgo.setMonth(currentDate.getMonth() - 6);
-
-            // Fetch the USD to QAR exchange rate
-            const USDRates = await getUSDRated(); // Example API or function for fetching exchange rates
+            const USDRates = await getUSDRated();
             const qatarUsdRate = USDRates.usd.qar;
-
-            const jobGrossProfit = await jobModel.aggregate([
-                {
-                    $lookup: {
-                        from: 'quotations',
-                        localField: 'quoteId',
-                        foreignField: '_id',
-                        as: 'quotation'
-                    }
-                },
-                {
-                    $unwind: '$quotation'
-                },
-                {
-                    $lookup: {
-                        from: 'employees',
-                        localField: 'quotation.createdBy',
-                        foreignField: '_id',
-                        as: 'salesPerson'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'departments',
-                        localField: 'quotation.department',
-                        foreignField: '_id',
-                        as: 'department'
-                    }
-                },
-                {
-                    $unwind: "$salesPerson"
-                },
-                {
-                    $unwind: "$department"
-                },
-                {
-                    $match: {
-                        ...accessFilter,
-                        ...buildDashboardFilters(filters),
-                        createdDate: { $gte: sevenMonthsAgo }
-                    }
-                },
-                {
-                    $addFields: {
-                        totalSellingPrice: {
-                            $sum: {
-                                $cond: [
-                                    { $eq: ['$quotation.currency', 'USD'] },
-                                    {
-                                        $multiply: [
-                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                            qatarUsdRate
-                                        ]
-                                    },
-                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                                ]
+            let jobGrossProfit = [];
+            if(privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none'){
+                jobGrossProfit = await jobModel.aggregate([
+                    {
+                        $lookup: {
+                            from: 'quotations',
+                            localField: 'quoteId',
+                            foreignField: '_id',
+                            as: 'quotation'
+                        }
+                    },
+                    {
+                        $unwind: '$quotation'
+                    },
+                    {
+                        $lookup: {
+                            from: 'employees',
+                            localField: 'quotation.createdBy',
+                            foreignField: '_id',
+                            as: 'salesPerson'
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'departments',
+                            localField: 'quotation.department',
+                            foreignField: '_id',
+                            as: 'department'
+                        }
+                    },
+                    {
+                        $unwind: "$salesPerson"
+                    },
+                    {
+                        $unwind: "$department"
+                    },
+                    {
+                        $match: {
+                            ...accessFilter,
+                            ...buildDashboardFilters(filters,accessFilter),
+                            createdDate: { $gte: dateRange.gte, $lte: dateRange.lte }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            totalSellingPrice: {
+                                $sum: {
+                                    $cond: [
+                                        { $eq: ['$quotation.currency', 'USD'] },
+                                        {
+                                            $multiply: [
+                                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                qatarUsdRate
+                                            ]
+                                        },
+                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                    ]
+                                }
+                            },
+                            totalCostPrice: {
+                                $sum: {
+                                    $cond: [
+                                        { $eq: ['$quotation.currency', 'USD'] },
+                                        {
+                                            $multiply: [
+                                                calculateCostPricePipe('$quotation.dealData.updatedItems'),
+                                                qatarUsdRate
+                                            ]
+                                        },
+                                        calculateCostPricePipe('$quotation.dealData.updatedItems')
+                                    ]
+                                }
                             }
-                        },
-                        totalCostPrice:
-                        {
-                            $sum: {
-                                $cond: [
-                                    { $eq: ['$quotation.currency', 'USD'] },
-                                    {
-                                        $multiply: [
-                                            calculateCostPricePipe('$quotation.dealData.updatedItems'),
-                                            qatarUsdRate
-                                        ]
-                                    },
-                                    calculateCostPricePipe('$quotation.dealData.updatedItems')
-                                ]
-                            }
-                        },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                year: { $year: '$createdDate' },
+                                month: { $month: '$createdDate' }
+                            },
+                            totalSellingPrice: { $sum: '$totalSellingPrice' },
+                            totalCost: { $sum: '$totalCostPrice' }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            year: '$_id.year',
+                            month: { $arrayElemAt: [months, { $subtract: ['$_id.month', 1] }] },
+                            grossProfit: { $subtract: ['$totalSellingPrice', '$totalCost'] }
+                        }
+                    },
+                    {
+                        $project: {
+                            year: 1,
+                            month: '$month.name', 
+                            grossProfit: 1
+                        }
+                    },
+                    {
+                        $sort: { year: 1, month: 1 }
                     }
-                },
-                {
-                    $group: {
-                        _id: {
-                            year: { $year: '$createdDate' },
-                            month: { $month: '$createdDate' }
-                        },
-                        totalSellingPrice: { $sum: '$totalSellingPrice' },
-                        totalCost: { $sum: '$totalCostPrice' }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        month: { $arrayElemAt: [months, { $subtract: ['$_id.month', 1] }] },
-                        grossProfit: { $subtract: ['$totalSellingPrice', '$totalCost'] }
-                    }
-                },
-                {
-                    $project: {
-                        month: '$month.name', // Accessing only the name property
-                        grossProfit: 1 // Keep the grossProfit field
-                    }
-                },
-                {
-                    $sort: { month: 1 }
-                }
-            ]);
+                ]);      
+            }      
 
-            const completeData = lastSevenMonths.map(month => {
-                const found = jobGrossProfit.find(data => data.month === month.name);
+            const completeData = lastRangedMonths(dateRange).map(month => {
+                const found = jobGrossProfit.find(data => 
+                    data.month === month.name && data.year === month.year
+                );
                 return {
                     month: month.name,
                     grossProfit: found ? found.grossProfit : 0
                 };
-            });
+            });            
 
             const monthArray = completeData.map(data => data.month);
             const profitArray = completeData.map(data => data.grossProfit);
@@ -941,7 +973,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                    $match: buildDashboardFilters(filters,accessFilter)
                 }
             ]).exec();
 
@@ -967,7 +999,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                    $match: buildDashboardFilters(filters,accessFilter)
                 },
                 {
                     $lookup: {
@@ -1048,7 +1080,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                    $match: buildDashboardFilters(filters,accessFilter)
                 }
             ]).exec();
 
@@ -1079,7 +1111,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: { ...accessFilter, ...buildDashboardFilters(filters) }
+                    $match: buildDashboardFilters(filters,accessFilter)
                 },
                 {
                     $lookup: {

@@ -40,7 +40,7 @@ export class LineChartComponent implements OnInit {
         },
         yAxis: {
           type: 'value',
-          max: data.profitTarget.targetValue > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2),
+          max: data.profitTarget.targetValue || 0 > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2),
           axisLabel: {
             formatter: function (value: number) {
               return numberShortenerPipe.transform(value)
@@ -64,13 +64,13 @@ export class LineChartComponent implements OnInit {
                     },
                   },
                   {
-                    yAxis: data.profitTarget.badRange
+                    yAxis: data.profitTarget.criticalRange
                   }
                 ],
                 [
                   {
 
-                    yAxis: data.profitTarget.badRange,
+                    yAxis: data.profitTarget.criticalRange,
                     itemStyle: {
                       color: '#FFFF00',
                       opacity: 0.5
@@ -90,7 +90,7 @@ export class LineChartComponent implements OnInit {
                     },
                   },
                   {
-                    yAxis: data.profitTarget.targetValue > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2)
+                    yAxis: data.profitTarget.targetValue || 0 > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2)
                   }
                 ],
               ]
