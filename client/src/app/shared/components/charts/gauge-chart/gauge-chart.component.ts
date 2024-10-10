@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, Input, OnInit, ViewChild } from '@angular/core';
 import * as echarts from 'echarts';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
 import { HomeRoutingModule } from 'src/app/modules/home/home-routing.module';
@@ -12,16 +12,27 @@ import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
   imports: [HomeRoutingModule, NumberShortenerPipe],
   providers: [NumberShortenerPipe]
 })
-export class GaugeChartComponent implements OnInit {
+export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
 
-  @ViewChild('gaugeChart', { static: true }) gaugeChart!: ElementRef;
+  @ViewChild('gaugeChart', { static: false }) gaugeChart!: ElementRef;
+  chartInstance: any;
 
   constructor(
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
-  ngOnInit(): void {
-    const myChart = echarts.init(this.gaugeChart.nativeElement);
+
+  ngAfterViewInit(): void {
+    this.initializeChart();
+    this.makeChartResponsive();
+  }
+
+  ngAfterViewChecked(): void {
+    this.onWindowResize()
+  }
+
+  initializeChart(): void {
+    this.chartInstance = echarts.init(this.gaugeChart.nativeElement);
 
     this._dashboardService.guageChart$.subscribe((report) => {
       let criticalRange = (report.criticalRange / report.targetValue)
@@ -114,10 +125,56 @@ export class GaugeChartComponent implements OnInit {
         ]
       };
 
-      myChart.setOption(option);
+      this.chartInstance.setOption(option);
     })
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(): void {
+    const screenWidth = window.innerWidth;
+    switch (true) {
+      case (screenWidth >= 1024 && screenWidth < 1280):
+        this.chartResize({ width: 350, height: 250 });
+        break;
 
+      case (screenWidth >= 1280 && screenWidth < 1536):
+        this.chartResize({ width: 400, height: 300 });
+        break;
+
+      case (screenWidth >= 1536 && screenWidth < 1600):
+        this.chartResize({ width: 450, height: 320 });
+        break;
+
+      case (screenWidth >= 1600 && screenWidth < 1920):
+        this.chartResize({ width: 500, height: 350 });
+        break;
+
+      case (screenWidth >= 1920 && screenWidth <= 2560):
+        this.chartResize({ width: 550, height: 450 });
+        break;
+
+      case (screenWidth >= 2560):
+        this.chartResize({ width: 600, height: 500 });
+        break;
+
+      default:
+        this.chartResize({ width: 300, height: 220 });
+        break;
+    }
+  }
+
+  chartResize(size: any) {
+    if (this.chartInstance) {
+      this.chartInstance.resize(size);
+    }
+  }
+
+  makeChartResponsive(): void {
+    window.addEventListener('resize', () => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
   }
 
 }
