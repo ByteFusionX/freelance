@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { HomeRoutingModule } from 'src/app/modules/home/home-routing.module';
 import * as echarts from 'echarts';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
@@ -12,16 +12,27 @@ import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
   templateUrl: './line-chart.component.html',
   styleUrls: ['./line-chart.component.css']
 })
-export class LineChartComponent implements OnInit {
+export class LineChartComponent implements AfterViewInit, AfterViewChecked {
 
   @ViewChild('lineChart', { static: true }) lineChart!: ElementRef;
+  chartInstance: any;
 
   constructor(
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
-  ngOnInit(): void {
-    const myChart = echarts.init(this.lineChart.nativeElement);
+
+  ngAfterViewInit(): void {
+    this.initializeChart();
+    this.makeChartResponsive();
+  }
+
+  ngAfterViewChecked(): void {
+    this.onWindowResize()
+  }
+
+  initializeChart(): void {
+    this.chartInstance = echarts.init(this.lineChart.nativeElement);
 
     this._dashboardService.graphChart$.subscribe((data) => {
       const numberShortenerPipe = this.numberShortenerPipe;
@@ -32,7 +43,7 @@ export class LineChartComponent implements OnInit {
           axisPointer: {
             type: 'cross'
           },
-          valueFormatter: (value:any) => `${value.toFixed(2)} QAR`,
+          valueFormatter: (value: any) => `${value.toFixed(2)} QAR`,
         },
         xAxis: {
           type: 'category',
@@ -56,7 +67,6 @@ export class LineChartComponent implements OnInit {
               data: [
                 [
                   {
-
                     yAxis: '0',
                     itemStyle: {
                       color: '#FF7F7F',
@@ -69,7 +79,6 @@ export class LineChartComponent implements OnInit {
                 ],
                 [
                   {
-
                     yAxis: data.profitTarget.criticalRange,
                     itemStyle: {
                       color: '#FFFF00',
@@ -82,7 +91,6 @@ export class LineChartComponent implements OnInit {
                 ],
                 [
                   {
-
                     yAxis: data.profitTarget.moderateRange,
                     itemStyle: {
                       color: '#90EE90',
@@ -98,9 +106,56 @@ export class LineChartComponent implements OnInit {
           }
         ]
       };
-
-      myChart.setOption(option);
+      this.chartInstance.setOption(option);
     })
 
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(): void {
+    const screenWidth = window.innerWidth;
+    switch (true) {
+      case (screenWidth >= 1024 && screenWidth < 1280):
+        this.chartResize({ width: 700, height: 360 });
+        break;
+
+      case (screenWidth >= 1280 && screenWidth < 1536):
+        this.chartResize({ width: 800, height: 360 });
+        break;
+
+      case (screenWidth >= 1536 && screenWidth < 1600):
+        this.chartResize({ width: 900, height: 360 });
+        break;
+
+      case (screenWidth >= 1600 && screenWidth < 1920):
+        this.chartResize({ width: 1000, height: 360 });
+        break;
+
+      case (screenWidth >= 1920 && screenWidth <= 2560):
+        this.chartResize({ width: 1150, height: 360 });
+        break;
+
+      case (screenWidth >= 2560):
+        this.chartResize({ width: 1600, height: 360 });
+        break;
+
+      default:
+        this.chartResize({ width: 500, height: 360 });
+        break;
+    }
+  }
+
+  chartResize(size: any) {
+    if (this.chartInstance) {
+      this.chartInstance.resize(size);
+    }
+  }
+
+  makeChartResponsive(): void {
+    window.addEventListener('resize', () => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
   }
 }
