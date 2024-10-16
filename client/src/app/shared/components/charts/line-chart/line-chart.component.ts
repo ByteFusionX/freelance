@@ -22,6 +22,7 @@ export class LineChartComponent implements OnInit {
   ) { }
   ngOnInit(): void {
     const myChart = echarts.init(this.lineChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.lineChart.nativeElement);
 
     this._dashboardService.graphChart$.subscribe((data) => {
       const numberShortenerPipe = this.numberShortenerPipe;

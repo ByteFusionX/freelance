@@ -54,7 +54,7 @@ import {
   heroBell,
   heroClipboardDocumentCheck,
   heroXCircle,
-  heroInformationCircle
+  heroInformationCircle,
 } from '@ng-icons/heroicons/outline';
 
 import { heroBellSolid } from '@ng-icons/heroicons/solid'

@@ -8,16 +8,19 @@
 
   <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow  overflow-y-scroll max-h-[77vh]">
     <form class="p-6" [formGroup]="costForm">
-      <div class="w-full mb-4">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="paymentTerms">
-          Payment Terms
-        </label>
-        <input appNoLeadingSpace formControlName="paymentTerms"
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          id="paymentTerms" placeholder="Payment Terms..">
-        <div *ngIf="paymentTermsControl.invalid && isSubmitted" class="text-red-500 text-xs mt-1">
-          <div *ngIf="paymentTermsControl.errors?.['required']">Payment Terms is required.</div>
+      <div class="w-full mb-4 flex gap-4">
+        <div class="w-1/2">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="paymentTerms">
+            Payment Terms
+          </label>
+          <input appNoLeadingSpace formControlName="paymentTerms"
+            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            id="paymentTerms" placeholder="Payment Terms..">
+          <div *ngIf="paymentTermsControl.invalid && isSubmitted" class="text-red-500 text-xs mt-1">
+            <div *ngIf="paymentTermsControl.errors?.['required']">Payment Terms is required.</div>
+          </div>
         </div>
+        
       </div>
 
 
@@ -37,19 +40,19 @@
               <div class="px-2 py-3">QTY</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Unit Cost</div>
+              <div class="px-6 py-3">Unit Cost ({{data.currency}})</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Total Cost</div>
+              <div class="px-6 py-3">Total Cost ({{data.currency}})</div>
             </th>
             <th scope="col" class="border-l border-r border-t hover:border-r-slate-950  text-center">
               <div class="px-6 py-3">Profit</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Unit Selling Price</div>
+              <div class="px-6 py-3">Unit Selling Price ({{data.currency}})</div>
             </th>
             <th scope="col" class="border-l border-r border-t   text-center">
-              <div class="px-6 py-3">Total Selling Price</div>
+              <div class="px-6 py-3">Total Selling Price ({{data.currency}})</div>
             </th>
 
             <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
@@ -183,46 +186,86 @@
           (click)="addCost()">+ Add Additional Cost</button>
       </div>
 
-      <div class="w-full mt-4">
-        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold " for="grid-zip">
-          Attachment
-        </label>
-        <div class="flex gap-4">
-          <div class="w-1/2 ">
-            <div [class.border-red-500]="!this.selectedFiles.length && isSubmitted"
-              class="flex border items-center justify-start px-3 mt-2 bg-gray-200 py-2 cursor-pointer h-fit"
-              (click)="fileInput.click()">
-              <div class="font-medium flex items-center text-sm py-1">
-                <ng-icon name="heroPaperClip" class="text-xl text-gray-600 mr-2">
-                </ng-icon>
-                Select Files
+      <div class="w-full mt-4 flex gap-4">
+        <div class="w-1/2">
+          <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold " for="grid-zip">
+            Attachment
+          </label>
+          <div class="flex gap-2">
+            <div class="w-full" [ngClass]="{'w-1/2':selectedFiles.length}">
+              <div [class.border-red-500]="!this.selectedFiles.length && isSubmitted"
+                class="flex border items-center justify-start px-3 mt-2 bg-gray-200 py-2 cursor-pointer h-fit"
+                (click)="fileInput.click()">
+                <div class="font-medium flex items-center text-sm py-1">
+                  <ng-icon name="heroPaperClip" class="text-xl text-gray-600 mr-2">
+                  </ng-icon>
+                  Select Files
+                </div>
+                <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
+                  (change)="onFileSelected($event)">
+  
               </div>
-              <input appFileValidator appFileSizeValidator type="file" multiple hidden #fileInput
-                (change)="onFileSelected($event)">
-
-            </div>
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                <span>File type: doc,pdf,types of images</span>
-              </p>
-            </div>
-          </div>
-
-          <div *ngIf="selectedFiles.length" class="overflow-hidden  w-1/2">
-            <p class="">Selected Files</p>
-            <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
-              <div class="flex justify-between items-center">
-                <div class="flex">
-                  <ng-icon name="heroDocumentArrowUp"></ng-icon>
-                  <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.name}}" matTooltipPosition="above"
-                    matTooltipClass="mat-tooltip">{{file.name}}</p>
-                </div>
-                <div>
-                  <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>
-                </div>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  <span>File type: doc,pdf,types of images</span>
+                </p>
               </div>
             </div>
+  
+            <div *ngIf="selectedFiles.length" class="overflow-hidden  w-1/2">
+              <p class="">Selected Files</p>
+              <div class="px-2 pt-1 mt-2" *ngFor="let file of selectedFiles; let i=index" @fileTrigger>
+                <div class="flex justify-between items-center">
+                  <div class="flex">
+                    <ng-icon name="heroDocumentArrowUp"></ng-icon>
+                    <p class="text-sm px-2 w-40 truncate ..." matTooltip="{{file.name}}" matTooltipPosition="above"
+                      matTooltipClass="mat-tooltip">{{file.name}}</p>
+                  </div>
+                  <div>
+                    <ng-icon name="heroXMark" class="text-orange-500 cursor-pointer" (click)="onFileRemoved(i)"></ng-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="w-1/2">
+          <table class="w-full text-sm text-left text-gray-500 border my-4">
+            <tbody>
+              <tr>
+                <th scope="col"
+                  class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                  <div>Total Selling Price </div>
+                </th>
+                <td class=" px-4 border text-gray-800">
+                  {{calculateSellingPrice().toFixed(2)}} {{data.currency}}
+                </td>
+                <th scope="col"
+                  class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                  <div>Total cost</div>
+                </th>
+                <td class=" px-4 border text-gray-800">
+                  {{calculateAllTotalCost().toFixed(2)}} {{data.currency}}
+                </td>
+              </tr>
+              <tr>
+                <th scope="col"
+                  class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                  <div>Profit </div>
+                </th>
+                <td class=" px-4 border text-gray-800">
+                  {{ (calculateSellingPrice() - calculateAllTotalCost()).toFixed(2)}} {{data.currency}}
+                </td>
+                <th scope="col"
+                  class="px-4 py-2 border-l border-r border-t text-gray-700 text-start uppercase bg-violet-50">
+                  <div>%</div>
+                </th>
+                <td class=" px-4 border text-gray-800">
+                  {{((calculateSellingPrice() - calculateAllTotalCost()) / calculateSellingPrice()).toFixed(2) || 0}} %
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

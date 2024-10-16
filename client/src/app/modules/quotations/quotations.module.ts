@@ -26,6 +26,7 @@ import { DealFormComponent } from './pages/deal-form/deal-form.component';
 import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
 import { ViewReportComponent } from './pages/view-report/view-report.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -60,6 +61,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
         pipeModule,
         MatTooltipModule,
         NgApexchartsModule,
+        MatSnackBarModule
     ]
 })
 export class QuotationsModule { }

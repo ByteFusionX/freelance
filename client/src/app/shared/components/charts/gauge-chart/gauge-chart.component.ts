@@ -22,6 +22,8 @@ export class GaugeChartComponent implements OnInit {
   ) { }
   ngOnInit(): void {
     const myChart = echarts.init(this.gaugeChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.gaugeChart.nativeElement);
+
 
     this._dashboardService.guageChart$.subscribe((report) => {
       let criticalRange = (report.criticalRange / report.targetValue)
@@ -42,7 +44,7 @@ export class GaugeChartComponent implements OnInit {
             max: 1,
             axisLine: {
               lineStyle: {
-                width: 30,
+                width: 40,
                 color: [
                   [criticalRange, '#FF6E76'],
                   [moderateRange, '#FDDD60'],
@@ -115,6 +117,7 @@ export class GaugeChartComponent implements OnInit {
       };
 
       myChart.setOption(option);
+
     })
 
 

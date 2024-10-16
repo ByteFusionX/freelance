@@ -202,9 +202,12 @@
                                         </td>
                                         <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('availability')?.invalid && submit"
                                             class="border px-2 py-2 text-center">
-                                            <input appNoLeadingSpace formControlName="availability"
-                                                class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                 placeholder="00">
+                                            <ng-select [items]="availabilityDefaultOptions" bindLabel="name" [addTag]="true"
+                                                    [hideSelected]="true" 
+                                                    [minTermLength]="2" 
+                                                    typeToSearchText="Please enter 2 or more characters"
+                                                    [typeahead]="availabiltyInput$" formControlName="availability">
+                                                </ng-select>
                                         </td>
                                         <td class="px-2 py-2 border text-center" *ngIf="j!==0">
                                             <ng-icon name="heroXMark"

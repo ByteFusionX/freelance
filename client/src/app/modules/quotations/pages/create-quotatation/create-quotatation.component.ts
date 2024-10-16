@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectComponent, NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription, first } from 'rxjs';
+import { Observable, Subject, Subscription, first } from 'rxjs';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
@@ -18,12 +18,12 @@ import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/int
 import { customerNoteValidator } from 'src/app/shared/validators/quoation.validator';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-create-quotatation',
   templateUrl: './create-quotatation.component.html',
   styleUrls: ['./create-quotatation.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateQuotatationComponent {
   customers$!: Observable<getCustomer[]>;
@@ -41,6 +41,16 @@ export class CreateQuotatationComponent {
   termsAndConditions!: Note[];
   contacts: ContactDetail[] = []
   tokenData!: { id: string, employeeId: string };
+  availabilityDefaultOptions: string[] = [
+    "Ex-Stock",
+    "Ex-Stock (Subject to Prior Sale)",
+    "6-8 Weeks",
+    "2-3 Weeks",
+    "4-6 Weeks"
+  ];
+  availabiltyInput$ = new Subject<string>();
+  removedItems: any[] = []; 
+  removedItemDetails: any[] = []; 
 
   isEdit: boolean = false;
   isSaving: boolean = false;
@@ -63,6 +73,7 @@ export class CreateQuotatationComponent {
     private _router: Router,
     private _enquiryService: EnquiryService,
     private toastr: ToastrService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -235,11 +246,56 @@ export class CreateQuotatationComponent {
 
 
   onRemoveItem(index: number): void {
-    this.items.removeAt(index);
+    const removedItem = this.items.at(index).value; 
+    this.removedItems.push({ item: removedItem, index }); 
+    this.items.removeAt(index);  
+
+    this.showUndoOption('item');
   }
 
-  onRemoveItemDetail(i: number, j: number) {
-    this.getItemDetailsControls(i).removeAt(j);
+  onRemoveItemDetail(i: number, j: number): void {
+    const removedItemDetail = this.getItemDetailsControls(i).at(j).value;
+    this.removedItemDetails.push({ item: removedItemDetail, i, j }); 
+    this.getItemDetailsControls(i).removeAt(j); 
+
+    this.showUndoOption('item detail');
+  }
+
+  undoRemoveItem() {
+    if (this.removedItems.length > 0) {
+      const { item, index } = this.removedItems.pop();  
+      this.items.insert(index, this._fb.group({
+        itemName: item.itemName,
+        itemDetails: this._fb.array(item.itemDetails.map((detail:any) => this._fb.group({
+          detail: detail.detail,
+          quantity: detail.quantity,
+          unitCost: detail.unitCost,
+          profit: detail.profit,
+          availability: detail.availability
+        })))
+      }));
+      this.items.updateValueAndValidity()
+    }
+  }
+
+  undoRemoveItemDetail() {
+    if (this.removedItemDetails.length > 0) {
+      const { item, i, j } = this.removedItemDetails.pop();  
+      this.getItemDetailsControls(i).insert(j, this._fb.group(item));  
+      this.getItemDetailsControls(i).updateValueAndValidity()
+    }
+  }
+
+  showUndoOption(type: string) {
+    const snackBarRef = this.snackBar.open(`Item removed. Undo?`, 'Undo', { duration: 3000 });
+  
+    snackBarRef.onAction().subscribe(() => {
+      if (type === 'item') {
+        this.undoRemoveItem();
+      } else if (type === 'item detail') {
+        this.undoRemoveItemDetail();
+      }
+    });
   }
 
   calculateTotalCost(i: number, j: number) {

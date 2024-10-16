@@ -251,9 +251,7 @@ export class QuotationListComponent {
         return;
       })
 
-      if (itemSelected) return item;
-
-      return;
+      return item;
     });
 
     const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {

@@ -19,6 +19,7 @@ export class DoughnutChartComponent implements OnInit {
   ){}
   ngOnInit(): void {
     const myChart = echarts.init(this.doughnutChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.doughnutChart.nativeElement);
 
     this._dashboardService.donutChart$.subscribe((data)=>{
       let option = {

@@ -59,7 +59,7 @@ export class ApproveDealComponent implements OnInit {
     const updateModal = this._dialog.open(UpdatedealsheetComponent, {
       data: this.data
     })
-    
+
     updateModal.afterClosed().subscribe((dealData: dealData) => {
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, this.data.quoteData._id).subscribe((res) => {
@@ -113,6 +113,10 @@ export class ApproveDealComponent implements OnInit {
         this.dialogRef.close({ approve: true, updating: false })
       }
     })
+  }
+
+  checkAtLeastOneDealSelected(item: any) {
+    return item?.itemDetails?.some((detail: any) => detail.dealSelected)
   }
 
 }
