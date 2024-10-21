@@ -200,11 +200,156 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 export const getDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, access, userId } = req.body;
+        console.log(req.body)
         let skipNum: number = (page - 1) * row;
 
         let matchFilters = {
             dealData: { $exists: true },
             'dealData.status': { $nin: ['rejected', 'approved'] }
+        };
+
+        let accessFilter = {};
+
+        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { createdBy: { $in: reportedToUserIds } }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+        const filters = { $and: [matchFilters, accessFilter] }
+
+        let total: number = 0;
+        await Quotation.aggregate([
+            {
+                $match: filters
+            },
+            {
+                $group: { _id: null, total: { $sum: 1 } }
+            },
+            {
+                $project: { total: 1, _id: 0 }
+            }
+        ]).exec()
+            .then((result: { total: number }[]) => {
+                if (result && result.length > 0) {
+                    total = result[0].total
+                }
+            })
+
+        let dealData = await Quotation.aggregate([
+            {
+                $match: filters,
+            },
+            {
+                $sort: { 'dealData.savedDate': -1 }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
+            },
+            {
+                $lookup: {
+                    from: 'customers',
+                    localField: 'client',
+                    foreignField: '_id',
+                    as: 'client'
+                }
+            },
+            {
+                $unwind: '$client'
+            },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department'
+                }
+            },
+            {
+                $unwind: '$department',
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy'
+                }
+            },
+            {
+                $unwind: '$createdBy',
+            },
+            {
+                $lookup: {
+                    from: 'enquiries',
+                    localField: 'enqId',
+                    foreignField: '_id',
+                    as: 'enqId'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$enqId',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $addFields: {
+                    attention: {
+                        $arrayElemAt: [
+                            {
+                                $filter: {
+                                    input: '$client.contactDetails',
+                                    as: 'contact',
+                                    cond: {
+                                        $eq: ['$$contact._id', '$attention']
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
+        ]);
+
+        if (!dealData || !total) return res.status(204).json({ err: 'No Deal data found' })
+        return res.status(200).json({ total: total, dealSheet: dealData })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const getApprovedDealSheet = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let { page, row, access, userId } = req.body;
+        let skipNum: number = (page - 1) * row;
+
+        let matchFilters = {
+            dealData: { $exists: true },
+            'dealData.status': 'approved',
+            'dealData.approvedBy': new ObjectId(userId)
         };
 
         let accessFilter = {};
@@ -556,7 +701,7 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         const job = new Job(jobData);
         const saveJob = await job.save()
         if (saveJob) {
-            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { 'dealData.status': 'approved', 'dealData.seenedBySalsePerson': false })
+            const quoteUpdate = await Quotation.updateOne({ _id: jobData.quoteId }, { 'dealData.status': 'approved', 'dealData.seenedBySalsePerson': false, 'dealData.approvedBy': new ObjectId(req.body.userId) })
             if (quoteUpdate) {
                 const socket = req.app.get('io') as Server;
                 socket.emit("notifications", 'quotation')
@@ -585,6 +730,31 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
 
         const socket = req.app.get('io') as Server;
         socket.emit("notifications", 'quotation')
+
+        return res.status(200).json({ success: true })
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const revokeDeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { quoteId } = req.body;
+        const deal = await Quotation.findById(quoteId);
+        if (!deal) {
+            return res.status(502).json({ message: 'Deal not found' });
+        }
+        deal.dealData.status = 'pending';
+        deal.dealData.seenByApprover = false;
+        await deal.save();
+        const jobDelete = await Job.deleteOne({ quoteId: quoteId })
+
+        if (jobDelete.deletedCount) {
+            const socket = req.app.get('io') as Server;
+            socket.emit("notifications", 'dealSheet')
+        }
 
         return res.status(200).json({ success: true })
 
@@ -865,7 +1035,6 @@ const generateJobId = async () => {
 export const markAsQuotationSeened = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { quoteId, userId } = req.body;
-
         if (!quoteId || !userId) {
             return res.status(400).json({ message: "quoteId and userId are required." });
         }
