@@ -13,6 +13,8 @@ import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectDealComponent } from './reject-deal/reject-deal.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { UpdatedealsheetComponent } from './updatedealsheet-component/updatedealsheet-component.component';
+import { ApprovedDealsComponent } from './approved-deals/approved-deals.component';
+import { PendingDealsComponent } from './pending-deals/pending-deals.component';
 
 
 
@@ -22,6 +24,8 @@ import { UpdatedealsheetComponent } from './updatedealsheet-component/updatedeal
     ApproveDealComponent,
     RejectDealComponent,
     UpdatedealsheetComponent,
+    ApprovedDealsComponent,
+    PendingDealsComponent,
   ],
   imports: [
     CommonModule,
