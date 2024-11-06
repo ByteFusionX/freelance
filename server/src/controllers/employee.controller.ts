@@ -494,9 +494,9 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         });
 
         const dealSheetCount = await quotationModel.countDocuments({
-            dealApproved: false,
             "dealData.seenByApprover": false,
         });
+        
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,

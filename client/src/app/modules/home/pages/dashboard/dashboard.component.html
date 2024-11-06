@@ -66,7 +66,7 @@
             <div class="w-full lg:flex justify-end items-center mb-3 gap-3">
 
                 <ng-container *ngIf="bothTarget && jobAccess">
-                    <label for="">Compare Against : </label>
+                    <label for="" class="hidden md:block">Compare Against : </label>
                     <ng-select [loading]="ngSelectLoading" [searchable]="false" [clearable]="false"
                         [(ngModel)]="selectedTarget" (change)="onCompareChange()">
                         <ng-template ng-loadingspinner-tmp>
@@ -87,13 +87,13 @@
                         <ng-option value="company">Company Target </ng-option>
                         <ng-option [disabled]="disablePersonalTarget" value="personal">
                             <div [title]="selectedSalespersonName">
-                                Personal Target {{selectedSalespersonName}} 
+                                Personal Target {{selectedSalespersonName}}
                             </div>
                         </ng-option>
                     </ng-select>
                 </ng-container>
                 <ng-container *ngIf="jobAccess">
-                    <label for="">Target Year : </label>
+                    <label for="" class="hidden md:block">Target Year : </label>
                     <ng-select [(ngModel)]="selectedTargetYear" [clearable]="false" (change)="onTargetYearChange()">
 
                         <ng-option value="total">Total</ng-option>
@@ -110,9 +110,20 @@
                     <p class="mx-2 text-sm whiter5space-nowrap text-violet-700 font-semibold" *ngIf="filtered">Filtered
                         By</p>
                 </div>
+                <button class="flex items-center justify-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-2 bg-violet-700 text-sm gap-1 text-white"
+                    (click)="exportToExcel()">
+                    <ng-icon name="heroDocumentText"></ng-icon>
+                    Export As Excel
+                </button>
             </div>
+<<<<<<< HEAD
             <div class="w-full lg:flex gap-3"  [ngClass]="!jobAccess ? 'flex-col': 'flex-row'" >
                 <div [ngClass]="!jobAccess ? 'grid grid-cols-4 gap-4 w-full' : 'flex flex-col lg:w-1/4 gap-3'">
+=======
+            <div class="w-full flex gap-3 flex-col" [ngClass]="!jobAccess ? 'md:flex-col': 'md:flex-row'">
+                <div
+                    [ngClass]="!jobAccess ? 'md:grid md:grid-cols-4 md:gap-4 w-full' : 'md:flex md:flex-col md:w-1/4 md:gap-3'">
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                     <!-- Check if metrics are loading -->
                     <ng-container *ngIf="(dashboardMetrics$ | async) as metrics; else loading">
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
@@ -121,12 +132,13 @@
                                 {{ metric.type === 'QAR' ? metric.value.toFixed(2) : metric.value }} {{ metric.type }}
                             </p>
                             <p class="font-medium text-gray-800 text-xs">
-                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' + metric.type }}
+                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' +
+                                metric.type }}
                                 {{ metric.lastWeekName }} this week
                             </p>
                         </div>
                     </ng-container>
-                
+
                     <!-- Loading skeleton -->
                     <ng-template #loading>
                         <div class="bg-white p-2 rounded-md" *ngFor="let i of [1,2,3,4,5]">
@@ -134,11 +146,19 @@
                         </div>
                     </ng-template>
                 </div>
+<<<<<<< HEAD
                 
                 <div class="w-3/4 h-full grid lg:grid-cols-2 grid-cols-1 gap-3">
                     <div class="bg-white w-full h-[220px] lg:h-[250px] xl:h-[300px] 2xl:h-[320px] 3xl:h-[350px] 4xl:h-[420px] 5xl:h-[500px] relative " *ngIf="jobAccess">
                         <h3 class="text-center pt-3 -mb-12 text-lg ">Target Revenue</h3>
                             <app-gauge-chart></app-gauge-chart>
+=======
+
+                <div class="w-full h-full grid grid-cols-1 gap-3 md:grid-cols-2 lg:w-3/4">
+                    <div class="bg-white" *ngIf="jobAccess">
+                        <h3 class="text-center pt-3 -mb-10 text-lg ">Target Revenue</h3>
+                        <app-gauge-chart></app-gauge-chart>
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
                         <!-- Color-coded label -->
                         <div class="flex justify-center space-x-4 -mt-4 mb-2 text-sm absolute bottom-3 inset-x-0">
@@ -156,17 +176,32 @@
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
                     <div class="bg-white w-full h-[220px] lg:h-[250px] xl:h-[300px] 2xl:h-[320px] 3xl:h-[350px] 4xl:h-[420px] 5xl:h-[500px]" *ngIf="jobAccess">
                         <h3 class="text-center pt-3  text-lg ">Revenue Per Sales Person</h3>
                         <app-doughnut-chart></app-doughnut-chart>
                     </div>
                     <div class="lg:col-span-2 bg-white" *ngIf="jobAccess">
+=======
+
+                    <div class="bg-white" *ngIf="jobAccess">
+                        <h3 class="text-center pt-3 text-lg ">Revenue Per Sales Person</h3>
+                        <app-doughnut-chart></app-doughnut-chart>
+                    </div>
+
+                    <div class="bg-white col-span-1 md:col-span-2" *ngIf="jobAccess">
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                         <h3 class="text-center pt-3 text-lg ">Performance Graph (Gross Profit)</h3>
                         <app-line-chart></app-line-chart>
                     </div>
-                    <div class="bg-white col-span-2">
+
+                    <div class="bg-white col-span-1 md:col-span-2">
                         <h3 class="text-center py-3 text-lg">Sales Conversion</h3>
+<<<<<<< HEAD
                         <div class="lg:flex justify-between">
+=======
+                        <div class="flex flex-col md:flex-row justify-between md:px-12">
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                             <div>
                                 <h3 class="text-center py-3 text-lg -mb-20">Direct</h3>
                                 <app-half-doughnut-chart [conversionType]="'direct'"></app-half-doughnut-chart>
@@ -178,6 +213,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 

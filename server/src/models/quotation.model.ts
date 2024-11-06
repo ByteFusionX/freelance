@@ -30,6 +30,7 @@ interface Deal {
     savedDate: Date;
     seenByApprover: boolean;
     status: string;
+    approvedBy:Types.ObjectId;
     comments: string[];
     seenedBySalsePerson: boolean;
     attachments: [];
@@ -156,6 +157,10 @@ const dealDatas = new Schema<Deal>({
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
+    },
+    approvedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
     },
     comments: {
         type: [String],

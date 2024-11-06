@@ -21,6 +21,7 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
+<<<<<<< HEAD
 
   ngAfterViewInit(): void {
     this.initializeChart();
@@ -33,6 +34,12 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
 
   initializeChart(): void {
     this.chartInstance = echarts.init(this.gaugeChart.nativeElement);
+=======
+  ngOnInit(): void {
+    const myChart = echarts.init(this.gaugeChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.gaugeChart.nativeElement);
+
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
     this._dashboardService.guageChart$.subscribe((report) => {
       let criticalRange = (report.criticalRange / report.targetValue)
@@ -53,7 +60,7 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
             max: 1,
             axisLine: {
               lineStyle: {
-                width: 30,
+                width: 40,
                 color: [
                   [criticalRange, '#FF6E76'],
                   [moderateRange, '#FDDD60'],
@@ -125,7 +132,12 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
         ]
       };
 
+<<<<<<< HEAD
       this.chartInstance.setOption(option);
+=======
+      myChart.setOption(option);
+
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
     })
   }
 

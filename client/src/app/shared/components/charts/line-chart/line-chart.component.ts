@@ -21,6 +21,7 @@ export class LineChartComponent implements AfterViewInit, AfterViewChecked {
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
+<<<<<<< HEAD
 
   ngAfterViewInit(): void {
     this.initializeChart();
@@ -33,6 +34,11 @@ export class LineChartComponent implements AfterViewInit, AfterViewChecked {
 
   initializeChart(): void {
     this.chartInstance = echarts.init(this.lineChart.nativeElement);
+=======
+  ngOnInit(): void {
+    const myChart = echarts.init(this.lineChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.lineChart.nativeElement);
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
     this._dashboardService.graphChart$.subscribe((data) => {
       const numberShortenerPipe = this.numberShortenerPipe;

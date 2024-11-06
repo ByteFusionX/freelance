@@ -18,6 +18,7 @@ export class DoughnutChartComponent implements AfterViewInit, AfterViewChecked {
   constructor(
     private _dashboardService:DashboardService
   ){}
+<<<<<<< HEAD
 
   ngAfterViewInit(): void {
     this.initializeChart();
@@ -30,6 +31,11 @@ export class DoughnutChartComponent implements AfterViewInit, AfterViewChecked {
 
   initializeChart(): void {
     this.chartInstance = echarts.init(this.doughnutChart.nativeElement);
+=======
+  ngOnInit(): void {
+    const myChart = echarts.init(this.doughnutChart.nativeElement);
+    new ResizeObserver(() => myChart.resize()).observe(this.doughnutChart.nativeElement);
+>>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
     this._dashboardService.donutChart$.subscribe((data)=>{
       let option = {

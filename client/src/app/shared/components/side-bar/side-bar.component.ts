@@ -24,6 +24,8 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
   notificationCounts$!: Observable<NotificationCounts>;
   @Input() showFullBar: boolean = true
   homeDropDown: boolean = false;
+  jobDropDown: boolean = false;
+  dealDropDown: boolean = false;
   activeLink: string = '';
 
   showTabs: boolean = false;
@@ -85,6 +87,14 @@ export class SideBarComponent implements AfterViewInit, OnDestroy {
 
   onHomeClick() {
     this.homeDropDown = !this.homeDropDown
+  }
+
+  onJobClick() {
+    this.jobDropDown = !this.jobDropDown
+  }
+
+  onDealClick() {
+    this.dealDropDown = !this.dealDropDown
   }
 
   ngOnDestroy(): void {

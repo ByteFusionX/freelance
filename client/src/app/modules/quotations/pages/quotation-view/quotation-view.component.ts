@@ -141,6 +141,7 @@ export class QuotationViewComponent {
   calculateDiscoutPrice(): number {
     return this.calculateSellingPrice() - this.quoteData.totalDiscount
   }
+  
 
 
 }

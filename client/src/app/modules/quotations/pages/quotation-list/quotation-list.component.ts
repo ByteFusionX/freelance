@@ -20,11 +20,16 @@ import { DealFormComponent } from '../deal-form/deal-form.component';
 import { ViewLpoComponent } from '../view-lpo/view-lpo.component';
 import { ViewReportComponent } from '../view-report/view-report.component';
 import { ApproveDealComponent } from 'src/app/modules/deal-sheet/approve-deal/approve-deal.component';
+import * as ExcelJS from 'exceljs';
+import * as FileSaver from 'file-saver';
+import { DatePipe } from '@angular/common';
+import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
 
 @Component({
   selector: 'app-quotation-list',
   templateUrl: './quotation-list.component.html',
-  styleUrls: ['./quotation-list.component.css']
+  styleUrls: ['./quotation-list.component.css'],
+  providers: [NumberFormatterPipe]
 })
 export class QuotationListComponent {
   customers$!: Observable<getCustomer[]>;
@@ -39,6 +44,7 @@ export class QuotationListComponent {
   createQuotation: boolean | undefined = false;
   loader = this.loadingBar.useRef();
   searchQuery: string = '';
+  userId: string | undefined = ''
 
   quoteStatuses = Object.values(QuoteStatus);
   displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'dealStatus', 'action'];
@@ -66,7 +72,9 @@ export class QuotationListComponent {
     private _employeeService: EmployeeService,
     private _customerService: CustomerService,
     private _departetmentService: ProfileService,
-    private loadingBar: LoadingBarService
+    private loadingBar: LoadingBarService,
+    private datePipe: DatePipe,
+    private numberFormat: NumberFormatterPipe,
   ) { }
 
   formData = this._fb.group({
@@ -114,6 +122,7 @@ export class QuotationListComponent {
     this._employeeService.employeeData$.subscribe((employee) => {
       access = employee?.category.privileges.quotation.viewReport
       userId = employee?._id
+      this.userId = userId;
     })
 
     let filterData = {
@@ -230,6 +239,8 @@ export class QuotationListComponent {
 
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
+    console.log(quoteData);
+
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,
@@ -251,9 +262,7 @@ export class QuotationListComponent {
         return;
       })
 
-      if (itemSelected) return item;
-
-      return;
+      return item;
     });
 
     const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
@@ -271,9 +280,9 @@ export class QuotationListComponent {
         width: '1200px'
       });
 
-    dialogRef.afterClosed().subscribe((data:{updatedData?:Quotatation}) => {
+    dialogRef.afterClosed().subscribe((data: { updatedData?: Quotatation }) => {
       this.dataSource.data[index].dealData.seenedBySalsePerson = true;
-      if(data?.updatedData){
+      if (data?.updatedData) {
         this.dataSource.data[index].dealData = data.updatedData.dealData;
       }
       this.dataSource._updateChangeSubscription()
@@ -346,6 +355,48 @@ export class QuotationListComponent {
         })
       }
     })
+  }
+
+  generateExcelReport() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Quotations');
+
+    // Adding headers
+    worksheet.columns = [
+      { header: 'Date', key: 'date', width: 15 },
+      { header: 'Quote Id', key: 'quoteId', width: 20 },
+      { header: 'Customer Name', key: 'customerName', width: 25 },
+      { header: 'Description', key: 'description', width: 30 },
+      { header: 'Sales Person', key: 'salesPerson', width: 25 },
+      { header: 'Department', key: 'department', width: 20 },
+      { header: 'Total Cost', key: 'totalCost', width: 15 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Deal Status', key: 'dealStatus', width: 15 }
+    ];
+
+    // Adding data
+    this.dataSource.data.forEach((element: any) => {
+      worksheet.addRow({
+        date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
+        quoteId: element.quoteId,
+        customerName: element.client.companyName,
+        description: element.subject,
+        salesPerson: element.createdBy.firstName + ' ' + element.createdBy.lastName,
+        department: element.department.departmentName,
+        totalCost: this.numberFormat.transform(this.calculateDiscoutPrice(element)) + ' ' + element.currency,
+        status: element.status,
+        dealStatus: element.dealData?.status || 'N/A'
+      });
+    });
+
+    // Styling the header
+    worksheet.getRow(1).font = { bold: true };
+
+    // Generate & download Excel
+    workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      FileSaver.saveAs(blob, 'quotations_report.xlsx');
+    });
   }
 
   checkPermission() {

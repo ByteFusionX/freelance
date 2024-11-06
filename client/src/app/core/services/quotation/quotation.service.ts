@@ -35,6 +35,10 @@ export class QuotationService {
     return this.http.post<getDealSheet>(`${this.api}/quotation/deal/get`, filterData)
   }
 
+  getApprovedDealSheet(filterData: FilterDeal): Observable<getDealSheet> {
+    return this.http.post<getDealSheet>(`${this.api}/quotation/deal/approved/get`, filterData)
+  }
+
   getNextQuoteId(quoteData: nextQuoteData): Observable<{ quoteId: string }> {
     return this.http.post<{ quoteId: string }>(`${this.api}/quotation/nextQuoteId`, quoteData)
   }
@@ -56,12 +60,16 @@ export class QuotationService {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
   }
 
-  approveDeal(quoteId?: string): Observable<{ success: true }> {
-    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId })
+  approveDeal(quoteId: string | undefined, userId: string | undefined): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId, userId })
   }
 
   rejectDeal(comment: string, quoteId?: string): Observable<{ success: true }> {
     return this.http.post<{ success: true }>(`${this.api}/quotation/deal/reject`, { quoteId, comment })
+  }
+
+  revokeDeal(quoteId: string | undefined, userId: string | undefined): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/revoke`, { quoteId, userId })
   }
 
   markDealAsViewed(quoteIds: any): Observable<any> {

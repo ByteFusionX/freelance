@@ -19,9 +19,10 @@ export class CustomersListComponent {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
-  createCustomer:boolean | undefined = false;
+  isEnter: boolean = false;
+  createCustomer: boolean | undefined = false;
 
-  displayedColumns: string[] = ['position', 'clientRef','name', 'createdBy', 'department'];
+  displayedColumns: string[] = ['position', 'clientRef', 'name', 'createdBy', 'department'];
 
   dataSource = new MatTableDataSource<getCustomer>()
   filteredData = new MatTableDataSource<getCustomer>()
@@ -30,6 +31,7 @@ export class CustomersListComponent {
   page: number = 1;
   row: number = 10;
   selectedEmployee: string | null = null;
+  searchQuery: string = '';
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
@@ -64,13 +66,14 @@ export class CustomersListComponent {
       access = employee?.category.privileges.customer.viewReport
       userId = employee?._id
     })
-    
+
     let filterData = {
       page: this.page,
       row: this.row,
       createdBy: this.selectedEmployee,
       access: access,
-      userId:userId
+      userId: userId,
+      search: this.searchQuery,
     }
 
     this.subscriptions.add(
@@ -94,7 +97,20 @@ export class CustomersListComponent {
     this.getAllCustomers()
   }
 
-  onRowClicks(index:number) {
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getAllCustomers()
+  }
+
+  onRowClicks(index: number) {
     let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data

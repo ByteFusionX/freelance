@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, first } from 'rxjs';
+import { Observable, Subject, first } from 'rxjs';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
@@ -18,6 +18,7 @@ import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/int
 import { fadeInOut } from 'src/app/shared/animations/animations';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -37,6 +38,17 @@ export class QuotationEditComponent {
   customerNotes!: Note[];
   termsAndConditions!: Note[];
 
+  availabilityDefaultOptions: string[] = [
+    "Ex-Stock",
+    "Ex-Stock (Subject to Prior Sale)",
+    "6-8 Weeks",
+    "2-3 Weeks",
+    "4-6 Weeks"
+  ];
+  availabiltyInput$ = new Subject<string>();
+  removedItems: any[] = []; 
+  removedItemDetails: any[] = []; 
+
   submit: boolean = false;
   isSaving: boolean = false;
   isDownloading: boolean = false;
@@ -55,7 +67,8 @@ export class QuotationEditComponent {
     private _dialog: MatDialog,
     private _employeeService: EmployeeService,
     private _datePipe: DatePipe,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private snackBar: MatSnackBar
   ) {
     this.getQuoteData();
     document.addEventListener('selectionchange', () => {
@@ -225,12 +238,58 @@ export class QuotationEditComponent {
   }
 
 
+  
   onRemoveItem(index: number): void {
-    this.items.removeAt(index);
+    const removedItem = this.items.at(index).value; 
+    this.removedItems.push({ item: removedItem, index }); 
+    this.items.removeAt(index);  
+
+    this.showUndoOption('item');
   }
 
-  onRemoveItemDetail(i: number, j: number) {
-    this.getItemDetailsControls(i).removeAt(j);
+  onRemoveItemDetail(i: number, j: number): void {
+    const removedItemDetail = this.getItemDetailsControls(i).at(j).value;
+    this.removedItemDetails.push({ item: removedItemDetail, i, j }); 
+    this.getItemDetailsControls(i).removeAt(j); 
+
+    this.showUndoOption('item detail');
+  }
+
+  undoRemoveItem() {
+    if (this.removedItems.length > 0) {
+      const { item, index } = this.removedItems.pop();  
+      this.items.insert(index, this._fb.group({
+        itemName: item.itemName,
+        itemDetails: this._fb.array(item.itemDetails.map((detail:any) => this._fb.group({
+          detail: detail.detail,
+          quantity: detail.quantity,
+          unitCost: detail.unitCost,
+          profit: detail.profit,
+          availability: detail.availability
+        })))
+      }));
+      this.items.updateValueAndValidity()
+    }
+  }
+
+  undoRemoveItemDetail() {
+    if (this.removedItemDetails.length > 0) {
+      const { item, i, j } = this.removedItemDetails.pop();  
+      this.getItemDetailsControls(i).insert(j, this._fb.group(item));  
+      this.getItemDetailsControls(i).updateValueAndValidity()
+    }
+  }
+
+  showUndoOption(type: string) {
+    const snackBarRef = this.snackBar.open(`Item removed. Undo?`, 'Undo', { duration: 3000 });
+  
+    snackBarRef.onAction().subscribe(() => {
+      if (type === 'item') {
+        this.undoRemoveItem();
+      } else if (type === 'item detail') {
+        this.undoRemoveItemDetail();
+      }
+    });
   }
 
   calculateTotalCost(i: number, j: number) {

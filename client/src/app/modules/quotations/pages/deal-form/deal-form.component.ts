@@ -195,6 +195,33 @@ export class DealFormComponent {
     };
   }
 
+  calculateSellingPrice(): number {
+    let totalCost = 0;
+    this.items.value.forEach((item: any, i: number) => {
+      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
+        if(item.dealSelected){
+          totalCost += this.calculateTotalPrice(i, j)
+        }
+      })
+    })
+    return totalCost;
+  }
+
+  calculateAllTotalCost() {
+    let totalCost = 0;
+    this.items.value.forEach((item: any, i: number) => {
+      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
+        if(item.dealSelected){
+          totalCost += this.calculateTotalCost(i, j)
+        }
+      })
+    })
+
+    return totalCost;
+  }
+
+  
+
   calculateTotalCost(i: number, j: number) {
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
   }

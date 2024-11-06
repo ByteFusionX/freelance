@@ -19,13 +19,26 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
 
 export const getFilteredCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, createdBy, access, userId } = req.body;
+        let { page, row, createdBy, access, userId, search } = req.body;
         let skipNum: number = (page - 1) * row;
         let isCreatedBy = createdBy == null ? true : false;
 
 
+        let searchRegex = search.split('').join('\\s*');
+        let fullNameRegex = new RegExp(searchRegex, 'i');
+        console.log(search)
+
         let matchFilters = {
-            $or: [{ createdBy: new ObjectId(createdBy) }, { createdBy: { $exists: isCreatedBy } }]
+            $or: [
+                { companyName: { $regex: search, $options: 'i' } },
+                { clientRef: { $regex: search, $options: 'i' } },]
+        }
+
+        let createdByFilter = {
+            $or: [
+                { createdBy: new ObjectId(createdBy) },
+                { createdBy: { $exists: isCreatedBy } },
+            ]
         }
 
         let accessFilter = {};
@@ -55,7 +68,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                 break;
         }
 
-        const filters = { $and: [matchFilters, accessFilter] }
+        const filters = { $and: [matchFilters, accessFilter, createdByFilter] }
 
         let total: number = 0;
         await Customer.aggregate([
@@ -280,7 +293,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
         const customerData = req.body
         customerData.companyName = customerData.companyName.trim();
         const companyExist = await Customer.findOne({ companyName: new RegExp(`^${customerData.companyName}$`, 'i') })
-        
+
         if (companyExist) {
             return res.status(200).json({ companyExist: true })
         }

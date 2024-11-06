@@ -28,6 +28,7 @@ export class UpdatedealsheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log(this.data.quoteItems)
     this.costForm = this.fb.group({
       paymentTerms: [this.data.quoteData.dealData.paymentTerms || '', Validators.required],
       items: this.fb.array(this.data.quoteItems.map(item => this.createItemGroup(item as QuoteItem))),
