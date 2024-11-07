@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectConfig } from '@ng-select/ng-select';
@@ -105,7 +105,8 @@ export class QuotationEditComponent {
               detail: ['', Validators.required],
               quantity: ['', Validators.required],
               unitCost: ['', Validators.required],
-              profit: ['', Validators.required],
+              profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+              unitPrice: [''],
               availability: ['', Validators.required],
             }),
           ])
@@ -163,7 +164,8 @@ export class QuotationEditComponent {
           detail: ['', Validators.required],
           quantity: ['', Validators.required],
           unitCost: ['', Validators.required],
-          profit: ['', Validators.required],
+          profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+          unitPrice: [''],
           availability: ['', Validators.required],
         })
       ])
@@ -175,7 +177,8 @@ export class QuotationEditComponent {
       detail: ['', Validators.required],
       quantity: ['', Validators.required],
       unitCost: ['', Validators.required],
-      profit: ['', Validators.required],
+      profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+      unitPrice: [''],
       availability: ['', Validators.required]
     });
   }
@@ -295,10 +298,17 @@ export class QuotationEditComponent {
   calculateTotalCost(i: number, j: number) {
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
   }
+  
 
   calculateUnitPrice(i: number, j: number) {
     const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
     return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+  }
+
+  calculateUnitPriceForInput(i: number, j: number) {
+    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+    this.getItemDetailsControls(i).controls[j].get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)))
   }
 
   calculateTotalPrice(i: number, j: number) {
@@ -333,6 +343,16 @@ export class QuotationEditComponent {
   calculateDiscoutPrice(): number {
     return this.calculateSellingPrice() - this.quoteForm.get('totalDiscount')?.value;
   }
+
+  calculateProfit(i: number, j: number) {
+    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
+    if (unitCost && unitPrice) {
+        const profit = ((unitPrice - unitCost) / unitPrice) * 100;
+        this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
+    }
+  }
+
 
   async onDownloadPdf() {
     this.submit = true;
@@ -480,6 +500,11 @@ export class QuotationEditComponent {
     control.setValue(newText);
   }
 
-
+  nonNegativeProfitValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      return value < 0 ? { negativeProfit: true } : null;
+    };
+  }
 
 }

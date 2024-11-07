@@ -1,0 +1,29 @@
+name: CICD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} 
+      - name: Build docker image
+        run: docker build -t bsimhd/nestjs_api .
+      - name: Publish image to docker hub
+        run: docker push bsimhd/nestjs_api:latest
+        
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull bsimhd/nestjs_api:latest
+      - name: Delete old container
+        run: docker rm -f nestjs_api
+      - name: Run docker compose
+        run: docker compose -f ~/docker-compose.yaml up -d

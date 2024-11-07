@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Subject } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { Estimations } from 'src/app/shared/interfaces/enquiry.interface';
 import { QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
@@ -15,6 +16,14 @@ export class UploadEstimationComponent {
   submit: boolean = false;
   enqId!: string;
   isSaving: boolean = false;
+  availabilityDefaultOptions: string[] = [
+    "Ex-Stock",
+    "Ex-Stock (Subject to Prior Sale)",
+    "6-8 Weeks",
+    "2-3 Weeks",
+    "4-6 Weeks"
+  ];
+  availabiltyInput$ = new Subject<string>();
 
   constructor(
     private _fb: FormBuilder,
@@ -35,7 +44,8 @@ export class UploadEstimationComponent {
             detail: ['', Validators.required],
             quantity: ['', Validators.required],
             unitCost: ['', Validators.required],
-            profit: ['', Validators.required],
+            profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+            unitPrice: [''],
             availability: ['', Validators.required],
           }),
         ])
@@ -91,7 +101,8 @@ export class UploadEstimationComponent {
           detail: ['', Validators.required],
           quantity: ['', Validators.required],
           unitCost: ['', Validators.required],
-          profit: ['', Validators.required],
+          profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+          unitPrice: [''],
           availability: ['', Validators.required],
         })
       ])
@@ -103,7 +114,7 @@ export class UploadEstimationComponent {
       detail: ['', Validators.required],
       quantity: ['', Validators.required],
       unitCost: ['', Validators.required],
-      profit: ['', Validators.required],
+      profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
       availability: ['', Validators.required]
     });
   }
@@ -147,6 +158,12 @@ export class UploadEstimationComponent {
     return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
   }
 
+  calculateUnitPriceForInput(i: number, j: number) {
+    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+    this.getItemDetailsControls(i).controls[j].get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)))
+  }
+
   calculateTotalPrice(i: number, j: number) {
     return this.calculateUnitPrice(i, j) * this.getItemDetailsControls(i).controls[j].get('quantity')?.value
   }
@@ -165,6 +182,15 @@ export class UploadEstimationComponent {
   calculateDiscoutPrice(): number {
     const totalDiscount = Number(this.quoteForm.get('totalDiscount')?.value) ?? 0;
     return this.calculateSellingPrice() - totalDiscount;
+  }
+
+  calculateProfit(i: number, j: number) {
+    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
+    if (unitCost && unitPrice) {
+        const profit = ((unitPrice - unitCost) / unitPrice) * 100;
+        this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
+    }
   }
 
 
@@ -237,6 +263,11 @@ export class UploadEstimationComponent {
     control.setValue(newText);
   }
 
-
+  nonNegativeProfitValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      return value < 0 ? { negativeProfit: true } : null;
+    };
+  }
 
 }

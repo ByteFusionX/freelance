@@ -19,7 +19,7 @@
                         <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
                             key="itemDetail">
                             <div class="px-6 py-3">Item Details</div>
-    
+
                         </th>
                         <th scope="col" resizable key="qty"
                             class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
@@ -80,7 +80,7 @@
                                     {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
-                                    {{itemsDetail.profit.toFixed(2)}}%
+                                    {{ itemsDetail.profit | number:'1.2-2' }}%
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
