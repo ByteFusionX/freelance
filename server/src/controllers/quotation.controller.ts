@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import { calculateDiscountPrice, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
 import { removeFile } from '../common/util'
+import quotationModel from "../models/quotation.model";
 
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
@@ -97,11 +98,16 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 $match: filters
             },
             {
+                $match: {
+                    status: { $ne: 'revised' }
+                }
+            },
+            {
                 $group: { _id: null, total: { $sum: 1 } }
             },
             {
                 $project: { total: 1, _id: 0 }
-            }
+            },
         ]).exec()
             .then((result: { total: number }[]) => {
                 if (result && result.length > 0) {
@@ -185,6 +191,11 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                             0
                         ]
                     }
+                }
+            },
+            {
+                $match: {
+                    status: { $ne: 'revised' }
                 }
             }
         ]);
@@ -1064,5 +1075,3 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         next(error);
     }
 };
-
-

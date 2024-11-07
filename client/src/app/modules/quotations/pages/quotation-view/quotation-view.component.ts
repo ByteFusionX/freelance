@@ -2,8 +2,10 @@ import { HttpEventType } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationExtras, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import saveAs from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
@@ -21,6 +23,13 @@ export class QuotationViewComponent {
   quoteData!: getQuotatation;
   isDownloading: boolean = false;
   isPreviewing: boolean = false;
+  showRevision: boolean = false;
+  isSaving: boolean = false;
+  showError: boolean = false;
+  revisionComment: string = '';
+  progress: number = 0;
+  subscriptions = new Subscription()
+
 
   constructor(
     private _router: Router,
@@ -40,6 +49,7 @@ export class QuotationViewComponent {
     } else {
       this._router.navigate(['/quotations']);
     }
+    console.log(this.quoteData.enqId.preSale)
   }
 
   onQuoteEdit() {
@@ -95,6 +105,43 @@ export class QuotationViewComponent {
             }
           }
         })
+  }
+
+  isReviseNeeded(){
+    if(this.quoteData.enqId.preSale){
+      return true
+    }
+    return false
+  }
+
+  validateComments() {
+    if (!this.revisionComment.trim()) {
+      this.showError = true;
+    } else {
+      this.showError = false;
+    }
+  }
+
+  onRevision() {
+    this.showRevision = !this.showRevision;
+    this.isSaving = false;
+    // this.revisionComment = this.quoteData.enqId.preSale.estimations.presaleNote
+  }
+
+  onSubmit() {
+    if (this.revisionComment && this.quoteData._id) {
+      this.isSaving = true;
+      this.subscriptions.add(
+        this._enquiryService.quoteRevision(this.revisionComment, this.quoteData.enqId._id, this.quoteData._id).subscribe((res: any) => {
+          if (res.success) {
+            this.onRevision()
+            this._router.navigate(['/quotations']);
+          }
+        })
+      )
+    } else {
+      this.showError = true;
+    }
   }
 
   calculateTotalCost(i: number, j: number) {

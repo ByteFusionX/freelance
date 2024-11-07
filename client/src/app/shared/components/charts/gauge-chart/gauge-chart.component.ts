@@ -12,7 +12,7 @@ import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
   imports: [HomeRoutingModule, NumberShortenerPipe],
   providers: [NumberShortenerPipe]
 })
-export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
+export class GaugeChartComponent implements OnInit{
 
   @ViewChild('gaugeChart', { static: false }) gaugeChart!: ElementRef;
   chartInstance: any;
@@ -21,25 +21,10 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
-<<<<<<< HEAD
-
-  ngAfterViewInit(): void {
-    this.initializeChart();
-    this.makeChartResponsive();
-  }
-
-  ngAfterViewChecked(): void {
-    this.onWindowResize()
-  }
-
-  initializeChart(): void {
-    this.chartInstance = echarts.init(this.gaugeChart.nativeElement);
-=======
   ngOnInit(): void {
     const myChart = echarts.init(this.gaugeChart.nativeElement);
     new ResizeObserver(() => myChart.resize()).observe(this.gaugeChart.nativeElement);
 
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
     this._dashboardService.guageChart$.subscribe((report) => {
       let criticalRange = (report.criticalRange / report.targetValue)
@@ -132,12 +117,8 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
         ]
       };
 
-<<<<<<< HEAD
-      this.chartInstance.setOption(option);
-=======
       myChart.setOption(option);
 
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
     })
   }
 
@@ -147,12 +128,8 @@ export class GaugeChartComponent implements AfterViewInit, AfterViewChecked {
     switch (true) {
       case (screenWidth >= 1024 && screenWidth < 1280):
         this.chartResize({ width: 350, height: 250 });
-        break;
-
-      case (screenWidth >= 1280 && screenWidth < 1536):
         this.chartResize({ width: 400, height: 300 });
         break;
-
       case (screenWidth >= 1536 && screenWidth < 1600):
         this.chartResize({ width: 450, height: 320 });
         break;

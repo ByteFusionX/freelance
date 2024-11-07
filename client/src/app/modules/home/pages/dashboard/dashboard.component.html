@@ -116,14 +116,9 @@
                     Export As Excel
                 </button>
             </div>
-<<<<<<< HEAD
-            <div class="w-full lg:flex gap-3"  [ngClass]="!jobAccess ? 'flex-col': 'flex-row'" >
-                <div [ngClass]="!jobAccess ? 'grid grid-cols-4 gap-4 w-full' : 'flex flex-col lg:w-1/4 gap-3'">
-=======
             <div class="w-full flex gap-3 flex-col" [ngClass]="!jobAccess ? 'md:flex-col': 'md:flex-row'">
                 <div
                     [ngClass]="!jobAccess ? 'md:grid md:grid-cols-4 md:gap-4 w-full' : 'md:flex md:flex-col md:w-1/4 md:gap-3'">
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                     <!-- Check if metrics are loading -->
                     <ng-container *ngIf="(dashboardMetrics$ | async) as metrics; else loading">
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
@@ -146,19 +141,11 @@
                         </div>
                     </ng-template>
                 </div>
-<<<<<<< HEAD
-                
-                <div class="w-3/4 h-full grid lg:grid-cols-2 grid-cols-1 gap-3">
-                    <div class="bg-white w-full h-[220px] lg:h-[250px] xl:h-[300px] 2xl:h-[320px] 3xl:h-[350px] 4xl:h-[420px] 5xl:h-[500px] relative " *ngIf="jobAccess">
-                        <h3 class="text-center pt-3 -mb-12 text-lg ">Target Revenue</h3>
-                            <app-gauge-chart></app-gauge-chart>
-=======
 
                 <div class="w-full h-full grid grid-cols-1 gap-3 md:grid-cols-2 lg:w-3/4">
                     <div class="bg-white" *ngIf="jobAccess">
                         <h3 class="text-center pt-3 -mb-10 text-lg ">Target Revenue</h3>
                         <app-gauge-chart></app-gauge-chart>
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
                         <!-- Color-coded label -->
                         <div class="flex justify-center space-x-4 -mt-4 mb-2 text-sm absolute bottom-3 inset-x-0">
@@ -176,13 +163,6 @@
                             </div>
                         </div>
                     </div>
-<<<<<<< HEAD
-                    <div class="bg-white w-full h-[220px] lg:h-[250px] xl:h-[300px] 2xl:h-[320px] 3xl:h-[350px] 4xl:h-[420px] 5xl:h-[500px]" *ngIf="jobAccess">
-                        <h3 class="text-center pt-3  text-lg ">Revenue Per Sales Person</h3>
-                        <app-doughnut-chart></app-doughnut-chart>
-                    </div>
-                    <div class="lg:col-span-2 bg-white" *ngIf="jobAccess">
-=======
 
                     <div class="bg-white" *ngIf="jobAccess">
                         <h3 class="text-center pt-3 text-lg ">Revenue Per Sales Person</h3>
@@ -190,18 +170,13 @@
                     </div>
 
                     <div class="bg-white col-span-1 md:col-span-2" *ngIf="jobAccess">
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                         <h3 class="text-center pt-3 text-lg ">Performance Graph (Gross Profit)</h3>
                         <app-line-chart></app-line-chart>
                     </div>
 
                     <div class="bg-white col-span-1 md:col-span-2">
                         <h3 class="text-center py-3 text-lg">Sales Conversion</h3>
-<<<<<<< HEAD
-                        <div class="lg:flex justify-between">
-=======
                         <div class="flex flex-col md:flex-row justify-between md:px-12">
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
                             <div>
                                 <h3 class="text-center py-3 text-lg -mb-20">Direct</h3>
                                 <app-half-doughnut-chart [conversionType]="'direct'"></app-half-doughnut-chart>

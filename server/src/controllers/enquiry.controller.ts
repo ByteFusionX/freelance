@@ -4,6 +4,7 @@ import Employee from '../models/employee.model';
 import Department from '../models/department.model';
 import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
+import quotationModel from "../models/quotation.model";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -588,21 +589,81 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
     }
 }
 
+export const reviseQuoteEstimation = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let { revisionComment, quoteId } = req.body;
+        let enquiryId = req.params.enquiryId;
+        const result = await enquiryModel.findOneAndUpdate(
+            { _id: enquiryId },
+            {
+                $push: { 'preSale.revisionComment': revisionComment },
+                status: 'Assigned To Presales',
+                'preSale.seenbyEmployee': false,
+                'preSale.newFeedbackAccess': true,
+                'preSale.createdDate': Date.now()
+            },
+            { new: true }
+        );
+
+        await quotationModel.updateOne({ _id: quoteId }, { $set: { status: "revised" } })
+
+        const socket = req.app.get('io') as Server;
+        socket.to(result.preSale.presalePerson.toString()).emit("notifications", 'assignedJob')
+
+        if (!result) {
+            return res.status(404).send('Enquiry not found or comment not added.');
+        }
+
+        return res.status(200).json({ success: true })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
         let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
 
-        const enquiryData = await enquiryModel.updateOne(
-            { _id: new ObjectId(enquiryId) },
-            {
-                $set: {
-                    'preSale.estimations.items': items,
-                    'preSale.estimations.currency': currency,
-                    'preSale.estimations.totalDiscount': totalDiscount,
-                    'preSale.estimations.presaleNote': preSaleNote,
+        let enquiryData;
+        let quoteData;
+        const quote = await quotationModel.findOne({ enqId: enquiryId })
+        if(quote){
+            quoteData = await quotationModel.updateOne(
+                { _id: quote._id },
+                {
+                    $set: {
+                        'items': items,
+                        'currency': currency,
+                        'totalDiscount': totalDiscount,
+                        'status': 'Work In Progress'
+                    }
                 }
-            }
-        );
+            );
+            enquiryData = await enquiryModel.updateOne(
+                { _id: new ObjectId(enquiryId) },
+                {
+                    $set: {
+                        'preSale.estimations.items': items,
+                        'preSale.estimations.currency': currency,
+                        'preSale.estimations.totalDiscount': totalDiscount,
+                        'preSale.estimations.presaleNote': preSaleNote,
+                        'status': 'Quoted'
+                    }
+                }
+            );
+        }else{
+            enquiryData = await enquiryModel.updateOne(
+                { _id: new ObjectId(enquiryId) },
+                {
+                    $set: {
+                        'preSale.estimations.items': items,
+                        'preSale.estimations.currency': currency,
+                        'preSale.estimations.totalDiscount': totalDiscount,
+                        'preSale.estimations.presaleNote': preSaleNote,
+                    }
+                }
+            );
+        }
 
         if (!enquiryData.modifiedCount) {
             return res.status(502).json();

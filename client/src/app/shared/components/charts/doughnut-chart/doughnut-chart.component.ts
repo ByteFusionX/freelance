@@ -10,7 +10,7 @@ import { DashboardService } from 'src/app/core/services/dashboard.service';
   standalone: true,
   imports: [HomeRoutingModule],
 })
-export class DoughnutChartComponent implements AfterViewInit, AfterViewChecked {
+export class DoughnutChartComponent implements OnInit{
 
   @ViewChild('doughnutChart', { static: true }) doughnutChart!: ElementRef;
   chartInstance: any;
@@ -18,24 +18,9 @@ export class DoughnutChartComponent implements AfterViewInit, AfterViewChecked {
   constructor(
     private _dashboardService:DashboardService
   ){}
-<<<<<<< HEAD
-
-  ngAfterViewInit(): void {
-    this.initializeChart();
-    this.makeChartResponsive();
-  }
-
-  ngAfterViewChecked(): void {
-    this.onWindowResize()
-  }
-
-  initializeChart(): void {
-    this.chartInstance = echarts.init(this.doughnutChart.nativeElement);
-=======
   ngOnInit(): void {
     const myChart = echarts.init(this.doughnutChart.nativeElement);
     new ResizeObserver(() => myChart.resize()).observe(this.doughnutChart.nativeElement);
->>>>>>> 896f4633347e2d25acbea1dbf6c4a4334b63f2da
 
     this._dashboardService.donutChart$.subscribe((data)=>{
       let option = {

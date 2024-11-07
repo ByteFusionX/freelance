@@ -11,6 +11,7 @@ import {
     giveFeedback,
     assignPresale,
     giveRevision,
+    reviseQuoteEstimation,
     presalesCount,
     markAsSeenJob,
     markAsSeenFeedback,
@@ -29,6 +30,7 @@ equiRouter.get('/monthly', monthlyEnquiries);
 equiRouter.patch('/feedback-request', sendFeedbackRequest);
 equiRouter.patch('/give-feedback', giveFeedback);
 equiRouter.patch('/revision/:enquiryId', giveRevision);
+equiRouter.patch('/quoteRevision/:enquiryId', reviseQuoteEstimation);
 equiRouter.get('/feedback-request/:employeeId', getFeedbackRequestsById);
 equiRouter.post('/upload-estimation', uploadEstimations)
 equiRouter.post('/markAsSeenEstimation', markAsSeenEstimation);
