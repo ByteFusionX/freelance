@@ -14,7 +14,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
-// import { Style, Workbook } from 'exceljs';
+import { Style, Workbook } from 'exceljs';
 import * as fs from 'file-saver';
 @Component({
   selector: 'app-dashboard',
@@ -325,114 +325,114 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel() {
-    // const workbook = new Workbook();
-    // const worksheet = workbook.addWorksheet('Report');
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Report');
 
 
-    // const nameCellStyle = {
-    //   fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E4DFEC' } },
-    //   font: { size: 13, bold: true, color: { argb: '000000' } },
-    //   border: {
-    //     top: { style: 'thin' },
-    //     left: { style: 'thin' },
-    //     bottom: { style: 'thin' },
-    //     right: { style: 'thin' }
-    //   }
-    // };
+    const nameCellStyle = {
+      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E4DFEC' } },
+      font: { size: 13, bold: true, color: { argb: '000000' } },
+      border: {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+    };
 
-    // // Style for data rows
-    // const rowStyle = {
-    //   font: { size: 13 },
-    //   alignment: { horizontal: 'left' },
-    //   border: {
-    //     top: { style: 'thin' },
-    //     left: { style: 'thin' },
-    //     bottom: { style: 'thin' },
-    //     right: { style: 'thin' }
-    //   }
-    // };
+    // Style for data rows
+    const rowStyle = {
+      font: { size: 13 },
+      alignment: { horizontal: 'left' },
+      border: {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      }
+    };
 
-    // if (this.filtered) {
-    //   worksheet.addRow(['Filters Applied']);
+    if (this.filtered) {
+      worksheet.addRow(['Filters Applied']);
 
-    //   // Function to get employee names by IDs
-    //   const getEmployeeNames = (ids: string[]) => {
-    //     console.log(ids);
+      // Function to get employee names by IDs
+      const getEmployeeNames = (ids: string[]) => {
+        console.log(ids);
 
-    //     return ids
-    //       .map(id => {
-    //         const employee = this.salesPersons.find(person => person._id === id);
-    //         return employee ? `${employee.firstName} ${employee.lastName}` : null;
-    //       })
-    //       .filter(Boolean) // Remove null values
-    //       .join(', ');
-    //   };
+        return ids
+          .map(id => {
+            const employee = this.salesPersons.find(person => person._id === id);
+            return employee ? `${employee.firstName} ${employee.lastName}` : null;
+          })
+          .filter(Boolean) // Remove null values
+          .join(', ');
+      };
 
-    //   // Function to get department names by IDs
-    //   const getDepartmentNames = (ids: string[]) => {
-    //     return ids
-    //       .map(id => {
-    //         const department = this.departments.find(dep => dep._id === id);
-    //         return department ? department.departmentName : null;
-    //       })
-    //       .filter(Boolean) // Remove null values
-    //       .join(', ');
-    //   };
+      // Function to get department names by IDs
+      const getDepartmentNames = (ids: string[]) => {
+        return ids
+          .map(id => {
+            const department = this.departments.find(dep => dep._id === id);
+            return department ? department.departmentName : null;
+          })
+          .filter(Boolean) // Remove null values
+          .join(', ');
+      };
 
-    //   const createFilterString = (label: string, value: any) => {
-    //     if (Array.isArray(value)) {
-    //       return value.length > 0 ? `${label}: ${value.join(', ')}` : '';
-    //     } else {
-    //       return value ? `${label}: ${value}` : '';
-    //     }
-    //   };
+      const createFilterString = (label: string, value: any) => {
+        if (Array.isArray(value)) {
+          return value.length > 0 ? `${label}: ${value.join(', ')}` : '';
+        } else {
+          return value ? `${label}: ${value}` : '';
+        }
+      };
 
-    //   const filtersRow = worksheet.addRow([
-    //     createFilterString('From Date', this.filterForm.get('fromDate')?.value),
-    //     createFilterString('To Date', this.filterForm.get('toDate')?.value),
-    //     createFilterString('SalesPerson', getEmployeeNames(this.filterForm.get('salesPersonIds')?.value || [])),
-    //     createFilterString('Departments', getDepartmentNames(this.filterForm.get('departments')?.value || []))
-    //   ].filter(Boolean)); // Remove empty strings
+      const filtersRow = worksheet.addRow([
+        createFilterString('From Date', this.filterForm.get('fromDate')?.value),
+        createFilterString('To Date', this.filterForm.get('toDate')?.value),
+        createFilterString('SalesPerson', getEmployeeNames(this.filterForm.get('salesPersonIds')?.value || [])),
+        createFilterString('Departments', getDepartmentNames(this.filterForm.get('departments')?.value || []))
+      ].filter(Boolean)); // Remove empty strings
 
-    //   filtersRow.font = { italic: true, color: { argb: 'FF0000FF' } };
-    //   worksheet.addRow([]); // Empty row for spacing
-    // }
+      filtersRow.font = { italic: true, color: { argb: 'FF0000FF' } };
+      worksheet.addRow([]); // Empty row for spacing
+    }
 
-    // this.dashboardMetrics$.subscribe((data) => {
-    //   data.forEach(item => {
-    //     const row = item.type == 'QAR' ?
-    //       worksheet.addRow([item.name, `${item.value.toFixed(2)} ${item.type}`]) :
-    //       worksheet.addRow([item.name, `${item.value} ${item.type}`]);
+    this.dashboardMetrics$.subscribe((data) => {
+      data.forEach(item => {
+        const row = item.type == 'QAR' ?
+          worksheet.addRow([item.name, `${item.value.toFixed(2)} ${item.type}`]) :
+          worksheet.addRow([item.name, `${item.value} ${item.type}`]);
 
-    //     // Apply style to the "name" column only (first column)
-    //     const nameCell = row.getCell(1);
-    //     nameCell.style = nameCellStyle as Partial<Style>;
+        // Apply style to the "name" column only (first column)
+        const nameCell = row.getCell(1);
+        nameCell.style = nameCellStyle as Partial<Style>;
 
-    //     // Style the rest of the cells normally
-    //     row.eachCell((cell: any, colNumber: any) => {
-    //       if (colNumber > 1) {
-    //         cell.style = rowStyle as Partial<Style>;
-    //       }
-    //     });
-    //   });
+        // Style the rest of the cells normally
+        row.eachCell((cell: any, colNumber: any) => {
+          if (colNumber > 1) {
+            cell.style = rowStyle as Partial<Style>;
+          }
+        });
+      });
 
-    //   // // Auto-fit columns
-    //   worksheet.columns.forEach((column: any) => {
-    //     let maxLength = 0;
-    //     column.eachCell({ includeEmpty: true }, (cell: any) => {
-    //       const columnLength = cell.value ? cell.value.toString().length + 4 : 14;
-    //       if (columnLength > maxLength) {
-    //         maxLength = columnLength;
-    //       }
-    //     });
-    //     column.width = maxLength < 12 ? 12 : maxLength;
-    //   });
+      // // Auto-fit columns
+      worksheet.columns.forEach((column: any) => {
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, (cell: any) => {
+          const columnLength = cell.value ? cell.value.toString().length + 4 : 14;
+          if (columnLength > maxLength) {
+            maxLength = columnLength;
+          }
+        });
+        column.width = maxLength < 12 ? 12 : maxLength;
+      });
 
-    //   // Save the Excel file
-    //   workbook.xlsx.writeBuffer().then((buffer: any) => {
-    //     fs.saveAs(new Blob([buffer]), `Report_${new Date().getTime()}.xlsx`);
-    //   });
-    // })
+      // Save the Excel file
+      workbook.xlsx.writeBuffer().then((buffer: any) => {
+        fs.saveAs(new Blob([buffer]), `Report_${new Date().getTime()}.xlsx`);
+      });
+    })
 
   }
 
