@@ -128,7 +128,7 @@
 
                         <ng-template #currencyBlock>
                             <ng-select [class.border-red-500]="f['currency'].invalid && submit" class="form border"
-                                formControlName="currency">
+                                bindLabel="currency" formControlName="currency">
                                 <ng-option value="QAR">QAR</ng-option>
                                 <ng-option value="USD">USD</ng-option>
                             </ng-select>
@@ -216,7 +216,7 @@
                                                 {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
                                             </td>
                                             <td class="px-2 py-2 border text-center">
-                                                {{itemsDetail.profit.toFixed(2)}}%
+                                                {{ itemsDetail.profit | number:'1.2-2' }}%
                                             </td>
                                             <td class="px-2 py-2 border text-center">
                                                 {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
@@ -324,29 +324,35 @@
                                                 class="border px-2 py-2 text-center">
                                                 <input appNoLeadingSpace formControlName="quantity"
                                                     class="font-normal appearance-none block w-full text-center rounded py-5 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                    type="number" placeholder="00">
+                                                    type="number" placeholder="00" (input)="calculateUnitPriceForInput(i, j)">
                                             </td>
                                             <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('unitCost')?.invalid && submit"
                                                 class="border px-6 py-3">
                                                 <input appNoLeadingSpace formControlName="unitCost"
                                                     class="font-normal appearance-none block w-full text-center rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                    type="number" placeholder="00.00">
+                                                    type="number" placeholder="00.00" (input)="calculateUnitPriceForInput(i, j)">
                                             </td>
                                             <td class="px-6 py-3 border-l border-b border-t text-center">
-                                                <p>{{ calculateTotalCost(i,j) }}</p>
+                                                <p>{{ calculateTotalCost(i,j).toFixed(2) }}</p>
                                             </td>
                                             <td [class.border-red-500]="getItemDetailsControls(i).controls[j].get('profit')?.invalid && submit"
                                                 class="border py-2 px-6 text-center">
                                                 <div class="flex justify-center items-center">
                                                     <input appNoLeadingSpace formControlName="profit"
-                                                        class="font-normal appearance-none block w-6 text-right rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                                        type="number" placeholder="00">
+                                                        class="font-normal appearance-none block w-9 text-right rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                        type="number" placeholder="00" (input)="calculateUnitPriceForInput(i, j)">
                                                     <p class="ml-0.5 mb-0.5">%</p>
                                                 </div>
+                                                <div *ngIf="getItemDetailsControls(i).controls[j].get('profit')?.hasError('negativeProfit')" class="text-red-500 text-xs mt-1">
+                                                    Profit cannot be negative.
+                                                </div>
                                             </td>
-                                            <td class="px-6 py-3 border-l border-b border-t text-center">
-                                                <p>{{ calculateUnitPrice(i,j).toFixed(2) }}</p>
-                                            </td>
+                                            <td 
+                                            class="border px-6 py-3 text-center">
+                                            <input appNoLeadingSpace formControlName="unitPrice"
+                                                class="font-normal appearance-none block w-full text-center rounded py-5 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                type="number" placeholder="00.00" (input)="calculateProfit(i, j)">
+                                        </td>
                                             <td class="px-6 py-3 border-l border-b border-t text-center">
                                                 <p>{{ calculateTotalPrice(i,j).toFixed(2) }}</p>
                                             </td>

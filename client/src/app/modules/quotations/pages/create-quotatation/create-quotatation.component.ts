@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
-import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormArray, FormBuilder, FormControl, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NgSelectComponent, NgSelectConfig } from '@ng-select/ng-select';
@@ -102,7 +102,8 @@ export class CreateQuotatationComponent {
               detail: ['', Validators.required],
               quantity: ['', Validators.required],
               unitCost: ['', Validators.required],
-              profit: ['', Validators.required],
+              profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+              unitPrice: ['', Validators.required],
               availability: ['', Validators.required],
             }),
           ])
@@ -130,16 +131,23 @@ export class CreateQuotatationComponent {
         })
       }
       const items = data?.preSale?.estimations?.items ?? [];
+      items.forEach((item: any) => {
+        item.itemDetails.forEach((detail: any) => {
+          if (!this.availabilityDefaultOptions.includes(detail.availability)) {
+            this.availabilityDefaultOptions.push(detail.availability)
+          }
+        })
+      })
       this.quoteForm.patchValue({
         client: data?.client._id,
         department: data?.department._id,
         enqId: data?._id,
         items: items,
-        currency: data?.preSale?.estimations?.currency ?? null,
         totalDiscount: data?.preSale?.estimations?.totalDiscount ?? 0
       });
+
       this.onChange(data?.client._id as string);
-      this.quoteForm.patchValue({ attention: data?.contact._id });
+      this.quoteForm.patchValue({ attention: data?.contact._id, currency: data?.preSale?.estimations?.currency });
     })
 
     )
@@ -164,6 +172,7 @@ export class CreateQuotatationComponent {
           quantity: ['', Validators.required],
           unitCost: ['', Validators.required],
           profit: ['', Validators.required],
+          unitPrice: [''],
           availability: ['', Validators.required],
         })
       ])
@@ -176,6 +185,7 @@ export class CreateQuotatationComponent {
       quantity: ['', Validators.required],
       unitCost: ['', Validators.required],
       profit: ['', Validators.required],
+      unitPrice: [''],
       availability: ['', Validators.required]
     });
   }
@@ -255,22 +265,23 @@ export class CreateQuotatationComponent {
 
   onRemoveItemDetail(i: number, j: number): void {
     const removedItemDetail = this.getItemDetailsControls(i).at(j).value;
-    this.removedItemDetails.push({ item: removedItemDetail, i, j }); 
-    this.getItemDetailsControls(i).removeAt(j); 
+    this.removedItemDetails.push({ item: removedItemDetail, i, j });
+    this.getItemDetailsControls(i).removeAt(j);
 
     this.showUndoOption('item detail');
   }
 
   undoRemoveItem() {
     if (this.removedItems.length > 0) {
-      const { item, index } = this.removedItems.pop();  
+      const { item, index } = this.removedItems.pop();
       this.items.insert(index, this._fb.group({
         itemName: item.itemName,
-        itemDetails: this._fb.array(item.itemDetails.map((detail:any) => this._fb.group({
+        itemDetails: this._fb.array(item.itemDetails.map((detail: any) => this._fb.group({
           detail: detail.detail,
           quantity: detail.quantity,
           unitCost: detail.unitCost,
           profit: detail.profit,
+          unitPrice: detail.unitPrice,
           availability: detail.availability
         })))
       }));
@@ -280,15 +291,15 @@ export class CreateQuotatationComponent {
 
   undoRemoveItemDetail() {
     if (this.removedItemDetails.length > 0) {
-      const { item, i, j } = this.removedItemDetails.pop();  
-      this.getItemDetailsControls(i).insert(j, this._fb.group(item));  
+      const { item, i, j } = this.removedItemDetails.pop();
+      this.getItemDetailsControls(i).insert(j, this._fb.group(item));
       this.getItemDetailsControls(i).updateValueAndValidity()
     }
   }
 
   showUndoOption(type: string) {
     const snackBarRef = this.snackBar.open(`Item removed. Undo?`, 'Undo', { duration: 3000 });
-  
+
     snackBarRef.onAction().subscribe(() => {
       if (type === 'item') {
         this.undoRemoveItem();
@@ -305,6 +316,12 @@ export class CreateQuotatationComponent {
   calculateUnitPrice(i: number, j: number) {
     const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
     return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+  }
+
+  calculateUnitPriceForInput(i: number, j: number) {
+    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+    this.getItemDetailsControls(i).controls[j].get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)))
   }
 
   calculateTotalPrice(i: number, j: number) {
@@ -423,9 +440,20 @@ export class CreateQuotatationComponent {
     if (this.quoteForm.valid) {
       this.isSaving = true;
       const quoteFormValue = this.quoteForm.value;
-      this._quoteService.saveQuotation(quoteFormValue).subscribe((res: Quotatation) => {
+
+      // Create a deep copy of the form value
+      const sanitizedQuoteFormValue = JSON.parse(JSON.stringify(quoteFormValue));
+
+      // Remove unitPrice from each item detail
+      sanitizedQuoteFormValue.items.forEach((item: any) => {
+        item.itemDetails.forEach((detail: any) => {
+          delete detail.unitPrice;
+        });
+      });
+
+      this._quoteService.saveQuotation(sanitizedQuoteFormValue).subscribe((res: Quotatation) => {
         this._router.navigate(['/quotations']);
-      })
+      });
     } else {
       this.isSaving = false;
       this.toastr.warning('Check the fields properly!', 'Warning !')
@@ -487,6 +515,22 @@ export class CreateQuotatationComponent {
     control.setValue(newText);
   }
 
+  calculateProfit(i: number, j: number) {
+    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
+    if (unitCost && unitPrice) {
+      const profit = ((unitPrice - unitCost) / unitPrice) * 100;
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
+    } else if(unitCost) {
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue('');
+    }
+  }
 
+  nonNegativeProfitValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      return value < 0 ? { negativeProfit: true } : null;
+    };
+  }
 
 }

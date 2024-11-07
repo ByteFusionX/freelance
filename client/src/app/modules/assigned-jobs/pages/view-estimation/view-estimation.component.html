@@ -82,7 +82,7 @@
                                 {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
                             </td>
                             <td class="px-2 py-2 border text-center">
-                                {{itemsDetail.profit.toFixed(2)}}%
+                                {{ itemsDetail.profit | number:'1.2-2' }}%
                             </td>
                             <td class="px-2 py-2 border text-center">
                                 {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
