@@ -33,8 +33,8 @@ export class EnquiryService {
     return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?filter=${filter}&page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
-  updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
-    return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
+  updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<{ update: getEnquiry, quoteId: string | undefined }> {
+    return this.http.put<{ update: getEnquiry, quoteId: string | undefined }>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
   emitToQuote(enquiry: getEnquiry | undefined) {

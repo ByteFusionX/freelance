@@ -108,7 +108,7 @@ export class QuotationViewComponent {
   }
 
   isReviseNeeded(){
-    if(this.quoteData.enqId.preSale){
+    if(this.quoteData.enqId.preSale && this.quoteData.status !== 'Won'){
       return true
     }
     return false

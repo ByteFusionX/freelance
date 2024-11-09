@@ -179,7 +179,12 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
                   this.dataSource.data = []
                   this.isEmpty = true
                 }
-                this.toast.success(`Job has successfully completed and send back to Enquiry            pre\n(${data.enquiryId})`)
+
+                if (data.quoteId) {
+                  this.toast.success(`Job has successfully completed and send back to Quotation  \n(${data.quoteId})`)
+                } else {
+                  this.toast.success(`Job has successfully completed and send back to Enquiry \n(${data.update.enquiryId})`)
+                }
               }
             })
           )
