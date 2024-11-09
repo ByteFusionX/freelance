@@ -18,6 +18,7 @@ import { UploadEstimationComponent } from '../upload-estimation/upload-estimatio
 import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
+import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -45,6 +46,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   progress: number = 0;
   selectedFile!: string | undefined;
   userId!: string | undefined;
+  quoteId!: string;
 
   constructor(
     private _enquiryService: EnquiryService,
@@ -53,6 +55,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     private _employeeService: EmployeeService,
     private _notificationService: NotificationService,
     private _router: Router,
+    private _quoteService: QuotationService
   ) { }
 
   ngOnInit(): void {
@@ -176,7 +179,12 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
                   this.dataSource.data = []
                   this.isEmpty = true
                 }
-                this.toast.success(`Job has successfully completed and send back to Enquiry            pre\n(${data.enquiryId})`)
+
+                if (data.quoteId) {
+                  this.toast.success(`Job has successfully completed and send back to Quotation  \n(${data.quoteId})`)
+                } else {
+                  this.toast.success(`Job has successfully completed and send back to Enquiry \n(${data.update.enquiryId})`)
+                }
               }
             })
           )
@@ -185,7 +193,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     } else {
       this.toast.warning('Please complete the estimation Uploads')
     }
-
   }
 
   onFeedback(enquiryId: string, index: number) {
@@ -225,7 +232,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       const feedbackRes = this.dataSource.data[index].preSale.feedback;
 
       if (feedbackRes && feedback.length) {
-        feedbackRes.forEach((feedback)=>{
+        feedbackRes.forEach((feedback) => {
           feedback.seenByFeedbackRequester = true;
         })
         this.dataSource._updateChangeSubscription()

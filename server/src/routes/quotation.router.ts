@@ -1,14 +1,31 @@
 import { Router } from "express";
-import {  approveDeal, getApprovedDealSheet, getDealSheet, getNextQuoteId, getQuotations, getReportDetails, markAsQuotationSeened, markAsSeenDeal, rejectDeal, revokeDeal, saveDealSheet, saveQuotation, totalQuotation, updateQuotation, updateQuoteStatus, uploadLpo } from "../controllers/quotation.controller";
+import {
+    approveDeal,
+    getApprovedDealSheet,
+    getDealSheet,
+    getNextQuoteId,
+    getQuotations,
+    getReportDetails,
+    markAsQuotationSeened,
+    markAsSeenDeal,
+    rejectDeal,
+    revokeDeal,
+    saveDealSheet,
+    saveQuotation,
+    totalQuotation,
+    updateQuotation,
+    updateQuoteStatus,
+    uploadLpo,
+} from "../controllers/quotation.controller";
 const quoteRouter = Router()
 const upload = require("../common/multer.storage")
 
 
 quoteRouter.post('/', saveQuotation)
-quoteRouter.post('/lpo',upload.array('files'), uploadLpo)
+quoteRouter.post('/lpo', upload.array('files'), uploadLpo)
 quoteRouter.patch('/status/:quoteId', updateQuoteStatus)
 quoteRouter.patch('/update/:quoteId', updateQuotation)
-quoteRouter.patch('/deal/:quoteId',upload.array('attachments'), saveDealSheet)
+quoteRouter.patch('/deal/:quoteId', upload.array('attachments'), saveDealSheet)
 quoteRouter.post('/deal/approve', approveDeal)
 quoteRouter.post('/deal/reject', rejectDeal)
 quoteRouter.post('/deal/revoke', revokeDeal)

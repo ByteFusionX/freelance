@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.dashboardMetrics$ = this._dashboardService.getDashboardMetrics(this.userId, this.filterForm.value).pipe(
               map(metrics => {
                 const sortedMetrics = metrics.sort((a, b) => a.rank - b.rank);
-                console.log(sortedMetrics)
+
                 let companyRevenue = 0;
                 sortedMetrics.forEach((metric) => {
                   if (metric.name === 'Revenue Achieved') {
@@ -166,8 +166,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (access && access !== 'none') {
       this._employeeService.getEmployees(filterData).subscribe((employees) => {
-        console.log(employees.employees);
-
         this.salesPersons = employees.employees;
       })
     }
@@ -409,7 +407,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         nameCell.style = nameCellStyle as Partial<Style>;
 
         // Style the rest of the cells normally
-        row.eachCell((cell, colNumber) => {
+        row.eachCell((cell: any, colNumber: any) => {
           if (colNumber > 1) {
             cell.style = rowStyle as Partial<Style>;
           }
@@ -429,7 +427,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
 
       // Save the Excel file
-      workbook.xlsx.writeBuffer().then((buffer) => {
+      workbook.xlsx.writeBuffer().then((buffer: any) => {
         fs.saveAs(new Blob([buffer]), `Report_${new Date().getTime()}.xlsx`);
       });
     })

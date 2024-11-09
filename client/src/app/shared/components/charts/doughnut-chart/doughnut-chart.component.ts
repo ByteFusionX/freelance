@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { HomeRoutingModule } from 'src/app/modules/home/home-routing.module';
 import * as echarts from 'echarts';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
@@ -10,24 +10,35 @@ import { DashboardService } from 'src/app/core/services/dashboard.service';
   standalone: true,
   imports: [HomeRoutingModule],
 })
-export class DoughnutChartComponent implements OnInit {
+export class DoughnutChartComponent implements OnInit, AfterViewInit {
 
   @ViewChild('doughnutChart', { static: true }) doughnutChart!: ElementRef;
-  
-  constructor(
-    private _dashboardService:DashboardService
-  ){}
-  ngOnInit(): void {
-    const myChart = echarts.init(this.doughnutChart.nativeElement);
-    new ResizeObserver(() => myChart.resize()).observe(this.doughnutChart.nativeElement);
+  chartInstance: any;
 
-    this._dashboardService.donutChart$.subscribe((data)=>{
+  constructor(
+    private _dashboardService: DashboardService
+  ) {}
+
+  ngOnInit(): void {
+    // Initialization logic that doesn't depend on the view
+  }
+
+  ngAfterViewInit(): void {
+    this.chartInstance = echarts.init(this.doughnutChart.nativeElement);
+    new ResizeObserver(() => this.chartInstance.resize()).observe(this.doughnutChart.nativeElement);
+
+    this._dashboardService.donutChart$.subscribe((data) => {
+      if (!this.chartInstance) {
+        console.error('Chart instance is not initialized');
+        return;
+      }
+
       let option = {
         tooltip: {
           trigger: 'item',
-          formatter: function (params:any) {
+          formatter: function (params: any) {
             return `${params.name} : ${params.value} QAR`;
-        }
+          }
         },
         series: [
           {
@@ -52,12 +63,24 @@ export class DoughnutChartComponent implements OnInit {
             data: data
           }
         ]
-      };      
-  
-      myChart.setOption(option);
-    })
-    
+      };
+
+      this.chartInstance.setOption(option);
+    });
+  }
+
+  chartResize(size: any) {
+    if (this.chartInstance) {
+      this.chartInstance.resize(size);
+    }
+  }
+
+  makeChartResponsive(): void {
+    window.addEventListener('resize', () => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
   }
 
 }
-

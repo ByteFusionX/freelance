@@ -49,8 +49,8 @@ export class CreateQuotatationComponent {
     "4-6 Weeks"
   ];
   availabiltyInput$ = new Subject<string>();
-  removedItems: any[] = [];
-  removedItemDetails: any[] = [];
+  removedItems: any[] = []; 
+  removedItemDetails: any[] = []; 
 
   isEdit: boolean = false;
   isSaving: boolean = false;
@@ -256,9 +256,9 @@ export class CreateQuotatationComponent {
 
 
   onRemoveItem(index: number): void {
-    const removedItem = this.items.at(index).value;
-    this.removedItems.push({ item: removedItem, index });
-    this.items.removeAt(index);
+    const removedItem = this.items.at(index).value; 
+    this.removedItems.push({ item: removedItem, index }); 
+    this.items.removeAt(index);  
 
     this.showUndoOption('item');
   }

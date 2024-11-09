@@ -4,13 +4,23 @@ import Employee from '../models/employee.model';
 import Department from '../models/department.model';
 import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
+import quotationModel from "../models/quotation.model";
+import { uploadFileToAws } from "../common/aws-connect";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
-        const enquiryFiles = req.files.attachments
-        const presaleFiles = req.files.presaleFiles
+
+        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        })) : [];
+
+        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        })) : [];
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
 
@@ -89,7 +99,11 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
     try {
         const presale = JSON.parse(req.body.presaleData)
-        const presaleFiles = req.files.presaleFiles;
+        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        }));
+
         let enquiryId = req.params.enquiryId;
         if (presaleFiles) {
             presale.presaleFiles = presaleFiles
@@ -334,13 +348,22 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 export const updateEnquiryStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let data = req.body
-        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status, 'preSale.seenbySalesPerson': false, 'preSale.newFeedbackAccess': true } })
+        let quote = await quotationModel.findOne({ enqId: data.id })
+        let status = data.status
+        if (quote) {
+            let updateQuote = await quotationModel.updateOne({ enqId: data.id }, { $set: { 'status': 'Work In Progress' } })
+            status = 'Quoted';
+        }
+        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: status, 'preSale.seenbySalesPerson': false, 'preSale.newFeedbackAccess': true } })
             .populate(['client', 'department', 'salesPerson'])
-        if (update) {
+        if (update && !quote) {
             const socket = req.app.get('io') as Server;
             socket.to(update.salesPerson._id.toString()).emit("notifications", 'enquiry')
-            return res.status(200).json(update)
+            return res.status(200).json({ update })
+        } else if (update) {
+            return res.status(200).json({ update, quoteId: quote.quoteId })
         }
+
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -588,11 +611,57 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
     }
 }
 
+export const reviseQuoteEstimation = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        let { revisionComment, quoteId } = req.body;
+        let enquiryId = req.params.enquiryId;
+        const result = await enquiryModel.findOneAndUpdate(
+            { _id: enquiryId },
+            {
+                $push: { 'preSale.revisionComment': revisionComment },
+                status: 'Assigned To Presales',
+                'preSale.seenbyEmployee': false,
+                'preSale.newFeedbackAccess': true,
+                'preSale.createdDate': Date.now()
+            },
+            { new: true }
+        );
+
+        await quotationModel.updateOne({ _id: quoteId }, { $set: { status: "revised" } })
+
+        const socket = req.app.get('io') as Server;
+        socket.to(result.preSale.presalePerson.toString()).emit("notifications", 'assignedJob')
+
+        if (!result) {
+            return res.status(404).send('Enquiry not found or comment not added.');
+        }
+
+        return res.status(200).json({ success: true })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
         let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
 
-        const enquiryData = await enquiryModel.updateOne(
+
+        const quote = await quotationModel.findOne({ enqId: enquiryId })
+        if (quote) {
+            let quoteData = await quotationModel.updateOne(
+                { _id: quote._id },
+                {
+                    $set: {
+                        'items': items,
+                        'currency': currency,
+                        'totalDiscount': totalDiscount,
+                    }
+                }
+            );
+        }
+
+        let enquiryData = await enquiryModel.updateOne(
             { _id: new ObjectId(enquiryId) },
             {
                 $set: {
@@ -603,6 +672,7 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
                 }
             }
         );
+
 
         if (!enquiryData.modifiedCount) {
             return res.status(502).json();

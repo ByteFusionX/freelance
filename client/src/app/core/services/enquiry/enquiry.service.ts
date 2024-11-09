@@ -33,8 +33,8 @@ export class EnquiryService {
     return this.http.get<EnquiryTable>(`${this.api}/enquiry/presales?filter=${filter}&page=${page}&row=${row}&access=${access}&userId=${userId}`)
   }
 
-  updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<getEnquiry> {
-    return this.http.put<getEnquiry>(`${this.api}/enquiry/update`, selectedEnquiry)
+  updateEnquiryStatus(selectedEnquiry: { id: string, status: string }): Observable<{ update: getEnquiry, quoteId: string | undefined }> {
+    return this.http.put<{ update: getEnquiry, quoteId: string | undefined }>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
   emitToQuote(enquiry: getEnquiry | undefined) {
@@ -49,8 +49,8 @@ export class EnquiryService {
     this.depSubject.next(departmentId)
   }
 
-  uploadEstimations(postBody: any): Observable<{success:boolean}> {
-    return this.http.post<{success:boolean}>(`${this.api}/enquiry/upload-estimation`, postBody)
+  uploadEstimations(postBody: any): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`${this.api}/enquiry/upload-estimation`, postBody)
   }
 
   downloadFile(fileName: string): Observable<any> {
@@ -78,12 +78,16 @@ export class EnquiryService {
     return this.http.get<FeedbackTable>(`${this.api}/enquiry/feedback-request/${employeeId}?page=${page}&row=${row}`)
   }
 
-  giveFeedback(feedbackBody: { enquiryId: string, feedback: string ,feedbackId:string }) {
+  giveFeedback(feedbackBody: { enquiryId: string, feedback: string, feedbackId: string }) {
     return this.http.patch(`${this.api}/enquiry/give-feedback`, feedbackBody)
   }
 
   sendRevision(revisionComment: string, enquiryId: string) {
     return this.http.patch(`${this.api}/enquiry/revision/${enquiryId}`, { revisionComment })
+  }
+
+  quoteRevision(revisionComment: string, enquiryId: string, quoteId: string) {
+    return this.http.patch(`${this.api}/enquiry/quoteRevision/${enquiryId}`, { revisionComment, quoteId })
   }
 
   presalesCounts(access?: string, userId?: string): Observable<{ pending: number, completed: number }> {
@@ -98,8 +102,8 @@ export class EnquiryService {
     return this.http.post(`${this.api}/enquiry/markAsSeenEstimation`, { enquiryId })
   }
 
-  markFeedbackResponseAsViewed(enqId: any,feedbackId:any): Observable<any> {
-    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`, { enqId,feedbackId })
+  markFeedbackResponseAsViewed(enqId: any, feedbackId: any): Observable<any> {
+    return this.http.patch(`${this.api}/enquiry/markAsSeenFeebackResponse`, { enqId, feedbackId })
   }
 
   markFeedbackAsViewed(enqIds: string): Observable<any> {

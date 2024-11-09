@@ -4,24 +4,25 @@ import Enquiry from "../models/enquiry.model";
 import fs from "fs";
 import path from "path";
 import { File } from "../interface/enquiry.interface";
+import { deleteFileFromAws, isFileAvailableInAwsBucket, getFileUrlFromAws } from "../common/aws-connect";
+import fetch from 'node-fetch';
 const { ObjectId } = require('mongodb')
 
 export const DownloadFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const fileName = req.query.file;
-        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
-        const filePath = path.join(uploadsDir, fileName as string);
+        const fileName = req.query.file as string;
+        console.log(fileName);
 
-        if (!fs.existsSync(filePath)) {
+        const url = await getFileUrlFromAws(fileName);
+
+        // Stream the file from S3 to the response
+        const response = await fetch(url);
+        if (!response) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        res.download(filePath, (error) => {
-            if (error) {
-                //   console.error('Error while downloading file:', error);
-                return res.status(404).json({ message: 'File not found' });
-            }
-        });
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        response.body.pipe(res);
     } catch (error) {
         console.error('An error occurred while processing the request:', error);
         next(error);
@@ -30,30 +31,33 @@ export const DownloadFile = async (req: Request, res: Response, next: NextFuncti
 
 export const fetchFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const filename = req.params.filename
-        const filePath = path.join(__dirname, '../../uploads', filename);
-        res.sendFile(filePath, (error) => {
-            if (error) {
-                return res.status(404).json({ mesage: 'file not found' })
-            }
-        })
-    } catch (error) {
-        console.error(error);
+        const filename = req.params.filename;
+        const url = await getFileUrlFromAws(filename);
 
-        next(error)
+        // Stream the file from S3 to the response
+        const response = await fetch(url);
+        if (!response) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        response.body.pipe(res);
+    } catch (error) {
+        console.error('An error occurred while processing the request:', error);
+        next(error);
     }
 }
 
 
 export const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const fileName = req.query.file;
+        const fileName = req.query.file as string;
         const enquiryId = req.query.enquiryId;
-        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
-        const filePath = path.join(uploadsDir, fileName as string);
 
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+        const fileExists = await isFileAvailableInAwsBucket(fileName);
+
+        if (fileExists) {
+            await deleteFileFromAws(fileName);
             const deleteFile = await Enquiry.updateOne(
                 { "_id": new ObjectId(enquiryId) },
                 { $pull: { "assignedFiles": { "filename": fileName } } }
@@ -62,7 +66,10 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
                 res.status(200).json('File Deleted')
             }
         } else {
-            res.status(404).send('File not found');
+            await Enquiry.updateOne(
+                { "_id": new ObjectId(enquiryId) },
+                { $pull: { "assignedFiles": { "filename": fileName } } }
+            );
         }
     } catch (error) {
         next(error);
@@ -73,23 +80,24 @@ export const clearAllPresaleFiles = async (req: Request, res: Response, next: Ne
     try {
         const enquiryId = req.query.enquiryId;
         const presaleFiles = await Enquiry.findById(enquiryId);
-        presaleFiles.assignedFiles.forEach((file: File) => {
-            const uploadsDir = path.resolve(__dirname, '../..', 'uploads');
-            const filePath = path.join(uploadsDir, file.filename as string);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
+        for (const file of presaleFiles.assignedFiles as any[]) {
+            const fileExists = await isFileAvailableInAwsBucket(file.filename);
+            if (fileExists) {
+                await deleteFileFromAws(file.filename);
             }
-        })
+        }
+
         const deleteFile = await Enquiry.updateOne(
             { "_id": new ObjectId(enquiryId) },
             { $set: { "assignedFiles": [] } }
         );
+
         if (deleteFile.modifiedCount) {
-            res.status(200).json('All Files Deleted')
+            res.status(200).json('All Files Deleted');
         } else {
             res.status(404).send('Something went Wrong');
         }
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
