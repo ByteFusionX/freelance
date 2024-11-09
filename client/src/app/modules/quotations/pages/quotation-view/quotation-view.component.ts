@@ -89,7 +89,7 @@ export class QuotationViewComponent {
   }
 
   onDownloadClicks(file: any) {
-      this._enquiryService.downloadFile(file.filename)
+      this._enquiryService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {
             if (event.type === HttpEventType.DownloadProgress) {

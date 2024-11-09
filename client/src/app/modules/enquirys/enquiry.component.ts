@@ -127,8 +127,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
 
   onDownloadClicks(file: any) {
+    console.log(file)
     this.subscriptions.add(
-      this._enquiryService.downloadFile(file.filename)
+      this._enquiryService.downloadFile(file.fileName)
         .subscribe({
           next: (event) => {
             if (event.type === HttpEventType.DownloadProgress) {
