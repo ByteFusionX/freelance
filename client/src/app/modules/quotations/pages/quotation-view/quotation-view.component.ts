@@ -49,7 +49,6 @@ export class QuotationViewComponent {
     } else {
       this._router.navigate(['/quotations']);
     }
-    console.log(this.quoteData.enqId.preSale)
   }
 
   onQuoteEdit() {
@@ -108,7 +107,7 @@ export class QuotationViewComponent {
   }
 
   isReviseNeeded(){
-    if(this.quoteData.enqId.preSale && this.quoteData.status !== 'Won'){
+    if(this.quoteData.enqId?.preSale && this.quoteData.status !== 'Won'){
       return true
     }
     return false

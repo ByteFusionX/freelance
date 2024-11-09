@@ -10,25 +10,35 @@ import { DashboardService } from 'src/app/core/services/dashboard.service';
   standalone: true,
   imports: [HomeRoutingModule],
 })
-export class DoughnutChartComponent implements OnInit{
+export class DoughnutChartComponent implements OnInit, AfterViewInit {
 
   @ViewChild('doughnutChart', { static: true }) doughnutChart!: ElementRef;
   chartInstance: any;
 
   constructor(
-    private _dashboardService:DashboardService
-  ){}
-  ngOnInit(): void {
-    const myChart = echarts.init(this.doughnutChart.nativeElement);
-    new ResizeObserver(() => myChart.resize()).observe(this.doughnutChart.nativeElement);
+    private _dashboardService: DashboardService
+  ) {}
 
-    this._dashboardService.donutChart$.subscribe((data)=>{
+  ngOnInit(): void {
+    // Initialization logic that doesn't depend on the view
+  }
+
+  ngAfterViewInit(): void {
+    this.chartInstance = echarts.init(this.doughnutChart.nativeElement);
+    new ResizeObserver(() => this.chartInstance.resize()).observe(this.doughnutChart.nativeElement);
+
+    this._dashboardService.donutChart$.subscribe((data) => {
+      if (!this.chartInstance) {
+        console.error('Chart instance is not initialized');
+        return;
+      }
+
       let option = {
         tooltip: {
           trigger: 'item',
-          formatter: function (params:any) {
+          formatter: function (params: any) {
             return `${params.name} : ${params.value} QAR`;
-        }
+          }
         },
         series: [
           {
@@ -53,44 +63,10 @@ export class DoughnutChartComponent implements OnInit{
             data: data
           }
         ]
-      };      
-  
+      };
+
       this.chartInstance.setOption(option);
-    })
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onWindowResize(): void {
-    const screenWidth = window.innerWidth;
-    switch (true) {
-      case (screenWidth >= 1024 && screenWidth < 1280):
-        this.chartResize({ width: 350, height: 230 });
-        break;
-
-      case (screenWidth >= 1280 && screenWidth < 1536):
-        this.chartResize({ width: 400, height: 280 });
-        break;
-
-      case (screenWidth >= 1536 && screenWidth < 1600):
-        this.chartResize({ width: 450, height: 300 });
-        break;
-
-      case (screenWidth >= 1600 && screenWidth < 1920):
-        this.chartResize({ width: 500, height: 350 });
-        break;
-
-      case (screenWidth >= 1920 && screenWidth <= 2560):
-        this.chartResize({ width: 550, height: 450 });
-        break;
-
-      case (screenWidth >= 2560):
-        this.chartResize({ width: 600, height: 500 });
-        break;
-
-      default:
-        this.chartResize({ width: 300, height: 200 });
-        break;
-    }
+    });
   }
 
   chartResize(size: any) {

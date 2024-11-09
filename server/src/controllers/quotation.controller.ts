@@ -9,7 +9,7 @@ import { calculateDiscountPrice, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
 import { removeFile } from '../common/util'
 import quotationModel from "../models/quotation.model";
-
+import { uploadFileToAws } from '../common/aws-connect';
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -660,7 +660,10 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
 
         let files = [];
         if (dealFiles) {
-            files = dealFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
+            files = await Promise.all(dealFiles.map(async (file: any) => {
+                await uploadFileToAws(file.filename, file.path);
+                return { fileName: file.filename, originalname: file.originalname };
+            }));
         }
 
         const { paymentTerms, items, removedFiles, existingFiles, costs } = JSON.parse(req.body.dealData);
@@ -776,20 +779,22 @@ export const revokeDeal = async (req: Request, res: Response, next: NextFunction
 
 export const uploadLpo = async (req: any, res: Response, next: NextFunction) => {
     try {
-        if (!req.files) return res.status(204).json({ err: 'No data' })
+        if (!req.files) return res.status(204).json({ err: 'No data' });
 
         const lpoFiles = req.files;
-        const files = lpoFiles.map((file: any) => { return { fileName: file.filename, originalname: file.originalname } });
-
+        const files = await Promise.all(lpoFiles.map(async (file: any) => {
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        }));
 
         const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoFiles: files });
         if (quote) {
             return res.status(200).json(quote);
         }
 
-        return res.status(502).json()
+        return res.status(502).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 

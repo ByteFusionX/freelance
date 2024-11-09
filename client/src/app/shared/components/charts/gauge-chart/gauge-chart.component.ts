@@ -12,7 +12,7 @@ import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
   imports: [HomeRoutingModule, NumberShortenerPipe],
   providers: [NumberShortenerPipe]
 })
-export class GaugeChartComponent implements OnInit{
+export class GaugeChartComponent implements OnInit, AfterViewInit {
 
   @ViewChild('gaugeChart', { static: false }) gaugeChart!: ElementRef;
   chartInstance: any;
@@ -21,15 +21,19 @@ export class GaugeChartComponent implements OnInit{
     private _dashboardService: DashboardService,
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
+
   ngOnInit(): void {
+    // Initialization logic that doesn't depend on the view
+  }
+
+  ngAfterViewInit(): void {
     const myChart = echarts.init(this.gaugeChart.nativeElement);
     new ResizeObserver(() => myChart.resize()).observe(this.gaugeChart.nativeElement);
 
-
     this._dashboardService.guageChart$.subscribe((report) => {
-      let criticalRange = (report.criticalRange / report.targetValue)
-      let moderateRange = (report.moderateRange / report.targetValue)
-      let revenue = (report.companyRevenue / report.targetValue)
+      let criticalRange = (report.criticalRange / report.targetValue);
+      let moderateRange = (report.moderateRange / report.targetValue);
+      let revenue = (report.companyRevenue / report.targetValue);
 
       const numberShortenerPipe = this.numberShortenerPipe;
 
@@ -118,8 +122,7 @@ export class GaugeChartComponent implements OnInit{
       };
 
       myChart.setOption(option);
-
-    })
+    });
   }
 
   @HostListener('window:resize', ['$event'])

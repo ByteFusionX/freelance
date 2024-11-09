@@ -12,7 +12,7 @@ import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
   templateUrl: './line-chart.component.html',
   styleUrls: ['./line-chart.component.css']
 })
-export class LineChartComponent implements OnInit {
+export class LineChartComponent implements OnInit, AfterViewInit {
 
   @ViewChild('lineChart', { static: true }) lineChart!: ElementRef;
   chartInstance: any;
@@ -22,12 +22,16 @@ export class LineChartComponent implements OnInit {
     private numberShortenerPipe: NumberShortenerPipe
   ) { }
   ngOnInit(): void {
-    const myChart = echarts.init(this.lineChart.nativeElement);
-    new ResizeObserver(() => myChart.resize()).observe(this.lineChart.nativeElement);
+    // Initialization logic that doesn't depend on the view
+  }
+
+  ngAfterViewInit(): void {
+    this.chartInstance = echarts.init(this.lineChart.nativeElement);
+    new ResizeObserver(() => this.chartInstance.resize()).observe(this.lineChart.nativeElement);
 
     this._dashboardService.graphChart$.subscribe((data) => {
       const numberShortenerPipe = this.numberShortenerPipe;
-      const maxProfit = Math.max(...data.profitPerMonths.profits)
+      const maxProfit = Math.max(...data.profitPerMonths.profits);
       let option = {
         tooltip: {
           trigger: 'axis',
@@ -45,7 +49,7 @@ export class LineChartComponent implements OnInit {
           max: data.profitTarget.targetValue || 0 > maxProfit ? data.profitTarget.targetValue : maxProfit.toFixed(2),
           axisLabel: {
             formatter: function (value: number) {
-              return numberShortenerPipe.transform(value)
+              return numberShortenerPipe.transform(value);
             }
           },
         },
@@ -98,43 +102,42 @@ export class LineChartComponent implements OnInit {
         ]
       };
       this.chartInstance.setOption(option);
-    })
-
+    });
   }
 
-  @HostListener('window:resize', ['$event'])
-  onWindowResize(): void {
-    const screenWidth = window.innerWidth;
-    switch (true) {
-      case (screenWidth >= 1024 && screenWidth < 1280):
-        this.chartResize({ width: 700, height: 360 });
-        break;
+  // @HostListener('window:resize', ['$event'])
+  // onWindowResize(): void {
+  //   const screenWidth = window.innerWidth;
+  //   switch (true) {
+  //     case (screenWidth >= 1024 && screenWidth < 1280):
+  //       this.chartResize({ width: 700, height: 360 });
+  //       break;
 
-      case (screenWidth >= 1280 && screenWidth < 1536):
-        this.chartResize({ width: 800, height: 360 });
-        break;
+  //     case (screenWidth >= 1280 && screenWidth < 1536):
+  //       this.chartResize({ width: 800, height: 360 });
+  //       break;
 
-      case (screenWidth >= 1536 && screenWidth < 1600):
-        this.chartResize({ width: 900, height: 360 });
-        break;
+  //     case (screenWidth >= 1536 && screenWidth < 1600):
+  //       this.chartResize({ width: 900, height: 360 });
+  //       break;
 
-      case (screenWidth >= 1600 && screenWidth < 1920):
-        this.chartResize({ width: 1000, height: 360 });
-        break;
+  //     case (screenWidth >= 1600 && screenWidth < 1920):
+  //       this.chartResize({ width: 1000, height: 360 });
+  //       break;
 
-      case (screenWidth >= 1920 && screenWidth <= 2560):
-        this.chartResize({ width: 1150, height: 360 });
-        break;
+  //     case (screenWidth >= 1920 && screenWidth <= 2560):
+  //       this.chartResize({ width: 1150, height: 360 });
+  //       break;
 
-      case (screenWidth >= 2560):
-        this.chartResize({ width: 1600, height: 360 });
-        break;
+  //     case (screenWidth >= 2560):
+  //       this.chartResize({ width: 1600, height: 360 });
+  //       break;
 
-      default:
-        this.chartResize({ width: 500, height: 360 });
-        break;
-    }
-  }
+  //     default:
+  //       this.chartResize({ width: 500, height: 360 });
+  //       break;
+  //   }
+  // }
 
   chartResize(size: any) {
     if (this.chartInstance) {

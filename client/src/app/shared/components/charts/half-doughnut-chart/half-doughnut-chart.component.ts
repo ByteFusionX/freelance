@@ -10,7 +10,7 @@ import { DashboardService } from 'src/app/core/services/dashboard.service';
   templateUrl: './half-doughnut-chart.component.html',
   styleUrls: ['./half-doughnut-chart.component.css']
 })
-export class HalfDoughnutChartComponent implements AfterViewInit, AfterViewChecked {
+export class HalfDoughnutChartComponent implements AfterViewInit {
 
   @Input() conversionType!: string;
   @ViewChild('halfDoughnutChart', { static: true }) halfDoughnutChart!: ElementRef;
@@ -23,9 +23,9 @@ export class HalfDoughnutChartComponent implements AfterViewInit, AfterViewCheck
     this.makeChartResponsive();
   }
 
-  ngAfterViewChecked(): void {
-    this.onWindowResize()
-  }
+  // ngAfterViewChecked(): void {
+  //   this.onWindowResize()
+  // }
 
   initializeChart(): void {
     this.chartInstance = echarts.init(this.halfDoughnutChart.nativeElement);
@@ -75,39 +75,39 @@ export class HalfDoughnutChartComponent implements AfterViewInit, AfterViewCheck
     chartInstance.setOption(option);
   }
 
-  @HostListener('window:resize', ['$event'])
-  onWindowResize(): void {
-    const screenWidth = window.innerWidth;
-    switch (true) {
-      case (screenWidth >= 1024 && screenWidth < 1280):
-        this.chartResize({ width: 350, height: 250 });
-        break;
+  // @HostListener('window:resize', ['$event'])
+  // onWindowResize(): void {
+  //   const screenWidth = window.innerWidth;
+  //   switch (true) {
+  //     case (screenWidth >= 1024 && screenWidth < 1280):
+  //       this.chartResize({ width: 350, height: 250 });
+  //       break;
 
-      case (screenWidth >= 1280 && screenWidth < 1536):
-        this.chartResize({ width: 400, height: 300 });
-        break;
+  //     case (screenWidth >= 1280 && screenWidth < 1536):
+  //       this.chartResize({ width: 400, height: 300 });
+  //       break;
 
-      case (screenWidth >= 1536 && screenWidth < 1600):
-        this.chartResize({ width: 450, height: 320 });
-        break;
+  //     case (screenWidth >= 1536 && screenWidth < 1600):
+  //       this.chartResize({ width: 450, height: 320 });
+  //       break;
 
-      case (screenWidth >= 1600 && screenWidth < 1920):
-        this.chartResize({ width: 500, height: 350 });
-        break;
+  //     case (screenWidth >= 1600 && screenWidth < 1920):
+  //       this.chartResize({ width: 500, height: 350 });
+  //       break;
 
-      case (screenWidth >= 1920 && screenWidth <= 2560):
-        this.chartResize({ width: 550, height: 450 });
-        break;
+  //     case (screenWidth >= 1920 && screenWidth <= 2560):
+  //       this.chartResize({ width: 550, height: 450 });
+  //       break;
 
-      case (screenWidth >= 2560):
-        this.chartResize({ width: 600, height: 500 });
-        break;
+  //     case (screenWidth >= 2560):
+  //       this.chartResize({ width: 600, height: 500 });
+  //       break;
 
-      default:
-        this.chartResize({ width: 300, height: 220 });
-        break;
-    }
-  }
+  //     default:
+  //       this.chartResize({ width: 300, height: 220 });
+  //       break;
+  //   }
+  // }
 
   chartResize(size: any) {
     if (this.chartInstance) {

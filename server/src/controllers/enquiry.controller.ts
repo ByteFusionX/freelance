@@ -5,13 +5,22 @@ import Department from '../models/department.model';
 import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
 import quotationModel from "../models/quotation.model";
+import { uploadFileToAws } from "../common/aws-connect";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
-        const enquiryFiles = req.files.attachments
-        const presaleFiles = req.files.presaleFiles
+
+        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        })) : [];
+
+        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        })) : [];
 
         const enquiryData = <Enquiry>JSON.parse(req.body.enquiryData)
 
@@ -90,7 +99,11 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
     try {
         const presale = JSON.parse(req.body.presaleData)
-        const presaleFiles = req.files.presaleFiles;
+        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+            await uploadFileToAws(file.filename, file.path);
+            return { fileName: file.filename, originalname: file.originalname };
+        }));
+
         let enquiryId = req.params.enquiryId;
         if (presaleFiles) {
             presale.presaleFiles = presaleFiles

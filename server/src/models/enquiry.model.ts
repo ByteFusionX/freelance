@@ -141,7 +141,7 @@ const enquirySchema = new Schema<Enquiry>({
         type: Date,
         default: Date.now()
     },
-    attachments: [FilesSchema],
+    attachments: [],
     preSale: preSaleSchema,
     assignedFiles: [FilesSchema],
     enquiryId: {
