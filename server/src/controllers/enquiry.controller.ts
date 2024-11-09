@@ -335,13 +335,22 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 export const updateEnquiryStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let data = req.body
-        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: data.status, 'preSale.seenbySalesPerson': false, 'preSale.newFeedbackAccess': true } })
+        let quote = await quotationModel.findOne({ enqId: data.id })
+        let status = data.status
+        if (quote) {
+            let updateQuote = await quotationModel.updateOne({ enqId: data.id }, { $set: { 'status': 'Work In Progress' } })
+            status = 'Quoted';
+        }
+        const update = await enquiryModel.findOneAndUpdate({ _id: data.id }, { $set: { status: status, 'preSale.seenbySalesPerson': false, 'preSale.newFeedbackAccess': true } })
             .populate(['client', 'department', 'salesPerson'])
-        if (update) {
+        if (update && !quote) {
             const socket = req.app.get('io') as Server;
             socket.to(update.salesPerson._id.toString()).emit("notifications", 'enquiry')
-            return res.status(200).json(update)
+            return res.status(200).json({ update })
+        } else if (update) {
+            return res.status(200).json({ update, quoteId: quote.quoteId })
         }
+
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -624,46 +633,33 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
     try {
         let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
 
-        let enquiryData;
-        let quoteData;
+
         const quote = await quotationModel.findOne({ enqId: enquiryId })
-        if(quote){
-            quoteData = await quotationModel.updateOne(
+        if (quote) {
+            let quoteData = await quotationModel.updateOne(
                 { _id: quote._id },
                 {
                     $set: {
                         'items': items,
                         'currency': currency,
                         'totalDiscount': totalDiscount,
-                        'status': 'Work In Progress'
-                    }
-                }
-            );
-            enquiryData = await enquiryModel.updateOne(
-                { _id: new ObjectId(enquiryId) },
-                {
-                    $set: {
-                        'preSale.estimations.items': items,
-                        'preSale.estimations.currency': currency,
-                        'preSale.estimations.totalDiscount': totalDiscount,
-                        'preSale.estimations.presaleNote': preSaleNote,
-                        'status': 'Quoted'
-                    }
-                }
-            );
-        }else{
-            enquiryData = await enquiryModel.updateOne(
-                { _id: new ObjectId(enquiryId) },
-                {
-                    $set: {
-                        'preSale.estimations.items': items,
-                        'preSale.estimations.currency': currency,
-                        'preSale.estimations.totalDiscount': totalDiscount,
-                        'preSale.estimations.presaleNote': preSaleNote,
                     }
                 }
             );
         }
+
+        let enquiryData = await enquiryModel.updateOne(
+            { _id: new ObjectId(enquiryId) },
+            {
+                $set: {
+                    'preSale.estimations.items': items,
+                    'preSale.estimations.currency': currency,
+                    'preSale.estimations.totalDiscount': totalDiscount,
+                    'preSale.estimations.presaleNote': preSaleNote,
+                }
+            }
+        );
+
 
         if (!enquiryData.modifiedCount) {
             return res.status(502).json();
