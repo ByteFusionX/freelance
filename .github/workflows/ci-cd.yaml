@@ -26,4 +26,4 @@ jobs:
       - name: Delete old container
         run: sudo docker rm -f neuron-api
       - name: Run docker compose
-        run: sudo docker compose up -d --build
+        run: sudo docker compose -f ~/docker-compose.yaml up -d
