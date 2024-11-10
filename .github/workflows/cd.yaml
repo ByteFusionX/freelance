@@ -11,16 +11,13 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v3
 
-      - name: Create env file if not exists
+      - name: Update .env file
         working-directory: server
         run: |
-          # Check if .env file exists, if not, create it using the ENV_VARIABLES secret
-          if [ ! -f .env ]; then
-            echo "Creating .env file from ENV_VARIABLES secret..."
-            echo "${{ secrets.ENV_VARIABLES }}" > .env
-          fi
+          # Overwrite the .env file with the new content from ENV_VARIABLES secret
+          echo "Overwriting .env file with new content from ENV_VARIABLES secret..."
+          echo "${{ secrets.ENV_VARIABLES }}" > .env
           
       - name: Docker compose up
         working-directory: server
         run: sudo docker compose up -d --build
-
