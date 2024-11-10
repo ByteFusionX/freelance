@@ -10,7 +10,17 @@ jobs:
     steps:
       - name: Check out the code
         uses: actions/checkout@v3
-      
-      - name: Navigate to server directory
+
+      - name: Create env file if not exists
         working-directory: server
-        run: ls
+        run: |
+          # Check if .env file exists, if not, create it using the ENV_VARIABLES secret
+          if [ ! -f .env ]; then
+            echo "Creating .env file from ENV_VARIABLES secret..."
+            echo "${{ secrets.ENV_VARIABLES }}" > .env
+          fi
+          
+      - name: Docker compose up
+        working-directory: server
+        run: sudo docker compose up -d --build
+
