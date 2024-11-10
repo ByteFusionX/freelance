@@ -68,11 +68,11 @@ app.use('/note', noteRouter);
 app.use('/company',companyRouter)
 app.use('/dashboard',dashboardRouter)
 
-let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}`;
+let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}`;
 if (process.env.USE_MONGOATLAS === 'true') {
   mongoUrl = process.env.MONGODB_ATLAS_URL as string;
 }
-   
+console.log(mongoUrl);
 mongoose
   .connect(mongoUrl)
   .then(() => {

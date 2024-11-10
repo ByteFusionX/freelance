@@ -1,5 +1,6 @@
 services:
   api:
+    restart: always
     build:
       context: .
       target: production
@@ -7,8 +8,15 @@ services:
       - .env
     ports:
       - 3000:3000
+    volumes:
+      - ./server:/server
+      - server-v-node-modules:/server/node_modules
+    depends_on:
+      - mongo
+
   mongo:
     image: mongo
+    restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
