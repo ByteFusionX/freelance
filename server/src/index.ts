@@ -72,7 +72,7 @@ let mongoUrl = `mongodb://${process.env.MONGO_IP}:${process.env.MONGO_PORT}/${pr
 if (process.env.USE_MONGOATLAS === 'true') {
   mongoUrl = process.env.MONGODB_ATLAS_URL as string;
 }
-console.log(mongoUrl);
+console.log(mongoUrl,'mongoUrl');
 mongoose
   .connect(mongoUrl)
   .then(() => {
