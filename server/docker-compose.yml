@@ -11,7 +11,7 @@ services:
     depends_on:
       - mongo
 
-  mongo:
+  mongoCont:
     image: mongo
     restart: always
     environment:
