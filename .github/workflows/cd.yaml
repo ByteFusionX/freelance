@@ -11,6 +11,13 @@ jobs:
       - name: Check out the code
         uses: actions/checkout@v3
 
+      - name: Delete existing .env file
+        working-directory: server
+        run: |
+          if [ -f .env ]; then
+            rm .env
+          fi
+
       - name: Update .env file
         working-directory: server
         run: |
