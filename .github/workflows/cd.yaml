@@ -12,7 +12,5 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Navigate to server directory
-        run: cd server
-      
-      - name: Create a env file if not exists
+        working-directory: server
         run: ls
