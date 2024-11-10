@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Initialize the S3 client
-const s3Client = new S3Client({
+const s3Client = new S3Client({ 
     region: process.env.AWS_REGION,
     credentials: {
         accessKeyId: process.env.AWS_ACCESSKEYID,
@@ -35,7 +35,7 @@ export const uploadFileToAws = async (fileName: string, filePath: string): Promi
                 if (err) {
                     console.error('Error deleting file:', err);
                 } else {
-                    console.log('File deleted successfully.');
+                    console.log('File deleted successfully.👍');
                 }
             });
         }
