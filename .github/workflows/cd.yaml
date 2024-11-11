@@ -2,7 +2,7 @@ name: CICD
 
 on:
   push:
-    branches: [main]
+    branches: [devlopment]
 
 jobs:
   deploy:
@@ -26,5 +26,4 @@ jobs:
           echo "${{ secrets.ENV_VARIABLES }}" > .env
           
       - name: Docker compose up
-        working-directory: server
-        run: sudo docker compose up -d --build
+        run: sudo docker compose -f ./docker/docker-compose.yml up -d --build
