@@ -12,8 +12,6 @@ COPY . .
 
 RUN ng build --configuration=production
 
-FROM nginx:latest
-
-COPY --from=build app/dist/client /usr/share/nginx/html
+COPY dist/client /usr/share/nginx/html
 
 EXPOSE 80
