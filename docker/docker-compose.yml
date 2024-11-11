@@ -5,7 +5,7 @@ services:
       context: ../client
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - 4200:80
 
   api:
     restart: always
