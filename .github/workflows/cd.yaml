@@ -27,4 +27,4 @@ jobs:
 
       - name: Docker compose up
         run: |
-          sudo docker compose --env-file ../server/.env -f ./docker/docker-compose.yml up -d --build
+          sudo docker compose --env-file ./server/.env -f ./docker/docker-compose.yml up -d --build
