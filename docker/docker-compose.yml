@@ -13,6 +13,8 @@ services:
       context: ../server
       dockerfile: Dockerfile
       target: production
+    env_file:
+      - ../server/.env
     ports:
       - 3000:3000
     depends_on:
@@ -21,13 +23,13 @@ services:
   mongoCont:
     image: mongo
     restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    env_file:
+      - ../server/.env
     volumes:
       - mongo-db:/data/db
     ports:
       - 27018:27017
+    command: /bin/sh -c "printenv && mongod"
 
 volumes:
   mongo-db:
