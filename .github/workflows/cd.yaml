@@ -24,6 +24,7 @@ jobs:
           # Overwrite the .env file with the new content from ENV_VARIABLES secret
           echo "Overwriting .env file with new content from ENV_VARIABLES secret..."
           echo "${{ secrets.ENV_VARIABLES }}" > .env
-          
+
       - name: Docker compose up
-        run: sudo docker compose -f ./docker/docker-compose.yml up -d --build
+        run: |
+          sudo docker compose --env-file ../server/.env -f ./docker/docker-compose.yml up -d --build
