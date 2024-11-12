@@ -12,8 +12,6 @@ COPY . .
 
 RUN ng build --configuration=production
 
-RUN echo "Checking /app directory contents from build stage:" && ls -la /app
-
 FROM nginx:latest
 
 # Copy the custom nginx config
