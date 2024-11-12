@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 4200:80
+      
 
   api:
     restart: always
