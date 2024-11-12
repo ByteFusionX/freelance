@@ -23,8 +23,6 @@ services:
   mongoCont:
     image: mongo
     restart: always
-    env_file:
-      - ../server/.env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
