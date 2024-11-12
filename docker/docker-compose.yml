@@ -29,7 +29,6 @@ services:
       - mongo-db:/data/db
     ports:
       - 27018:27017
-    command: /bin/sh -c "printenv && mongod"
 
 volumes:
   mongo-db:
