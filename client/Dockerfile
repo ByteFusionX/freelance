@@ -16,6 +16,10 @@ RUN echo "Checking /app directory contents from build stage:" && ls -la /app
 
 FROM nginx:latest
 
-COPY --from=build app/dist/client /usr/share/nginx/html
+# Copy the custom nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy the built Angular app
+COPY --from=build /app/dist/client /usr/share/nginx/html
 
 EXPOSE 80
