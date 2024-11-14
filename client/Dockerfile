@@ -15,7 +15,7 @@ RUN ng build --configuration=production
 FROM nginx:latest
 
 # Copy the custom nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/conf.d
 
 # Copy the built Angular app
 COPY --from=build /app/dist/client /usr/share/nginx/html
