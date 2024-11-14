@@ -22,19 +22,25 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-extended-pdf-viewer/assets/",
+                "output": "/assets/"
+              }
             ],
             "styles": [
               "src/custom-theme.scss",
               "src/styles.css",
               "node_modules/ngx-toastr/toastr.css"
-              
             ],
-            "allowedCommonJsDependencies": ["apexcharts"],
+            "allowedCommonJsDependencies": [
+              "apexcharts"
+            ],
             "scripts": []
           },
           "configurations": {
-            "production": { 
+            "production": {
               "budgets": [
                 {
                   "type": "initial",
@@ -82,7 +88,10 @@
               "browserTarget": "client:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

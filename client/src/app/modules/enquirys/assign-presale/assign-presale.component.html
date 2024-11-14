@@ -1,4 +1,4 @@
-<div class="w-[500px]">
+<div class="w-[500px]  max-h-[95vh]">
     <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
         <h3 class="text-md font-medium">Assign To Presale</h3>
         <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
@@ -6,7 +6,7 @@
         </button>
     </div>
 
-    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow">
+    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow overflow-y-scroll max-h-[77vh]">
         <form action="">
             <div class="w-full px-5 py-2">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="customers">
@@ -17,12 +17,24 @@
                     <ng-option *ngFor="let employee of employees$ | async" [value]="employee._id">{{employee.firstName}}
                         {{employee.lastName}}</ng-option>
                 </ng-select>
-                <p class="text-sm italic text-red-500" *ngIf="employeeError">Select Sales Person</p>
+                <p class="text-sm mt-1 text-red-500" *ngIf="employeeError">Select Sales Person</p>
             </div>
 
-            <div class="w-full mb-5">
+            <div class="w-full px-5 py-2">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="comment">
+                    Comment
+                </label>
+                <textarea appNoLeadingSpace [(ngModel)]="comment" name="comment" (ngModelChange)="validateComment()" [ngClass]="{'border-red-500':commentError}"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white "
+                    id="comment"></textarea>
+                <div *ngIf="commentError" class="text-red-500 mt-1 text-sm">
+                    Please provide your revision comments.
+                </div>
+            </div>
+
+            <div class="w-full mb-5 -mt-3">
                 <app-upload-file (fileUpload)="onFileUpload($event)" [selectedFiles]="selectedFiles"></app-upload-file>
-                <p class="px-5 text-sm italic text-red-500" *ngIf="fileError">Choose files</p>
+                <p class="text-red-500 text-sm pl-5" *ngIf="fileError">Select atleast one file</p>
             </div>
 
         </form>
@@ -36,11 +48,12 @@
             </button>
         </div>
         <div>
-            <button class="border text-black font-medium py-2 px-4 rounded text-sm" (click)="onClose()">
+            <button class="border text-black font-medium py-2 px-4 rounded text-sm mr-2" (click)="onClose()">
                 Close
             </button>
             <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
                 (click)="onSubmit()">
+                <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
                 Submit
             </button>
         </div>

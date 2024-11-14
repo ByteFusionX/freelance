@@ -9,12 +9,57 @@ interface Employee extends Document {
     designation: string;
     dob: Date;
     department: Types.ObjectId;
-    category: string;
+    category: Types.ObjectId;
     dateOfJoining: Date;
     reportingTo: Types.ObjectId;
     userRole: string;
     password: string;
+    createdBy: Types.ObjectId;
+    targets: Target[];
 }
+
+interface Target {
+    _id: string;
+    year:number;
+    salesRevenue:RangeTarget;
+    grossProfit:RangeTarget;
+  }
+  
+  interface RangeTarget{
+    targetValue: number;
+    criticalRange: number;
+    moderateRange: number;
+  }
+  
+  const rangeSchema = new Schema<RangeTarget>({
+    targetValue: {
+      type: Number,
+      required: true,
+    },
+    criticalRange: {
+      type: Number,
+      required: true,
+    },
+    moderateRange: {
+      type: Number,
+      required: true,
+    },
+  });
+  
+  const targetSchema = new Schema<Target>({
+    year: {
+      type: Number,
+      required: true,
+    },
+    salesRevenue:{
+      type:rangeSchema,
+      required: true,
+    },
+    grossProfit:{
+      type:rangeSchema,
+      required: true,
+    },
+  });  
 
 enum UserRole {
     user,
@@ -58,7 +103,8 @@ const employeeSchema = new Schema<Employee>({
         required: true,
     },
     category: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
         required: true,
     },
     dateOfJoining: {
@@ -70,14 +116,17 @@ const employeeSchema = new Schema<Employee>({
         ref: 'Employee',
         default: null,
     },
-    userRole: {
-        type: String,
-        enum: UserRole,
-        required: true,
-    },
     password: {
         type: String,
         required: true,
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
+    },
+    targets: {
+      type: [targetSchema], 
     },
 });
 

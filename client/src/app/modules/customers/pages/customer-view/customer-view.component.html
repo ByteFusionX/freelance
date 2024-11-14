@@ -1,4 +1,4 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="  border-b p-3 px-9 flex justify-between items-center">
         <h3 class="text-md font-medium">Customer - <span class="uppercase">{{customerData.companyName}}</span></h3>
         
@@ -19,19 +19,39 @@
                     <tbody>
                         <tr class=" border-b ">
                             <td class="px-2 py-2  border text-left font-medium bg-gray-50">
-                                Customer Type
+                                Client Ref Id
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{customerData.clientRef}}
+                            </td>
+                            
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Company Name
+                            </td>
+                            <td class="px-2 py-2 border text-start">
+                                {{customerData.companyName}}
+                            </td>
+                           
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-left font-medium bg-gray-50">
+                                Department
                             </td>
                             <td class="px-2 py-2 border text-start ">
                                 {{customerData.department.departmentName}}
                             </td>
-                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
-                                Company Name
+                            
+                            <td class="px-2 py-2  border text-left font-medium bg-gray-50">
+                                Customer Type
                             </td>
-                            <td class="px-2 py-2 border text-start uppercase">
-                                {{customerData.companyName}}
+                            <td class="px-2 py-2 border text-start ">
+                                {{customerData.customerType | formatString}}
                             </td>
+                           
                         </tr>
+
                         <tr class=" border-b ">
+                            
                             <td class="px-2 py-2  border text-start font-medium bg-gray-50">
                                 Customer Email Id
                             </td>
@@ -43,6 +63,14 @@
                             </td>
                             <td class="px-2 py-2 border text-start uppercase">
                                 {{customerData.contactNo}}
+                            </td>
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-2  border text-start font-medium bg-gray-50">
+                                Company Address
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{customerData.companyAddress}}
                             </td>
                         </tr>
                         
@@ -64,6 +92,12 @@
                         <th scope="col" class="px-6 py-3 border">
                             Email
                         </th>
+                        <th scope="col" class="px-6 py-3 border">
+                            Phone No.
+                        </th>
+                        <th scope="col" class="px-6 py-3 border">
+                            Depatment
+                        </th>
                         
                     </tr>
                 </thead>
@@ -74,6 +108,12 @@
                         </td>
                         <td class="border px-6 py-3  font-medium text-gray-800 text-base">
                            {{contact.email}}
+                        </td>
+                        <td class="border px-6 py-3  font-medium text-gray-800 text-base">
+                           {{contact.phoneNo}}
+                        </td>
+                        <td class="border px-6 py-3  font-medium text-gray-800 text-base">
+                           {{contact.department.departmentName}}
                         </td>
                     </tr>
                     

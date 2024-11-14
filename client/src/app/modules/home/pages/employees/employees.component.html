@@ -1,21 +1,24 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8 ">
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
-            <h3>Employee Details</h3>
+            <h3>Employees</h3>
 
             <div class="flex justify-end gap-4">
                 <div
                     class="h-10 inline-flex items-center justify-between text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] pl-[20px] pr-[8px]">
-                    <input type="text" [(ngModel)]="searchQuery" placeholder="Search Employees" (keyup.enter)="onSearch()"
-                    class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
-                    <div class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer" (click)="onSearch()" >
-                        
-                    <ng-icon name="heroMagnifyingGlass" class="text-sm text-gray-600  hover:text-violet-700 m-1.5">
-                    </ng-icon>
+                    <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="ngModelChange()"
+                        placeholder="Search Employees" (keyup.enter)="onSearch()"
+                        class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
+                    <div class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer"
+                        (click)="onSearch()">
+
+                        <ng-icon name="heroMagnifyingGlass" class="text-sm text-gray-600  hover:text-violet-700 m-1.5">
+                        </ng-icon>
                     </div>
                 </div>
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
+                <button *ngIf="createEmployee"
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
                     (click)="openDialog()">
                     + Create Employee
                 </button>
@@ -23,7 +26,7 @@
 
         </div>
     </div>
-    <app-skelton-loading *ngIf="isLoading "  [lineLength]="4"></app-skelton-loading>
+    <app-skelton-loading *ngIf="isLoading " [lineLength]="4"></app-skelton-loading>
 
     <div class="m-8  overflow-y-auto">
 
@@ -33,60 +36,73 @@
                 <p class="m-2 text-center text-gray-500">No Data</p>
             </div>
         </div>
-        <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+        <section class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
 
-            <!--- Note that these columns can be defined in any order.
+            <table *ngIf="!isLoading && !isEmpty" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+
+                <!--- Note that these columns can be defined in any order.
                   The actual rendered columns are set as a property on the row definition" -->
 
-            <ng-container matColumnDef="employeeId">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-center text-dark  text-[15px] font-medium border-none before:hidden rounded-l-xl">
-                    Employee ID </th>
-                <td mat-cell *matCellDef="let element"> <p  class="text-center font-medium">{{element.employeeId}}</p> </td>
-            </ng-container>
+                <ng-container matColumnDef="employeeId">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-center text-dark  text-[15px] font-medium border-none before:hidden rounded-l-xl">
+                        Employee ID </th>
+                    <td mat-cell *matCellDef="let element">
+                        <p class="text-center font-medium">{{element.employeeId}}</p>
+                    </td>
+                </ng-container>
 
-            <!-- Position Column -->
-            <ng-container matColumnDef="name">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Employee Name </th>
-                <td mat-cell *matCellDef="let element"> {{element.firstName+' '+element.lastName}} </td>
-            </ng-container>
+                <!-- Position Column -->
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Employee Name </th>
+                    <td mat-cell *matCellDef="let element"> {{element.firstName+' '+element.lastName}} </td>
+                </ng-container>
 
-            <!-- Name Column -->
-            <ng-container matColumnDef="department">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Department </th>
-                <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
-            </ng-container>
+                <!-- Name Column -->
+                <ng-container matColumnDef="department">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department </th>
+                    <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
+                </ng-container>
 
-            <!-- Weight Column -->
-            <ng-container matColumnDef="email">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Email </th>
-                <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-            </ng-container>
+                <!-- Weight Column -->
+                <ng-container matColumnDef="email">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Email </th>
+                    <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                </ng-container>
 
-            <!-- Symbol Column -->
-            <ng-container matColumnDef="contactNo">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Contact No. </th>
-                <td mat-cell *matCellDef="let element"> {{element.contactNo}} </td>
-            </ng-container>
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="contactNo">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Contact No. </th>
+                    <td mat-cell *matCellDef="let element"> {{element.contactNo}} </td>
+                </ng-container>
 
-            <ng-container matColumnDef="privilage">
+                <!-- <ng-container matColumnDef="privilage">
                 <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden  rounded-r-xl">
-                    Privilage </th>
-                <td mat-cell *matCellDef="let element"> {{element.privilage}} </td>
-            </ng-container>
+                    class="bg-gray-100  px-[20px] py-[16px] text-center text-dark  text-[15px] font-medium border-none before:hidden  rounded-r-xl">
+                    Action </th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="flex justify-center items-center gap-2">
+                        <div (click)="viewEmployee()"
+                            class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 border border-gray/60  text-sm rounded-full  font-medium hover:bg-gray-200">
+                            <ng-icon name="heroEye"></ng-icon>
+                        </div>
+                    </div>
+                </td>
+            </ng-container> -->
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns; let i= index"
+                    class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
+            </table>
+        </section>
         <div class="w-full bg-white" *ngIf="!isEmpty && !isLoading">
             <app-pagination [page]="page" [row]="row" [total]="total"
                 (changeData)="onPageNumberClick($event)"></app-pagination>

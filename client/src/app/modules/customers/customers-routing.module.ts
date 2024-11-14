@@ -5,16 +5,16 @@ import { CustomersListComponent } from './pages/customers-list/customers-list.co
 import { CreateCustomerDialog } from './pages/create-customer/create-customer.component';
 import { CustomerViewComponent } from './pages/customer-view/customer-view.component';
 import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
+import { RoleGuard } from 'src/app/core/guards/role/role.guard';
 
 const routes: Routes = [
   {
-    path: '', component: CustomersComponent, 
+    path: '', component: CustomersComponent,
     children: [
-      { path: '', component: CustomersListComponent },
-      { path:'create',component:CreateCustomerDialog},
-      { path:'view',component:CustomerViewComponent},
-      { path:'edit',component:CustomerEditComponent}
-
+      { path: '', canActivate: [RoleGuard], component: CustomersListComponent },
+      { path: 'create', canActivate: [RoleGuard], component: CreateCustomerDialog },
+      { path: 'view/:customerId', canActivate: [RoleGuard], component: CustomerViewComponent },
+      { path: 'edit', canActivate: [RoleGuard], component: CustomerEditComponent }
     ]
   }
 ];

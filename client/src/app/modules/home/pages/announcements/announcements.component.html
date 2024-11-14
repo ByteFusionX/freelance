@@ -1,72 +1,75 @@
-<div class="m-6  ">
-    <div class="text-lg bg-white font-medium p-4 border border-b-gray-300 px-8 rounded-md">
-        <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
-            <h3>Announcement</h3>
-            <div class="flex justify-end gap-4 h-10">
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm"
-                    (click)="openDialog()">
-                    + Create Announcement
-                </button>
-            </div>
-        </div>
+<div class="m-6">
+  <div class="text-lg bg-white font-medium p-4 border-b border-b-gray-300 px-8">
+    <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
+      <h3 class="text-xl font-medium text-gray-800">Announcement</h3>
+      <div class="flex justify-end gap-4 h-10">
+        <button *ngIf="createAnnouncement" class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-0.5 px-4 rounded text-sm" (click)="openDialog()">
+          + Create Announcement
+        </button>
+      </div>
     </div>
-    <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
+  </div>
+  <app-skelton-loading *ngIf="isLoading"></app-skelton-loading>
 
-    <div *ngIf="recentData || announcementData.length">
-        <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md">
-            <div *ngIf="recentData.celeb" class="confetti-container">
-                <app-confetti-component></app-confetti-component>
-            </div>
-            <div class="flex gap-2 justify-between">
-                <div class="flex gap-2">
-                    <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
-                    <p class="text-orange-400 text-sm">Recent Announcement</p>
-                </div>
-                <div class="flex gap-2 ">
-                    <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                    <p class="mr-6">{{recentData.date | date: 'MMM d, y'}}</p>
-                </div>
-            </div>
-
-            <div class="flex gap-1">
-                <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
-                <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
-                    {{recentData.createdDate | date: 'MMM d, y'}}
-                </time>
-            </div>
-            <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
-            <p class="text-sm text-gray-600">{{recentData.description}}</p>
+  <div *ngIf="(page === 1 && recentData) || (announcementData && announcementData.length > 0)">
+    <div *ngIf="recentData" class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': recentData && !recentData.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="recentData._id">
+      <div *ngIf="recentData.celeb" class="confetti-container">
+        <app-confetti-component></app-confetti-component>
+      </div>
+      <div class="flex gap-2 justify-between">
+        <div class="flex gap-2">
+          <i><ng-icon name="heroBellAlert" class="text-orange-400 text-lg"></ng-icon></i>
+          <p class="text-orange-400 text-sm">Recent Announcement</p>
         </div>
-
-
-        <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
-            <div class="h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" style="position: relative;">
-                <div *ngIf="item.celeb" class="confetti-container">
-                    <app-confetti-component></app-confetti-component>
-                </div>
-                <div class="flex gap-1 justify-between">
-                    <div class="flex gap-1">
-                        <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
-                        <time class="block mt-1 text-xs font-normal leading-none text-gray-400">
-                            {{item.createdDate | date: 'MMM d, y'}}
-                        </time>
-                    </div>
-                    <div class="flex gap-2">
-                        <i><ng-icon name="heroCalendarDays" class="text-lg mt-[2px] "></ng-icon></i>
-                        <p class="mr-6">{{item.date | date: 'MMM d, y'}}</p>
-                    </div>
-                </div>
-                <h1 class="text-xl text-violet-700">{{item.title}}</h1>
-                <p class="text-sm text-gray-600">{{item.description}}</p>
-            </div>
+        <div class="flex gap-2 justify-center items-center">
+          <i><ng-icon name="heroCalendarDays" class="text-lg mt-[4px]"></ng-icon></i>
+          <p>{{recentData.date | date: 'MMM d, y'}}</p>
         </div>
-
-
+      </div>
+      <div class="flex gap-1">
+        <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
+        <time class="block mt-1 text-xs font-normal leading-none text-gray-400">{{recentData.createdDate | date: 'MMM d, y'}}</time>
+      </div>
+      <h1 class="text-xl text-violet-700">{{recentData.title}}</h1>
+      <div class="flex justify-between items-center">
+        <p class="text-sm text-gray-600">{{recentData.description}}</p>
+        <span *ngIf="recentData && !recentData.viewedBy.includes(userId)" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
+      </div>
     </div>
-    <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
-        <div class="p-3">
-            <img src="assets/images/empty.png" alt="">
-            <p class="m-2 text-center text-gray-500">No Data</p>
+  
+    <div *ngFor="let item of announcementData; trackBy: trackByIdFn">
+      <div class="relative h-fit w-full bg-white mt-5 font-medium p-4 rounded-md" [ngClass]="{'border border-orange-500': !item.viewedBy.includes(userId)}" #announcementItem [attr.data-id]="item._id">
+        <div *ngIf="item.celeb" class="confetti-container">
+          <app-confetti-component></app-confetti-component>
         </div>
+        <div class="flex gap-1 justify-between">
+          <div class="flex gap-1">
+            <i><ng-icon name="heroCalendarDays" class="text-sm mb-[2px] text-gray-400"></ng-icon></i>
+            <time class="block mt-1 text-xs font-normal leading-none text-gray-400">{{item.createdDate | date: 'MMM d, y'}}</time>
+          </div>
+          <div class="flex gap-2 justify-center items-center">
+            <i><ng-icon name="heroCalendarDays" class="text-lg mt-[4px]"></ng-icon></i>
+            <p>{{item.date | date: 'MMM d, y'}}</p>
+          </div>
+        </div>
+        <h1 class="text-xl text-violet-700">{{item.title}}</h1>
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-600">{{item.description}}</p>
+          <span *ngIf="!item.viewedBy.includes(userId)" class="bg-orange-200 rounded-xl text-xs py-1 px-2 text-orange-500">New</span>
+        </div>
+      </div>
     </div>
+  </div>
+  
+
+  <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+    <div class="p-3">
+      <img src="assets/images/empty.png" alt="">
+      <p class="m-2 text-center text-gray-500">No Data</p>
+    </div>
+  </div>
+
+  <div class="w-full mt-4" *ngIf="!isEmpty">
+    <app-pagination [page]="page" [row]="row" [total]="total" (changeData)="onPageNumberClick($event)"></app-pagination>
+  </div>
 </div>

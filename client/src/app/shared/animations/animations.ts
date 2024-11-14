@@ -1,4 +1,4 @@
-import { animate, animation, style } from "@angular/animations";
+import { animate, animation, style, transition, trigger } from "@angular/animations";
 
 export const opacityIn = animation([
     style({
@@ -37,3 +37,13 @@ export const moveUp = animation([
       })
   )
 ])
+
+export const fadeInOut = trigger('fadeInOut', [
+  transition(':enter', [
+      style({ opacity: 0 }),
+      animate('0.3s ease-in-out', style({ opacity: 1 })),
+  ]),
+  transition(':leave', [
+      animate('0.3s ease-in-out', style({ opacity: 0 }))
+  ])
+]);

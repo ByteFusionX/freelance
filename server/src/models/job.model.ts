@@ -5,7 +5,6 @@ interface Job extends Document {
     jobId: string;
     status: string;
     createdDate: Date;
-    files:[];
 }
 
 export enum jobStatus {
@@ -37,8 +36,7 @@ const jobSchema = new Schema<Job>({
     createdDate: {
         type: Date,
         default: Date.now
-    },
-    files:[]
+    }
 });
 
 export default model<Job>("Job", jobSchema);

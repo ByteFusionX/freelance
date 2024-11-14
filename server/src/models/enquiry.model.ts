@@ -11,17 +11,100 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, presaleFiles: [] };
+    preSale: { presalePerson: Types.ObjectId, items: QuoteItem[], comment: string, revisionComment: string[] };
     assignedFiles: []
     status: string;
     attachments: []
 }
 
-const preSaleSchema = new Schema({
-    presalePerson: {
+interface ItemDetail {
+    detail: string;
+    quantity: number;
+    unitCost: number;
+    profit: number;
+    availability: string;
+}
+
+interface QuoteItem {
+    itemName: string;
+    itemDetails: ItemDetail[]
+}
+
+const feedbackSchema = new Schema({
+    _id: {
+        type: Schema.Types.ObjectId,
+        default: () => new Types.ObjectId()
+    },
+    employeeId: {
+        type: Types.ObjectId
+    },
+    comment: {
         type: String
     },
-    presaleFiles: []
+    feedback: {
+        type: String
+    },
+    requestedDate: {
+        type: Date
+    },
+    seenByFeedbackProvider: {
+        type: Boolean,
+        default: false
+    },
+    seenByFeedbackRequester: {
+        type: Boolean,
+        default: false
+    },
+})
+
+const estimationSchema = new Schema({
+    items: [],
+    currency: {
+        type: String
+    },
+    totalDiscount: {
+        type: Number
+    },
+    presaleNote: {
+        type: String
+    },
+})
+
+const preSaleSchema = new Schema({
+    presalePerson: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+    },
+    estimations: {
+        type: estimationSchema
+    },
+    presaleFiles: [],
+    comment: {
+        type: String
+    },
+    feedback: {
+        type: [feedbackSchema]
+    },
+    newFeedbackAccess: {
+        type: Boolean,
+        default: true
+    },
+    seenbyEmployee: {
+        type: Boolean,
+        default: false
+    },
+    seenbySalesPerson: {
+        type: Boolean,
+        default: false
+    },
+    revisionComment: {
+        type: [String],
+        default: []
+    },
+    createdDate: {
+        type: Date,
+        default: Date.now()
+    }
 })
 
 
@@ -58,8 +141,8 @@ const enquirySchema = new Schema<Enquiry>({
         type: Date,
         default: Date.now()
     },
-    attachments: [FilesSchema],
-    preSale: [preSaleSchema],
+    attachments: [],
+    preSale: preSaleSchema,
     assignedFiles: [FilesSchema],
     enquiryId: {
         type: String,
@@ -70,6 +153,7 @@ const enquirySchema = new Schema<Enquiry>({
         type: String,
         required: true
     },
+
 });
 
 export default model<Enquiry>("Enquiry", enquirySchema);

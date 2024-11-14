@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { FilterEmployee, getEmployee } from 'src/app/shared/interfaces/employee.interface';
+import { CreateEmployee, FilterEmployee, GetCategory, getEmployee, getEmployeeByID, Target } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
 import { jwtDecode } from "jwt-decode";
@@ -20,12 +20,40 @@ export class EmployeeService {
     return this.http.get<getEmployee[]>(`${this.api}/employee`)
   }
 
-  getEmployees(filterData: FilterEmployee): Observable<{total:number,employees:getEmployee[]}> {
-    return this.http.post<{total:number,employees:getEmployee[]}>(`${this.api}/employee/get`,filterData)
+  getEmployees(filterData: FilterEmployee): Observable<{ total: number, employees: getEmployee[] }> {
+    return this.http.post<{ total: number, employees: getEmployee[] }>(`${this.api}/employee/get`, filterData)
   }
 
-  createEmployees(employeeData: getEmployee) {
-    return this.http.post(`${this.api}/employee`, employeeData)
+  createEmployees(employeeData: CreateEmployee): Observable<getEmployee> {
+    return this.http.post<getEmployee>(`${this.api}/employee`, employeeData)
+  }
+
+  changePasswordOfEmployee(passwords: object) {
+    return this.http.patch(`${this.api}/employee/changePassword`, passwords)
+  }
+
+  editEmployees(employeeData: CreateEmployee): Observable<getEmployee> {
+    return this.http.patch<getEmployee>(`${this.api}/employee/edit`, employeeData)
+  }
+
+  setTarget(tagetValues: Target, userId?: string): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/employee/setTarget/${userId}`, tagetValues)
+  }
+
+  updateTarget(tagetValues: Target, id: string, userId?: string): Observable<Target[]> {
+    return this.http.patch<Target[]>(`${this.api}/employee/update-target/${userId}/${id}`, tagetValues)
+  }
+
+  createCategory(categroyData: GetCategory) {
+    return this.http.post(`${this.api}/category`, categroyData)
+  }
+
+  updateCategory(categroyData: GetCategory, categoryId?: string) {
+    return this.http.patch(`${this.api}/category/${categoryId}`, categroyData)
+  }
+
+  getCategory(): Observable<GetCategory[]> {
+    return this.http.get<GetCategory[]>(`${this.api}/category`)
   }
 
   employeeLogin(employeeData: Object): Observable<login> {
@@ -46,6 +74,14 @@ export class EmployeeService {
 
   getEmployee(id: string) {
     return this.http.get<getEmployee>(`${this.api}/employee/get/${id}`)
+  }
+
+  isEmployeePresent(): Observable<{ exists: boolean }> {
+    return this.http.get<{ exists: boolean }>(`${this.api}/employee/check`)
+  }
+
+  getEmployeeByEmployeeId(employeeId: string, access?: string, userId?: string): Observable<getEmployeeByID> {
+    return this.http.get<getEmployeeByID>(`${this.api}/employee/view/get/${employeeId}?access=${access}&userId=${userId}`)
   }
 
   getEmployeeData(id: string) {

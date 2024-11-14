@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { CreateEmployeeDialog } from 'src/app/modules/home/pages/employees/create-employee/create-employee.component';
 import { login } from 'src/app/shared/interfaces/login';
 
 @Component({
@@ -14,22 +16,44 @@ export class LoginPageComponent {
   submit: boolean = false
   employeeNotFoundError: boolean = false
   passwordNotMatchError: boolean = false
+  isSaving: boolean = false;
+  isEmployeePresent: boolean = true;
 
+
+  showPassword: boolean = false;
+  passwordType: string = this.showPassword ? 'text' : 'password';
+  showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
 
   constructor(
     private employeeService: EmployeeService,
     private _fb: FormBuilder,
-    private router: Router) { }
-
+    private router: Router,
+    private _dialog:MatDialog
+  ) { }
 
   loginForm = this._fb.group({
     employeeId: ['', Validators.required],
     password: ['', Validators.required]
   })
 
-  showPassword: boolean = false;
-  passwordType: string = this.showPassword ? 'text' : 'password';
-  showIcon: string = this.showPassword ? 'heroEye' : 'heroEyeSlash';
+  ngOnInit() {
+    this.employeeService.isEmployeePresent().subscribe((res) => {
+      this.isEmployeePresent = res.exists;
+    })
+  }
+
+  onCreateSuperAdmin(){
+    const dialogRef = this._dialog.open(CreateEmployeeDialog,{
+      data:{
+        createSuperAdmin : true
+      }
+    });
+    dialogRef.close((data: any)=>{
+      if(data){
+        this.isEmployeePresent = true;
+      }
+    })
+  }
 
   passwordShow() {
     this.showPassword = !this.showPassword
@@ -39,16 +63,22 @@ export class LoginPageComponent {
 
   onSubmit() {
     this.submit = true
-    this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
-      if (res.employeeData && res.token) {
-        localStorage.setItem('employeeToken', res.token)
-        this.router.navigate(['/home'])
-      }
-      else if (res.employeeNotFoundError) {
-        this.employeeNotFoundError = true
-      } else if (res.passwordNotMatchError) {
-        this.passwordNotMatchError = true
-      }
-    })
+    if (this.loginForm.valid) {
+      this.isSaving = true;
+      this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
+        if (res.employeeData && res.token) {
+          localStorage.setItem('employeeToken', res.token)
+          this.router.navigate(['/home'])
+        }
+        else if (res.employeeNotFoundError) {
+          this.isSaving = false;
+          this.employeeNotFoundError = true;
+
+        } else if (res.passwordNotMatchError) {
+          this.isSaving = false;
+          this.passwordNotMatchError = true
+        }
+      })
+    }
   }
 }

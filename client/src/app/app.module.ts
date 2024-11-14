@@ -13,11 +13,16 @@ import { IconsModule } from './lib/icons/icons.module';
 import { componentModule } from './shared/components/component.module';
 import { JwtInterceptor } from './core/interceptors/jwt-interceptor/jwt.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.interceptor';
-
+import { ResizableModule } from './shared/components/resizable/resizable.module';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
+import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
+import { environment } from 'src/environments/environment';
+const config:SocketIoConfig = { url: environment.api, options: {} };
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
 
   ],
   imports: [
@@ -34,7 +39,11 @@ import { ErrorInterceptor } from './core/interceptors/error-interceptor/error.in
     }),
     IconsModule,
     MatDialogModule,
-    componentModule
+    componentModule,
+    ResizableModule,
+    LoadingBarModule,
+    LoadingBarRouterModule,
+    SocketIoModule.forRoot(config),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

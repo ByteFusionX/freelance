@@ -3,10 +3,12 @@ import { CelebrationDialogComponent } from './celebration-dialog/celebration-dia
 import { ConfettiComponentComponent } from './confetti-component/confetti-component.component';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CommonModule } from '@angular/common';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+
 
 
 @NgModule({
-    imports: [ConfettiComponentComponent,IconsModule,CommonModule],
+    imports: [ConfettiComponentComponent,IconsModule,CommonModule,NgxExtendedPdfViewerModule],
     exports: [],
     declarations: [CelebrationDialogComponent],
     providers: [],

@@ -19,7 +19,7 @@
               class="capitalize">{{customer.companyName}}</ng-option>
             <ng-template ng-footer-tmp>
               <a (click)="createCustomer()"
-                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full"
+                class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full font-medium"
                 routerLink="/customers/create">
                 + Create Customer
               </a>
@@ -108,7 +108,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
     </form>
@@ -118,15 +117,17 @@
     <div>
       <button class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm mr-3"
         (click)="onClickPresale()">
-        Assign to Presale
+        {{ preSaleButton }}
       </button>
       <button class="bg-transparent border hover:bg-gray-200 text-black font-medium py-2 px-4 rounded text-sm"
-        (click)="onClickQuote()">
+        (click)="onClickQuote()" *ngIf="!assignedPresale">
+        <ng-icon *ngIf="isQuoting" class="spin" name="heroArrowPath"></ng-icon>
         Create Quote
       </button>
     </div>
     <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
       (click)="onSubmit()">
+      <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
       Create Enquiry
     </button>
   </div>

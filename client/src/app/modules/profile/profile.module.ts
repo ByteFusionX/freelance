@@ -10,16 +10,17 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { MatTableModule } from '@angular/material/table';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { CreateDepartmentDialog } from './pages/create-department/create-department.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loading/skelton-loading.component';
+import { EditCompanyDetailsComponent } from './pages/edit-company-details/edit-company-details.component';
+import { pipeModule } from "../../shared/pipes/pipe.module";
 
 
 
 @NgModule({
   declarations: [
     ProfileInfoComponent,
-    CreateDepartmentDialog,
+    EditCompanyDetailsComponent,
   ],
   imports: [
     CommonModule,
@@ -32,7 +33,8 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
     MatDialogModule,
     NgSelectModule,
     SkeltonLoadingComponent,
-  ],
+    pipeModule
+],
   providers: [ProfileService, EmployeeService]
 })
 export class ProfileModule { }

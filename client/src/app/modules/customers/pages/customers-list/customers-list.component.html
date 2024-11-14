@@ -1,17 +1,30 @@
-<div class="bg-white m-6 rounded-2xl">
+<div class="bg-white m-6">
     <div class="text-lg font-medium p-4 border-b border-b-gray-300 px-8">
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
-            <h3>Customers Details</h3>
+            <h3 class="font-semibold">Customers</h3>
 
             <div class="flex justify-end gap-4 items-center">
 
+                <div
+                    class="h-10 inline-flex items-center justify-between text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] pl-[20px] pr-[8px]">
+                    <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="ngModelChange()"
+                        placeholder="Name / Client Ref." (keyup.enter)="onSearch()"
+                        class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
+                    <div class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer"
+                        (click)="onSearch()">
 
-                <ng-select appNoLeadingSpace [(ngModel)]="selectedEmployee" class="filter-createdby" placeholder="Created By"
-                        appendTo="body" (change)="onfilterApplied()">
-                        <ng-option *ngFor="let employee of employees$ | async" [value]="employee._id">{{employee.fullName}}</ng-option>
-                    </ng-select>
-                <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
+                        <ng-icon name="heroMagnifyingGlass" class="text-sm text-gray-600  hover:text-violet-700 m-1.5">
+                        </ng-icon>
+                    </div>
+                </div>
+                <ng-select appNoLeadingSpace [(ngModel)]="selectedEmployee" class="filter-createdby"
+                    placeholder="Created By" appendTo="body" (change)="onfilterApplied()">
+                    <ng-option *ngFor="let employee of employees$ | async"
+                        [value]="employee._id">{{employee.fullName}}</ng-option>
+                </ng-select>
+                <button *ngIf="createCustomer"
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
                     routerLink="/customers/create">
                     + Create Customer
                 </button>
@@ -23,52 +36,65 @@
     <app-skelton-loading *ngIf="isLoading" [lineLength]="4"></app-skelton-loading>
 
     <div class="m-8  overflow-y-auto">
+        <section *ngIf="!isEmpty && !isLoading" class="mat-elevation-z8 h-fit max-h-[57vh] overflow-auto" tabindex="0">
 
-        <table *ngIf="!isLoading" mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+            <table mat-table [dataSource]="dataSource" class="rounded-lg table-fixed">
+                <ng-container matColumnDef="position">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        No </th>
+                    <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
+                </ng-container>
 
-            <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
+                <!-- ClientRef Column -->
+                <ng-container matColumnDef="clientRef">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Client Ref. </th>
+                    <td mat-cell *matCellDef="let element"> <span
+                            class="text-purple-600 font-semibold">{{element.clientRef}}</span> </td>
+                </ng-container>
 
-            <!-- Position Column -->
-            <ng-container matColumnDef="position">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    No </th>
-                <td mat-cell *matCellDef="let element; let i=index"> {{i+1}} </td>
-            </ng-container>
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Customer Name </th>
+                    <td mat-cell *matCellDef="let element"> <span
+                            class="text-purple-600 font-semibold">{{element.companyName}}</span> </td>
+                </ng-container>
 
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Customer Name </th>
-                <td mat-cell *matCellDef="let element"> <span (click)="onCustomer(element)"
-                        class="underline text-violet-600 cursor-pointer">{{element.companyName}}</span> </td>
-            </ng-container>
+                <!-- Creator Column -->
+                <ng-container matColumnDef="createdBy">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Created by </th>
+                    <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName + ' ' +
+                        element.createdBy.lastName}} </td>
+                </ng-container>
 
-            <!-- Creator Column -->
-            <ng-container matColumnDef="createdBy">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Created by </th>
-                <td mat-cell *matCellDef="let element"> {{element.createdBy.firstName + ' ' +
-                    element.createdBy.lastName}} </td>
-            </ng-container>
+                <!-- Department Column -->
+                <ng-container matColumnDef="department">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        Department </th>
+                    <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
+                </ng-container>
 
-            <!-- Department Column -->
-            <ng-container matColumnDef="department">
-                <th *matHeaderCellDef
-                    class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
-                    Department </th>
-                <td mat-cell *matCellDef="let element"> {{element.department.departmentName}} </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;  let i= index"
+                    class="cursor-pointer hover:bg-gray-100" (click)="onRowClicks(i)"></tr>
+            </table>
+        </section>
         <div class="w-full bg-white" *ngIf="!isEmpty">
             <app-pagination [page]="page" [row]="row" [total]="total"
                 (changeData)="onPageNumberClick($event)"></app-pagination>
+        </div>
+        <div *ngIf="isEmpty" class="w-full flex justify-center items-center">
+            <div class="p-3">
+                <img src="assets/images/empty.png" alt="">
+                <p class="m-2 text-center text-gray-500">No Data</p>
+            </div>
         </div>
     </div>
     <div>

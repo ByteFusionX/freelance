@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class appFileValidator {
 
-  @Input() allowedExtensions: string[] = ['.jpg','.jpeg','.png','.pdf','.doc','.docx'];
+  @Input() allowedExtensions: string[] = ['.jpg','.jpeg','.png','.pdf','.doc','.docx','.xlsx','.msg'];
 
   constructor(private el: ElementRef, private toast: ToastrService) {}
 
@@ -21,7 +21,7 @@ export class appFileValidator {
       const isValidExtension = this.allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
       if (!isValidExtension) {
         fileInput.value = '';
-        this.toast.warning(' Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx,', "Warning");
+        this.toast.warning(' Upload a file with one of these extensions: .jpg, .jpeg, .png, .pdf, .doc, .docx, .xlsx', "Warning");
         return;
       }
     }

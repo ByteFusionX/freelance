@@ -1,0 +1,378 @@
+<div class="  border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+    <h3 class="text-md font-medium">Create Category</h3>
+    <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+        <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+    </button>
+</div>
+
+<form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col p-6 mx-auto max-w-3xl  text-gray-900 bg-white rounded-lg  shadow px-9">
+        <div class="w-full max-w-6xl">
+            <div class="flex flex-wrap -mx-3 mb-6">
+
+                <div class="w-full md:w-1/2 px-3">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="categoryName">
+                        Category Name
+                    </label>
+                    <input formControlName="categoryName" id="categoryName" appNoLeadingSpace
+                        class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        type="text" placeholder="Sales">
+                    <div class="text-red-700 text-xs mt-1 absolute mb-1"
+                        *ngIf="categoryForm.get('categoryName')?.hasError('required') && categoryForm.get('categoryName')?.touched">
+                        This field is Required
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0 ">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="role">
+                        User Role
+                    </label>
+                    <div class="relative">
+                        <select formControlName="role" id="role"
+                            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                            <option value="superAdmin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-red-700 text-xs mt-1 absolute mb-1"
+                        *ngIf="categoryForm.get('role')?.hasError('required') && categoryForm.get('role')?.touched">
+                        This field is Required
+                    </div>
+                </div>
+                <div class="ml-3 mt-2">
+                    <input type="checkbox" id="targetCheck" class="mr-2" formControlName="isSalespersonWithTarget">
+                    <label for="targetCheck">Salesperson with assigned target</label>
+                </div>
+            </div>
+            
+
+            <div class="max-h-[50vh] overflow-y-scroll">
+                <h3 class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">Access</h3>
+                <div class="flex flex-col" formGroupName="privileges">
+
+                    <!--- Dashboard -->
+                    <div formGroupName="dashboard">
+                        <div>
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="dashboardView">Dashobard</label>
+                        </div>
+                        <div class="ml-1.5 border-l">
+                            <div class="ml-3">
+                                <label><input type="checkbox" class="mr-2" checked disabled>Comparison of Revenue and Gross Profit</label>
+                            </div>
+                            <div class="ml-4 border-l">
+                                <div class="ml-3">
+                                    <input type="radio" value="company" id="companyTarget" class="mr-2"
+                                        formControlName="compareAgainst">
+                                    <label for="companyTarget">against company targets</label>
+                                </div>
+                                <div class="ml-3">
+                                    <input type="radio" value="personal" id="personalTarget" class="mr-2" formControlName="compareAgainst">
+                                    <label for="personalTarget">against personal targets</label>
+                                </div>
+                                <div class="ml-3">
+                                    <input type="radio" value="both" id="bothPersonalAndCompany" class="mr-2" formControlName="compareAgainst">
+                                    <label for="bothPersonalAndCompany">against both company and personal targets</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--- Employee -->
+                    <div>
+                        <input type="checkbox" id="employee" class="mr-2"
+                            (change)="onCheckboxChange($event,'employee','employeeChecked')">
+                        <label for="employee">Employees</label>
+                    </div>
+                    <div class="ml-1.5 border-l" *ngIf="employeeChecked" formGroupName="employee">
+                        <div class="ml-3">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="employeeView">View Employee Datas</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="employeeAllData" class="mr-2" value="all"
+                                    formControlName="viewReport">
+                                <label for="employeeAllData">View All Employees</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="employeeAllReportedData" class="mr-2" value="reported"
+                                    formControlName="viewReport">
+                                <label for="employeeAllReportedData">View All Employees that is reported to the
+                                    User</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="employeeAllCreatedData" class="mr-2" value="created"
+                                    formControlName="viewReport">
+                                <label for="employeeAllCreatedData">View All Employees that User Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="employeeAllCreatedAndReportedData" class="mr-2"
+                                    value="createdAndReported" formControlName="viewReport">
+                                <label for="employeeAllCreatedAndReportedData">View All Employees that User Created and
+                                    Reported to the User</label>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="employeeCreate" class="mr-2" formControlName="create">
+                            <label for="employeeCreate">Create Employees</label>
+                        </div>
+                    </div>
+
+                    <!--- Announcement -->
+                    <div>
+                        <input type="checkbox" id="announcements" class="mr-2"
+                            (change)="onCheckboxChange($event,'announcement','announcementChecked')">
+                        <label for="announcements">Announcements</label>
+                    </div>
+                    <div *ngIf="announcementChecked" formGroupName="announcement">
+                        <div class="ml-4">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="customerView">View All Announcements</label>
+                        </div>
+                        <div class="ml-4">
+                            <input type="checkbox" id="createAnnouncement" class="mr-2" formControlName="create">
+                            <label for="createAnnouncement">Create Announcement</label>
+                        </div>
+                    </div>
+
+                    <!--- Customer -->
+                    <div>
+                        <input type="checkbox" id="customer" class="mr-2"
+                            (change)="onCheckboxChange($event,'customer','customerChecked')">
+                        <label for="customer">Customer</label>
+                    </div>
+                    <div class="ml-1.5 border-l" *ngIf="customerChecked" formGroupName="customer">
+                        <div class="ml-3">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="customerView">View Customer Datas</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="customerAllData" class="mr-2" formControlName="viewReport"
+                                    value="all">
+                                <label for="customerAllData">View All Customers</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="customerPersonalData" class="mr-2" formControlName="viewReport"
+                                    value="created">
+                                <label for="customerPersonalData">View Customers that user Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="customerReportedData" class="mr-2" formControlName="viewReport"
+                                    value="reported">
+                                <label for="customerReportedData">View Customers that reported to User
+                                </label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="customerPersonalReportedData" class="mr-2"
+                                    formControlName="viewReport" value="createdAndReported">
+                                <label for="customerPersonalReportedData">View Customers that user Created and reported
+                                    to User
+                                    Created</label>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="customerCreate" class="mr-2" formControlName="create">
+                            <label for="customerCreate">Create Customer</label>
+                        </div>
+                    </div>
+
+                    <!--- Enquiry -->
+                    <div>
+                        <input type="checkbox" id="enquiry" class="mr-2"
+                            (change)="onCheckboxChange($event,'enquiry','enquiryChecked')">
+                        <label for="enquiry">Enquiry</label>
+                    </div>
+                    <div *ngIf="enquiryChecked" class="ml-1.5 border-l" formGroupName="enquiry">
+                        <div class="ml-3">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="enquiryData">View Enquiry Datas</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="enquiryAllData" class="mr-2" formControlName="viewReport"
+                                    value="all">
+                                <label for="enquiryAllData">View All Enquiries</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="enquiryPersonalData" class="mr-2" formControlName="viewReport"
+                                    value="created">
+                                <label for="enquiryPersonalData">View Enquiries that user Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="enquiryReportedData" class="mr-2" formControlName="viewReport"
+                                    value="reported">
+                                <label for="enquiryReportedData">View Customers that reported to User
+                                </label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="enquiryPersonalReportedData" class="mr-2"
+                                    formControlName="viewReport" value="createdAndReported">
+                                <label for="enquiryPersonalReportedData">View Enquiries that user Created and reported
+                                    User
+                                    Created</label>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="enquiryCreate" class="mr-2" formControlName="create">
+                            <label for="enquiryCreate">Create Enquiry</label>
+                        </div>
+                    </div>
+
+                    <!--- Assigned Jobs -->
+                    <div>
+                        <input type="checkbox" id="assignedJobs" class="mr-2"
+                            (change)="onCheckboxChange($event,'assignedJob','assignedJobsChecked')">
+                        <label for="assignedJobs">Assigned Jobs</label>
+                    </div>
+                    <div *ngIf="assignedJobsChecked" class="ml-1.5 border-l" formGroupName="assignedJob">
+                        <div class="ml-4">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="assignedJobsData">View Assigned Jobs</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="AllAssignedJobs" class="mr-2" formControlName="viewReport"
+                                    value="all">
+                                <label for="AllAssignedJobs">View All Assigned Jobs</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="AssignedJobUser" class="mr-2" formControlName="viewReport"
+                                    value="assigned">
+                                <label for="AssignedJobUser">View Assigned Jobs that Assigned to the user</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--- Quotations -->
+                    <div>
+                        <input type="checkbox" id="quotations" class="mr-2"
+                            (change)="onCheckboxChange($event,'quotation','quotationChecked')">
+                        <label for="quotations">Quotation</label>
+                    </div>
+                    <div *ngIf="quotationChecked" class="ml-1.5 border-l" formGroupName="quotation">
+                        <div class="ml-3">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="quotationData">View Quotation Datas</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="quotationAllData" class="mr-2" formControlName="viewReport"
+                                    value="all">
+                                <label for="quotationAllData">View All Quotations</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="quotationPersonalData" class="mr-2" formControlName="viewReport"
+                                    value="created">
+                                <label for="quotationPersonalData">View Quotations that user Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="quotationReportedData" class="mr-2" formControlName="viewReport"
+                                    value="reported">
+                                <label for="quotationReportedData">View Quotations that reported to User
+                                    Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="quotationPersonalReportedData" class="mr-2"
+                                    formControlName="viewReport" value="createdAndReported">
+                                <label for="quotationPersonalReportedData">View Quotations that user Created and
+                                    reported to User
+                                    Created</label>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="quotationCreate" class="mr-2" formControlName="create">
+                            <label for="quotationCreate">Create Quotations</label>
+                        </div>
+                    </div>
+
+                    <!--- Deal Sheet -->
+                    <div>
+                        <input type="checkbox" id="dealSheet" class="mr-2" formControlName="dealSheet">
+                        <label for="dealSheet">Deal Sheet Approval</label>
+                    </div>
+
+                    <!--- Job Sheet -->
+                    <div>
+                        <input type="checkbox" id="jobSheet" class="mr-2"
+                            (change)="onCheckboxChange($event,'jobSheet','jobSheetChecked')">
+                        <label for="jobSheet">Job Sheet</label>
+                    </div>
+                    <div *ngIf="jobSheetChecked" class="ml-1.5 border-l" formGroupName="jobSheet">
+                        <div class="ml-4">
+                            <input type="checkbox" checked disabled class="mr-2">
+                            <label for="jobSheetData">View Job Sheet</label>
+                        </div>
+                        <div class="ml-[1.125rem] border-l">
+                            <div class="ml-3">
+                                <input type="radio" id="jobSheetAllData" class="mr-2" formControlName="viewReport"
+                                    value="all">
+                                <label for="jobSheetAllData">View All Job Sheet</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="jobSheetPersonalData" class="mr-2" formControlName="viewReport"
+                                    value="created">
+                                <label for="jobSheetPersonalData">View Jobs that user Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="jobSheetReportedData" class="mr-2" formControlName="viewReport"
+                                    value="reported">
+                                <label for="jobSheetReportedData">View Quotations that reported to User Created</label>
+                            </div>
+                            <div class="ml-3">
+                                <input type="radio" id="jobSheetPersonalReportedData" class="mr-2"
+                                    formControlName="viewReport" value="createdAndReported">
+                                <label for="jobSheetPersonalReportedData">View Jobs that user Created and reported User
+                                    Created</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!--- Portal -->
+                    <div>
+                        <input type="checkbox" id="portal" class="mr-2"
+                            (change)="onCheckboxChange($event,'portal','portalChecked')">
+                        <label for="portal">Portal Management</label>
+                    </div>
+                    <div class="ml-1.5 border-l" *ngIf="portalChecked" formGroupName="portalManagement">
+
+                        <div class="ml-3">
+                            <input type="checkbox" id="department" class="mr-2" formControlName="department">
+                            <label for="department">Department (Create/edit/delete)</label>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="notesAndTerms" class="mr-2" formControlName="notesAndTerms">
+                            <label for="notesAndTerms">Customer Note & Terms and Condition (Create/edit/delete)</label>
+                        </div>
+                        <div class="ml-3">
+                            <input type="checkbox" id="companyTarget" class="mr-2" formControlName="companyTarget">
+                            <label for="companyTarget">Company Target (Create/edit)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="text-red-600 text-sm mt-2" *ngIf="error">{{error}}</p>
+    </div>
+
+    <div class="  border border-white border-t-gray-300 p-3 px-6 flex justify-end gap-2">
+        <button (click)="onClose()" type="button"
+            class="bg-violet-200 hover:bg-violet-300 text-black font-medium py-2 px-4 rounded text-sm">
+            Cancel
+        </button>
+        <button type="submit"
+            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  flex justify-center items-center gap-2 disabled:bg-violet-400 disabled:cursor-not-allowed"
+            [disabled]="!categoryForm.valid">
+            <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+
+            Create
+        </button>
+    </div>
+</form>

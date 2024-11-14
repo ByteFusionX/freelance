@@ -1,0 +1,176 @@
+<div>
+    <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between items-center">
+        <h3 class="text-md font-medium">Estimations</h3>
+        <div class="flex justify-center items-center gap-4">
+            <button *ngIf="data.isEdit"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm flex items-center gap-2"
+                (click)="onEstimationEdit()">
+                <ng-icon name="heroPencilSquare"></ng-icon>
+                Edit
+            </button>
+            <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+                <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="relative overflow-x-auto my-6 px-6">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
+            <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
+                <tr>
+                    <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
+                        key="itemDetail">
+                        <div class="px-6 py-3">Item Details</div>
+
+                    </th>
+                    <th scope="col" resizable key="qty"
+                        class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
+                        <div class="px-2 py-3">QTY</div>
+                    </th>
+                    <th scope="col" resizable key="unitCost"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Unit Cost ({{data.estimation.currency}})</div>
+                    </th>
+                    <th scope="col" resizable key="totalCost"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Total Cost ({{data.estimation.currency}})</div>
+                    </th>
+                    <th scope="col" resizable key="profit"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Profit</div>
+                    </th>
+                    <th scope="col" resizable key="unitPrice"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Unit Price ({{data.estimation.currency}})</div>
+                    </th>
+                    <th scope="col" resizable key="totalPrice"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                        <div class="px-6 py-3">Total Price ({{data.estimation.currency}})</div>
+                    </th>
+                    <th scope="col" resizable key="avbl"
+                        class="border-l border-r border-t hover:border-r-slate-950  text-center min-w-[90px]">
+                        <div class="px-2 py-3">AVBL.</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of data.estimation.items">
+                    <tr>
+                        <td colspan="9" class="border px-6 py-2 bg-gray-50 ">
+                            <div class="flex justify-center items-center text-md text-black font-medium uppercase">
+                                {{item.itemName}}
+                            </div>
+                        </td>
+                    </tr>
+                    <ng-container *ngFor="let itemsDetail of item.itemDetails">
+                        <tr class="bg-white border-b text-gray-800">
+                            <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
+                            </th>
+
+
+
+
+
+                            <td class="px-2  border text-center">
+                                {{itemsDetail.quantity}}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{itemsDetail.unitCost.toFixed(2)}}
+                            </td>
+                            <td class=" py-2  text-center ">
+                                {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{ itemsDetail.profit | number:'1.2-2' }}%
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
+                                itemsDetail.quantity).toFixed(2)}}
+                            </td>
+                            <td class="px-2 py-2 border text-center">
+                                {{itemsDetail.availability}}
+                            </td>
+                        </tr>
+                    </ng-container>
+                </ng-container>
+            </tbody>
+        </table>
+        <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
+            <table class="w-1/2 text-sm text-left rtl:text-right text-black border bg-gray-50">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Cost
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateAllTotalCost().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Selling price
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateSellingPrice().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit Margin
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateProfitMargin().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit margin with %
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateTotalProfit().toFixed(2)}}%
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            <table class="w-1/2  text-sm text-left rtl:text-right text-black border bg-gray-100">
+                <tbody>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Subtotal
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateSellingPrice() | numberFormatter}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Discount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{(data.estimation.totalDiscount) | numberFormatter}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Total Amount
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateDiscoutPrice() | numberFormatter }}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4">
+            <h3 class="font-medium uppercase ">Presale Note : </h3>
+            <p>{{data.estimation.presaleNote}}</p>
+        </div>
+
+    </div>
+</div>

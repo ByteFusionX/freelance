@@ -1,9 +1,9 @@
-<div class="bg-white m-6 rounded-2xl">
-    <div class="  border-b p-3 px-9 flex justify-between items-center">
-        <h3 class="text-md font-medium">Quote - NTQASOS-0204</h3>
+<div class="bg-white m-6">
+    <div class="border-b p-3 px-9 flex justify-between items-center">
+        <h3 class="text-md font-medium">Quote - {{quoteData.quoteId}} </h3>
 
         <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm"
-            routerLink="/quotations/edit">
+            (click)="onQuoteEdit()">
             <div class="flex justify-center items-center gap-2">
                 <ng-icon name="heroPencilSquare"></ng-icon>
                 Edit
@@ -14,7 +14,7 @@
     <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">
 
         <div class="w-full ">
-            <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
+            <div class="relative overflow-x-auto w-full flex gap-6">
                 <table class="w-full text-md text-left rtl:text-right text-black border bg-gray-50">
                     <tbody>
                         <tr class=" border-b ">
@@ -22,13 +22,13 @@
                                 Client
                             </td>
                             <td class="px-2 py-2 border text-start ">
-                                {{quoteData.client.companyName}}
+                                {{quoteData.client.companyName}} ({{quoteData.client.clientRef}})
                             </td>
                             <td class="px-2 py-2  border text-start font-medium ">
                                 Date
                             </td>
                             <td class="px-2 py-2 border text-start uppercase">
-                                {{quoteData.date}}
+                                {{ quoteData.date | date: 'dd/MM/yyyy' }}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -39,7 +39,7 @@
                                 {{quoteData.attention.firstName+' '+quoteData.attention.lastName}}
                             </td>
                             <td class="px-2 py-2  border text-start font-medium ">
-                                Quote Ref Id
+                                Quote Id
                             </td>
                             <td class="px-2 py-2 border text-start uppercase">
                                 {{quoteData.quoteId}}
@@ -60,72 +60,172 @@
                                 {{quoteData.createdBy.firstName+' '+quoteData.createdBy.lastName}}
                             </td>
                         </tr>
+                        <tr class=" border-b " *ngIf="quoteData.enqId">
+                            <td class="px-2 py-2  border text-start font-medium ">
+                                Enq Ref Id
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                {{quoteData.enqId.enquiryId}}
+                            </td>
+                            <td class="px-2 py-2  border text-start font-medium ">
+                                Enq Files
+                            </td>
+                            <td class="px-2 py-2 border text-start ">
+                                <ng-container *ngFor="let files of quoteData?.enqId?.attachments">
+                                    {{files}}
+                                </ng-container>
+                                <ng-container *ngFor="let files of quoteData?.enqId?.preSale?.presaleFiles">
+                                    {{files.originalname}}
+                                </ng-container>
+                            </td>
+                        </tr>
 
                     </tbody>
                 </table>
             </div>
 
         </div>
+        <div class="mt-6 px-4">
+            <div class="space-y-4">
+                <div *ngIf="quoteData?.enqId" class="flex w-full">
+                    <!-- Attachments Section -->
+                    <div *ngIf="quoteData.enqId.attachments?.length" class="border-y py-4 w-1/2">
+                        <h5 class="text-lg font-semibold text-gray-800">Enquiry Attachments</h5>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li *ngFor="let file of quoteData.enqId.attachments"
+                                class="cursor-pointer text-blue-600 hover:underline">
+                                <p (click)="onDownloadClicks(file)">{{ file.originalname }}</p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Pre-Sale Files Section -->
+                    <div *ngIf="quoteData.enqId.preSale?.presaleFiles?.length" class="border-y py-4 w-1/2">
+                        <h5 class="text-lg font-semibold text-gray-800">Pre-Sale Files</h5>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li *ngFor="let file of quoteData.enqId.preSale.presaleFiles"
+                                class="cursor-pointer text-blue-600 hover:underline">
+                                <p (click)="onDownloadClicks(file)">{{ file.originalname }}</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- No Files Available -->
+                <div
+                    *ngIf="!quoteData?.enqId || (!quoteData.enqId.attachments?.length && !quoteData.enqId.preSale?.presaleFiles?.length)">
+                    <p class="text-gray-500">No files available.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="relative overflow-x-auto mt-6">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50  ">
+                <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
                     <tr>
-                        <th scope="col" class="px-6 py-3 w-96 border">
-                            Item Details
+                        <th scope="col" resizable class=" w-96 border-l border-r border-t" key="itemDetail">
+                            <div class="px-6 py-3">Item Details</div>
+
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Quantity
+                        <th scope="col" resizable key="qty"
+                            class=" border-l border-r border-t  text-center min-w-[66px]">
+                            <div class="px-2 py-3">QTY</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Unit cost
+                        <th scope="col" resizable key="unitCost" class="border-l border-r border-t  text-center">
+                            <div class="px-6 py-3">Unit Cost</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Total Cost
+                        <th scope="col" resizable key="totalCost" class="border-l border-r border-t  text-center">
+                            <div class="px-6 py-3">Total Cost</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Profit (%)
+                        <th scope="col" resizable key="profit" class="border-l border-r border-t  text-center">
+                            <div class="px-6 py-3">Profit</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Unit price
+                        <th scope="col" resizable key="unitPrice" class="border-l border-r border-t  text-center">
+                            <div class="px-6 py-3">Unit Price</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            total price
+                        <th scope="col" resizable key="totalPrice" class="border-l border-r border-t  text-center">
+                            <div class="px-6 py-3">Total Price</div>
                         </th>
-                        <th scope="col" class="px-6 py-3 border">
-                            Availability
+                        <th scope="col" resizable key="avbl"
+                            class="border-l border-r border-t  text-center min-w-[90px]">
+                            <div class="px-2 py-3">AVBL.</div>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg-white border-b " *ngFor="let item of quoteData.items">
-                        <th scope="row" class="px-6 border font-normal py-2">
-                            {{item.detail}}
-                        </th>
-                        <td class="px-2  border text-center">
-                            {{item.quantity}}
-                        </td>
-                        <td class="px-2 py-2 border text-center">
-                            {{item.unitCost.toFixed(2)}}
-                        </td>
-                        <td class=" py-2  text-center ">
-                            {{(item.quantity * item.unitCost).toFixed(2)}}
-                        </td>
-                        <td class="px-2 py-2 border text-center">
-                            {{item.profit.toFixed(2)}}%
-                        </td>
-                        <td class="px-2 py-2 border text-center">
-                            {{(item.unitCost / (1 - (item.profit/100))).toFixed(2)}}
-                        </td>
-                        <td class="px-2 py-2 border text-center">
-                            {{((item.unitCost / (1 - (item.profit/100))) * item.quantity).toFixed(2)}}
-                        </td>
-                        <td class="px-2 py-2 border text-center">
-                            {{item.availability}}
-                        </td>
-                    </tr>
+                    <ng-container *ngFor="let item of quoteData.items">
+                        <tr>
+                            <td colspan="9" class="border px-6 py-2 bg-gray-50 ">
+                                <div class="flex justify-center items-center text-md text-black font-medium uppercase">
+                                    {{item.itemName}}
+                                </div>
+                            </td>
+                        </tr>
+                        <ng-container *ngFor="let itemsDetail of item.itemDetails">
+                            <tr class="bg-white border-b text-gray-800">
+                                <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                    <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
+                                </th>
 
+
+
+
+
+                                <td class="px-2  border text-center">
+                                    {{itemsDetail.quantity}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{itemsDetail.unitCost.toFixed(2)}}
+                                </td>
+                                <td class=" py-2  text-center ">
+                                    {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{itemsDetail.profit.toFixed(2)}}%
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
+                                    itemsDetail.quantity).toFixed(2)}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{itemsDetail.availability}}
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
                 </tbody>
             </table>
+            <div class="my-2" *ngIf="isReviseNeeded()">
+                <button class="bg-violet-700 text-white px-4 py-2 rounded hover:bg-violet-700 focus:outline-none"
+                    (click)="onRevision()">
+                    Revise
+                </button>
+                <div class="border p-1" *ngIf="showRevision">
+                    <!-- Revision Section -->
+                    <div class="my-1">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Revision</h3>
+                        <textarea [(ngModel)]="revisionComment" (ngModelChange)="validateComments()"
+                            class="w-full border rounded p-2 bg-gray-50 text-gray-700" rows="4"
+                            [ngClass]="{'border-red-500':showError}"
+                            placeholder="Provide your revision comments here..."></textarea>
+                        <div *ngIf="showError" class="text-red-500 mt-1 text-sm">
+                            Please provide your revision comments.
+                        </div>
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end items-center my-1">
+                        <button (click)="onRevision()" type="button"
+                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:outline-none mr-2">Cancel</button>
+                        <button (click)="onSubmit()"
+                            class="bg-violet-700 text-white px-4 py-2 rounded hover:bg-violet-700 focus:outline-none">
+                            <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+                            Submit</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="flex flex-wrap mt-6 ">
             <div class="w-full md:w-2/5 px-4 border py-3">
@@ -133,7 +233,7 @@
                     for="grid-last-name">
                     Customer Notes
                 </label>
-                <p class="w-full truncate">{{quoteData.customerNote}}</p>
+                <p class="w-full whitespace-pre-line">{{quoteData.customerNote}}</p>
 
             </div>
             <div class="w-full md:w-3/5 px-4 border py-3">
@@ -141,7 +241,7 @@
                     for="grid-last-name">
                     Terms and Conditions
                 </label>
-                <p class="w-full truncate">{{quoteData.termsAndCondition}}</p>
+                <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition}}</p>
 
             </div>
 
@@ -168,6 +268,14 @@
                     </tr>
                     <tr class=" border-b ">
                         <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit Margin
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl">
+                            {{calculateProfitMargin().toFixed(2)}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
                             Profit margin with %
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
@@ -184,7 +292,7 @@
                             Subtotal
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{calculateSellingPrice() | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -192,7 +300,7 @@
                             Discount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{(quoteData.totalDiscount).toFixed(2)}}
+                            {{(quoteData.totalDiscount) | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -200,7 +308,7 @@
                             Total Amount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateDiscoutPrice().toFixed(2)}}
+                            {{calculateDiscoutPrice() | numberFormatter }}
                         </td>
                     </tr>
 
@@ -211,12 +319,17 @@
 
 
     <div class=" border-t py-6 px-9 flex justify-end gap-2 ">
-        <div class="flex w-80">
+        <div class="flex w-70">
             <button
-                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full">
+                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
+                (click)="onPreviewPdf()">
+                <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
                 Preview
             </button>
-            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full">
+            <button
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                (click)="onDownloadPdf()">
+                <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
                 Download (PDF)
             </button>
         </div>

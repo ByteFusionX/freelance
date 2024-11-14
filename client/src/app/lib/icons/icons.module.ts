@@ -42,10 +42,25 @@ import {
   heroArrowPath,
   heroPaperAirplane,
   heroExclamationCircle,
+  heroArrowDownCircle,
+  heroCog6Tooth,
+  heroDocumentText,
+  heroTrash,
+  heroCheck,
+  heroChatBubbleBottomCenterText,
+  heroCheckCircle,
+  heroArrowsRightLeft,
+  heroTag,
+  heroBell,
+  heroClipboardDocumentCheck,
+  heroXCircle,
+  heroInformationCircle,
+  heroArrowTrendingUp,
+  heroArrowUturnLeft,
+  heroChartBar
 } from '@ng-icons/heroicons/outline';
 
-
-
+import { heroBellSolid } from '@ng-icons/heroicons/solid'
 @NgModule({
   declarations: [],
   imports: [
@@ -91,6 +106,23 @@ import {
       heroArrowPath,
       heroPaperAirplane,
       heroExclamationCircle,
+      heroArrowDownCircle,
+      heroCog6Tooth,
+      heroDocumentText,
+      heroTrash,
+      heroCheck,
+      heroChatBubbleBottomCenterText,
+      heroCheckCircle,
+      heroArrowsRightLeft,
+      heroTag,
+      heroBellSolid,
+      heroBell,
+      heroClipboardDocumentCheck,
+      heroXCircle,
+      heroInformationCircle,
+      heroArrowTrendingUp,
+      heroArrowUturnLeft,
+      heroChartBar
     }),
   ],
   exports: [NgIconsModule]

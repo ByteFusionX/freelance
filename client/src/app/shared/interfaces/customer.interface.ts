@@ -6,20 +6,30 @@ export interface ContactDetail {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNo:string;
+    department:getDepartment;
 }
 
 export interface getCustomer {
     _id: string;
+    clientRef:string;
     department: getDepartment;
     contactDetails: ContactDetail[];
     companyName: string;
+    companyAddress: string;
     customerEmailId: string;
     contactNo: number;
+    customerType:string;
 }
 
 export interface getFilteredCustomer {
     total:number,
     customers:getCustomer[]
+}
+
+export interface getCustomerByID {
+    access:boolean,
+    customerData:getCustomer;
 }
 
 export interface FilterCustomer {

@@ -52,4 +52,9 @@ export class PaginationComponent implements OnChanges {
     this.row = Number(selected)
     this.onLinkClick(this.selectedPage)
   }
+
+  onPageNumberClick(pageNumber: number) {
+    this.selectedPage = pageNumber
+    this.onLinkClick(pageNumber)
+  }
 }

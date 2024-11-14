@@ -1,0 +1,47 @@
+<div class="flex mb-2 gap-4">
+    <label for="monthlyReport">
+        <input type="radio" name="reportType" id="monthlyReport" [(ngModel)]="selectedDateFormat" value="monthly"
+            checked>
+        Monthly
+    </label>
+    <label for="yearlyReport">
+        <input type="radio" name="reportType" id="yearlyReport" [(ngModel)]="selectedDateFormat" value="yearly">
+        Yearly
+    </label>
+</div>
+<div class="flex gap-2">
+    <div class="mb-2">
+        <label for="selectYear" class="font-medium">Year:</label>
+        <ng-select id="selectYear" [(ngModel)]="selectedYear" class="filter" placeholder="Select Year" appendTo="body"
+            (ngModelChange)="onYearChange()">
+            <ng-option *ngFor="let year of years" [value]="year">{{year}}</ng-option>
+        </ng-select>
+    </div>
+    <div class="mb-2" *ngIf="selectedDateFormat == 'monthly'">
+        <label for="selectMonth" class="font-medium">Month:</label>
+
+        <ng-select *ngIf="selectedYear" id="selectMonth" [(ngModel)]="selectedMonth" class="filter"
+            placeholder="Select Month" (click)="handleClick($event)" appendTo="body" [disabled]="false">
+            <ng-option *ngFor="let month of months" [value]="month">{{month}}</ng-option>
+        </ng-select>
+        <select *ngIf="!selectedYear" name="" id="" disabled class="filter border p-[0.4rem] cursor-not-allowed">
+            <option disabled selected value="placeholder">Select Month</option>
+        </select>
+    </div>
+
+
+</div>
+<p *ngIf="((!selectedMonth || !selectedYear) && isSubmitted)&& selectedDateFormat == 'monthly'"
+    class="text-red-600 text-sm">Please Ensure all field is selected</p>
+<p *ngIf="( !selectedYear && isSubmitted)&& selectedDateFormat == 'yearly'" class="text-red-600 text-sm">Please Ensure
+    all field is selected</p>
+<div class="flex gap-2 justify-center items-center">
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm my-3"
+        (click)="onGenerate(false)">
+        Filter
+    </button>
+    <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm my-3"
+        (click)="onGenerate(true)">
+        Generate Report (pdf)
+    </button>
+</div>

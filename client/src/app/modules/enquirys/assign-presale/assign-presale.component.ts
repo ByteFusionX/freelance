@@ -11,21 +11,23 @@ import { TitleStrategy } from '@angular/router';
   templateUrl: './assign-presale.component.html',
   styleUrls: ['./assign-presale.component.css'],
   animations: [fileEnterState],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 export class AssignPresaleComponent implements OnInit {
 
   selectedFiles: File[] = []
   employees$!: Observable<getEmployee[]>
   selectedEmployee!: string | undefined;
+  comment!: string;
   employeeError: boolean = false;
   fileError: boolean = false;
-  isClear: boolean = false
+  commentError: boolean = false;
+  isClear: boolean = false;
+  isSaving: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<AssignPresaleComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[] },
+    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[], comment: string },
     private _employeeService: EmployeeService,
   ) { }
 
@@ -33,6 +35,7 @@ export class AssignPresaleComponent implements OnInit {
     this.employees$ = this._employeeService.getAllEmployees()
     if (this.data) {
       this.selectedEmployee = this.data.presalePerson
+      this.comment = this.data.comment
       this.selectedFiles = this.data.presaleFile
       this.isClear = true
     }
@@ -44,37 +47,64 @@ export class AssignPresaleComponent implements OnInit {
 
   onChange(change: string) {
     this.selectedEmployee = change
+    this.validateSalesPerson()
   }
 
   onFileUpload(event: File[]) {
+    this.validateFile()
     this.selectedFiles = event
   }
 
   onSubmit() {
-    if (this.selectedEmployee && this.selectedFiles.length) {
-      let presale = { presalePerson: this.selectedEmployee, presaleFile: [] }
-      this.dialogRef.close(presale)
-    } else {
-      this.Error()
-    }
+    let presalePersonName: String;
+    this.isSaving = true;
+    this.employees$.subscribe((employees) => {
+      employees.forEach((employee) => {
+        if (this.selectedEmployee == employee._id) {
+          presalePersonName = `${employee.firstName} ${employee.lastName}`
+        }
+      })
+      if (this.selectedEmployee && this.selectedFiles.length && presalePersonName && this.comment) {
+        let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles, presalePersonName: presalePersonName, comment: this.comment }
+        this.isSaving = false;
+        this.dialogRef.close(presale)
+      } else {
+        this.isSaving = false;
+        this.validateComment();
+        this.validateFile();
+        this.validateSalesPerson();
+      }
+    })
   }
 
   onClear() {
     this.selectedEmployee = undefined
+    this.comment = ''
     this.selectedFiles = []
     this.dialogRef.close({ clear: true })
   }
 
-  Error() {
+  validateFile() {
     if (this.selectedFiles.length == 0) {
       this.fileError = true
+    } else {
+      this.fileError = false
     }
+  }
+
+  validateSalesPerson() {
     if (!this.selectedEmployee) {
       this.employeeError = true
-    }
-    setTimeout(() => {
+    } else {
       this.employeeError = false
-      this.fileError = false
-    }, 1000)
+    }
+  }
+
+  validateComment() {
+    if (!this.comment) {
+      this.commentError = true;
+    } else {
+      this.commentError = false;
+    }
   }
 }
