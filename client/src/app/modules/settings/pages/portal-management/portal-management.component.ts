@@ -36,7 +36,7 @@ export class PortalManagementComponent {
   cstcDisplayedColumns: string[] = ['customerNote', 'termsCondition'];
   categoryDisplayedColumns: string[] = ['slNo', 'categoryName', 'role', 'count', 'action'];
   companyTargetColumns: string[] = ['year', 'targetType', 'targetValue', 'critical', 'moderate', 'action'];
-  
+
   targets: Target[] = [];
 
   departmentDataSource: any = new MatTableDataSource();
@@ -111,9 +111,8 @@ export class PortalManagementComponent {
             this._profileService.getNotes().subscribe((data) => {
               if (data) {
                 this.cstcDataSource.data = [data]
-
-                this.isNotesLoading = false
               }
+              this.isNotesLoading = false
             })
           )
         }
@@ -264,7 +263,7 @@ export class PortalManagementComponent {
       if (data) {
         this._profileService.setCompanyTarget(data).subscribe({
           next: (res) => {
-            this.compnayTargetDataSource.data =  this.expandData(res);
+            this.compnayTargetDataSource.data = this.expandData(res);
             this.compnayTargetDataSource._updateChangeSubscription()
           },
           error: (error) => {
@@ -275,7 +274,7 @@ export class PortalManagementComponent {
     })
   }
 
-  editTarget(id:string) {
+  editTarget(id: string) {
 
     const target = this.targets.find(target => target._id == id)
     const dialogRef = this.dialog.open(SetTargetComponent, {
@@ -303,7 +302,7 @@ export class PortalManagementComponent {
     return data.flatMap((element) => [
       {
         year: element.year,
-        _id:element._id,
+        _id: element._id,
         targetType: 'Sales Revenue',
         criticalRange: element.salesRevenue.criticalRange,
         targetValue: element.salesRevenue.targetValue,
