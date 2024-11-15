@@ -164,7 +164,7 @@
         </div>
         <div>
             <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
-                <table mat-table [dataSource]="customerDepartmentDataSource" class="rounded-lg table-fixed">
+                <table  mat-table [dataSource]="customerDepartmentDataSource" class="rounded-lg table-fixed">
                     <!-- Position Column -->
                     <ng-container matColumnDef="position">
                         <th *matHeaderCellDef
@@ -207,7 +207,7 @@
         </div>
         <div>
             <div class="h-full h-max-80 overflow-hidden overflow-y-auto example border">
-                <table mat-table [dataSource]="cstcDataSource" class="rounded-lg table-fixed min-w-full">
+                <table mat-table *ngIf="cstcDataSource" [dataSource]="cstcDataSource" class="rounded-lg table-fixed min-w-full">
 
                     <!-- CustomerNote Column -->
                     <ng-container matColumnDef="customerNote">
@@ -265,6 +265,12 @@
                     <tr mat-header-row *matHeaderRowDef="cstcDisplayedColumns; sticky: true"></tr>
                     <tr mat-row *matRowDef="let row; columns: cstcDisplayedColumns;"></tr>
                 </table>
+                <div *ngIf="!cstcDataSource" class="w-full flex justify-center items-center">
+                    <div class="p-3  flex flex-col justify-center items-center">
+                        <img src="assets/images/empty.png" alt="">
+                        <p class="m-2 text-center text-gray-500">No Targets </p>
+                    </div>
+                </div>
                 <app-skelton-loading *ngIf="isNotesLoading" [lineLength]="2"></app-skelton-loading>
             </div>
         </div>
