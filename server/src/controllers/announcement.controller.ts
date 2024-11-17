@@ -22,6 +22,7 @@ export const createAnnouncement = async (req: any, res: Response, next: NextFunc
       const socket = req.app.get('io') as Server;
       const filteredRoom = Object.keys(connectedSockets).filter(key => key !== userId);
       filteredRoom.forEach(room => {
+        console.log(room)
         socket.to(room).emit("notifications", 'announcement');
       });
       return res.status(200).json({ success: true });

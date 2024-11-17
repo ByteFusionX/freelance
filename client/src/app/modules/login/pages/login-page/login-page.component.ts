@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { CreateEmployeeDialog } from 'src/app/modules/home/pages/employees/create-employee/create-employee.component';
 import { login } from 'src/app/shared/interfaces/login';
 
@@ -28,7 +29,8 @@ export class LoginPageComponent {
     private employeeService: EmployeeService,
     private _fb: FormBuilder,
     private router: Router,
-    private _dialog:MatDialog
+    private _dialog:MatDialog,
+    private _notificationService: NotificationService,
   ) { }
 
   loginForm = this._fb.group({
@@ -68,7 +70,12 @@ export class LoginPageComponent {
       this.employeeService.employeeLogin(this.loginForm.value).subscribe((res: login) => {
         if (res.employeeData && res.token) {
           localStorage.setItem('employeeToken', res.token)
-          this.router.navigate(['/home'])
+          this.router.navigate(['/home']);
+          if (res.token) {
+            this._notificationService.authSocketIo(res.token)
+            this._notificationService.getEmployeeNotifications(res.token)
+            this._notificationService.initializeNotifications()
+          }
         }
         else if (res.employeeNotFoundError) {
           this.isSaving = false;
