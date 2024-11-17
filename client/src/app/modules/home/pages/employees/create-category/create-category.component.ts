@@ -1,3 +1,4 @@
+
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -45,7 +46,8 @@ export class CreateCategoryComponent {
       }),
       announcement: this._fb.group({
         viewReport: 'none',
-        create: [false]
+        create: [false],
+        deleteOrEdit: [false],
       }),
       customer: this._fb.group({
         viewReport: 'none',

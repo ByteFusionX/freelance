@@ -28,4 +28,8 @@ export class AnnouncementService {
   markAsViewed(announcementId: string, userId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/announcement/markAsViewed`, { announcementId, userId });
   }
+
+  deleteAnnouncement(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/announcement/deleteAnnouncement/${id}`);
+  }
 }

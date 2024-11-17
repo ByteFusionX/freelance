@@ -59,7 +59,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     LineChartComponent,
     pipeModule,
     NumberShortenerPipe,
-    MatTooltipModule
+
 ]
 })
 export class HomeModule { }
