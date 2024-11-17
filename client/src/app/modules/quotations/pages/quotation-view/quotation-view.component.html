@@ -67,17 +67,7 @@
                             <td class="px-2 py-2 border text-start ">
                                 {{quoteData.enqId.enquiryId}}
                             </td>
-                            <td class="px-2 py-2  border text-start font-medium ">
-                                Enq Files
-                            </td>
-                            <td class="px-2 py-2 border text-start ">
-                                <ng-container *ngFor="let files of quoteData?.enqId?.attachments">
-                                    {{files}}
-                                </ng-container>
-                                <ng-container *ngFor="let files of quoteData?.enqId?.preSale?.presaleFiles">
-                                    {{files.originalname}}
-                                </ng-container>
-                            </td>
+                            
                         </tr>
 
                     </tbody>
