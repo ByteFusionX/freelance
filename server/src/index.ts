@@ -72,7 +72,7 @@ let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
 if (process.env.USE_MONGOATLAS === 'true') {
   mongoUrl = process.env.MONGODB_ATLAS_URL as string;
 }
-console.log(mongoUrl,'mongoUrl');
+
 mongoose
   .connect(mongoUrl)
   .then(() => {
