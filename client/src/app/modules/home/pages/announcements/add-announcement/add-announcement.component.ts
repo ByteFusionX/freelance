@@ -12,19 +12,24 @@ import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CreateCustomerDialog } from 'src/app/modules/customers/pages/create-customer/create-customer.component';
 import { directiveSharedModule } from 'src/app/shared/directives/directives.module';
 import { announcementGetData, announcementPostData } from 'src/app/shared/interfaces/announcement.interface';
+import { GetCategory } from 'src/app/shared/interfaces/employee.interface';
+import { NgSelectModule } from '@ng-select/ng-select';
+
 
 @Component({
   selector: 'app-add-announcement',
   templateUrl: './add-announcement.component.html',
   styleUrls: ['./add-announcement.component.css'],
   standalone: true,
-  imports: [CommonModule, IconsModule, directiveSharedModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, IconsModule, directiveSharedModule, ReactiveFormsModule, FormsModule , NgSelectModule],
 })
 export class AddAnnouncementComponent implements OnDestroy, OnInit {
   submit: boolean = false;
   isSaving: boolean = false;
   userId!: any;
+  categories: GetCategory[] = [];
   isEdit: boolean = false;
+
 
   private mySubscription!: Subscription;
 
@@ -42,20 +47,30 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
       this.userId = res;
     });
 
+    this.getCategory();
+
     if (this.data?.data) {
       this.isEdit = true;
       this.formData.patchValue({
         title: this.data.data.title,
         description: this.data.data.description,
-        date: this.data.data.date
+        date: this.data.data.date,
+        category: this.data.data.category
       });
     }
+  }
+
+  getCategory(){
+      this._employeeService.getCategory().subscribe((res)=>{
+      this.categories = res;
+    })
   }
 
   formData = this.fb.group({
     title: ['', Validators.required],
     description: ['', Validators.required],
-    date: [new Date(), Validators.required]
+    date: [new Date(), Validators.required],
+    category: [['all']]
   });
 
   onSubmit() {
@@ -69,9 +84,12 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
         date: this.formData.value.date as Date | null,
         userId: this.userId._id,
         isEdit: this.isEdit,
-        _id: this.isEdit ? this.data.data?._id : undefined
+        _id: this.isEdit ? this.data.data?._id : undefined,
+        category: this.formData.value.category as string[]   
       };
 
+      console.log(data);
+    
       this.mySubscription = this._service.createAnnouncement(data).subscribe({
         next: (res: any) => {
           if (res.success) {
@@ -98,6 +116,32 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
     this.dialogRef.close();
   }
 
+  onCategoryChange(event: any) {
+    const selectedValues = this.formData.get('category')?.value || [];
+    const previousValues = event.previousValue || [];
+    
+    // Case 1: If 'all' is currently selected and user selects another category
+    if (previousValues.includes('all') && selectedValues.length > 1) {
+      const filteredValues = selectedValues.filter((value: string) => value !== 'all');
+      this.formData.patchValue({
+        category: filteredValues
+      });
+      return;
+    }
+
+    // Case 2: If other categories are selected and user selects 'all'
+    if (selectedValues.includes('all')) {
+      this.formData.patchValue({
+        category: ['all']
+      });
+      return;
+    }
+
+    // Case 3: Normal selection of specific categories
+    this.formData.patchValue({
+      category: selectedValues.filter((value: string) => value !== 'all')
+    });
+  }
 
   ngOnDestroy(): void {
     this.mySubscription.unsubscribe()

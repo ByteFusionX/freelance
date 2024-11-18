@@ -7,6 +7,7 @@ interface announcment extends Document {
     createdDate: Date,
     celeb: boolean
     viewedBy: string[]
+    category: string[]
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -19,8 +20,7 @@ const AnnouncementSchema = new Schema<announcment>({
         required: true,
     },
     createdDate: {
-        type: Date,
-        default: () => Date.now()
+        type: Date
     },
     date: {
         type: Date,
@@ -31,6 +31,9 @@ const AnnouncementSchema = new Schema<announcment>({
         required: true
     },
     viewedBy: {
+        type: [String]
+    },
+    category: {
         type: [String]
     }
 });
