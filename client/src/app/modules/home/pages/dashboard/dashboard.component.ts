@@ -153,22 +153,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let jobAccess = employee?.category.privileges.jobSheet.viewReport;
         this.jobAccess = jobAccess && jobAccess !== 'none' ? true : false
         userId = employee?._id
+
+        let filterData = {
+          page: 1,
+          row: 1000,
+          search: '',
+          access: access,
+          userId: userId
+        }
+    
+        if (access && access !== 'none') {
+          this._employeeService.getEmployees(filterData).subscribe((employees) => {
+            this.salesPersons = employees.employees;
+          })
+        }
       })
     )
 
-    let filterData = {
-      page: 1,
-      row: 1000,
-      search: '',
-      access: access,
-      userId: userId
-    }
 
-    if (access && access !== 'none') {
-      this._employeeService.getEmployees(filterData).subscribe((employees) => {
-        this.salesPersons = employees.employees;
-      })
-    }
   }
 
   getSalesTarget(reset: boolean) {
