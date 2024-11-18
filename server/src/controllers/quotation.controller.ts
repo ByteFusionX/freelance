@@ -991,9 +991,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
             value: totalValues.statusCounts[status]
         }));
 
-        const USDRates = await getUSDRated();
+        const qatarUsdRates = await getUSDRated();
 
-        const qatarUsdRates = USDRates.usd.qar;
         const tatalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
         const totalWonValue = totalValues.totalQARValue + (totalValues.totalUSDWonValue * qatarUsdRates);
         const totalLossValue = totalValues.totalQARLossValue + (totalValues.totalUSDLossValue * qatarUsdRates);

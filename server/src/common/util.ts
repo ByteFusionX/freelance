@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import { Filters } from "../interface/dashboard.interface";
 import fs from 'fs';
 import path from 'path';
+import axios from "axios";
 
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
@@ -229,10 +230,15 @@ export const lastRangedMonths = (dateRange: any) => {
 
 
 export async function getUSDRated() {
-    const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    return jsonResponse;
+    let rate = getCachedRate();
+    
+    if (!rate) {
+        rate = await fetchExchangeRate();
+    } else {
+        console.log('Using cached exchange rate:', rate);
+    }
+
+    return rate;
 }
 
 export const removeFile = (fileName: string) => {
@@ -246,3 +252,31 @@ export const removeFile = (fileName: string) => {
         }
     });
 };
+
+const CACHE_FILE = path.join(__dirname, 'exchangeRate.json');
+const API_URL = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json'; // Replace with your actual API endpoint
+
+export async function fetchExchangeRate() {
+    try {
+        const response = await axios.get(API_URL);
+        const rate = response.data.usd.qar; 
+        cacheExchangeRate(rate);
+        return rate;
+    } catch (error) {
+        console.error('Error fetching exchange rate:', error);
+        return null;
+    }
+}
+
+function cacheExchangeRate(rate) {
+    const data = { rate, timestamp: Date.now() };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data));
+}
+
+function getCachedRate() {
+    if (fs.existsSync(CACHE_FILE)) {
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        return data.rate;
+    }
+    return null;
+}

@@ -171,8 +171,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             })
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const employeeData = await Employee.aggregate([
             {

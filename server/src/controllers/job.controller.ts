@@ -65,8 +65,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         
 
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const jobData = await jobModel.aggregate([
             {

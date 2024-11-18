@@ -111,8 +111,7 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 break;
         }
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const currentDate = new Date();
         const sevenDaysAgo = new Date(currentDate);
@@ -350,8 +349,7 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
         const sevenDaysAgo = new Date(currentDate);
         sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const quoteTotal = await quotationModel.aggregate([
             {
@@ -539,8 +537,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
         }
 
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
 
         const assignedJobAwarded = await jobModel.aggregate([
@@ -675,8 +672,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
             }
             
 
-            const USDRates = await getUSDRated();
-            const qatarUsdRates = USDRates.usd.qar;
+            const qatarUsdRates = await getUSDRated();
 
 
             const jobTotal = await jobModel.aggregate([
@@ -789,8 +785,8 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
             
             const dateRange = getDateRange(filters.fromDate,filters.toDate)
 
-            const USDRates = await getUSDRated();
-            const qatarUsdRate = USDRates.usd.qar;
+            const qatarUsdRate = await getUSDRated();
+
             let jobGrossProfit = [];
             if(privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none'){
                 jobGrossProfit = await jobModel.aggregate([
