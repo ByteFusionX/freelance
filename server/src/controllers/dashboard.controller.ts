@@ -99,12 +99,8 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPerson._id': new ObjectId(userId) },
-                        { 'salesPerson._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -137,7 +133,7 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $addFields: {
@@ -243,12 +239,8 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPerson._id': new ObjectId(userId) },
-                        { 'salesPerson._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -273,13 +265,13 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $group: {
                     _id: null,
                     totalEnquiries: { $sum: 1 },
-                lastWeekEnquiries: {
+                    lastWeekEnquiries: {
                         $sum: {
                             '$cond': [
                                 { $gte: ['$createdDate', sevenDaysAgo] },
@@ -297,7 +289,7 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                     lastWeekEnquiries: 1
                 }
             }
-        ]).exec();        
+        ]).exec();
 
         return enqTotal[0];
     } catch (error) {
@@ -320,12 +312,8 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -340,8 +328,8 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
 
         const quoteTotal = await quotationModel.aggregate([
             {
-                $match:{
-                    status: { $ne : 'Work In Progress'}
+                $match: {
+                    status: { $ne: 'Work In Progress' }
                 }
             },
             {
@@ -362,7 +350,7 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $addFields: {
@@ -460,7 +448,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $facet: {
@@ -484,7 +472,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                     totalCompletedJob: [
                         {
                             $match: {
-                                status: {$ne: 'Assigned To Presales'}
+                                status: { $ne: 'Assigned To Presales' }
                             }
                         },
                         { $count: "total" }
@@ -493,7 +481,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                         {
                             $match: {
                                 createdDate: { $gte: oneWeekAgo },
-                                status: {$ne: 'Assigned To Presales'}
+                                status: { $ne: 'Assigned To Presales' }
                             }
                         },
                         { $count: "lastWeek" }
@@ -552,7 +540,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters,accessFilter) }
+                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters, accessFilter) }
             },
             {
                 $addFields: {
@@ -637,7 +625,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
 
             switch (privileges.jobSheet.viewReport) {
                 case 'none':
-                    return res.status(204) 
+                    return res.status(204)
                 case 'created':
                     accessFilter = { 'salesPerson._id': new ObjectId(userId) };
                     break;
@@ -645,18 +633,14 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { 'salesPerson._id': new ObjectId(userId) },
-                            { 'salesPerson._id': { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
 
                 default:
                     break;
             }
-            
+
 
             const qatarUsdRates = await getUSDRated();
 
@@ -681,7 +665,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $group: {
@@ -757,24 +741,20 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { 'salesPerson._id': new ObjectId(userId) },
-                            { 'salesPerson._id': { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
-                    
+
                 default:
                     break;
             }
-            
-            const dateRange = getDateRange(filters.fromDate,filters.toDate)
+
+            const dateRange = getDateRange(filters.fromDate, filters.toDate)
 
             const qatarUsdRate = await getUSDRated();
 
             let jobGrossProfit = [];
-            if(privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none'){
+            if (privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none') {
                 jobGrossProfit = await jobModel.aggregate([
                     {
                         $lookup: {
@@ -812,7 +792,7 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     {
                         $match: {
                             ...accessFilter,
-                            ...buildDashboardFilters(filters,accessFilter),
+                            ...buildDashboardFilters(filters, accessFilter),
                             createdDate: { $gte: dateRange.gte, $lte: dateRange.lte }
                         }
                     },
@@ -869,25 +849,25 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     {
                         $project: {
                             year: 1,
-                            month: '$month.name', 
+                            month: '$month.name',
                             grossProfit: 1
                         }
                     },
                     {
                         $sort: { year: 1, month: 1 }
                     }
-                ]);      
-            }      
+                ]);
+            }
 
             const completeData = lastRangedMonths(dateRange).map(month => {
-                const found = jobGrossProfit.find(data => 
+                const found = jobGrossProfit.find(data =>
                     data.month === month.name && data.year === month.year
                 );
                 return {
                     month: month.name,
                     grossProfit: found ? found.grossProfit : 0
                 };
-            });            
+            });
 
             const monthArray = completeData.map(data => data.month);
             const profitArray = completeData.map(data => data.grossProfit);
@@ -921,12 +901,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     accessFilter = { salesPerson: { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { salesPerson: new ObjectId(userId) },
-                            { salesPerson: { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { salesPerson: { $in: reportedToUserIds } };
                     break;
 
                 default:
@@ -955,7 +931,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 }
             ]).exec();
 
@@ -981,7 +957,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $lookup: {
@@ -1062,7 +1038,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 }
             ]).exec();
 
@@ -1093,7 +1069,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $lookup: {

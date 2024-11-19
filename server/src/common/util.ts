@@ -3,6 +3,7 @@ import { Filters } from "../interface/dashboard.interface";
 import fs from 'fs';
 import path from 'path';
 import axios from "axios";
+import employeeModel from "../models/employee.model";
 
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
@@ -282,3 +283,16 @@ function getCachedRate() {
     }
     return null;
 }
+
+export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> => {
+    const employees = await employeeModel.find({ reportingTo: new ObjectId(userId) }, '_id');
+    const reportedIds: ObjectId[] = employees.map(employee => new ObjectId(employee._id.toString()));
+
+    // Recursively get all employees reporting to the current employees
+    for (const employee of employees) {
+        const subReportedIds = await getAllReportedEmployees(employee._id.toString());
+        reportedIds.push(...subReportedIds);
+    }
+
+    return reportedIds;
+};
