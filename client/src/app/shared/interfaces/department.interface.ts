@@ -16,3 +16,9 @@ export interface Department{
     createdDate:number
 }
 
+export interface getInternalDep{
+    _id?:string;
+    departmentName: string;
+    departmentHead: getEmployee[] | string;
+    createdDate: number;
+}
