@@ -254,23 +254,12 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
             default:
                 break;
         }
-        console.log(accessFilter)
-        console.log(!accessFilter['salesPerson._id'])   
-
         const currentDate = new Date();
         const sevenDaysAgo = new Date(currentDate);
         sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
         const enqTotal = await enquiryModel.aggregate([
             { $match: { status: { $ne: 'Quoted' } } },
-            {
-                $unset: "createdDate"
-            },
-            {
-                $addFields: {
-                    createdDate: { $toDate: "$preSale.createdDate" }
-                }
-            },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
@@ -308,9 +297,7 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                     lastWeekEnquiries: 1
                 }
             }
-        ]).exec();
-
-        
+        ]).exec();        
 
         return enqTotal[0];
     } catch (error) {
@@ -523,7 +510,6 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
             }
         ]).exec();
 
-        console.log(assignedJobCount)
 
 
 

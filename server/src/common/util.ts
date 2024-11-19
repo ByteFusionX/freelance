@@ -50,19 +50,21 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     if (filters) {
 
         if (filters.fromDate && filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-
+            const startDate = new Date(filters.fromDate);
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            
             matchFilter['createdDate'] = {
-                $gte: new Date(filters.fromDate),
-                $lt: toDate
+                $gte: startDate,
+                $lt: endDate
             };
+
         } else if (filters.fromDate) {
             matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
         } else if (filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-            matchFilter['createdDate'] = { $lt: toDate };
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            matchFilter['createdDate'] = { $lt: endDate };
         }
 
         // Handle multiple salesPersons
@@ -231,7 +233,7 @@ export const lastRangedMonths = (dateRange: any) => {
 
 export async function getUSDRated() {
     let rate = getCachedRate();
-    
+
     if (!rate) {
         rate = await fetchExchangeRate();
     } else {
@@ -259,7 +261,7 @@ const API_URL = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.jso
 export async function fetchExchangeRate() {
     try {
         const response = await axios.get(API_URL);
-        const rate = response.data.usd.qar; 
+        const rate = response.data.usd.qar;
         cacheExchangeRate(rate);
         return rate;
     } catch (error) {

@@ -238,6 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
     }
+    console.log(this.minDate,this.maxDate)
     this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
