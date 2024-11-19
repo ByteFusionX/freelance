@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Department from '../models/department.model'
 import Enquiry from '../models/enquiry.model'
 import Employee from '../models/employee.model'
-import InternalDepartment from "../models/internal.department";
+import internalDepartment from "../models/internal.department";
 const { ObjectId } = require('mongodb')
 
 
@@ -203,7 +203,7 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
 export const createInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const departmentData = req.body
-        const department = new InternalDepartment(departmentData)
+        const department = new internalDepartment(departmentData)
         const saveDepartment = await (await department.save()).populate(['departmentHead'])
 
         if (saveDepartment) {
@@ -217,7 +217,7 @@ export const createInternalDepartment = async (req: Request, res: Response, next
 
 export const getInternalDepartments = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const departments = await InternalDepartment.aggregate([
+        const departments = await internalDepartment.aggregate([
             {
                 $lookup: {
                     from: 'employees', localField: 'departmentHead',
@@ -238,9 +238,9 @@ export const getInternalDepartments = async (req: Request, res: Response, next: 
 export const updateInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = req.body
-        let department = await InternalDepartment.findOneAndUpdate({ _id: data._id }, { $set: { departmentName: data.departmentName, departmentHead: data.departmentHead } })
+        let department = await internalDepartment.findOneAndUpdate({ _id: data._id }, { $set: { departmentName: data.departmentName, departmentHead: data.departmentHead } })
         if (department) {
-            department = await (await InternalDepartment.findOne({ _id: department._id })).populate('departmentHead')
+            department = await (await internalDepartment.findOne({ _id: department._id })).populate('departmentHead')
             return res.status(200).json(department)
         }
         return res.status(502).json()

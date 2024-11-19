@@ -6,7 +6,7 @@ interface Department extends Document {
     createdDate: Date;
 }
 
-const InternalDepartmentSchema = new Schema<Department>({
+const internalDepartmentSchema = new Schema<Department>({
     departmentName: {
         type: String,
         unique: true,
@@ -22,4 +22,4 @@ const InternalDepartmentSchema = new Schema<Department>({
     }
 });
 
-export default model<Department>("InternalDepartment", InternalDepartmentSchema);
+export default model<Department>("InternalDepartment", internalDepartmentSchema);

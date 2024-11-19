@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { BehaviorSubject, Observable } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
-import { getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { getDepartment, getInternalDep } from 'src/app/shared/interfaces/department.interface';
 import { CreateEmployee, GetCategory, getEmployee, getEmployeeDetails } from 'src/app/shared/interfaces/employee.interface';
 import { CreateCategoryComponent } from '../create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
 export class EditEmployeeComponent {
 
   category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);
-  departments$!: Observable<getDepartment[]>;
+  departments$!: Observable<getInternalDep[]>;
   employees$!: Observable<getEmployee[]>;
   employeeData!: getEmployeeDetails;
 
@@ -61,7 +61,7 @@ export class EditEmployeeComponent {
 
   ngOnInit() {
     this.getCategory();
-    this.departments$ = this._profileService.getDepartments();
+    this.departments$ = this._profileService.getInternalDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
     
     this.employeeForm.patchValue({
