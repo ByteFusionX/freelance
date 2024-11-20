@@ -20,6 +20,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   enableSubmit: boolean = false
   newDepartment: boolean = true
   nameError: boolean = false
+  headError: boolean = false
 
   private subscriptions = new Subscription();
 
@@ -38,7 +39,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
     if (this.data.department) {
       let fullName = this.data.department.departmentHead[0].firstName + ' ' + this.data.department.departmentHead[0].lastName
       this.newDepartment = false
-      this.name.disable()
+      // this.name.disable()
       this.name.setValue(this.data.department.departmentName)
       this.head.setValue(fullName)
     }
@@ -53,6 +54,12 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
     if (!this.name.value) {
       this.nameError = true
       this.errorTimeout()
+    }
+
+    if (!this.head.value) {
+      this.headError = true;
+      this.errorTimeout();
+      return
     }
 
     if (this.name.value && this.head.value && !this.data.forCustomer) {
@@ -75,18 +82,36 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   }
 
   onUpdate() {
+    if (!this.name.value?.trim()) {
+      this.nameError = true
+      this.errorTimeout()
+      return
+    }
+
+    if (!this.head.value) {
+      this.headError = true;
+      this.errorTimeout();
+      return
+    }
+
+    let curName = this.data.department.departmentName
     let curHead = this.data.department.departmentHead[0].firstName + ' ' + this.data.department.departmentHead[0].lastName
-    if (this.head.value && this.head.value != curHead && !this.data.forCustomer) {
+
+    if (curHead == this.head.value) {
+      this.head.setValue(<string>this.data.department.departmentHead[0]._id)
+    }
+
+    if (this.name.value?.trim() != curName || this.head.value != curHead && !this.data.forCustomer) {
       this.subscriptions.add(this._profileService.updateDepartment(
-        { departmentName: this.data.department.departmentName, departmentHead: this.head.value, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact })
+        { _id: this.data.department._id, departmentName: this.name.value, departmentHead: this.head.value, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact })
         .subscribe(data => {
           if (data) {
             this.dialogRef.close(data)
           }
         }))
-    } else if (this.head.value && this.head.value != curHead && this.data.forCustomer) {
+    } else if (this.name.value?.trim() != curName || this.head.value != curHead && this.data.forCustomer) {
       this.subscriptions.add(this._profileService.updateDepartment(
-        { departmentName: this.data.department.departmentName, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact})
+        { _id:this.data.department._id, departmentName: this.name.value, departmentHead: this.head.value, createdDate: this.data.department.createdDate, forCustomerContact: this.data.department.forCustomerContact })
         .subscribe(data => {
           if (data) {
             this.dialogRef.close(data)
@@ -98,6 +123,7 @@ export class CreateDepartmentDialog implements OnInit, OnDestroy {
   errorTimeout() {
     setTimeout(() => {
       this.nameError = false
+      this.headError = false
     }, 3000)
   }
 

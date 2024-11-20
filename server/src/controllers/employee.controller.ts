@@ -14,6 +14,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await Employee.find({}, { password: 0 }).sort({ createdDate: -1 }).populate('department')
+        
         if (employees.length) {
             return res.status(200).json(employees);
         }
@@ -74,7 +75,7 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                     $match: filters
                 },
                 {
-                    $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                    $lookup: { from: 'internaldepartments', localField: 'department', foreignField: '_id', as: 'department' }
                 },
                 {
                     $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' }
@@ -102,7 +103,6 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                 return res.status(200).json({ access: false })
             }
         }
-
 
         return res.status(204).json()
     } catch (error) {
@@ -185,7 +185,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             },
             {
                 $lookup: {
-                    from: 'departments',
+                    from: 'internaldepartments',
                     localField: 'department',
                     foreignField: '_id',
                     as: 'department'
@@ -237,8 +237,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $sort: { employeeId: 1 }
             },
         ]);
-
-
 
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
