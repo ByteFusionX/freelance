@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EditCategoryComponent } from '../edit-category/edit-category.component';
 import { GetCategory, Privileges, Target } from 'src/app/shared/interfaces/employee.interface';
 import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
+import { InternalDepartmentComponent } from '../internal-department/internal-department.component';
 
 @Component({
   selector: 'app-portal-management',
@@ -26,6 +27,7 @@ export class PortalManagementComponent {
   openCreateForm: boolean = false;
   isTargetLoading: boolean = true
   isDepartmentLoading: boolean = true
+  isInternalDepartmentLoading: boolean = true
   isCustomerDepartmentLoading: boolean = true
   isNotesLoading: boolean = true
   isCategoryLoading: boolean = true;
@@ -40,6 +42,7 @@ export class PortalManagementComponent {
   targets: Target[] = [];
 
   departmentDataSource: any = new MatTableDataSource();
+  internalDepartmentDataSource: any = new MatTableDataSource();
   customerDepartmentDataSource: any = new MatTableDataSource();
   cstcDataSource: any = new MatTableDataSource();
   categoryDataSource: any = new MatTableDataSource();
@@ -94,6 +97,17 @@ export class PortalManagementComponent {
           )
         }
 
+        if (this.privileges?.portalManagement?.department) {
+          this.subscriptions.add(
+            this._profileService.getInternalDepartments().subscribe((data) => {
+              if (data) {
+                this.internalDepartmentDataSource.data = data
+                this.isInternalDepartmentLoading = false
+              }
+            })
+          )
+        }
+
 
         if (this.privileges?.portalManagement?.department) {
           this.subscriptions.add(
@@ -135,7 +149,6 @@ export class PortalManagementComponent {
     )
   }
 
-
   onCreateDepartment() {
     const dialogRef = this.dialog.open(CreateDepartmentDialog, {
       data: { forCustomer: false }
@@ -144,6 +157,16 @@ export class PortalManagementComponent {
       if (data) {
         data.departmentHead = [data.departmentHead]
         this.departmentDataSource.data = [...this.departmentDataSource.data, data]
+      }
+    });
+  }
+
+  onCreateInternalDepartment() {
+    const dialogRef = this.dialog.open(InternalDepartmentComponent, {});
+    dialogRef.afterClosed().subscribe(data => {
+      if (data) {
+        data.departmentHead = [data.departmentHead]
+        this.internalDepartmentDataSource.data = [...this.internalDepartmentDataSource.data, data]
       }
     });
   }
@@ -181,6 +204,20 @@ export class PortalManagementComponent {
           data.departmentHead = [data.departmentHead]
           this.departmentDataSource.data[index] = data
           this.departmentDataSource.data = [...this.departmentDataSource.data]
+        }
+      })
+    }
+  }
+
+  onInternalEditClick(index: number) {
+    let department = this.internalDepartmentDataSource.data[index]
+    if (department) {
+      const dialogRef = this.dialog.open(InternalDepartmentComponent, { data: department });
+      dialogRef.afterClosed().subscribe(data => {
+        if (data) {
+          data.departmentHead = [data.departmentHead]
+          this.internalDepartmentDataSource.data[index] = data;
+          this.internalDepartmentDataSource.data = [...this.internalDepartmentDataSource.data]
         }
       })
     }
