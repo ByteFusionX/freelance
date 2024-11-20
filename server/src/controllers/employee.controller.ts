@@ -200,14 +200,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             },
             {
-                $lookup: {
-                    from: 'employees',
-                    localField: 'reportingTo',
-                    foreignField: '_id',
-                    as: 'reportingTo'
-                }
-            },
-            {
                 $unwind: {
                     path: "$department",
                     preserveNullAndEmptyArrays: true
@@ -237,7 +229,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $sort: { employeeId: 1 }
             },
         ]);
-
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
