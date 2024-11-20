@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
-import { calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
+import { calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
 
 
 const { ObjectId } = require('mongodb')
@@ -38,8 +38,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -49,12 +48,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -62,11 +57,10 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         }
 
         console.log(access);
-        
 
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+
+        const qatarUsdRate = await getUSDRated();
 
         const jobData = await jobModel.aggregate([
             {
@@ -199,8 +193,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -210,12 +203,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:

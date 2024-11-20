@@ -6,18 +6,19 @@ import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
 import quotationModel from "../models/quotation.model";
 import { uploadFileToAws } from "../common/aws-connect";
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
     try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
 
-        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => { 
+        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         })) : [];
 
-        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         })) : [];
@@ -99,7 +100,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
     try {
         const presale = JSON.parse(req.body.presaleData)
-        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         }));
@@ -161,8 +162,9 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
+
+        console.log(reportedToUserIds)
 
         switch (access) {
             case 'created':
@@ -172,12 +174,8 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -375,8 +373,7 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         let { access, userId } = req.query;
 
         let accessFilter = {};
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -385,13 +382,9 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
             case 'reported':
                 accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
-            case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
+                case 'createdAndReported':
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
 
             default:

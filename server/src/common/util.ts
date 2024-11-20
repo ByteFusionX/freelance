@@ -2,6 +2,8 @@ import { ObjectId } from "mongodb";
 import { Filters } from "../interface/dashboard.interface";
 import fs from 'fs';
 import path from 'path';
+import axios from "axios";
+import employeeModel from "../models/employee.model";
 
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
@@ -49,19 +51,21 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     if (filters) {
 
         if (filters.fromDate && filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-
+            const startDate = new Date(filters.fromDate);
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            
             matchFilter['createdDate'] = {
-                $gte: new Date(filters.fromDate),
-                $lt: toDate
+                $gte: startDate,
+                $lt: endDate
             };
+
         } else if (filters.fromDate) {
             matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
         } else if (filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-            matchFilter['createdDate'] = { $lt: toDate };
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            matchFilter['createdDate'] = { $lt: endDate };
         }
 
         // Handle multiple salesPersons
@@ -229,10 +233,15 @@ export const lastRangedMonths = (dateRange: any) => {
 
 
 export async function getUSDRated() {
-    const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    return jsonResponse;
+    let rate = getCachedRate();
+
+    if (!rate) {
+        rate = await fetchExchangeRate();
+    } else {
+        console.log('Using cached exchange rate:', rate);
+    }
+
+    return rate;
 }
 
 export const removeFile = (fileName: string) => {
@@ -245,4 +254,45 @@ export const removeFile = (fileName: string) => {
             console.log(`File removed: ${fileName}`);
         }
     });
+};
+
+const CACHE_FILE = path.join(__dirname, 'exchangeRate.json');
+const API_URL = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json'; // Replace with your actual API endpoint
+
+export async function fetchExchangeRate() {
+    try {
+        const response = await axios.get(API_URL);
+        const rate = response.data.usd.qar;
+        cacheExchangeRate(rate);
+        return rate;
+    } catch (error) {
+        console.error('Error fetching exchange rate:', error);
+        return null;
+    }
+}
+
+function cacheExchangeRate(rate) {
+    const data = { rate, timestamp: Date.now() };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data));
+}
+
+function getCachedRate() {
+    if (fs.existsSync(CACHE_FILE)) {
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        return data.rate;
+    }
+    return null;
+}
+
+export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> => {
+    const employees = await employeeModel.find({ reportingTo: new ObjectId(userId) }, '_id');
+    const reportedIds: ObjectId[] = employees.map(employee => new ObjectId(employee._id.toString()));
+
+    // Recursively get all employees reporting to the current employees
+    for (const employee of employees) {
+        const subReportedIds = await getAllReportedEmployees(employee._id.toString());
+        reportedIds.push(...subReportedIds);
+    }
+
+    return reportedIds;
 };

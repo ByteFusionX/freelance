@@ -3,6 +3,7 @@ import Department from '../models/department.model'
 import Enquiry from '../models/enquiry.model'
 import Employee from '../models/employee.model'
 import internalDepartment from "../models/internal.department";
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 
@@ -124,8 +125,7 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
     try {
         let { access, userId } = req.query;
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
 
         const departmentsWithCounts = await Department.aggregate([

@@ -108,6 +108,7 @@ export interface Privileges {
   announcement: {
     viewReport: string;
     create: boolean;
+    deleteOrEdit: boolean;
   };
   customer: {
     viewReport: string;

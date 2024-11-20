@@ -3,6 +3,8 @@ export interface announcementPostData {
     description:String | null | undefined;
     date:Date | null | undefined;
     userId :String | null | undefined;
+    isEdit: boolean;
+    _id: string | undefined;
 }
 
 export interface announcementGetData {

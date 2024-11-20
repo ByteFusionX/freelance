@@ -6,17 +6,27 @@ const { ObjectId } = require('mongodb');
 
 export const createAnnouncement = async (req: any, res: Response, next: NextFunction) => {
   try {
-    const { title, description, date, userId } = req.body;
+    const { title, description, date, userId, isEdit, _id } = req.body;
 
-    const addAnnouncement = new announcementModel({
+    const announcementDoc = {
       title,
       date,
       description,
       celeb: false,
       viewedBy: userId ? [userId] : []
-    });
+    };
 
-    const saveAnnouncement = await addAnnouncement.save();
+    const query = isEdit ? { _id } : { title };
+    
+    const saveAnnouncement = await announcementModel.findOneAndUpdate(
+      query,
+      announcementDoc,
+      { 
+        upsert: true, 
+        new: true,
+        setDefaultsOnInsert: true 
+      }
+    );
 
     if (saveAnnouncement) {
       const socket = req.app.get('io') as Server;
@@ -24,9 +34,9 @@ export const createAnnouncement = async (req: any, res: Response, next: NextFunc
       filteredRoom.forEach(room => {
         socket.to(room).emit("notifications", 'announcement');
       });
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, message: isEdit ? 'Announcement updated' : 'Announcement created' });
     }
-    return res.status(502).json();
+    return res.status(502).json({ success: false, message: 'Failed to save announcement' });
   } catch (error) {
     next(error);
   }
@@ -55,6 +65,16 @@ export const getAnnouncement = async (req: Request, res: Response, next: NextFun
     }
   } catch (error) {
     console.error('Error in getAnnouncement:', error);
+    next(error);
+  }
+};
+
+export const deleteAnnouncement = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    await announcementModel.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: 'Announcement deleted' });
+  } catch (error) {
     next(error);
   }
 };

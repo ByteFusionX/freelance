@@ -102,6 +102,14 @@ export const deleteNote = async (req: Request, res: Response, next: NextFunction
 export const getNote = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const notes = await Notes.findOne();
+        if(!notes){
+            const emptyNote = {
+                customerNotes: [],
+                termsAndConditions: []
+            };
+            const newNotes = await Notes.create(emptyNote);
+            return res.status(200).json(newNotes);
+        }
 
         if (notes) {
             return res.status(200).json(notes);

@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { takeUntil } from 'rxjs/operators';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-announcements',
@@ -16,6 +17,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 })
 export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit {
   createAnnouncement: boolean | undefined = false;
+  deleteOrEditAnnouncement: boolean | undefined = false;
   private readonly destroy$ = new Subject<void>(); // Subject to manage component lifecycle
   announcementData: announcementGetData[] = [];
   recentData: announcementGetData | null = null; // Allow recentData to be null
@@ -60,7 +62,6 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.getAnnouncementData();
       this.isEmpty = false;
-      this.toaster.success('Announcement added!', 'Success');
     });
   }
 
@@ -131,6 +132,41 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
 
   }
 
+  editAnnouncement(data: announcementGetData) {
+    const dialogRef = this.dialog.open(AddAnnouncementComponent, {
+      data: { data }
+    })
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.getAnnouncementData();
+    })
+  }
+
+  deleteAnnouncement(data: announcementGetData) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Announcement',
+        description: 'Are you sure you want to delete this announcement?',
+        icon: 'heroTrash',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result) => {
+      if (result) {
+        this._service.deleteAnnouncement(data._id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: () => {
+            this.getAnnouncementData();
+            this.toaster.success('Announcement deleted successfully');
+          },
+          error: () => {
+            this.toaster.error('Failed to delete announcement');
+          }
+        });
+      }
+    });
+  }
+
   trackByIdFn(index: number, item: announcementGetData): string {
     return item._id;
   }
@@ -139,6 +175,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
     this._employeeService.employeeData$.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.userId = data?._id;
       this.createAnnouncement = data?.category.privileges.announcement.create;
+      this.deleteOrEditAnnouncement = data?.category.privileges.announcement.deleteOrEdit;
     });
   }
 
