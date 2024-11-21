@@ -14,7 +14,8 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -146,7 +147,8 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
         return res.status(200).json({ total: total, customers: customerData })
 
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -238,7 +240,8 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
 
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -276,7 +279,8 @@ export const getCustomerCreators = async (req: Request, res: Response, next: Nex
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -300,7 +304,8 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -325,7 +330,8 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
         })
         return res.status(200).json(updatedCustomer)
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

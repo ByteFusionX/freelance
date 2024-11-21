@@ -93,7 +93,8 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         return res.status(200).json(savedEnquiryData[0]);
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -163,6 +164,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         let accessFilter = {};
 
         let reportedToUserIds = await getAllReportedEmployees(userId);
+        console.log(reportedToUserIds,'kazhnju')
 
         console.log(reportedToUserIds)
 
@@ -233,7 +235,8 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         return res.status(504).json({ err: 'No enquiry data found' })
 
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -339,7 +342,8 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -364,7 +368,8 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
 
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -435,7 +440,8 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         if (result) return res.status(200).json(result)
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -474,7 +480,8 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
 
         return res.status(502).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -540,7 +547,8 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
         if (totalFeedbacks.length) return res.status(200).json({ total: totalFeedbacks[0].total, feedbacks: feedbacks });
         return res.status(502).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -571,7 +579,8 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
 
         return res.status(502).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -600,7 +609,8 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
 
         return res.status(200).json({ success: true })
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -631,7 +641,8 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
 
         return res.status(200).json({ success: true })
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -673,7 +684,8 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
 
         return res.status(200).json({ success: true });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -779,7 +791,8 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         return res.status(502).json()
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -802,7 +815,8 @@ export const markAsSeenEstimation = async (req: Request, res: Response, next: Ne
 
         res.status(200).json({ success: true });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -822,7 +836,8 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
 
         res.status(200).json({ message: 'Enquiries marked as seen', result });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -841,7 +856,8 @@ export const markAsSeenFeedback = async (req: Request, res: Response, next: Next
 
         res.status(200).json({ message: 'Feedback marked as seen', result });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -861,7 +877,8 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
 
         res.status(200).json({ message: 'Feedback response marked as viewed', result });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 

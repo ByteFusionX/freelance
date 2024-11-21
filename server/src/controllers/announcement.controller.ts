@@ -38,7 +38,8 @@ export const createAnnouncement = async (req: any, res: Response, next: NextFunc
     }
     return res.status(502).json({ success: false, message: 'Failed to save announcement' });
   } catch (error) {
-    next(error);
+    console.log(error)
+next(error);
   }
 };
 
@@ -65,7 +66,8 @@ export const getAnnouncement = async (req: Request, res: Response, next: NextFun
     }
   } catch (error) {
     console.error('Error in getAnnouncement:', error);
-    next(error);
+    console.log(error)
+next(error);
   }
 };
 
@@ -75,7 +77,8 @@ export const deleteAnnouncement = async (req: Request, res: Response, next: Next
     await announcementModel.findByIdAndDelete(id);
     res.status(200).json({ success: true, message: 'Announcement deleted' });
   } catch (error) {
-    next(error);
+    console.log(error)
+next(error);
   }
 };
 

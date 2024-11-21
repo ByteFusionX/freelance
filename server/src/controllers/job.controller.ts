@@ -183,7 +183,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             return res.status(504).json({ err: 'No job data found' });
         }
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -238,7 +239,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(502).json()
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -256,7 +258,8 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -301,6 +304,7 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }

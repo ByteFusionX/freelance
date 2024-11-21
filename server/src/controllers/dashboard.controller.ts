@@ -78,7 +78,8 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -715,7 +716,8 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -876,7 +878,8 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -989,7 +992,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -1101,6 +1105,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }

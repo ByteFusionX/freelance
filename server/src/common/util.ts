@@ -285,14 +285,38 @@ function getCachedRate() {
 }
 
 export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> => {
-    const employees = await employeeModel.find({ reportingTo: new ObjectId(userId) }, '_id');
-    const reportedIds: ObjectId[] = employees.map(employee => new ObjectId(employee._id.toString()));
+    try {
+        // Step 1: Fetch all employees and their reportingTo relationships in one go
+        const employees = await employeeModel.find({}, '_id reportingTo').lean();
+        
+        // Step 2: Build a lookup map for quick access
+        const employeeMap = new Map<string, string[]>(); // key: managerId, value: list of employeeIds
+        for (const employee of employees) {
+            const managerId = employee.reportingTo?.toString(); // Use `null` or empty string if no manager
+            if (!employeeMap.has(managerId)) {
+                employeeMap.set(managerId, []);
+            }
+            employeeMap.get(managerId)!.push(employee._id.toString());
+        }
 
-    // Recursively get all employees reporting to the current employees
-    for (const employee of employees) {
-        const subReportedIds = await getAllReportedEmployees(employee._id.toString());
-        reportedIds.push(...subReportedIds);
+        // Step 3: Perform a breadth-first search (BFS) to collect all reported employees
+        const visited = new Set<string>();
+        const queue = [userId.toString()]; // Start with the provided userId
+        const reportedIds: ObjectId[] = [];
+
+        while (queue.length > 0) {
+            const currentId = queue.shift()!;
+            if (visited.has(currentId)) continue;
+
+            visited.add(currentId);
+            const directReports = employeeMap.get(currentId) || [];
+            reportedIds.push(...directReports.map(id => new ObjectId(id)));
+            queue.push(...directReports); // Enqueue for further processing
+        }
+
+        return reportedIds;
+    } catch (error) {
+        console.error('Error fetching reported employees:', error);
+        return [];
     }
-
-    return reportedIds;
 };

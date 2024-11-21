@@ -30,6 +30,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -510,6 +511,7 @@ export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunc
 
         res.status(200).json({ message: 'Deal marked as seen', result });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -619,6 +621,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -635,6 +638,7 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -685,6 +689,8 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
+        console.log(error)
         next(error)
     }
 }
@@ -710,6 +716,7 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -733,6 +740,7 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -758,6 +766,7 @@ export const revokeDeal = async (req: Request, res: Response, next: NextFunction
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -779,6 +788,7 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
 
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -837,6 +847,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -1051,6 +1062,7 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         return res.status(200).json({ success: true });
 
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
