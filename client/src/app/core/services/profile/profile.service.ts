@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Department, getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { Department, getDepartment, getInternalDep } from 'src/app/shared/interfaces/department.interface';
 import { NoteDelete, NotePatch, NotePost, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
@@ -75,5 +75,17 @@ export class ProfileService {
 
   getCompanyTargets(): Observable<{ targets: Target[] }> {
     return this.http.get<{ targets: Target[] }>(`${this.api}/company/target`)
+  }
+
+  getInternalDepartments():Observable<getInternalDep[]>{
+    return this.http.get<getInternalDep[]>(`${this.api}/department/internalDepartment`)
+  }
+
+  setInternalDepartment(department: getInternalDep): Observable<getInternalDep> {
+    return this.http.post<getInternalDep>(`${this.api}/department/internalDepartment`, department)
+  }
+
+  updateInternalDepartment(department: getInternalDep): Observable<getInternalDep> {
+    return this.http.put<getInternalDep>(`${this.api}/department/internalDepartment`, department)
   }
 }

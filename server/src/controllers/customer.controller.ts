@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Customer from '../models/customer.model';
 import Employee from '../models/employee.model';
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 
@@ -13,7 +14,8 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -43,8 +45,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -56,12 +57,8 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -150,7 +147,8 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
         return res.status(200).json({ total: total, customers: customerData })
 
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -160,8 +158,8 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         let customerId = req.params.customerId;
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
+
         switch (access) {
             case 'created':
                 accessFilter = { createdBy: new ObjectId(userId) };
@@ -170,12 +168,8 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -246,7 +240,8 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
 
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -284,7 +279,8 @@ export const getCustomerCreators = async (req: Request, res: Response, next: Nex
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -308,7 +304,8 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -333,7 +330,8 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
         })
         return res.status(200).json(updatedCustomer)
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

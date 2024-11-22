@@ -5,7 +5,7 @@ import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
-import { calculateDiscountPrice, getUSDRated } from "../common/util";
+import { calculateDiscountPrice, getAllReportedEmployees, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
 import { removeFile } from '../common/util'
 import quotationModel from "../models/quotation.model";
@@ -30,6 +30,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -67,8 +68,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -78,12 +78,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -221,8 +217,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -232,12 +227,8 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -365,8 +356,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -376,12 +366,8 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -525,6 +511,7 @@ export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunc
 
         res.status(200).json({ message: 'Deal marked as seen', result });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -634,6 +621,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -650,6 +638,7 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -700,6 +689,8 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
+        console.log(error)
         next(error)
     }
 }
@@ -725,6 +716,7 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -748,6 +740,7 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -773,6 +766,7 @@ export const revokeDeal = async (req: Request, res: Response, next: NextFunction
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -794,6 +788,7 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
 
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -804,8 +799,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -815,12 +809,8 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -857,6 +847,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -887,8 +878,7 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -898,12 +888,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -1076,6 +1062,7 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         return res.status(200).json({ success: true });
 
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };

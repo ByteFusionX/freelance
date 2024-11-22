@@ -60,6 +60,7 @@ export const getFileUrlFromAws = async (fileName: string, expireTime: number | n
 
             const command = new GetObjectCommand(objectGetParams);
             const url = await getSignedUrl(s3Client, command, { expiresIn: expireTime ?? undefined });
+            console.log(url)
             return url;
         } else {
             // Return an error message if the file is not available in the bucket

@@ -17,7 +17,8 @@ export const getCompanyDetails = async (req: Request, res: Response, next: NextF
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -49,7 +50,8 @@ export const updateCompanyDetails = async (req: Request, res: Response, next: Ne
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
 
     }
 }
@@ -66,7 +68,8 @@ export const getCompanyTargets = async (req: Request, res: Response, next: NextF
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -108,7 +111,8 @@ export const setCompanyTarget = async (req: Request, res: Response, next: NextFu
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -147,6 +151,7 @@ export const updateCompanyTarget = async (req: Request, res: Response, next: Nex
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };

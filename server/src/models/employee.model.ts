@@ -99,7 +99,7 @@ const employeeSchema = new Schema<Employee>({
     },
     department: {
         type: Schema.Types.ObjectId,
-        ref: 'Department',
+        ref: 'InternalDepartment',
         required: true,
     },
     category: {

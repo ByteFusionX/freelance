@@ -36,7 +36,7 @@ const io = new Server(server, {
 });
 app.set('io', io);
 
-app.use(morgan("dev"));
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

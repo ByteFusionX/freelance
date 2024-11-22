@@ -20,6 +20,7 @@ export const celebrationCheck = async (req: Request, res: Response, next: NextFu
 
 
   } catch (error) {
-    next(error)
+    console.log(error)
+next(error)
   }
 }

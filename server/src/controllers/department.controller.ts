@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import Department from '../models/department.model'
 import Enquiry from '../models/enquiry.model'
 import Employee from '../models/employee.model'
+import internalDepartment from "../models/internal.department";
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 
@@ -26,7 +28,8 @@ export const getDepartments = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -41,7 +44,8 @@ export const createDepartment = async (req: Request, res: Response, next: NextFu
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -49,8 +53,7 @@ export const createDepartment = async (req: Request, res: Response, next: NextFu
 export const updateDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = req.body
-        let department = await Department.findOneAndUpdate(
-            { departmentName: data.departmentName }, { departmentHead: data.departmentHead })
+        let department = await Department.findOneAndUpdate({ _id: data._id }, { $set: { departmentName: data.departmentName, departmentHead: data.departmentHead } })
 
         if (department) {
             department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
@@ -58,7 +61,8 @@ export const updateDepartment = async (req: Request, res: Response, next: NextFu
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -70,7 +74,7 @@ export const getCustomerDepartments = async (req: Request, res: Response, next: 
                 $match: {
                     forCustomerContact: true
                 },
-            }, 
+            },
             {
                 $lookup: {
                     from: 'employees', localField: 'departmentHead',
@@ -84,7 +88,8 @@ export const getCustomerDepartments = async (req: Request, res: Response, next: 
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -99,7 +104,8 @@ export const createCustomerDepartment = async (req: Request, res: Response, next
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -116,7 +122,8 @@ export const updateCustomerDepartment = async (req: Request, res: Response, next
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -124,8 +131,7 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
     try {
         let { access, userId } = req.query;
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
 
         const departmentsWithCounts = await Department.aggregate([
@@ -193,11 +199,62 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
             }
         ]);
 
-
-
         if (departmentsWithCounts) return res.status(200).json(departmentsWithCounts);
         return res.status(502).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
+    }
+}
+
+export const createInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departmentData = req.body
+        const department = new internalDepartment(departmentData)
+        const saveDepartment = await (await department.save()).populate(['departmentHead'])
+
+        if (saveDepartment) {
+            return res.status(200).json(saveDepartment)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        console.log(error)
+next(error)
+    }
+}
+
+export const getInternalDepartments = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departments = await internalDepartment.aggregate([
+            {
+                $lookup: {
+                    from: 'employees', localField: 'departmentHead',
+                    foreignField: '_id', as: 'departmentHead'
+                }
+            },
+        ])
+
+        if (departments.length > 0) {
+            return res.status(200).json(departments);
+        }
+        return res.status(204).json()
+    } catch (error) {
+        console.log(error)
+next(error)
+    }
+}
+
+export const updateInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = req.body
+        let department = await internalDepartment.findOneAndUpdate({ _id: data._id }, { $set: { departmentName: data.departmentName, departmentHead: data.departmentHead } })
+        if (department) {
+            department = await (await internalDepartment.findOne({ _id: department._id })).populate('departmentHead')
+            return res.status(200).json(department)
+        }
+        return res.status(502).json()
+    } catch (error) {
+        console.log(error)
+next(error)
     }
 }

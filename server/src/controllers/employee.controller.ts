@@ -14,12 +14,14 @@ const ObjectId = require('mongoose').Types.ObjectId;
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await Employee.find({}, { password: 0 }).sort({ createdDate: -1 }).populate('department')
+        
         if (employees.length) {
             return res.status(200).json(employees);
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -35,7 +37,8 @@ export const isEmployeePresent = async (req: Request, res: Response, next: NextF
 
         return res.status(200).json({ exists: false });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -74,7 +77,7 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                     $match: filters
                 },
                 {
-                    $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                    $lookup: { from: 'internaldepartments', localField: 'department', foreignField: '_id', as: 'department' }
                 },
                 {
                     $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' }
@@ -103,10 +106,10 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
             }
         }
 
-
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -185,7 +188,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             },
             {
                 $lookup: {
-                    from: 'departments',
+                    from: 'internaldepartments',
                     localField: 'department',
                     foreignField: '_id',
                     as: 'department'
@@ -197,14 +200,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                     localField: 'category',
                     foreignField: '_id',
                     as: 'category'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'employees',
-                    localField: 'reportingTo',
-                    foreignField: '_id',
-                    as: 'reportingTo'
                 }
             },
             {
@@ -237,14 +232,12 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $sort: { employeeId: 1 }
             },
         ]);
-
-
-
         if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -265,7 +258,8 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -276,7 +270,8 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
         const employee = await Employee.findById(id)
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -304,7 +299,8 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -350,7 +346,8 @@ export const setTarget = async (req: Request, res: Response, next: NextFunction)
         return res.status(204).json();
 
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -390,7 +387,8 @@ export const updateTarget = async (req: Request, res: Response, next: NextFuncti
         }
         return res.status(204).json();
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -412,7 +410,8 @@ export const changePasswordOfEmployee = async (req: Request, res: Response, next
             }
         })
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -456,7 +455,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             res.send({ employeeNotFoundError: true })
         }
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 
 }
@@ -468,7 +468,8 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -536,7 +537,8 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

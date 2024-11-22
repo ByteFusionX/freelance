@@ -3,6 +3,7 @@ import { Filters } from "../interface/dashboard.interface";
 import fs from 'fs';
 import path from 'path';
 import axios from "axios";
+import employeeModel from "../models/employee.model";
 
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
@@ -50,19 +51,21 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     if (filters) {
 
         if (filters.fromDate && filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-
+            const startDate = new Date(filters.fromDate);
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            
             matchFilter['createdDate'] = {
-                $gte: new Date(filters.fromDate),
-                $lt: toDate
+                $gte: startDate,
+                $lt: endDate
             };
+
         } else if (filters.fromDate) {
             matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
         } else if (filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-            matchFilter['createdDate'] = { $lt: toDate };
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            matchFilter['createdDate'] = { $lt: endDate };
         }
 
         // Handle multiple salesPersons
@@ -231,7 +234,7 @@ export const lastRangedMonths = (dateRange: any) => {
 
 export async function getUSDRated() {
     let rate = getCachedRate();
-    
+
     if (!rate) {
         rate = await fetchExchangeRate();
     } else {
@@ -259,7 +262,7 @@ const API_URL = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.jso
 export async function fetchExchangeRate() {
     try {
         const response = await axios.get(API_URL);
-        const rate = response.data.usd.qar; 
+        const rate = response.data.usd.qar;
         cacheExchangeRate(rate);
         return rate;
     } catch (error) {
@@ -280,3 +283,40 @@ function getCachedRate() {
     }
     return null;
 }
+
+export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> => {
+    try {
+        // Step 1: Fetch all employees and their reportingTo relationships in one go
+        const employees = await employeeModel.find({}, '_id reportingTo').lean();
+        
+        // Step 2: Build a lookup map for quick access
+        const employeeMap = new Map<string, string[]>(); // key: managerId, value: list of employeeIds
+        for (const employee of employees) {
+            const managerId = employee.reportingTo?.toString(); // Use `null` or empty string if no manager
+            if (!employeeMap.has(managerId)) {
+                employeeMap.set(managerId, []);
+            }
+            employeeMap.get(managerId)!.push(employee._id.toString());
+        }
+
+        // Step 3: Perform a breadth-first search (BFS) to collect all reported employees
+        const visited = new Set<string>();
+        const queue = [userId.toString()]; // Start with the provided userId
+        const reportedIds: ObjectId[] = [];
+
+        while (queue.length > 0) {
+            const currentId = queue.shift()!;
+            if (visited.has(currentId)) continue;
+
+            visited.add(currentId);
+            const directReports = employeeMap.get(currentId) || [];
+            reportedIds.push(...directReports.map(id => new ObjectId(id)));
+            queue.push(...directReports); // Enqueue for further processing
+        }
+
+        return reportedIds;
+    } catch (error) {
+        console.error('Error fetching reported employees:', error);
+        return [];
+    }
+};

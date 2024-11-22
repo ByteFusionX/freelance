@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
-import { getDepartment } from 'src/app/shared/interfaces/department.interface';
+import { getDepartment, getInternalDep } from 'src/app/shared/interfaces/department.interface';
 import { CreateEmployee, GetCategory, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { CreateCategoryComponent } from '../create-category/create-category.component';
 import { ToastrService } from 'ngx-toastr';
@@ -28,7 +28,7 @@ import { directiveSharedModule } from 'src/app/shared/directives/directives.modu
 })
 export class CreateEmployeeDialog implements OnInit {
   category$: BehaviorSubject<GetCategory[]> = new BehaviorSubject<GetCategory[]>([]);
-  departments$!: Observable<getDepartment[]>;
+  departments$!: Observable<getInternalDep[]>;
   employees$!: Observable<getEmployee[]>;
 
   selectedEmployee!: number;
@@ -65,7 +65,7 @@ export class CreateEmployeeDialog implements OnInit {
 
   ngOnInit() {
     this.getCategory();
-    this.departments$ = this._profileService.getDepartments();
+    this.departments$ = this._profileService.getInternalDepartments();
     this.employees$ = this._employeeService.getAllEmployees();
     this._employeeService.employeeData$.subscribe((data) => {
       this.userRole = data?.category.role as string;

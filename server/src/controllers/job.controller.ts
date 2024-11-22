@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
-import { calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
+import { calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
 
 
 const { ObjectId } = require('mongodb')
@@ -38,8 +38,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -49,12 +48,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -62,7 +57,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         }
 
         console.log(access);
-        
+
 
 
         const qatarUsdRate = await getUSDRated();
@@ -188,7 +183,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             return res.status(504).json({ err: 'No job data found' });
         }
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -198,8 +194,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -209,12 +204,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -248,7 +239,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(502).json()
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -266,7 +258,8 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -311,6 +304,7 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
