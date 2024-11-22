@@ -1,4 +1,4 @@
-import { Schema, Document, model } from "mongoose";
+import { Schema, Document, model, Types } from "mongoose";
 
 interface announcment extends Document {
     title: String
@@ -8,6 +8,7 @@ interface announcment extends Document {
     celeb: boolean
     viewedBy: string[]
     category: string[]
+    createdBy: Types.ObjectId
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -35,6 +36,11 @@ const AnnouncementSchema = new Schema<announcment>({
     },
     category: {
         type: [String]
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
     }
 });
 

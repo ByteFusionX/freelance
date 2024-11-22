@@ -87,8 +87,6 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
         _id: this.isEdit ? this.data.data?._id : undefined,
         category: this.formData.value.category as string[]   
       };
-
-      console.log(data);
     
       this.mySubscription = this._service.createAnnouncement(data).subscribe({
         next: (res: any) => {
@@ -120,7 +118,15 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
     const selectedValues = this.formData.get('category')?.value || [];
     const previousValues = event.previousValue || [];
     
-    // Case 1: If 'all' is currently selected and user selects another category
+    // Case 1: If user selects 'all', remove all other categories
+    if (selectedValues.includes('all') && !previousValues.includes('all')) {
+      this.formData.patchValue({
+        category: ['all']
+      });
+      return;
+    }
+
+    // Case 2: If 'all' was previously selected and user selects other categories, remove 'all'
     if (previousValues.includes('all') && selectedValues.length > 1) {
       const filteredValues = selectedValues.filter((value: string) => value !== 'all');
       this.formData.patchValue({
@@ -128,19 +134,6 @@ export class AddAnnouncementComponent implements OnDestroy, OnInit {
       });
       return;
     }
-
-    // Case 2: If other categories are selected and user selects 'all'
-    if (selectedValues.includes('all')) {
-      this.formData.patchValue({
-        category: ['all']
-      });
-      return;
-    }
-
-    // Case 3: Normal selection of specific categories
-    this.formData.patchValue({
-      category: selectedValues.filter((value: string) => value !== 'all')
-    });
   }
 
   ngOnDestroy(): void {

@@ -17,6 +17,7 @@ export interface announcementGetData {
     celeb: boolean
     viewedBy:string[]
     category: string[]
+    createdBy: string
   }
   
   

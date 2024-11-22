@@ -3,7 +3,7 @@ import announcementModel from "../models/announcement.model";
 import { Server } from "socket.io";
 import { connectedSockets } from "../service/socket-ioService";
 import employeeModel from "../models/employee.model";
-
+import { Types } from "mongoose";
 
 export const createAnnouncement = async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -16,7 +16,8 @@ export const createAnnouncement = async (req: any, res: Response, next: NextFunc
       celeb: false,
       viewedBy: userId ? [userId] : [],
       category: category.length > 0 ? category : ['all'],
-      createdDate: new Date()
+      createdDate: new Date(),
+      createdBy: userId
     };
 
     let saveAnnouncement;
@@ -69,12 +70,14 @@ export const getAnnouncement = async (req: Request, res: Response, next: NextFun
     const page = Number(req.query.page);
     const row = Number(req.query.row);
     const userCategoryId = req.query.userCategoryId;
+    const userId = req.query.userId;
     const skip = (page - 1) * row;
 
     const pipeline: any[] = [
       {
         $match: {
           $or: [
+            { createdBy: new Types.ObjectId(userId as string) },
             { category: { $in: ['all'] } },
             { category: { $in: [userCategoryId] } }
           ]
@@ -87,6 +90,7 @@ export const getAnnouncement = async (req: Request, res: Response, next: NextFun
 
     const totalAnnouncements = await announcementModel.countDocuments({
       $or: [
+        { createdBy: new Types.ObjectId(userId as string) },
         { category: { $in: ['all'] } },
         { category: { $in: [userCategoryId] } }
       ]

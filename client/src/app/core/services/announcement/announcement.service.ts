@@ -21,8 +21,8 @@ export class AnnouncementService {
     return this.http.post<any>(`${this.apiUrl}/announcement/addAnnouncement`, data);
   }
 
-  getAnnouncement(page: number, row: number,userCategoryId : string): Observable<{ total: number, announcements: announcementGetData[] }> {
-    return this.http.get<{ total: number, announcements: announcementGetData[] }>(`${this.apiUrl}/announcement/getAnnouncement?page=${page}&row=${row}&userCategoryId=${userCategoryId}`);
+  getAnnouncement(page: number, row: number,userCategoryId : string,userId : string): Observable<{ total: number, announcements: announcementGetData[] }> {
+    return this.http.get<{ total: number, announcements: announcementGetData[] }>(`${this.apiUrl}/announcement/getAnnouncement?page=${page}&row=${row}&userCategoryId=${userCategoryId}&userId=${userId}`);
   }
 
   markAsViewed(announcementId: string, userId: string): Observable<any> {

@@ -67,7 +67,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   }
 
   getAnnouncementData() {
-    this._service.getAnnouncement(this.page, this.row,this.userCategoryId).pipe(takeUntil(this.destroy$)).subscribe(
+    this._service.getAnnouncement(this.page, this.row,this.userCategoryId,this.userId).pipe(takeUntil(this.destroy$)).subscribe(
       (res: { total: number, announcements: announcementGetData[] }) => {
         if (res) {
           this.isLoading = false;
