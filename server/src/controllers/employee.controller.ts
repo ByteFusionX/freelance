@@ -478,7 +478,20 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const token = req.params.token
         const jwtPayload = jwt.verify(token, process.env.JWT_SECRET)
         const userId = (<any>jwtPayload).id
-        const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: new ObjectId(userId) } });
+        
+        // Get user's category
+        const employee = await Employee.findById(userId);
+        const userCategoryId = employee.category;
+
+        // Updated announcement count query
+        const announcementCount = await announcementModel.countDocuments({
+            viewedBy: { $ne: new ObjectId(userId) },
+            $or: [
+                { category: { $in: ['all'] } },
+                { category: { $in: [userCategoryId] } }
+            ]
+        });
+
         const assignedJobCount = await enquiryModel.countDocuments({
             'preSale.presalePerson': new ObjectId(userId),
             $or: [
