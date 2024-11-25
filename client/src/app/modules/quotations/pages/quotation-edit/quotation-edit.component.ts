@@ -134,7 +134,16 @@ export class QuotationEditComponent {
           }
         })
       })
-      this.quoteForm.patchValue(this.quoteData);
+
+      this.quoteForm.patchValue(this.quoteData)
+
+      this.quoteData.items.forEach((item:any,i:number)=>{
+        item.itemDetails.forEach((itemDetail:any,j:number)=>{
+          if(itemDetail){
+            this.calculateUnitPriceForInput(i,j)
+          }
+        })
+      })
     }
   }
 
@@ -356,7 +365,6 @@ export class QuotationEditComponent {
         this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
     }
   }
-
 
   async onDownloadPdf(includeStamp:boolean) {
     this.submit = true;
