@@ -26,7 +26,8 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   total: number = 0;
   page: number = 1;
   row: number = 10;
-  userId!: any;
+  userId!: string;
+  userCategoryId!: string;
 
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
   @ViewChildren('announcementItem') announcementItems!: QueryList<ElementRef>;
@@ -66,7 +67,7 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
   }
 
   getAnnouncementData() {
-    this._service.getAnnouncement(this.page, this.row).pipe(takeUntil(this.destroy$)).subscribe(
+    this._service.getAnnouncement(this.page, this.row,this.userCategoryId,this.userId).pipe(takeUntil(this.destroy$)).subscribe(
       (res: { total: number, announcements: announcementGetData[] }) => {
         if (res) {
           this.isLoading = false;
@@ -173,7 +174,8 @@ export class AnnouncementsComponent implements OnDestroy, OnInit, AfterViewInit 
 
   checkPermission() {
     this._employeeService.employeeData$.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.userId = data?._id;
+      this.userId = data?._id || '';
+      this.userCategoryId = data?.category._id || '';
       this.createAnnouncement = data?.category.privileges.announcement.create;
       this.deleteOrEditAnnouncement = data?.category.privileges.announcement.deleteOrEdit;
     });
