@@ -131,7 +131,7 @@ export class JobListComponent {
 
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
-        next: (data: JobTable) => {       
+        next: (data: JobTable) => {
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
@@ -199,7 +199,7 @@ export class JobListComponent {
       perc: 0
     }
 
-    const quoteItems =  quoteData.dealData.updatedItems.map((item) => {
+    const quoteItems = quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
 
       item.itemDetails.map((itemDetail) => {
@@ -239,15 +239,13 @@ export class JobListComponent {
     quotedData.client = customer;
     quotedData.attention = attention;
     let quoteData: getQuotatation = quotedData;
-    const pdfDoc = this._quotationService.generatePDF(quoteData)
+    const pdfDoc = this._quotationService.generatePDF(quoteData, true)
     pdfDoc.then((pdf) => {
       pdf.getBlob((blob: Blob) => {
         let url = window.URL.createObjectURL(blob);
 
         let dialogRef = this._dialog.open(QuotationPreviewComponent,
-          {
-            data: url
-          });
+          { data: { url: url, formatedQuote: quoteData } });
       });
     });
     this.loader.complete()
@@ -318,7 +316,7 @@ export class JobListComponent {
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
       access: access,
-      userId: userId      
+      userId: userId
     };
 
     return this._jobService.getJobs(filterData).pipe(
@@ -344,7 +342,7 @@ export class JobListComponent {
 
   generatePdfAfterDataFetch() {
     if (!this.isEmpty) {
-      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote','Deal', 'LPO Val.', 'Status'];
+      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
         return [
           data.jobId,
@@ -358,7 +356,7 @@ export class JobListComponent {
           data.status
         ];
       });
-      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto','auto', 'auto'];
+      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
       this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width)
     } else {
       this.toast.warning('No Data to generate Report');

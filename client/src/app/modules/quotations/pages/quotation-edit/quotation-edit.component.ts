@@ -115,11 +115,15 @@ export class QuotationEditComponent {
       totalDiscount: ['', Validators.required],
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
-      createdBy: ['']
+      createdBy: [''],
+      closingDate: ['', Validators.required]
     });
 
     if (this.quoteData) {
       this.quoteData.date = this._datePipe.transform(this.quoteData.date, 'yyyy-MM-dd');
+      if (this.quoteData.closingDate) {
+        this.quoteData.closingDate = this._datePipe.transform(this.quoteData.closingDate, 'yyyy-MM-dd') as string;
+      }
       this.quoteForm.controls['client'].setValue(this.quoteData.client);
       this.items.clear()
       this.quoteData.items.forEach((item: any, index: number) => {
@@ -354,7 +358,7 @@ export class QuotationEditComponent {
   }
 
 
-  async onDownloadPdf() {
+  async onDownloadPdf(includeStamp:boolean) {
     this.submit = true;
 
     if (this.quoteForm.valid) {
@@ -380,7 +384,7 @@ export class QuotationEditComponent {
 
       const finalQuoteData: getQuotatation = quoteData as getQuotatation;
 
-      const pdfDoc = this._quoteService.generatePDF(finalQuoteData)
+      const pdfDoc = this._quoteService.generatePDF(finalQuoteData, includeStamp)
       pdfDoc.then((pdf) => {
         pdf.download(quoteData.quoteId as string)
         this.isDownloading = false;
@@ -419,7 +423,7 @@ export class QuotationEditComponent {
 
         const finalQuoteData: getQuotatation = quoteData as getQuotatation;
 
-        const pdfDoc = await this._quoteService.generatePDF(finalQuoteData);
+        const pdfDoc = await this._quoteService.generatePDF(finalQuoteData, true);
         pdfDoc.getBlob((blob: Blob) => {
           let url = window.URL.createObjectURL(blob);
           this.isPreviewing = false;

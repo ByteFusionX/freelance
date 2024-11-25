@@ -49,6 +49,8 @@ export interface Quotatation {
     lpoSubmitted: boolean;
     enqId: string;
     dealData: dealData;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export interface getQuotatation {
@@ -70,6 +72,8 @@ export interface getQuotatation {
     lpoSubmitted: boolean;
     enqId: getEnquiry;
     dealData: dealData;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export interface DefaultAndText {
@@ -102,6 +106,8 @@ export interface quotatationForm {
     termsAndCondition: DefaultAndText;
     createdBy: string | getEmployee | undefined;
     status: QuoteStatus;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export enum QuoteStatus {

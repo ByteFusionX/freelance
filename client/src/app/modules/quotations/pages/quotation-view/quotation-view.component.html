@@ -17,63 +17,59 @@
             <div class="relative overflow-x-auto w-full flex gap-6">
                 <table class="w-full text-md text-left rtl:text-right text-black border bg-gray-50">
                     <tbody>
-                        <tr class=" border-b ">
-                            <td class="px-2 py-2  border text-left font-medium ">
+                        <tr class="border-b">
+                            <td class="px-2 py-2 border text-left font-medium">
                                 Client
                             </td>
-                            <td class="px-2 py-2 border text-start ">
+                            <td class="px-2 py-2 border text-start" >
                                 {{quoteData.client.companyName}} ({{quoteData.client.clientRef}})
                             </td>
-                            <td class="px-2 py-2  border text-start font-medium ">
+                            <td class="px-2 py-2 border text-start font-medium">
+                                Attention
+                            </td>
+                            <td class="px-2 py-2 border text-start">
+                                {{quoteData.attention.firstName+' '+quoteData.attention.lastName}}
+                            </td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-2 py-2 border text-start font-medium">
                                 Date
                             </td>
                             <td class="px-2 py-2 border text-start uppercase">
                                 {{ quoteData.date | date: 'dd/MM/yyyy' }}
                             </td>
-                        </tr>
-                        <tr class=" border-b ">
-                            <td class="px-2 py-2  border text-start font-medium ">
-                                Attention
-                            </td>
-                            <td class="px-2 py-2 border text-start ">
-                                {{quoteData.attention.firstName+' '+quoteData.attention.lastName}}
-                            </td>
-                            <td class="px-2 py-2  border text-start font-medium ">
-                                Quote Id
+                            <td class="px-2 py-2 border text-start font-medium">
+                                Closing Date
                             </td>
                             <td class="px-2 py-2 border text-start uppercase">
-                                {{quoteData.quoteId}}
-
+                                {{ quoteData.closingDate | date: 'dd/MM/yyyy' }}
                             </td>
                         </tr>
-                        <tr class=" border-b ">
-                            <td class="px-2 py-2  border text-start font-medium ">
+                        <tr class="border-b">
+                            <td class="px-2 py-2 border text-start font-medium">
                                 Subject
                             </td>
-                            <td class="px-2 py-2 border text-start ">
+                            <td class="px-2 py-2 border text-start">
                                 {{quoteData.subject}}
                             </td>
-                            <td class="px-2 py-2  border text-start font-medium ">
+                            <td class="px-2 py-2 border text-start font-medium">
                                 Sales Person
                             </td>
-                            <td class="px-2 py-2 border text-start ">
+                            <td class="px-2 py-2 border text-start">
                                 {{quoteData.createdBy.firstName+' '+quoteData.createdBy.lastName}}
                             </td>
                         </tr>
-                        <tr class=" border-b " *ngIf="quoteData.enqId">
-                            <td class="px-2 py-2  border text-start font-medium ">
+                        <tr class="border-b" *ngIf="quoteData.enqId">
+                            <td class="px-2 py-2 border text-start font-medium">
                                 Enq Ref Id
                             </td>
-                            <td class="px-2 py-2 border text-start ">
+                            <td class="px-2 py-2 border text-start">
                                 {{quoteData.enqId.enquiryId}}
                             </td>
-                            
                         </tr>
-
                     </tbody>
                 </table>
             </div>
-
         </div>
         <div class="mt-6 px-4">
             <div class="space-y-4">
@@ -115,7 +111,6 @@
                     <tr>
                         <th scope="col" resizable class=" w-96 border-l border-r border-t" key="itemDetail">
                             <div class="px-6 py-3">Item Details</div>
-
                         </th>
                         <th scope="col" resizable key="qty"
                             class=" border-l border-r border-t  text-center min-w-[66px]">
@@ -156,11 +151,6 @@
                                 <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
                                     <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
                                 </th>
-
-
-
-
-
                                 <td class="px-2  border text-center">
                                     {{itemsDetail.quantity}}
                                 </td>
@@ -224,7 +214,6 @@
                     Customer Notes
                 </label>
                 <p class="w-full whitespace-pre-line">{{quoteData.customerNote}}</p>
-
             </div>
             <div class="w-full md:w-3/5 px-4 border py-3">
                 <label class="block uppercase tracking-wide text-gray-700 text-md font-bold mb-2 border-b"
@@ -232,9 +221,7 @@
                     Terms and Conditions
                 </label>
                 <p class="w-full whitespace-pre-line">{{quoteData.termsAndCondition}}</p>
-
             </div>
-
         </div>
 
         <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
@@ -272,7 +259,6 @@
                             {{calculateTotalProfit().toFixed(2)}}%
                         </td>
                     </tr>
-
                 </tbody>
             </table>
             <table class="w-1/2  text-sm text-left rtl:text-right text-black border bg-gray-100">
@@ -301,28 +287,31 @@
                             {{calculateDiscoutPrice() | numberFormatter }}
                         </td>
                     </tr>
-
                 </tbody>
             </table>
         </div>
     </div>
 
-
     <div class=" border-t py-6 px-9 flex justify-end gap-2 ">
         <div class="flex w-70">
-            <button
-                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
-                (click)="onPreviewPdf()">
-                <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
-                Preview
-            </button>
-            <button
-                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
-                (click)="onDownloadPdf()">
-                <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
-                Download (PDF)
-            </button>
+            <button type="button"
+                    class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
+                    (click)="onPreviewPdf()">
+                    <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
+                    Preview
+                </button>
+                <button type="button"
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                    (click)="onDownloadPdf(true)">
+                    <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
+                    Download PDF (Stamped)
+                </button>
+                <button type="button"
+                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                    (click)="onDownloadPdf(false)">
+                    <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
+                    Download PDF
+                </button>
         </div>
-
     </div>
 </div>

@@ -49,8 +49,8 @@ export class CreateQuotatationComponent {
     "4-6 Weeks"
   ];
   availabiltyInput$ = new Subject<string>();
-  removedItems: any[] = []; 
-  removedItemDetails: any[] = []; 
+  removedItems: any[] = [];
+  removedItemDetails: any[] = [];
 
   isEdit: boolean = false;
   isSaving: boolean = false;
@@ -113,7 +113,8 @@ export class CreateQuotatationComponent {
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
       createdBy: [''],
-      enqId: ['']
+      enqId: [''],
+      closingDate: ['', Validators.required],
     });
 
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
@@ -256,9 +257,9 @@ export class CreateQuotatationComponent {
 
 
   onRemoveItem(index: number): void {
-    const removedItem = this.items.at(index).value; 
-    this.removedItems.push({ item: removedItem, index }); 
-    this.items.removeAt(index);  
+    const removedItem = this.items.at(index).value;
+    this.removedItems.push({ item: removedItem, index });
+    this.items.removeAt(index);
 
     this.showUndoOption('item');
   }
@@ -357,7 +358,7 @@ export class CreateQuotatationComponent {
     return this.calculateSellingPrice() - this.quoteForm.get('totalDiscount')?.value;
   }
 
-  async onDownloadPdf() {
+  async onDownloadPdf(includeStamp:boolean) {
     this.submit = true;
 
     if (this.quoteForm.valid) {
@@ -381,7 +382,7 @@ export class CreateQuotatationComponent {
 
       const finalQuoteData: getQuotatation = quoteData as getQuotatation;
 
-      const pdfDoc = this._quoteService.generatePDF(finalQuoteData)
+      const pdfDoc = this._quoteService.generatePDF(finalQuoteData, includeStamp)
       pdfDoc.then((pdf) => {
         pdf.download(quoteData.quoteId as string)
         this.isDownloading = false;
@@ -418,11 +419,11 @@ export class CreateQuotatationComponent {
 
         const finalQuoteData: getQuotatation = quoteData as getQuotatation;
 
-        const pdfDoc = await this._quoteService.generatePDF(finalQuoteData);
+        const pdfDoc = await this._quoteService.generatePDF(finalQuoteData, true);
         pdfDoc.getBlob((blob: Blob) => {
           let url = window.URL.createObjectURL(blob);
           this.isPreviewing = false;
-          this._dialog.open(QuotationPreviewComponent, { data: url });
+          this._dialog.open(QuotationPreviewComponent, { data: { url: url, formatedQuote: finalQuoteData } });
         });
 
       } catch (error) {
@@ -521,7 +522,7 @@ export class CreateQuotatationComponent {
     if (unitCost && unitPrice) {
       const profit = ((unitPrice - unitCost) / unitPrice) * 100;
       this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
-    } else if(unitCost) {
+    } else if (unitCost) {
       this.getItemDetailsControls(i).controls[j].get('profit')?.setValue('');
     }
   }

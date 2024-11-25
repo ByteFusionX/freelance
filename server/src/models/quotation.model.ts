@@ -54,6 +54,8 @@ interface Quotation extends Document {
     lpoFiles: [];
     dealData: Deal;
     enqId: Types.ObjectId;
+    rfqNo: string;
+    closingDate: Date;
 }
 
 export enum quoteStatus {
@@ -236,6 +238,10 @@ const quotationSchema = new Schema<Quotation>({
     enqId: {
         type: Schema.Types.ObjectId,
         ref: 'Enquiry'
+    },
+    closingDate: {
+        type: Date,
+        required: false,
     },
 });
 
