@@ -80,6 +80,10 @@ export class QuotationService {
     return this.http.post(`${this.api}/quotation/markAsQuotationSeened`, { quoteId, userId })
   }
 
+  removeLpo(fileName: string, quoteId: string): Observable<any> {
+    return this.http.delete(`${this.api}/quotation/lpo/${quoteId}/${fileName}`)
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {

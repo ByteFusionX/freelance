@@ -9,7 +9,7 @@ import { calculateDiscountPrice, getAllReportedEmployees, getUSDRated } from "..
 const { ObjectId } = require('mongodb');
 import { removeFile } from '../common/util'
 import quotationModel from "../models/quotation.model";
-import { uploadFileToAws } from '../common/aws-connect';
+import { deleteFileFromAws, uploadFileToAws } from '../common/aws-connect';
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -732,10 +732,10 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
         deal.dealData.status = 'rejected';
         deal.dealData.seenedBySalsePerson = false
         deal.dealData.comments.push(comment);
-        await deal.save();
+        const savedDeal = await deal.save();
 
         const socket = req.app.get('io') as Server;
-        socket.emit("notifications", 'quotation')
+        socket.to(savedDeal.createdBy.toString()).emit("notifications", 'quotation')
 
         return res.status(200).json({ success: true })
 
@@ -776,12 +776,21 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
         if (!req.files) return res.status(204).json({ err: 'No data' });
 
         const lpoFiles = req.files;
-        const files = await Promise.all(lpoFiles.map(async (file: any) => {
+        const newFiles = await Promise.all(lpoFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         }));
 
-        const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoFiles: files });
+        // Use $push to append new files to existing array
+        const quote = await Quotation.findByIdAndUpdate(
+            req.body.quoteId, 
+            { 
+                lpoSubmitted: true,
+                $push: { lpoFiles: { $each: newFiles } }
+            },
+            { new: true } // Return updated document
+        );
+
         if (quote) {
             return res.status(200).json(quote);
         }
@@ -1066,3 +1075,19 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         next(error);
     }
 };
+
+export const removeLpo = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { quoteId, fileName } = req.params;
+        const quote = await Quotation.findById(quoteId);
+        if (quote) {
+            quote.lpoFiles = quote.lpoFiles.filter((file: any) => file.fileName !== fileName) as [];
+            await deleteFileFromAws(fileName);
+            await quote.save();
+        }
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.log(error)
+        next(error);
+    }
+}

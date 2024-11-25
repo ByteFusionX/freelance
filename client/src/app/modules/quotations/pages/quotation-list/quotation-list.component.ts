@@ -239,8 +239,6 @@ export class QuotationListComponent {
 
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
-    console.log(quoteData);
-
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,
@@ -330,11 +328,16 @@ export class QuotationListComponent {
     })
   }
 
-  onViewLpo(data: Quotatation, event: Event) {
+  onViewLpo(data: Quotatation, event: Event, index: number) {
     event.stopPropagation()
     this._dialog.open(ViewLpoComponent,
       {
         data: data
+      }).afterClosed().subscribe((quote: Quotatation) => {
+        if (quote) {
+          this.dataSource.data[index].lpoFiles = quote.lpoFiles
+          this.dataSource._updateChangeSubscription();
+        }
       });
   }
 

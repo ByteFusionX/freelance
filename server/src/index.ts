@@ -30,13 +30,13 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.ORIGIN1 ?? 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true
   }
 });
 app.set('io', io);
 
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,7 +48,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
 

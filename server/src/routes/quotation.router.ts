@@ -9,6 +9,7 @@ import {
     markAsQuotationSeened,
     markAsSeenDeal,
     rejectDeal,
+    removeLpo,
     revokeDeal,
     saveDealSheet,
     saveQuotation,
@@ -37,5 +38,6 @@ quoteRouter.get('/total', totalQuotation)
 quoteRouter.post('/nextQuoteId', getNextQuoteId)
 quoteRouter.post('/markAsSeenedDeal', markAsSeenDeal);
 quoteRouter.post('/markAsQuotationSeened', markAsQuotationSeened);
+quoteRouter.delete('/lpo/:quoteId/:fileName', removeLpo);
 
 export default quoteRouter;

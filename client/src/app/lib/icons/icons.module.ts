@@ -57,7 +57,9 @@ import {
   heroInformationCircle,
   heroArrowTrendingUp,
   heroArrowUturnLeft,
-  heroChartBar
+  heroChartBar,
+  heroArrowUpTray,
+  heroDocument
 } from '@ng-icons/heroicons/outline';
 
 import { heroBellSolid } from '@ng-icons/heroicons/solid'
@@ -122,7 +124,9 @@ import { heroBellSolid } from '@ng-icons/heroicons/solid'
       heroInformationCircle,
       heroArrowTrendingUp,
       heroArrowUturnLeft,
-      heroChartBar
+      heroChartBar,
+      heroArrowUpTray,
+      heroDocument
     }),
   ],
   exports: [NgIconsModule]
