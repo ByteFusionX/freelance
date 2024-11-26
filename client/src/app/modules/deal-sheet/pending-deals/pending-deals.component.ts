@@ -229,6 +229,12 @@ export class PendingDealsComponent {
       return;
     });
 
+    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
+      return acc += curr.value;
+    }, 0)
+
+    priceDetails.totalCost += totalAdditionalValue;
+
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
