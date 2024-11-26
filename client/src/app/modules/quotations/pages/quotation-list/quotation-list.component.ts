@@ -24,6 +24,7 @@ import * as ExcelJS from 'exceljs';
 import * as FileSaver from 'file-saver';
 import { DatePipe } from '@angular/common';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-quotation-list',
@@ -75,6 +76,7 @@ export class QuotationListComponent {
     private loadingBar: LoadingBarService,
     private datePipe: DatePipe,
     private numberFormat: NumberFormatterPipe,
+    private toaster: ToastrService
   ) { }
 
   formData = this._fb.group({
@@ -377,29 +379,57 @@ export class QuotationListComponent {
       { header: 'Deal Status', key: 'dealStatus', width: 15 }
     ];
 
-    // Adding data
-    this.dataSource.data.forEach((element: any) => {
-      worksheet.addRow({
-        date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
-        quoteId: element.quoteId,
-        customerName: element.client.companyName,
-        description: element.subject,
-        salesPerson: element.createdBy.firstName + ' ' + element.createdBy.lastName,
-        department: element.department.departmentName,
-        totalCost: this.numberFormat.transform(this.calculateDiscoutPrice(element)) + ' ' + element.currency,
-        status: element.status,
-        dealStatus: element.dealData?.status || 'N/A'
-      });
-    });
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.quotation.viewReport
+      userId = employee?._id
+      this.userId = userId;
+    })
 
-    // Styling the header
-    worksheet.getRow(1).font = { bold: true };
+    let filterData = {
+      search: this.searchQuery,
+      page: this.page,
+      row: Number.MAX_SAFE_INTEGER,
+      salesPerson: this.selectedSalesPerson,
+      customer: this.selectedCustomer,
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      department: this.selectedDepartment,
+      access: access,
+      userId: userId
+    }
+    this.subscriptions.add(
+      this._quoteService.getQuotation(filterData)
+        .subscribe((data: getQuotation) => {
+          if (data) {
+            data.quotations.forEach((element: any) => {
+              worksheet.addRow({
+                date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
+                quoteId: element.quoteId,
+                customerName: element.client.companyName,
+                description: element.subject,
+                salesPerson: element.createdBy.firstName + ' ' + element.createdBy.lastName,
+                department: element.department.departmentName,
+                totalCost: this.numberFormat.transform(this.calculateDiscoutPrice(element)) + ' ' + element.currency,
+                status: element.status,
+                dealStatus: element.dealData?.status || 'N/A'
+              });
+            });
 
-    // Generate & download Excel
-    workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      FileSaver.saveAs(blob, 'quotations_report.xlsx');
-    });
+            // Styling the header
+            worksheet.getRow(1).font = { bold: true };
+
+            // Generate & download Excel
+            workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+              const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+              FileSaver.saveAs(blob, 'quotations_report.xlsx');
+            });
+          } else {
+            this.toaster.warning('There is no quotation.')
+          }
+        })
+    )
   }
 
   checkPermission() {

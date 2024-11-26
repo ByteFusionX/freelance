@@ -40,6 +40,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
     try {
         let { page, search, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
+        
 
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
