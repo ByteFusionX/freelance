@@ -25,7 +25,7 @@
                         {{file.originalname}}
                     </span>
                 </p>
-                <ng-container *ngIf="!data.dealData">
+                <ng-container *ngIf="data.dealData?.status !== 'approved' || !data.dealData">
                     <ng-container *ngIf="removingFileIndex === i; else removeIcon">
                         <ng-icon name="heroArrowPath" class="text-orange-500 text-lg spin"></ng-icon>
                     </ng-container>
@@ -44,7 +44,7 @@
 
         <!-- Upload Button -->
         <div class="flex justify-end px-6 py-3">
-            <label *ngIf="!data.dealData"
+            <label *ngIf="data.dealData?.status !== 'approved' || !data.dealData"
                 class="relative inline-flex items-center gap-1.5 bg-violet-700 hover:bg-violet-600 text-white font-medium py-1.5 px-3 rounded text-xs cursor-pointer transition-colors">
                 <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     (change)="onUploadLpo($event)">

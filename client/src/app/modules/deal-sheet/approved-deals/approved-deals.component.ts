@@ -6,11 +6,16 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
-import { getDealSheet, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
+import { getDealSheet, getQuotatation, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { ApproveDealComponent } from '../approve-deal/approve-deal.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { RejectDealComponent } from '../reject-deal/reject-deal.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { HttpEventType } from '@angular/common/http';
+import { JobService } from 'src/app/core/services/job/job.service';
+import { ToastrService } from 'ngx-toastr';
+import saveAs from 'file-saver';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-approved-deals',
@@ -29,7 +34,7 @@ export class ApprovedDealsComponent {
   private readonly destroy$ = new Subject<void>();
   private notViewedDealIds: Set<string> = new Set();
 
-  displayedColumns: string[] = ['dealId', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'action'];
+  displayedColumns: string[] = ['dealId', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'lpo', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
 
@@ -40,13 +45,18 @@ export class ApprovedDealsComponent {
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
+  selectedFile!: string | undefined;
+  progress: number = 0;
+
   constructor(
     private _quoteService: QuotationService,
     private _router: Router,
     private _dialog: MatDialog,
     private _employeeService: EmployeeService,
     private _notificationService: NotificationService,
-    private loadingBar: LoadingBarService
+    private loadingBar: LoadingBarService,
+    private _jobService: JobService,
+    private toast: ToastrService,
   ) { }
 
   ngOnInit() {
@@ -225,4 +235,51 @@ export class ApprovedDealsComponent {
       }
     })
   }
+
+  onDownloadClicks(file: any) {
+    this.selectedFile = file.fileName
+    this.subscriptions.add(
+      this._jobService.downloadFile(file.fileName)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              this.progress = Math.round(100 * event.loaded / event.total);
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+              this.clearProgress()
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.selectedFile = undefined
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
+          }
+        })
+    )
+  }
+
+  clearProgress() {
+    setTimeout(() => {
+      this.selectedFile = undefined;
+      this.progress = 0
+    }, 1000)
+  }
+
+  onPreviewPdf(quotedData: getQuotatation) {
+    this.loader.start()
+    let quoteData: getQuotatation = quotedData;
+    const pdfDoc = this._quoteService.generatePDF(quoteData, true)
+    pdfDoc.then((pdf) => {
+      pdf.getBlob((blob: Blob) => {
+        let url = window.URL.createObjectURL(blob);
+
+        let dialogRef = this._dialog.open(QuotationPreviewComponent,
+          { data: { url: url, formatedQuote: quoteData } });
+      });
+    });
+    this.loader.complete()
+  }
+
 }

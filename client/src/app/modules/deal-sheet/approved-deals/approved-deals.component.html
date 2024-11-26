@@ -39,7 +39,8 @@
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Quote Id </th>
                     <td mat-cell *matCellDef="let element" #quoteItem data-id="{{element._id}}"> <a
-                            class="text-purple-600 font-medium">{{element.quoteId}}</a> </td>
+                        class="hover:text-purple-600 hover:font-semibold cursor-pointer" matTooltip="Preview Quote"
+                        matTooltipPosition="above" matTooltipClass="mat-tooltip" (click)="onPreviewPdf(element)">{{element.quoteId}}</a> </td>
                 </ng-container>
 
                 <ng-container matColumnDef="customerName">
@@ -76,6 +77,29 @@
                         class="bg-gray-100  px-[12px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         Payment Terms </th>
                     <td mat-cell *matCellDef="let element"> {{element.dealData.paymentTerms}} </td>
+                </ng-container>
+                <ng-container matColumnDef="lpo">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
+                        LPO </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="flex flex-col gap-2" *ngIf="element.lpoFiles">
+                            <div *ngFor="let file of element.lpoFiles; let i=index">
+                                <div class="flex" *ngIf="file.originalname">
+                                    <p class="w-24 truncate ..." matTooltip="{{file.originalname}}"
+                                        matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}
+                                    </p>
+                                    <button class="w-5 h-5 border rounded-full flex justify-center items-center"
+                                        (click)="onDownloadClicks(file)">
+                                        <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
+                                    </button>
+                                </div>
+                                <div class="w-24" *ngIf="file.fileName && file.fileName === selectedFile">
+                                    <mat-progress-bar mode="determinate" value="{{progress}}"></mat-progress-bar>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
                 </ng-container>
                 <ng-container matColumnDef="action">
                     <th *matHeaderCellDef
