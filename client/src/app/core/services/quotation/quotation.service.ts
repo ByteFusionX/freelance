@@ -188,8 +188,8 @@ export class QuotationService {
           { text: result, style: 'tableText' },
           { text: detail.quantity, style: 'tableText', alignment: 'center' },
           { text: 'Ea', style: 'tableText', alignment: 'center' },
-          { text: unitPrice.toFixed(2), style: 'tableText', alignment: 'center' },
-          { text: totalPrice.toFixed(2), style: 'tableText', alignment: 'center' },
+          { text: this.formatNumber(unitPrice), style: 'tableText', alignment: 'center' },
+          { text: this.formatNumber(totalPrice), style: 'tableText', alignment: 'center' },
           { text: detail.availability, style: 'tableText', alignment: 'center' },
         ]);
       });
@@ -197,7 +197,7 @@ export class QuotationService {
 
     const totalAmount = [
       { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-      { text: totalCost.toFixed(2), style: 'tableFooter' },
+      { text: this.formatNumber(totalCost), style: 'tableFooter' },
       { text: '', style: 'tableFooter' }
     ];
 
@@ -208,18 +208,18 @@ export class QuotationService {
     if (quoteData.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
+        { text: this.formatNumber(quoteData.totalDiscount), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
       finalAmount = [
         { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
+        { text: this.formatNumber(totalCost - quoteData.totalDiscount), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
     } else {
       finalAmount = [
         { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: (totalCost).toFixed(2), style: 'tableFooter' },
+        { text: this.formatNumber(totalCost), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
     }
