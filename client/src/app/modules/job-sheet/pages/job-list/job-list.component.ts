@@ -17,10 +17,12 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { LoadingBarService } from '@ngx-loading-bar/core';
 import { getCreators } from 'src/app/shared/interfaces/employee.interface';
+import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
-  styleUrls: ['./job-list.component.css']
+  styleUrls: ['./job-list.component.css'],
+  providers:[NumberFormatterPipe]
 })
 export class JobListComponent {
   selectedDateFormat: string = "monthly";
@@ -367,6 +369,17 @@ export class JobListComponent {
   onRemoveReport() {
     this.reportDate = ''
     this.getAllJobs()
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return parseInt(value).toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 

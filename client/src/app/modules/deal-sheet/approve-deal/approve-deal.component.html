@@ -90,7 +90,7 @@
                             <div>Total Selling Price </div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.totalSellingPrice.toFixed(2) }}
+                            {{ data.priceDetails.totalSellingPrice | numberFormatter }}
                         </td>
                     </tr>
                     <tr>
@@ -99,7 +99,7 @@
                             <div>Total cost</div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.totalCost.toFixed(2) }}
+                            {{ data.priceDetails.totalCost | numberFormatter }}
                         </td>
                     </tr>
                     <tr>
@@ -108,7 +108,7 @@
                             <div>Profit </div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.profit.toFixed(2) }}
+                            {{ data.priceDetails.profit | numberFormatter }}
                         </td>
                     </tr>
                     <tr>
@@ -188,16 +188,16 @@
                               {{ detail.quantity }}
                             </td>
                             <td class="px-2 py-2 border text-center">
-                              {{ (detail.unitCost / (1 - (detail.profit / 100))).toFixed(2) }}
+                              {{ (detail.unitCost / (1 - (detail.profit / 100))) | numberFormatter }}
                             </td>
                             <td class="px-2 py-2 border text-center">
-                              {{ ((detail.unitCost / (1 - (detail.profit / 100))) * detail.quantity).toFixed(2) }}
+                              {{ ((detail.unitCost / (1 - (detail.profit / 100))) * detail.quantity) | numberFormatter }}
                             </td>
                             <td class="px-2 py-2 border text-center">
-                              {{ detail.unitCost.toFixed(2) }}
+                              {{ detail.unitCost | numberFormatter }}
                             </td>
                             <td class="py-2 border text-center">
-                              {{ (detail.quantity * detail.unitCost).toFixed(2) }}
+                              {{ (detail.quantity * detail.unitCost) | numberFormatter }}
                             </td>
                             <td class="py-2 border text-center">
                               {{ detail.supplierName }}

@@ -21,7 +21,7 @@
                             <td class="px-2 py-2 border text-left font-medium">
                                 Client
                             </td>
-                            <td class="px-2 py-2 border text-start" >
+                            <td class="px-2 py-2 border text-start">
                                 {{quoteData.client.companyName}} ({{quoteData.client.clientRef}})
                             </td>
                             <td class="px-2 py-2 border text-start font-medium">
@@ -155,20 +155,20 @@
                                     {{itemsDetail.quantity}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
-                                    {{itemsDetail.unitCost.toFixed(2)}}
+                                    {{itemsDetail.unitCost | numberFormatter}}
                                 </td>
                                 <td class=" py-2  text-center ">
-                                    {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
+                                    {{(itemsDetail.quantity * itemsDetail.unitCost)| numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{itemsDetail.profit.toFixed(2)}}%
                                 </td>
                                 <td class="px-2 py-2 border text-center">
-                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
+                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100)))| numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
-                                    itemsDetail.quantity).toFixed(2)}}
+                                    itemsDetail.quantity)| numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{itemsDetail.availability}}
@@ -232,7 +232,7 @@
                             Total Cost
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateAllTotalCost().toFixed(2)}}
+                            {{calculateAllTotalCost()| numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -240,7 +240,7 @@
                             Total Selling price
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{calculateSellingPrice()| numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -248,7 +248,7 @@
                             Profit Margin
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateProfitMargin().toFixed(2)}}
+                            {{calculateProfitMargin()| numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -295,23 +295,23 @@
     <div class=" border-t py-6 px-9 flex justify-end gap-2 ">
         <div class="flex w-70">
             <button type="button"
-                    class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
-                    (click)="onPreviewPdf()">
-                    <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
-                    Preview
-                </button>
-                <button type="button"
-                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2 whitespace-nowrap"
-                    (click)="onDownloadPdf(true)">
-                    <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
-                    Download PDF (Stamped)
-                </button>
-                <button type="button"
-                    class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
-                    (click)="onDownloadPdf(false)">
-                    <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
-                    Download PDF
-                </button>
+                class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2"
+                (click)="onPreviewPdf()">
+                <ng-icon *ngIf="isPreviewing" class="spin" name="heroArrowPath"></ng-icon>
+                Preview
+            </button>
+            <button type="button"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm  mr-3 w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                (click)="onDownloadPdf(true)">
+                <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
+                Download PDF (Stamped)
+            </button>
+            <button type="button"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm w-full flex justify-center items-center gap-2 whitespace-nowrap"
+                (click)="onDownloadPdf(false)">
+                <ng-icon *ngIf="isDownloading" class="spin" name="heroArrowPath"></ng-icon>
+                Download PDF
+            </button>
         </div>
     </div>
 </div>

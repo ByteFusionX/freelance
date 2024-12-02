@@ -38,7 +38,10 @@ export class LineChartComponent implements OnInit, AfterViewInit {
           axisPointer: {
             type: 'cross'
           },
-          valueFormatter: (value: any) => `${value.toFixed(2)} QAR`,
+          valueFormatter: (value: any) => `${value.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })} QAR`,
         },
         xAxis: {
           type: 'category',

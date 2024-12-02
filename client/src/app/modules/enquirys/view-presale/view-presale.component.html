@@ -74,20 +74,20 @@
                                     {{itemsDetail.quantity}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
-                                    {{itemsDetail.unitCost.toFixed(2)}}
+                                    {{itemsDetail.unitCost | numberFormatter}}
                                 </td>
                                 <td class=" py-2  text-center ">
-                                    {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
+                                    {{(itemsDetail.quantity * itemsDetail.unitCost) | numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{ itemsDetail.profit | number:'1.2-2' }}%
                                 </td>
                                 <td class="px-2 py-2 border text-center">
-                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
+                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) | numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
-                                    itemsDetail.quantity).toFixed(2)}}
+                                    itemsDetail.quantity) | numberFormatter}}
                                 </td>
                                 <td class="px-2 py-2 border text-center">
                                     {{itemsDetail.availability}}
@@ -105,7 +105,7 @@
                                 Total Cost
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                {{calculateAllTotalCost().toFixed(2)}}
+                                {{calculateAllTotalCost() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -113,7 +113,7 @@
                                 Total Selling price
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                {{calculateSellingPrice().toFixed(2)}}
+                                {{calculateSellingPrice() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -121,7 +121,7 @@
                                 Profit Margin
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl">
-                                {{calculateProfitMargin().toFixed(2)}}
+                                {{calculateProfitMargin() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">

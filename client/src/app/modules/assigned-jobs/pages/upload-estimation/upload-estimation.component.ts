@@ -270,4 +270,15 @@ export class UploadEstimationComponent {
     };
   }
 
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return parseInt(value).toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
+  }
+
 }

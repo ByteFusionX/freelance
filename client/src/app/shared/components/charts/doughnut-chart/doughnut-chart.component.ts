@@ -17,7 +17,7 @@ export class DoughnutChartComponent implements OnInit, AfterViewInit {
 
   constructor(
     private _dashboardService: DashboardService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initialization logic that doesn't depend on the view
@@ -37,7 +37,10 @@ export class DoughnutChartComponent implements OnInit, AfterViewInit {
         tooltip: {
           trigger: 'item',
           formatter: function (params: any) {
-            return `${params.name} : ${params.value} QAR`;
+            return `${params.name} : ${parseInt(params.value).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })} QAR`;
           }
         },
         series: [
@@ -84,3 +87,4 @@ export class DoughnutChartComponent implements OnInit, AfterViewInit {
   }
 
 }
+

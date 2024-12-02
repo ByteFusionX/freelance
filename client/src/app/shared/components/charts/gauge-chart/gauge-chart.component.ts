@@ -107,7 +107,10 @@ export class GaugeChartComponent implements OnInit, AfterViewInit {
               offsetCenter: [0, '0%'],
               valueAnimation: true,
               formatter: function (value: number) {
-                return report.companyRevenue.toFixed(2)
+                return report.companyRevenue.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                });
               },
               color: 'inherit'
             },
@@ -168,5 +171,6 @@ export class GaugeChartComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
 
 }
