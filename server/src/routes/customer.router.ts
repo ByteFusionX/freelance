@@ -3,7 +3,7 @@ import { Router } from "express";
 import { createCustomer, getAllCustomers, getCustomerCreators, getFilteredCustomers, editCustomer, getCustomerByCustomerId } from "../controllers/customer.controller";
 const cusRouter = Router()
 
-cusRouter.get('/',getAllCustomers)
+cusRouter.get('/:userId',getAllCustomers)
 cusRouter.get('/view/get/:customerId', getCustomerByCustomerId)
 cusRouter.post('/',createCustomer)
 cusRouter.post('/get',getFilteredCustomers)

@@ -19,6 +19,7 @@ interface QuoteItem {
 }
 
 interface AdditionalCost {
+    type: string;
     name: string;
     value: number;
 }
@@ -119,13 +120,16 @@ const quoteItem = new Schema<QuoteItem>({
 });
 
 const additionalCostSchema = new Schema<AdditionalCost>({
+    type: {
+        type: String,
+        enum: ['Additional Cost', 'Supplier Discount', 'Customer Discount']
+    },
     name: {
         type: String,
-        required: false,
     },
     value: {
         type: Number,
-        required: false,
+        required: true,
     }
 });
 

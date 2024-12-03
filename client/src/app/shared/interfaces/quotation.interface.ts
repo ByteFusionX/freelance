@@ -124,7 +124,9 @@ export interface dealData {
     dealId: string;
     paymentTerms: string;
     updatedItems: QuoteItem[];
-    additionalCosts: { name: string, value: number }[];
+    additionalCosts: {
+      type: string; name: string, value: number 
+}[];
     savedDate: string;
     seenByApprover: boolean;
     status: string;
@@ -149,6 +151,7 @@ export interface FilterDeal {
     row: number;
     access?: string;
     userId?: string;
+    role?:string;
 }
 
 export interface nextQuoteData {

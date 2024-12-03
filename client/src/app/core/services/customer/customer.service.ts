@@ -17,8 +17,8 @@ export class CustomerService {
     return this.http.post<getCustomer>(`${this.apiUrl}/customer`, data)
   }
 
-  getAllCustomers(): Observable<getCustomer[]> {
-    return this.http.get<getCustomer[]>(`${this.apiUrl}/customer`)
+  getAllCustomers(userId?:string | undefined): Observable<getCustomer[]> {
+    return this.http.get<getCustomer[]>(`${this.apiUrl}/customer/${userId}`)
   }
 
   editCustomer(data: getCustomer): Observable<getCustomer> {

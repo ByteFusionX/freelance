@@ -197,7 +197,11 @@ export class CreateQuotatationComponent {
 
 
   getAllCustomers() {
-    this.customers$ = this._customerService.getAllCustomers()
+    let userId;
+    this._employeeService.employeeData$.subscribe((data)=>{
+      userId = data?._id
+    })
+    this.customers$ = this._customerService.getAllCustomers(userId)
   }
 
   getDepartment() {

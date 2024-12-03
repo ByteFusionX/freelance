@@ -202,7 +202,11 @@ export class QuotationEditComponent {
 
 
   getAllCustomers() {
-    this.customers$ = this._customerService.getAllCustomers();
+    let userId;
+    this._employeeService.employeeData$.subscribe((data)=>{
+      userId = data?._id
+    })
+    this.customers$ = this._customerService.getAllCustomers(userId);
     if (this.quoteData) {
       this.onCustomerChange(this.quoteData.client)
     }

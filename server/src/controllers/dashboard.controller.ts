@@ -139,35 +139,75 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
             {
                 $addFields: {
                     totalSellingPrice: {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                            ]
-                        }
+                        $round: [ // Ensure totalSellingPrice is rounded to 2 decimals
+                            {
+                                $sum: [
+                                    {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $round: [ // Round USD conversion
+                                                    {
+                                                        $multiply: [
+                                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                            qatarUsdRate
+                                                        ]
+                                                    },
+                                                    2
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                        ]
+                                    },
+                                    {
+                                        $reduce: {
+                                            input: '$quotation.dealData.additionalCosts',
+                                            initialValue: 0,
+                                            in: {
+                                                $cond: [
+                                                    { $eq: ['$$this.type', 'Customer Discount'] },
+                                                    { $round: [ // Round discount adjustment
+                                                        { $subtract: ['$$value', '$$this.value'] },
+                                                        2
+                                                    ] },
+                                                    '$$value'
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            2
+                        ]
                     },
-                    totalCostPrice:
-                    {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateCostPricePipe('$quotation.dealData.updatedItems'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateCostPricePipe('$quotation.dealData.updatedItems')
-                            ]
-                        }
-                    },
-                },
+                    totalCostPrice: {
+                        $round: [ // Ensure totalCostPrice is rounded to 2 decimals
+                            {
+                                $sum: [
+                                    {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $round: [ // Round USD conversion
+                                                    {
+                                                        $multiply: [
+                                                            calculateCostPricePipe('$quotation.dealData.updatedItems'),
+                                                            qatarUsdRate
+                                                        ]
+                                                    },
+                                                    2
+                                                ]
+                                            },
+                                            calculateCostPricePipe('$quotation.dealData.updatedItems')
+                                        ]
+                                    },
+                                    
+                                ]
+                            },
+                            2
+                        ]
+                    }
+                }                
             },
             {
                 $group: {
@@ -207,16 +247,33 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
             {
                 $project: {
                     _id: 0,
-                    totalSellingPrice: 1,
-                    lastWeekSellingPrice: 1,
-                    grossProfit: { $subtract: ['$totalSellingPrice', '$totalCostPrice'] },
-                    lastWeekgrossProfit: { $subtract: ['$lastWeekSellingPrice', '$lastWeekCostPrice'] },
+                    totalSellingPrice: { $round: ['$totalSellingPrice', 2] },
+                    lastWeekSellingPrice: { $round: ['$lastWeekSellingPrice', 2] },
+                    totalCostPrice: { $round: ['$totalCostPrice', 2] }, // Ensure these fields are rounded first
+                    lastWeekCostPrice: { $round: ['$lastWeekCostPrice', 2] },
+                    grossProfit: { 
+                        $round: [{ 
+                            $subtract: [
+                                { $round: ['$totalSellingPrice', 2] },
+                                { $round: ['$totalCostPrice', 2] }
+                            ]
+                        }, 2]
+                    },
+                    lastWeekGrossProfit: { 
+                        $round: [{ 
+                            $subtract: [
+                                { $round: ['$lastWeekSellingPrice', 2] },
+                                { $round: ['$lastWeekCostPrice', 2] }
+                            ]
+                        }, 2]
+                    },
                     totalJobAwarded: 1,
-                    lastWeekJobAwarded: 1,
+                    lastWeekJobAwarded: 1
                 }
-            },
+            }
+            
         ]).exec();
-
+        
 
         return jobTotal[0];
     } catch (error) {

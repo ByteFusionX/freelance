@@ -128,7 +128,9 @@ export class PendingDealsComponent {
 
   observeAllQuotes() {
     setTimeout(() => {
-      this.quoteItems.forEach(item => this.observeJob(item));
+      this.quoteItems.forEach(item => {
+        this.observeJob(item)
+      });
     }, 100);
   }
 
@@ -229,11 +231,17 @@ export class PendingDealsComponent {
       return;
     });
 
-    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
-      return acc += curr.value;
-    }, 0)
-
-    priceDetails.totalCost += totalAdditionalValue;
+    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
+      if(cost.type == 'Additional Cost'){
+        priceDetails.totalCost += cost.value
+      }else if(cost.type === 'Supplier Discount'){
+        priceDetails.totalCost -= cost.value
+      } else if(cost.type === 'Customer Discount'){
+        priceDetails.totalSellingPrice -= cost.value
+      } else {
+        priceDetails.totalCost += cost.value
+      }
+    })
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100

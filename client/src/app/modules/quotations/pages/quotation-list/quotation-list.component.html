@@ -267,7 +267,7 @@
                                 matTooltip="Deal Status" matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer w-8 h-8 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center relative">
                                 <ng-icon name="heroClipboardDocumentCheck" class="text-black"></ng-icon>
-                                <div *ngIf="element.dealData.seenedBySalsePerson === false && element.createdBy == userId"
+                                <div *ngIf="element.dealData.seenedBySalsePerson === false && element.createdBy._id == userId"
                                     class="w-2.5 h-2.5 bg-orange-500 rounded-full absolute -top-1 -right-1 border border-white">
                                 </div>
                             </div>

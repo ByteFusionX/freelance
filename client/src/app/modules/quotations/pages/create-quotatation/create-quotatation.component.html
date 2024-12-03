@@ -454,7 +454,7 @@
                                 Total Cost
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculateAllTotalCost().toFixed(2)}}
+                                {{calculateAllTotalCost() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -462,7 +462,15 @@
                                 Total Selling price
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculateSellingPrice().toFixed(2)}}
+                                {{calculateSellingPrice() | numberFormatter}}
+                            </td>
+                        </tr>
+                        <tr class=" border-b ">
+                            <td class="px-2 py-3  border text-center font-medium text-xl ">
+                                Profit Margin
+                            </td>
+                            <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                                {{(calculateSellingPrice() - calculateAllTotalCost()) | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -483,7 +491,7 @@
                                 Subtotal
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculateSellingPrice().toFixed(2)}}
+                                {{calculateSellingPrice() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -502,7 +510,7 @@
                                 Total Amount
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculateDiscoutPrice().toFixed(2)}}
+                                {{calculateDiscoutPrice() | numberFormatter}}
                             </td>
                         </tr>
 

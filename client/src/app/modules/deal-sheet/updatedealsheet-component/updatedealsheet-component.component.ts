@@ -28,12 +28,14 @@ export class UpdatedealsheetComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.data.quoteItems)
     this.costForm = this.fb.group({
       paymentTerms: [this.data.quoteData.dealData.paymentTerms || '', Validators.required],
       items: this.fb.array(this.data.quoteItems.map(item => this.createItemGroup(item as QuoteItem))),
       costs: this.fb.array([], this.additionalCostsValidator())
     });
+    this.data.quoteData.dealData.additionalCosts.forEach((cost)=>{
+      this.patchCost(cost)
+    })
 
     this.selectedFiles = this.data.quoteData.dealData.attachments;
     this.existingFiles = [...this.selectedFiles]
@@ -137,13 +139,16 @@ export class UpdatedealsheetComponent implements OnInit {
   additionalCostsValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const costs = control as FormArray;
-
       if (costs.length === 0) {
         return null;
       }
 
       for (const cost of costs.controls) {
-        if (!cost.get('name')?.value || !cost.get('value')?.value) {
+        const type = cost?.get('type')?.value;
+        if (type !== 'Customer Discount' && !cost?.get('name')?.value) {
+          return { 'additionalCostInvalid': true };
+        }
+        if (!cost?.get('value')?.value) {
           return { 'additionalCostInvalid': true };
         }
       }
@@ -180,11 +185,43 @@ export class UpdatedealsheetComponent implements OnInit {
     return (item.get('itemDetails') as FormArray).controls;
   }
 
-  addCost(): void {
-    this.costs.push(this.fb.group({
-      name: ['', Validators.required],
+  addCost(type: string): void {
+    let group;
+    group = this.fb.group({
+      type: [type, Validators.required],
       value: ['', Validators.required]
-    }));
+    });
+    
+    if (type !== 'Customer Discount') {
+      group = this.fb.group({
+        type: [type, Validators.required],
+        name:['', Validators.required],
+        value: ['', Validators.required]
+      });
+    } 
+    
+    this.costs.push(group);
+  }
+
+  patchCost(cost:{type: string,value:number,name:string}): void {
+    let group;
+    if(!cost.type){
+      cost.type = 'Additional Cost'
+    }
+    group = this.fb.group({
+      type: [cost.type, Validators.required],
+      value: [cost.value, Validators.required]
+    });
+    
+    if (cost.type !== 'Customer Discount') {
+      group = this.fb.group({
+        type: [cost.type, Validators.required],
+        name:[cost.name, Validators.required],
+        value: [cost.value, Validators.required]
+      });
+    } 
+    
+    this.costs.push(group);
   }
 
   removeCost(index: number): void {
@@ -197,6 +234,60 @@ export class UpdatedealsheetComponent implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  calculateSellingPrice(): number {
+    let totalCost = 0;
+    this.items.value.forEach((item: any, i: number) => {
+      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
+        if(item.dealSelected){
+          totalCost += this.calculateTotalPrice(i, j)
+        }
+      })
+    })
+    this.costs.value.forEach((cost:any,i:number)=>{
+      if(cost.type == 'Customer Discount'){
+        totalCost -= cost.value
+      }
+    })
+
+    return totalCost;
+  }
+
+  calculateAllTotalCost() {
+    let totalCost = 0;
+    this.items.value.forEach((item: any, i: number) => {
+      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
+        if(item.dealSelected){
+          totalCost += this.calculateTotalCost(i, j)
+        }
+      })
+    })
+
+    this.costs.value.forEach((cost:any,i:number)=>{
+      if(cost.type == 'Additional Cost'){
+        totalCost += cost.value
+      }else if(cost.type === 'Supplier Discount'){
+        totalCost -= cost.value
+      }
+    })
+
+    return totalCost;
+  }
+
+  
+
+  calculateTotalCost(i: number, j: number) {
+    return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
+  }
+
+  calculateUnitPrice(i: number, j: number) {
+    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
+    return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
+  }
+
+  calculateTotalPrice(i: number, j: number) {
+    return this.calculateUnitPrice(i, j) * this.getItemDetailsControls(i).controls[j].get('quantity')?.value
   }
 
   onClose() {

@@ -108,20 +108,40 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                         ]
                     },
                     lpoValue: {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                            ]
+                        $let: {
+                            vars: {
+                                baseLpoValue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $multiply: [
+                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                    qatarUsdRate
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                        ]
+                                    }
+                                }
+                            },
+                            in: {
+                                $reduce: {
+                                    input: '$quotation.dealData.additionalCosts',
+                                    initialValue: '$$baseLpoValue',
+                                    in: {
+                                        $cond: [
+                                            { $eq: ['$$this.type', 'Customer Discount'] },
+                                            { $subtract: ['$$value', '$$this.value'] },
+                                            '$$value'
+                                        ]
+                                    }
+                                }
+                            }
                         }
-                    },
-                },
+                    }
+                }
+                
             },
             {
                 $match: { ...accessFilter, ...matchFilters }
@@ -157,16 +177,13 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
         ]).exec();
 
-
-
         const totalValues = jobData.reduce((acc, job) => {
             const quote = job?.quotation;
             if (quote.currency == 'USD') {
-                const updatedItems = quote?.dealData?.updatedItems || [];
-                acc.totalUSDValue += calculateDiscountPrice(quote, updatedItems);
+                acc.totalUSDValue += Number(job?.lpoValue.toFixed(2))
             } else {
-                const updatedItems = quote?.dealData?.updatedItems || [];
-                acc.totalQARValue += calculateDiscountPrice(quote, updatedItems);
+                acc.totalQARValue += Number(job?.lpoValue.toFixed(2))
+
             }
             return acc;
         }, {

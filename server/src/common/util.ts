@@ -115,72 +115,125 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {
         $subtract: [
             {
-                $sum: {
-                    $map: {
-                        input: input,
-                        as: 'item',
-                        in: {
-                            $sum: {
-                                $map: {
-                                    input: '$$item.itemDetails',
-                                    as: 'itemDetail',
-                                    in: {
-                                        $multiply: [
-                                            {
-                                                $divide: [
-                                                    '$$itemDetail.unitCost',
-                                                    { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                $round: [
+                    {
+                        $sum: {
+                            $map: {
+                                input: input,
+                                as: 'item',
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: '$$item.itemDetails',
+                                            as: 'itemDetail',
+                                            in: {
+                                                $round: [ // Round intermediate multiplication
+                                                    {
+                                                        $multiply: [
+                                                            {
+                                                                $round: [ // Round division for unit price calculation
+                                                                    {
+                                                                        $divide: [
+                                                                            '$$itemDetail.unitCost',
+                                                                            { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                                                                        ]
+                                                                    },
+                                                                    2
+                                                                ]
+                                                            },
+                                                            '$$itemDetail.quantity'
+                                                        ]
+                                                    },
+                                                    2
                                                 ]
-                                            },
-                                            '$$itemDetail.quantity'
-                                        ]
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                }
+                    },
+                    2 // Final rounding to 2 decimal places
+                ]
             },
             discount
         ]
     }
 }
 
+
+
 export const calculateCostPricePipe = (input: string) => {
     return {
-        $sum: [
+        $round: [
             {
-                $sum: {
-                    $map: {
-                        input: input,
-                        as: 'item',
-                        in: {
-                            $sum: {
-                                $map: {
-                                    input: '$$item.itemDetails',
-                                    as: 'itemDetail',
-                                    in: {
-                                        $multiply: ['$$itemDetail.quantity', '$$itemDetail.unitCost']
+                $sum: [
+                    {
+                        $sum: {
+                            $map: {
+                                input: input,
+                                as: 'item',
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: '$$item.itemDetails',
+                                            as: 'itemDetail',
+                                            in: {
+                                                $round: [ // Round intermediate multiplication
+                                                    {
+                                                        $multiply: ['$$itemDetail.quantity', '$$itemDetail.unitCost']
+                                                    },
+                                                    2
+                                                ]
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     },
-
-                }
-            }, {
-                $sum: {
-                    $map: {
-                        input: '$quotation.dealData.additionalCosts',
-                        as: 'additionalCost',
-                        in: '$$additionalCost.value'
+                    {
+                        $reduce: {
+                            input: '$quotation.dealData.additionalCosts',
+                            initialValue: 0,
+                            in: {
+                                $switch: {
+                                    branches: [
+                                        {
+                                            case: { $eq: ['$$this.type', 'Additional Cost'] },
+                                            then: { $round: [ // Round additional cost
+                                                { $add: ['$$value', '$$this.value'] },
+                                                2
+                                            ] }
+                                        },
+                                        {
+                                            case: { $eq: ['$$this.type', 'Supplier Discount'] },
+                                            then: { $round: [ // Round discount adjustment
+                                                { $subtract: ['$$value', '$$this.value'] },
+                                                2
+                                            ] }
+                                        },
+                                        {
+                                            case: { $eq: ['$$this.type', 'Customer Discount'] },
+                                            then: { $add: ['$$value', 0] }
+                                        },
+                                    ],
+                                    default: { $round: [ // Default case rounding
+                                        { $add: ['$$value', '$$this.value'] },
+                                        2
+                                    ] }
+                                }
+                            }
+                        }
                     },
-
-                }
-            }
+                ]
+            },
+            2 // Final rounding to 2 decimal places
         ]
     }
 }
+
+
 
 export const months = [
     { month: 1, name: 'Jan' },

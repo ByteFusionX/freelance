@@ -7,7 +7,9 @@ const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy')
+        const userId = req.params.userId;
+        
+        const customers = await Customer.find(userId ? { createdBy: userId } : {}).sort({ createdDate: -1 }).populate('department createdBy')
 
         if (customers.length > 0) {
             return res.status(200).json(customers);

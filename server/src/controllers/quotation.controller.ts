@@ -40,7 +40,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
     try {
         let { page, search, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
-        
+
 
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
@@ -346,34 +346,44 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
 export const getApprovedDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId } = req.body;
+        let { page, row, access, userId, role } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = {
-            dealData: { $exists: true },
-            'dealData.status': 'approved',
-            'dealData.approvedBy': new ObjectId(userId)
-        };
+
 
         let accessFilter = {};
+        let matchFilters = {}
 
         let reportedToUserIds = await getAllReportedEmployees(userId);
+        if (role == "superAdmin") {
+            matchFilters = {
+                dealData: { $exists: true },
+                'dealData.status': 'approved'
+            };
+        } else {
+            switch (access) {
+                case 'created':
+                    accessFilter = { createdBy: new ObjectId(userId) };
+                    break;
+                case 'reported':
+                    accessFilter = { createdBy: { $in: reportedToUserIds } };
+                    break;
+                case 'createdAndReported':
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { createdBy: { $in: reportedToUserIds } };
+                    break;
 
-        switch (access) {
-            case 'created':
-                accessFilter = { createdBy: new ObjectId(userId) };
-                break;
-            case 'reported':
-                accessFilter = { createdBy: { $in: reportedToUserIds } };
-                break;
-            case 'createdAndReported':
-                reportedToUserIds.push(new ObjectId(userId));
-                accessFilter = { createdBy: { $in: reportedToUserIds } };
-                break;
+                default:
+                    break;
+            }
 
-            default:
-                break;
+            matchFilters = {
+                dealData: { $exists: true },
+                'dealData.status': 'approved',
+                'dealData.approvedBy': new ObjectId(userId)
+            };
         }
+
 
         const filters = { $and: [matchFilters, accessFilter] }
 
@@ -784,8 +794,8 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
 
         // Use $push to append new files to existing array
         const quote = await Quotation.findByIdAndUpdate(
-            req.body.quoteId, 
-            { 
+            req.body.quoteId,
+            {
                 lpoSubmitted: true,
                 $push: { lpoFiles: { $each: newFiles } }
             },

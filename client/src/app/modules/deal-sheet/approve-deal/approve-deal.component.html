@@ -212,16 +212,20 @@
                         </ng-container>
                       </ng-container>
                 </ng-container>
+                <tr class="border-none text-gray-800">
+                    <td colspan="10" class="px-6 py-2 "></td>
+                </tr>
                 <ng-container *ngFor="let cost of data.quoteData.dealData.additionalCosts;let i = index">
-                    <tr class=" border-b text-gray-800">
-                        <td colspan="1" class="px-2 border text-center">
-                            <!-- {{ (item?.itemDetails?.length ?? 0) + i }} -->
+                    <tr class=" border-b text-gray-800 mt-4">
+                        
+                        <td *ngIf="cost.type" colspan="2" class="px-6 border bg-gray-50 py-2 whitespace-pre-line font-semibold">
+                            {{ cost?.type }}
                         </td>
-                        <td colspan="1" class="px-6 border font-normal py-2 whitespace-pre-line">
-                            {{ cost.name }}
-                        </td>
-                        <td colspan="4" class="border px-6 py-2 bg-gray-50">
+                        <td colspan="1" class="border px-6 py-2 bg-gray-50" *ngIf="!cost.type">
 
+                        </td>
+                        <td [attr.colspan]="cost.type ? 4 : 5" class="border px-6 py-2">
+                            {{ cost?.name }}
                         </td>
                         <td colspan="1" class=" border py-2 text-center">
                             {{ cost.value }}

@@ -97,6 +97,7 @@ export class QuotationListComponent {
         this.getQuotations()
       })
     )
+    console.log(this.userId)
 
   }
 
@@ -126,6 +127,8 @@ export class QuotationListComponent {
       userId = employee?._id
       this.userId = userId;
     })
+    console.log(this.userId)
+
 
     let filterData = {
       search: this.searchQuery,
@@ -241,6 +244,7 @@ export class QuotationListComponent {
 
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
+    console.log(quoteData)
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,
@@ -265,11 +269,17 @@ export class QuotationListComponent {
       return item;
     });
 
-    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
-      return acc += curr.value;
-    }, 0)
-
-    priceDetails.totalCost += totalAdditionalValue;
+    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
+      if(cost.type == 'Additional Cost'){
+        priceDetails.totalCost += cost.value
+      }else if(cost.type === 'Supplier Discount'){
+        priceDetails.totalCost -= cost.value
+      } else if(cost.type === 'Customer Discount'){
+        priceDetails.totalSellingPrice -= cost.value
+      } else {
+        priceDetails.totalCost += cost.value
+      }
+    })
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
@@ -363,6 +373,7 @@ export class QuotationListComponent {
   }
 
   generateExcelReport() {
+    this.loader.start()
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Quotations');
 
@@ -403,6 +414,9 @@ export class QuotationListComponent {
       this._quoteService.getQuotation(filterData)
         .subscribe((data: getQuotation) => {
           if (data) {
+            // Sort quotations by date
+            data.quotations.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
             data.quotations.forEach((element: any) => {
               worksheet.addRow({
                 date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
@@ -430,6 +444,7 @@ export class QuotationListComponent {
           }
         })
     )
+    this.loader.complete()
   }
 
   checkPermission() {

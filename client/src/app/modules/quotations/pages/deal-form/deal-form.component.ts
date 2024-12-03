@@ -71,11 +71,22 @@ export class DealFormComponent {
     return this.costForm.get('items') as FormArray;
   }
 
-  addCost(): void {
-    this.costs.push(this.fb.group({
-      name: ['', Validators.required],
+  addCost(type: string): void {
+    let group;
+    group = this.fb.group({
+      type: [type, Validators.required],
       value: ['', Validators.required]
-    }));
+    });
+    
+    if (type !== 'Customer Discount') {
+      group = this.fb.group({
+        type: [type, Validators.required],
+        name:['', Validators.required],
+        value: ['', Validators.required]
+      });
+    } 
+    
+    this.costs.push(group);
   }
 
   removeCost(index: number): void {
@@ -160,13 +171,16 @@ export class DealFormComponent {
   additionalCostsValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const costs = control as FormArray;
-
       if (costs.length === 0) {
         return null;
       }
 
       for (const cost of costs.controls) {
-        if (!cost?.get('name')?.value || !cost?.get('value')?.value) {
+        const type = cost?.get('type')?.value;
+        if (type !== 'Customer Discount' && !cost?.get('name')?.value) {
+          return { 'additionalCostInvalid': true };
+        }
+        if (!cost?.get('value')?.value) {
           return { 'additionalCostInvalid': true };
         }
       }
@@ -204,6 +218,12 @@ export class DealFormComponent {
         }
       })
     })
+    this.costs.value.forEach((cost:any,i:number)=>{
+      if(cost.type == 'Customer Discount'){
+        totalCost -= cost.value
+      }
+    })
+
     return totalCost;
   }
 
@@ -215,6 +235,14 @@ export class DealFormComponent {
           totalCost += this.calculateTotalCost(i, j)
         }
       })
+    })
+
+    this.costs.value.forEach((cost:any,i:number)=>{
+      if(cost.type == 'Additional Cost'){
+        totalCost += cost.value
+      }else if(cost.type === 'Supplier Discount'){
+        totalCost -= cost.value
+      }
     })
 
     return totalCost;
