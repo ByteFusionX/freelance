@@ -5,6 +5,7 @@ interface Department extends Document {
     departmentHead: Types.ObjectId;
     forCustomerContact:boolean;
     createdDate: Date;
+    isDeleted: boolean;
 }
 
 const departmentSchema = new Schema<Department>({
@@ -24,6 +25,10 @@ const departmentSchema = new Schema<Department>({
     createdDate: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {          
+        type: Boolean,
+        default: false
     }
 });
 

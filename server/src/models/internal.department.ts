@@ -4,6 +4,7 @@ interface Department extends Document {
     departmentName: string;
     departmentHead: Types.ObjectId;
     createdDate: Date;
+    isDeleted: boolean;
 }
 
 const internalDepartmentSchema = new Schema<Department>({
@@ -19,6 +20,10 @@ const internalDepartmentSchema = new Schema<Department>({
     createdDate: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 });
 

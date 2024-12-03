@@ -33,6 +33,10 @@ export class ProfileService {
     return this.http.get<getDepartment[]>(`${this.api}/department/customer`)
   }
 
+  updateCustomerDepartment(department: Department): Observable<getDepartment> {
+    return this.http.put<getDepartment>(`${this.api}/department/customer`, department)
+  }
+
   totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
     return this.http.get<TotalEnquiry[]>(`${this.api}/department/enquiry-count?access=${access}&userId=${userId}`)
   }
@@ -87,5 +91,17 @@ export class ProfileService {
 
   updateInternalDepartment(department: getInternalDep): Observable<getInternalDep> {
     return this.http.put<getInternalDep>(`${this.api}/department/internalDepartment`, department)
+  }
+
+  deleteDepartment(departmentId: string): Observable<any> {
+    return this.http.delete<any>(`${this.api}/department/${departmentId}`)
+  }
+
+  deleteInternalDepartment(departmentId: string): Observable<any> {
+    return this.http.delete<any>(`${this.api}/department/internalDepartment/${departmentId}`)
+  }
+
+  deleteCustomerDepartment(departmentId: string): Observable<any> {
+    return this.http.delete<any>(`${this.api}/department/customer/${departmentId}`)
   }
 }

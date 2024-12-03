@@ -68,7 +68,8 @@ export const getCustomerDepartments = async (req: Request, res: Response, next: 
         const departments = await Department.aggregate([
             {
                 $match: {
-                    forCustomerContact: true
+                    forCustomerContact: true,
+                    isDeleted: { $ne: true }
                 },
             },
             {
@@ -103,17 +104,17 @@ export const createCustomerDepartment = async (req: Request, res: Response, next
     }
 }
 
-
 export const updateCustomerDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = req.body
         let department = await Department.findOneAndUpdate(
-            { departmentName: data.departmentName })
+            { _id: data._id }, { $set: { departmentName: data.departmentName } })
 
         if (department) {
             department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
             return res.status(200).json(department)
         }
+
         return res.status(502).json()
     } catch (error) {
         next(error)
@@ -131,7 +132,8 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
         const departmentsWithCounts = await Department.aggregate([
             {
                 $match: {
-                    forCustomerContact: false
+                    forCustomerContact: false,
+                    isDeleted: { $ne: true }
                 },
             },
             {
@@ -219,6 +221,11 @@ export const getInternalDepartments = async (req: Request, res: Response, next: 
     try {
         const departments = await internalDepartment.aggregate([
             {
+                $match: {
+                    isDeleted: { $ne: true }
+                }
+            },
+            {
                 $lookup: {
                     from: 'employees', localField: 'departmentHead',
                     foreignField: '_id', as: 'departmentHead'
@@ -246,5 +253,99 @@ export const updateInternalDepartment = async (req: Request, res: Response, next
         return res.status(502).json()
     } catch (error) {
         next(error)
+    }
+}
+
+export const deleteDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departmentId = req.params.id;
+
+        // Check if department exists
+        const department = await Department.findById(departmentId);
+
+        if (!department) {
+            return res.status(404).json({ message: 'Department not found' });
+        }
+
+        // Check if department has associated enquiries
+        const hasEnquiries = await Enquiry.exists({ department: departmentId });
+        if (hasEnquiries) {
+            return res.status(400).json({
+                message: 'Cannot delete department with existing enquiries'
+            });
+        }
+
+        // Delete the department
+        await Department.findByIdAndUpdate(departmentId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Department deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departmentId = req.params.id;
+
+        // Check if department exists and isn't already deleted
+        const department = await internalDepartment.findOne({
+            _id: departmentId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!department) {
+            return res.status(404).json({
+                message: 'Internal department not found or already deleted'
+            });
+        }
+
+        // Soft delete the department
+        await internalDepartment.findByIdAndUpdate(departmentId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Internal department deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const deleteCustomerDepartment = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const departmentId = req.params.id;
+
+        // Check if customer department exists and isn't already deleted
+        const department = await Department.findOne({
+            _id: departmentId,
+            forCustomerContact: true,
+            isDeleted: { $ne: true }
+        });
+
+        if (!department) {
+            return res.status(404).json({
+                message: 'Customer department not found or already deleted'
+            });
+        }
+
+        // Soft delete the department
+        await Department.findByIdAndUpdate(departmentId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Customer department deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }

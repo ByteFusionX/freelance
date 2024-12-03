@@ -34,7 +34,7 @@ export class PortalManagementComponent {
   categorySection: boolean = false;
 
   departmentDisplayedColumns: string[] = ['position', 'name', 'head', 'date', 'action'];
-  customerDepartmentDisplayedColumns: string[] = ['position', 'name', 'date'];
+  customerDepartmentDisplayedColumns: string[] = ['position', 'name', 'date','action'];
   cstcDisplayedColumns: string[] = ['customerNote', 'termsCondition'];
   categoryDisplayedColumns: string[] = ['slNo', 'categoryName', 'role', 'count', 'action'];
   companyTargetColumns: string[] = ['year', 'targetType', 'targetValue', 'critical', 'moderate', 'action'];
@@ -265,7 +265,6 @@ export class PortalManagementComponent {
     })
   }
 
-
   createCategory() {
     const dialogRef = this.dialog.open(CreateCategoryComponent, {
       width: '100vh'
@@ -313,7 +312,6 @@ export class PortalManagementComponent {
   }
 
   editTarget(id: string) {
-
     const target = this.targets.find(target => target._id == id)
     const dialogRef = this.dialog.open(SetTargetComponent, {
       data: target
@@ -360,6 +358,126 @@ export class PortalManagementComponent {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe()
+  }
+
+  onDeleteClick(index: number) {
+    let department = this.departmentDataSource.data[index]
+    if (department) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+          title: 'Delete Department',
+          description: `Are you sure you want to delete "${department.departmentName}" department?`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'red'
+        }
+      });
+  
+      dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this._profileService.deleteDepartment(department._id).subscribe({
+            next: () => {
+              // Remove the department from the table
+              this.departmentDataSource.data.splice(index, 1);
+              this.departmentDataSource._updateChangeSubscription();
+              this._toast.success('Department deleted successfully');
+            },
+            error: (error) => {
+              this._toast.error(error.error.message || 'Failed to delete department');
+            }
+          });
+        }
+      });
+    }
+  }
+
+  onInternalDeleteClick(index: number) {
+    let department = this.internalDepartmentDataSource.data[index]
+    if (department) {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            data: {
+                title: 'Delete Internal Department',
+                description: `Are you sure you want to delete "${department.departmentName}" department?`,
+                icon: 'heroExclamationCircle',
+                IconColor: 'red'
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this._profileService.deleteInternalDepartment(department._id).subscribe({
+                    next: () => {
+                        // Remove the department from the table
+                        this.internalDepartmentDataSource.data.splice(index, 1);
+                        this.internalDepartmentDataSource._updateChangeSubscription();
+                        this._toast.success('Internal department deleted successfully');
+                    },
+                    error: (error) => {
+                        this._toast.error(error.error.message || 'Failed to delete internal department');
+                    }
+                });
+            }
+        });
+    }
+  }
+
+  onCustomerDeleteClick(index: number) {
+    let department = this.customerDepartmentDataSource.data[index]
+    if (department) {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            data: {
+                title: 'Delete Customer Department',
+                description: `Are you sure you want to delete "${department.departmentName}" department?`,
+                icon: 'heroExclamationCircle',
+                IconColor: 'red'
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this._profileService.deleteCustomerDepartment(department._id).subscribe({
+                    next: () => {
+                        // Remove the department from the table
+                        this.customerDepartmentDataSource.data.splice(index, 1);
+                        this.customerDepartmentDataSource._updateChangeSubscription();
+                        this._toast.success('Customer department deleted successfully');
+                    },
+                    error: (error) => {
+                        this._toast.error(error.error.message || 'Failed to delete customer department');
+                    }
+                });
+            }
+        });
+    }
+  }
+
+  deleteCategory(index: number) {
+    const category = this.categoryDataSource.data[index];
+    if (category) {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            data: {
+                title: 'Delete Category',
+                description: `Are you sure you want to delete "${category.categoryName}" category?`,
+                icon: 'heroExclamationCircle',
+                IconColor: 'red'
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this._employeeService.deleteCategory(category._id).subscribe({
+                    next: () => {
+                        // Remove the category from the table
+                        this.categoryDataSource.data.splice(index, 1);
+                        this.categoryDataSource._updateChangeSubscription();
+                        this._toast.success('Category deleted successfully');
+                    },
+                    error: (error) => {
+                        this._toast.error(error.error.message || 'Failed to delete category');
+                    }
+                });
+            }
+        });
+    }
   }
 }
 
