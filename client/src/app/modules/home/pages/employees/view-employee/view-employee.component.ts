@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 import { MatTableDataSource } from '@angular/material/table';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-view-employee',
@@ -160,5 +161,29 @@ export class ViewEmployeeComponent {
     return 
   }
 
+  deleteEmployee() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+            title: 'Delete Employee',
+            description: `Are you sure you want to delete "${this.employeeData.firstName} ${this.employeeData.lastName}"?`,
+            icon: 'heroExclamationCircle',
+            IconColor: 'red'
+        }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        if (confirmed) {
+            this.employeeService.deleteEmployee(this.employeeData._id!).subscribe({
+                next: () => {
+                    this._toast.success('Employee deleted successfully');
+                    this.navigateToEmployeeList();
+                },
+                error: (error) => {
+                    this._toast.error(error.error.message || 'Failed to delete employee');
+                }
+            });
+        }
+    });
+  }
 
 }

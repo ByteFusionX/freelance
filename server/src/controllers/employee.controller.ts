@@ -13,20 +13,25 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await Employee.find({}, { password: 0 }).sort({ createdDate: -1 }).populate('department')
+        const employees = await Employee.find(
+            { isDeleted: { $ne: true } }, 
+            { password: 0 }
+        )
+        .sort({ createdDate: -1 })
+        .populate('department');
         
         if (employees.length) {
             return res.status(200).json(employees);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
 export const isEmployeePresent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employeeCount = await Employee.countDocuments();
+        const employeeCount = await Employee.countDocuments({ isDeleted: { $ne: true } });
         const categoryCount = await categoryModel.countDocuments();
         const departmentCount = await departmentModel.countDocuments();
 
@@ -65,9 +70,16 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
             default:
                 break;
         }
-        const matchFilters = { employeeId: employeeId }
+
+        const matchFilters = { 
+            employeeId: employeeId,
+            isDeleted: { $ne: true }
+        }
         const filters = { $and: [matchFilters, accessFilter] }
-        const employeeExist = await Employee.findOne({ employeeId: employeeId });
+        const employeeExist = await Employee.findOne({ 
+            employeeId: employeeId, 
+            isDeleted: { $ne: true }
+        });
 
         if (employeeExist) {
             const employeeData = await Employee.aggregate([
@@ -113,15 +125,13 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, search, access, userId } = req.body;
-
         let skipNum: number = (page - 1) * row;
-
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
         let total: number = 0;
 
-
         let matchFilters = {
+            isDeleted: { $ne: true },
             $or: [
                 { $expr: { $regexMatch: { input: { $concat: ["$firstName", " ", "$lastName"] }, regex: fullNameRegex } } },
                 { firstName: { $regex: search, $options: 'i' } },
@@ -131,7 +141,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
         }
 
         let accessFilter = {};
-
         switch (access) {
             case 'reported':
                 accessFilter = { reportingTo: new ObjectId(userId) };
@@ -147,7 +156,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                     ]
                 };
                 break;
-
             default:
                 break;
         }
@@ -239,7 +247,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
             },
         ]);
 
-        if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
+        if (!employeeData || !total) return res.status(204).json({ err: 'No data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
     } catch (error) {
@@ -293,10 +301,14 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
             updatedEmployeeData.password = hashedPassword
         }
 
-        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
-            employeeId,
+        const saveEmployeeEdit = await Employee.findOneAndUpdate(
+            { 
+                _id: employeeId,
+                isDeleted: { $ne: true }
+            },
             updatedEmployeeData,
-            { new: true }).populate('category department reportingTo')
+            { new: true }
+        ).populate('category department reportingTo')
 
         if (saveEmployeeEdit) {
             return res.status(200).json(saveEmployeeEdit);
@@ -441,7 +453,12 @@ const generateEmployeeId = async () => {
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { employeeId, password } = req.body
-        const employee = await Employee.findOne({ employeeId: employeeId })
+        const employee = await Employee.findOne(
+            { 
+                employeeId: employeeId,
+                isDeleted: { $ne: true }
+            }
+        )
         if (employee) {
             const passwordMatch = await bcrypt.compare(password, employee.password)
             if (passwordMatch) {
@@ -463,7 +480,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ employeeId: employeeId }, { password: 0 }).populate('category');
+        const employeeData = await Employee.findOne(
+            { 
+                employeeId: employeeId, 
+                isDeleted: { $ne: true }
+            }, 
+            { password: 0 }
+        ).populate('category');
+        
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
@@ -523,6 +547,36 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         return res.status(502).json()
     } catch (error) {
         next(error)
+    }
+}
+
+export const deleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employeeId = req.params.id;
+
+        // Check if employee exists and isn't already deleted
+        const employee = await Employee.findOne({
+            _id: employeeId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                message: 'Employee not found or already deleted'
+            });
+        }
+
+        // Soft delete the employee
+        await Employee.findByIdAndUpdate(employeeId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Employee deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }
 
