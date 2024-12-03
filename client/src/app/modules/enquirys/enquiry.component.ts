@@ -14,6 +14,7 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { HttpEventType } from '@angular/common/http';
 import saveAs from 'file-saver';
+import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -27,6 +28,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  assigningPresale: boolean = false;
   isFiltered: boolean = false;
   createEnquiry: boolean | undefined = false;
 
@@ -109,6 +111,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
+            console.log(data)
             this.dataSource.data = [...data.enquiry];
             this.filteredData.data = data.enquiry;
             this.total = data.total
@@ -185,31 +188,34 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   }
 
-  onAssignPresale(event: Event, enquiryId: string, index: number) {
+  onAssignPresale(event: Event, preSale: any, enquiryId: string, index: number) {
     event.stopPropagation();
 
-    const presaleDialog = this.dialog.open(AssignPresaleComponent)
+    const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: preSale })
     presaleDialog.afterClosed().subscribe((data: any) => {
+      this.assigningPresale = true;
       if (data) {
-        const presaleData: Partial<getEnquiry["preSale"]> = {
+        const presaleData = {
           comment: data.comment,
-          presaleFiles: data.presaleFile,
+          newPresaleFile: data.newPresaleFile,
+          existingPresaleFiles: data.existingPresaleFiles,
           presalePerson: data.presalePerson
         };
         let formData = new FormData();
         formData.append('presaleData', JSON.stringify(presaleData));
 
-        if (presaleData.presaleFiles) {
-          for (let i = 0; i < presaleData.presaleFiles.length; i++) {
-            formData.append('presaleFiles', (presaleData.presaleFiles[i] as unknown as Blob))
+        if (presaleData.newPresaleFile) {
+          for (let i = 0; i < presaleData.newPresaleFile.length; i++) {
+            formData.append('newPresaleFile', (presaleData.newPresaleFile[i] as unknown as Blob))
           }
         }
 
         this._enquiryService.assignPresale(formData, enquiryId).subscribe((res) => {
           if (res.success) {
-            this.dataSource.data[index].preSale = presaleData as getEnquiry["preSale"];
+            // this.dataSource.data[index].preSale = presaleData as getEnquiry["preSale"];
             this.dataSource.data[index].status = 'Assigned To Presales'
             this.dataSource._updateChangeSubscription();
+            this.assigningPresale = false;
             this.toaster.success('Assinged Presale successfully')
           }
         })
@@ -259,6 +265,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     } else {
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
     }
+  }
+
+  openReview(rejectionHistory: any) {
+    this.dialog.open(ViewRejectsComponent, {
+      data: rejectionHistory,
+      width: '500px'
+    });
   }
 
   checkPermission() {

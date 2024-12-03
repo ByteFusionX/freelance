@@ -141,6 +141,12 @@
                                     [ngClass]="{'text-orange-500 font-bold': element.preSale.feedback.seenByFeedbackRequester == false &&  element.preSale.feedback.feedback}"
                                     name="heroEye" class="text-black"></ng-icon></button>
 
+                            <div matTooltip="Reject Job" matTooltipPosition="above" matTooltipClass="mat-tooltip"
+                            (click)="onRejectJob(element,i)"
+                                class="cursor-pointer w-8 h-8 rounded-full bg-red-600 flex justify-center items-center">
+                                <ng-icon name="heroXCircle" class="text-white text-xl"></ng-icon>
+                            </div>
+
                             <button
                                 class="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex justify-center items-center"
                                 (click)="onSendClicked(i)">

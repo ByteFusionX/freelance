@@ -23,13 +23,15 @@ import { PaginationComponent } from 'src/app/shared/components/pagination/pagina
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { MatDividerModule } from '@angular/material/divider';
 import { pipeModule } from "../../shared/pipes/pipe.module";
+import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
 
 @NgModule({
   declarations: [
     EnquiryComponent,
     CreateEnquiryDialog,
     AssignPresaleComponent,
-    ViewPresaleComponent
+    ViewPresaleComponent,
+    ViewRejectsComponent
   ],
   imports: [
     CommonModule,

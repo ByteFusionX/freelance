@@ -27,16 +27,17 @@ export class AssignPresaleComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AssignPresaleComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFile: File[], comment: string },
+    @Inject(MAT_DIALOG_DATA) public data: { presalePerson: string, presaleFiles: File[], comment: string },
     private _employeeService: EmployeeService,
   ) { }
 
   ngOnInit(): void {
     this.employees$ = this._employeeService.getAllEmployees()
     if (this.data) {
+      console.log(this.data)
       this.selectedEmployee = this.data.presalePerson
       this.comment = this.data.comment
-      this.selectedFiles = this.data.presaleFile
+      this.selectedFiles = this.data.presaleFiles
       this.isClear = true
     }
   }
@@ -65,7 +66,16 @@ export class AssignPresaleComponent implements OnInit {
         }
       })
       if (this.selectedEmployee && this.selectedFiles.length && presalePersonName && this.comment) {
-        let presale = { presalePerson: this.selectedEmployee, presaleFile: this.selectedFiles, presalePersonName: presalePersonName, comment: this.comment }
+        let newFiles: File[] = [];
+        let existingFile: File[] = [];
+        this.selectedFiles.forEach((file) => {
+          if (file.name) {
+            newFiles.push(file)
+          } else {
+            existingFile.push(file)
+          }
+        })
+        let presale = { presalePerson: this.selectedEmployee, newPresaleFile: newFiles, existingPresaleFiles: existingFile, presalePersonName: presalePersonName, comment: this.comment }
         this.isSaving = false;
         this.dialogRef.close(presale)
       } else {

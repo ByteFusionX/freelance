@@ -23,6 +23,7 @@ import { ViewFeedbackComponent } from './pages/view-feedback/view-feedback.compo
 import { UploadEstimationComponent } from './pages/upload-estimation/upload-estimation.component';
 import { ViewEstimationComponent } from './pages/view-estimation/view-estimation.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
+import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job-comment.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { pipeModule } from "../../shared/pipes/pipe.module";
     SelectEmployeeComponent,
     ViewFeedbackComponent,
     UploadEstimationComponent,
-    ViewEstimationComponent
+    ViewEstimationComponent,
+    RejectJobCommentComponent
   ],
   imports: [
     CommonModule,

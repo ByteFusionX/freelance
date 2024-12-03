@@ -1,6 +1,7 @@
 import { Schema, Document, model, Types } from "mongoose";
 import { File } from "../interface/enquiry.interface";
 import FilesSchema from "./files.model";
+import { Feedback } from "aws-sdk/clients/guardduty";
 
 interface Enquiry extends Document {
     enquiryId: String
@@ -11,7 +12,7 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, items: QuoteItem[], comment: string, revisionComment: string[] };
+    preSale: { presalePerson: Types.ObjectId, estimations: { items: [], currency: string, totalDiscount: number, presaleNote: string }, presaleFiles: [], comment: string, feedback: Feedback[], newFeedbackAccess: boolean, seenbyEmployee: boolean, seenbySalesPerson: boolean, revisionComment: string[], createdDate: Date, rejectionHistory: { rejectionReason: any; rejectedBy: Types.ObjectId; }[] };
     assignedFiles: []
     status: string;
     attachments: []
@@ -70,6 +71,20 @@ const estimationSchema = new Schema({
     },
 })
 
+const rejectionHistorySchema = new Schema({
+    rejectedAt: {
+        type: Date,
+        default: Date.now
+    },
+    rejectionReason: {
+        type: String
+    },
+    rejectedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee'
+    },
+});
+
 const preSaleSchema = new Schema({
     presalePerson: {
         type: Schema.Types.ObjectId,
@@ -104,7 +119,8 @@ const preSaleSchema = new Schema({
     createdDate: {
         type: Date,
         default: Date.now()
-    }
+    },
+    rejectionHistory: [rejectionHistorySchema]
 })
 
 

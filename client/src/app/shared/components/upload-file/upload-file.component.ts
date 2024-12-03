@@ -17,7 +17,7 @@ export class UploadFileComponent {
   @Output() fileUpload = new EventEmitter<File[]>()
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  @Input() selectedFiles: File[] = []
+  @Input() selectedFiles: any[] = []
 
   onFileSelected(event: any) {
     let files = event.target.files

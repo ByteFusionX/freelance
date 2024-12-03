@@ -18,6 +18,7 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 const config:SocketIoConfig = { url: environment.api, options: {} };
 
 @NgModule({
@@ -43,6 +44,7 @@ const config:SocketIoConfig = { url: environment.api, options: {} };
     ResizableModule,
     LoadingBarModule,
     LoadingBarRouterModule,
+    LoadingBarHttpClientModule,
     SocketIoModule.forRoot(config),
   ],
   providers: [
