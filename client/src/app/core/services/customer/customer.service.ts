@@ -37,4 +37,8 @@ export class CustomerService {
     return this.http.get<getCustomerByID>(`${this.apiUrl}/customer/view/get/${employeeId}?access=${access}&userId=${userId}`)
   } 
 
+  deleteCustomer(customerId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/customer/${customerId}`);
+  }
+
 }

@@ -11,7 +11,8 @@ export const getDepartments = async (req: Request, res: Response, next: NextFunc
         const departments = await Department.aggregate([
             {
                 $match: {
-                    forCustomerContact: false
+                    forCustomerContact: false,
+                    isDeleted: { $ne: true }
                 },
             },
             {
@@ -108,7 +109,16 @@ export const updateCustomerDepartment = async (req: Request, res: Response, next
     try {
         const data = req.body
         let department = await Department.findOneAndUpdate(
-            { _id: data._id }, { $set: { departmentName: data.departmentName } })
+            { 
+                _id: data._id,
+                isDeleted: { $ne: true }  
+            },
+            { 
+                $set: { 
+                    departmentName: data.departmentName 
+                } 
+            }
+        );
 
         if (department) {
             department = await (await Department.findOne({ _id: department._id })).populate('departmentHead')
@@ -245,7 +255,19 @@ export const getInternalDepartments = async (req: Request, res: Response, next: 
 export const updateInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = req.body
-        let department = await internalDepartment.findOneAndUpdate({ _id: data._id }, { $set: { departmentName: data.departmentName, departmentHead: data.departmentHead } })
+        let department = await internalDepartment.findOneAndUpdate(
+            { 
+                _id: data._id,
+                isDeleted: { $ne: true } 
+            }, 
+            { 
+                $set: { 
+                    departmentName: data.departmentName, 
+                    departmentHead: data.departmentHead 
+                } 
+            }
+        );
+
         if (department) {
             department = await (await internalDepartment.findOne({ _id: department._id })).populate('departmentHead')
             return res.status(200).json(department)

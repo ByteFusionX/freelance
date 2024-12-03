@@ -6,14 +6,16 @@ const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customers = await Customer.find().sort({ createdDate: -1 }).populate('department createdBy')
+        const customers = await Customer.find({ isDeleted: { $ne: true } })
+            .sort({ createdDate: -1 })
+            .populate('department createdBy');
 
         if (customers.length > 0) {
             return res.status(200).json(customers);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
@@ -29,6 +31,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
         console.log(search)
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             $or: [
                 { companyName: { $regex: search, $options: 'i' } },
                 { clientRef: { $regex: search, $options: 'i' } },]
@@ -183,7 +186,10 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         }
 
 
-        const matchFilters = { clientRef: customerId }
+        const matchFilters = { 
+            clientRef: customerId,
+            isDeleted: { $ne: true }
+        }
         const filters = { $and: [matchFilters, accessFilter] }
 
         const customerExist = await Customer.findOne({ clientRef: customerId });
@@ -380,5 +386,35 @@ const generateClientRef = async (date: string) => {
         return clientRef;
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const deleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const customerId = req.params.id;
+
+        // Check if customer exists and isn't already deleted
+        const customer = await Customer.findOne({
+            _id: customerId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!customer) {
+            return res.status(404).json({
+                message: 'Customer not found or already deleted'
+            });
+        }
+
+        // Soft delete the customer
+        await Customer.findByIdAndUpdate(customerId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Customer deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }

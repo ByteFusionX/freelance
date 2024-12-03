@@ -21,6 +21,7 @@ export interface Customer extends Document {
   contactNo: number;
   createdBy: Types.ObjectId;
   createdDate: Date;
+  isDeleted: boolean;
 }
 
 const contactDetailSchema = new Schema({
@@ -96,6 +97,10 @@ const customerSchema = new Schema<Customer>({
   createdDate: {
     type: Date,
     default: Date.now
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 });
 
