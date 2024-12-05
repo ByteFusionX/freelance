@@ -49,6 +49,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
         let isDepartment = department == null ? true : false;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             $and: [
                 { quoteId: { $regex: search, $options: 'i' } },
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
@@ -99,6 +100,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             },
             {
                 $match: {
+                    isDeleted: { $ne: true },
                     status: { $ne: 'revised' }
                 }
             },
@@ -195,6 +197,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             },
             {
                 $match: {
+                    isDeleted: { $ne: true },
                     status: { $ne: 'revised' }
                 }
             }
@@ -215,6 +218,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         let skipNum: number = (page - 1) * row;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             dealData: { $exists: true },
             'dealData.status': { $nin: ['rejected', 'approved'] }
         };
@@ -358,6 +362,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
         let skipNum: number = (page - 1) * row;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             dealData: { $exists: true },
             'dealData.status': 'approved',
             'dealData.approvedBy': new ObjectId(userId)
@@ -830,11 +835,10 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
         const totalQuotes = await Quotation.aggregate([
             {
                 $match: {
-                    'dealData.status': { $ne: 'approved' }
+                    isDeleted: { $ne: true },
+                    'dealData.status': { $ne: 'approved' },
+                    ...accessFilter
                 }
-            },
-            {
-                $match: accessFilter
             },
             {
                 $group: {
@@ -1080,3 +1084,33 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         next(error);
     }
 };
+
+export const deleteQuotation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const quoteId = req.params.id;
+        
+        // Check if quote exists and isn't already deleted
+        const quote = await Quotation.findOne({
+            _id: quoteId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                message: 'Quote not found or already deleted'
+            });
+        }
+
+        // Soft delete the quote
+        await Quotation.findByIdAndUpdate(quoteId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Quote deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}

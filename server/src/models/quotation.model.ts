@@ -54,6 +54,7 @@ interface Quotation extends Document {
     lpoFiles: [];
     dealData: Deal;
     enqId: Types.ObjectId;
+    isDeleted: boolean;
 }
 
 export enum quoteStatus {
@@ -237,6 +238,10 @@ const quotationSchema = new Schema<Quotation>({
         type: Schema.Types.ObjectId,
         ref: 'Enquiry'
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 export default model<Quotation>("Quotation", quotationSchema);

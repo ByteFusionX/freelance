@@ -12,12 +12,12 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
     try {
         if (!req.files) return res.status(204).json({ err: 'No data' })
 
-        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => { 
+        const enquiryFiles = req.files?.attachments ? await Promise.all(req.files.attachments.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         })) : [];
 
-        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+        const presaleFiles = req.files?.presaleFiles ? await Promise.all(req.files.presaleFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         })) : [];
@@ -99,7 +99,7 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
     try {
         const presale = JSON.parse(req.body.presaleData)
-        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => { 
+        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         }));
@@ -144,6 +144,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         let isDepartment = department == null ? true : false;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             $and: [
                 { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
                 { $or: [{ status: status }, { status: { $exists: isStatus } }] },
@@ -260,7 +261,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
@@ -273,7 +277,10 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const preSaleData = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
@@ -399,7 +406,10 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         }
         const result = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }  
+                }
             },
             {
                 $project: {
@@ -752,7 +762,10 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         const totalPendingJobs: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }  
+                }
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -766,7 +779,10 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         const totalCompletedJobs: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }  
+                }
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -872,3 +888,32 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
     }
 };
 
+export const deleteEnquiry = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enquiryId = req.params.id;
+        
+        // Check if enquiry exists and isn't already deleted
+        const enquiry = await enquiryModel.findOne({
+            _id: enquiryId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!enquiry) {
+            return res.status(404).json({
+                message: 'Enquiry not found or already deleted'
+            });
+        }
+
+        // Soft delete the enquiry
+        await enquiryModel.findByIdAndUpdate(enquiryId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Enquiry deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}

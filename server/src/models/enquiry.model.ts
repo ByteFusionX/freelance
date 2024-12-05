@@ -15,6 +15,7 @@ interface Enquiry extends Document {
     assignedFiles: []
     status: string;
     attachments: []
+    isDeleted: boolean
 }
 
 interface ItemDetail {
@@ -153,7 +154,10 @@ const enquirySchema = new Schema<Enquiry>({
         type: String,
         required: true
     },
-
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 export default model<Enquiry>("Enquiry", enquirySchema);

@@ -16,6 +16,7 @@ import {
     updateQuotation,
     updateQuoteStatus,
     uploadLpo,
+    deleteQuotation,
 } from "../controllers/quotation.controller";
 const quoteRouter = Router()
 const upload = require("../common/multer.storage")
@@ -37,5 +38,6 @@ quoteRouter.get('/total', totalQuotation)
 quoteRouter.post('/nextQuoteId', getNextQuoteId)
 quoteRouter.post('/markAsSeenedDeal', markAsSeenDeal);
 quoteRouter.post('/markAsQuotationSeened', markAsQuotationSeened);
+quoteRouter.delete('/:id', deleteQuotation);
 
 export default quoteRouter;

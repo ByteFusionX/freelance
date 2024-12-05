@@ -13,6 +13,7 @@ import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.i
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-quotation-view',
@@ -186,6 +187,31 @@ export class QuotationViewComponent {
 
   calculateDiscoutPrice(): number {
     return this.calculateSellingPrice() - this.quoteData.totalDiscount
+  }
+
+  deleteQuote() {
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Quote',
+        description: 'Are you sure you want to delete this quote?',
+        icon: 'heroExclamationCircle',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.quotationService.deleteQuotation(this.quoteData._id!).subscribe({
+          next: () => {
+            this.toast.success('Quote deleted successfully');
+            this._router.navigate(['/quotations']);
+          },
+          error: (error) => {
+            this.toast.error(error.error.message || 'Failed to delete quote');
+          }
+        });
+      }
+    });
   }
   
 

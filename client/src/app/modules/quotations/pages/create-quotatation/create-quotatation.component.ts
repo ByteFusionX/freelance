@@ -19,6 +19,7 @@ import { customerNoteValidator } from 'src/app/shared/validators/quoation.valida
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -73,7 +74,8 @@ export class CreateQuotatationComponent {
     private _router: Router,
     private _enquiryService: EnquiryService,
     private toastr: ToastrService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -531,6 +533,35 @@ export class CreateQuotatationComponent {
       const value = control.value;
       return value < 0 ? { negativeProfit: true } : null;
     };
+  }
+
+  deleteEnquiry() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+            title: 'Delete Enquiry',
+            description: 'Are you sure you want to delete this enquiry?',
+            icon: 'heroExclamationCircle',
+            IconColor: 'red'
+        }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        if (confirmed) {
+            const enquiryData = this.enquiryData$.pipe(first()).subscribe(data => {
+                if (data) {
+                    this._enquiryService.deleteEnquiry(data._id).subscribe({
+                        next: () => {
+                            this.toastr.success('Enquiry deleted successfully');
+                            this._router.navigate(['/enquiry']);
+                        },
+                        error: (error) => {
+                            this.toastr.error(error.error.message || 'Failed to delete enquiry');
+                        }
+                    });
+                }
+            });
+        }
+    });
   }
 
 }

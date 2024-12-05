@@ -17,7 +17,8 @@ import {
     markAsSeenFeedback,
     markFeedbackResponseAsViewed,
     uploadEstimations,
-    markAsSeenEstimation
+    markAsSeenEstimation,
+    deleteEnquiry
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
@@ -38,6 +39,6 @@ equiRouter.post('/markAsSeenedJob', markAsSeenJob);
 equiRouter.post('/markAsSeenFeeback', markAsSeenFeedback);
 equiRouter.patch('/markAsSeenFeebackResponse', markFeedbackResponseAsViewed);
 equiRouter.get('/presales/count', presalesCount)
-
+equiRouter.delete('/:id', deleteEnquiry);
 
 export default equiRouter;
