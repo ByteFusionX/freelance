@@ -3,8 +3,20 @@
 
         <div class="flex flex-col md:flex-row items-center justify-between md:items-end gap-3">
             <h3 class="font-semibold">Approved Deals</h3>
+            <div class="w-full md:w-72">
+                <div
+                    class="h-10 inline-flex items-center justify-between text-body dark:text-white/60 bg-white border border-gray/60 rounded-[6px] pl-[20px] pr-[8px]">
+                    <input type="text" placeholder="Customer / Sales Person" [formControl]="searchControl"
+                        class="bg-transparent border-none text-[15px] shadow-none text-black flex items-center focus:outline-none">
 
+                    <div
+                        class="bg-violet-100 hover:bg-violet-200 flex justify-center items-center rounded-full  cursor-pointer">
 
+                        <ng-icon name="heroMagnifyingGlass" class="text-sm text-gray-600  hover:text-violet-700 m-1.5">
+                        </ng-icon>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -89,8 +101,8 @@
                                 <ng-icon name="heroEye" class="text-black"></ng-icon>
                             </div>
 
-                            <div matTooltip="Revoke Approved Deal" matTooltipPosition="above" matTooltipClass="mat-tooltip"
-                                (click)="revokeDeal(element,i)"
+                            <div matTooltip="Revoke Approved Deal" matTooltipPosition="above"
+                                matTooltipClass="mat-tooltip" (click)="revokeDeal(element,i)"
                                 class="cursor-pointer w-8 h-8 rounded-full bg-red-600 flex justify-center items-center">
                                 <ng-icon name="heroArrowUturnLeft" class="text-white text-sm"></ng-icon>
                             </div>

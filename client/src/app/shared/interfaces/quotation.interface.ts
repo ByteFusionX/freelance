@@ -143,6 +143,7 @@ export interface FilterDeal {
     row: number;
     access?: string;
     userId?: string;
+    search?: string;
 }
 
 export interface nextQuoteData {

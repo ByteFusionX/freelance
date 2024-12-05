@@ -213,15 +213,15 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
 export const getDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId } = req.body;
-        console.log(req.body)
+        let { page, row, access, userId, search } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = {
+        let matchFilters: any = {
             isDeleted: { $ne: true },
             dealData: { $exists: true },
             'dealData.status': { $nin: ['rejected', 'approved'] }
         };
+
 
         let accessFilter = {};
 
@@ -314,6 +314,15 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
             {
                 $unwind: '$createdBy',
             },
+            ...(search ? [{
+                $match: {
+                    $or: [
+                        { 'client.companyName': { $regex: search, $options: 'i' } },
+                        { 'createdBy.firstName': { $regex: search, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: search, $options: 'i' } }
+                    ]
+                }
+            }] : []),
             {
                 $lookup: {
                     from: 'enquiries',
@@ -358,14 +367,13 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
 export const getApprovedDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId } = req.body;
+        let { page, row, access, userId, search } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = {
+        let matchFilters: any = {
             isDeleted: { $ne: true },
             dealData: { $exists: true },
-            'dealData.status': 'approved',
-            'dealData.approvedBy': new ObjectId(userId)
+            'dealData.status': 'approved'
         };
 
         let accessFilter = {};
@@ -459,6 +467,15 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
             {
                 $unwind: '$createdBy',
             },
+            ...(search ? [{
+                $match: {
+                    $or: [
+                        { 'client.companyName': { $regex: search, $options: 'i' } },
+                        { 'createdBy.firstName': { $regex: search, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: search, $options: 'i' } }
+                    ]
+                }
+            }] : []),
             {
                 $lookup: {
                     from: 'enquiries',
@@ -1088,7 +1105,7 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
 export const deleteQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const quoteId = req.params.id;
-        
+
         // Check if quote exists and isn't already deleted
         const quote = await Quotation.findOne({
             _id: quoteId,

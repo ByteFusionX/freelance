@@ -11,6 +11,8 @@ import { ApproveDealComponent } from '../approve-deal/approve-deal.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { RejectDealComponent } from '../reject-deal/reject-deal.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-approved-deals',
@@ -40,6 +42,8 @@ export class ApprovedDealsComponent {
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
+  searchControl = new FormControl('');
+
   constructor(
     private _quoteService: QuotationService,
     private _router: Router,
@@ -50,6 +54,17 @@ export class ApprovedDealsComponent {
   ) { }
 
   ngOnInit() {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.page = 1;
+        this.getDealSheet();
+      });
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -87,7 +102,8 @@ export class ApprovedDealsComponent {
       page: this.page,
       row: this.row,
       access: access,
-      userId: userId
+      userId: userId,
+      search: this.searchControl.value || ''
     }
     this.subscriptions.add(
       this._quoteService.getApprovedDealSheet(filterData)

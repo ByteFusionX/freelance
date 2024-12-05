@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApproveDealComponent } from './approve-deal/approve-deal.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectDealComponent } from './reject-deal/reject-deal.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UpdatedealsheetComponent } from './updatedealsheet-component/updatedealsheet-component.component';
 import { ApprovedDealsComponent } from './approved-deals/approved-deals.component';
 import { PendingDealsComponent } from './pending-deals/pending-deals.component';
@@ -37,7 +37,8 @@ import { PendingDealsComponent } from './pending-deals/pending-deals.component';
     IconsModule,
     MatTooltipModule,
     pipeModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule,
 ]
 })
 export class DealSheetModule { }
