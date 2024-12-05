@@ -904,6 +904,18 @@ export const deleteEnquiry = async (req: Request, res: Response, next: NextFunct
             });
         }
 
+        // Check if any active quotation is using this enquiry
+        const hasActiveQuotation = await quotationModel.exists({
+            enqId: enquiryId,
+            isDeleted: { $ne: true }
+        });
+
+        if (hasActiveQuotation) {
+            return res.status(400).json({
+                message: 'Cannot delete enquiry as it is associated with an active quotation'
+            });
+        }
+
         // Soft delete the enquiry
         await enquiryModel.findByIdAndUpdate(enquiryId, {
             isDeleted: true

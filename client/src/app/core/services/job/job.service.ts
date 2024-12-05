@@ -34,4 +34,8 @@ export class JobService {
   getJobSalesPerson(): Observable<getCreators[]> {
     return this.http.get<getCreators[]>(`${this.apiUrl}/job/sales`)
   }
+
+  deleteJob(jobId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/job/${jobId}`);
+  }
 }

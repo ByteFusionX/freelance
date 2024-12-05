@@ -106,7 +106,7 @@ export class JobListComponent {
   }
 
 
-  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status'];
+  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status', 'action'];
 
   getAllJobs(selectedMonth?: number, selectedYear?: number) {
     this.isLoading = true;
@@ -374,6 +374,31 @@ export class JobListComponent {
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  onDeleteJob(jobId: string) {
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Job',
+        description: 'Are you sure you want to delete this job? This action cannot be undone.',
+        icon: 'heroExclamationTriangle',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this._jobService.deleteJob(jobId).subscribe({
+          next: () => {
+            this.toast.success('Job deleted successfully');
+            this.getAllJobs();
+          },
+          error: (error) => {
+            this.toast.error('Failed to delete job');
+          }
+        });
+      }
+    });
   }
 
 }

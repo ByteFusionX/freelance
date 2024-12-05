@@ -15,6 +15,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
+            isDeleted: { $ne: true },
             $and: [
                 {
                     $or: [
@@ -223,7 +224,9 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
         }
 
         const jobTotal: { total: number }[] = await jobModel.aggregate([
-
+            {
+                $match: { isDeleted: { $ne: true } } 
+            },
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
@@ -277,6 +280,9 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
 
         const customers = await jobModel.aggregate([
             {
+                $match: { isDeleted: { $ne: true } }
+            },
+            {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotaion' }
             },
             {
@@ -313,5 +319,35 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
         return res.status(204).json()
     } catch (error) {
         next(error)
+    }
+}
+
+export const deleteJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const jobId = req.params.id;
+        
+        // Check if job exists and isn't already deleted
+        const job = await jobModel.findOne({
+            _id: jobId,
+            isDeleted: { $ne: true }
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found or already deleted'
+            });
+        }
+
+        // Soft delete the job
+        await jobModel.findByIdAndUpdate(jobId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Job deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }

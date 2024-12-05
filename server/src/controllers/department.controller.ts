@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import Department from '../models/department.model'
-import Enquiry from '../models/enquiry.model'
 import Employee from '../models/employee.model'
 import internalDepartment from "../models/internal.department";
 const { ObjectId } = require('mongodb')
@@ -287,14 +286,6 @@ export const deleteDepartment = async (req: Request, res: Response, next: NextFu
 
         if (!department) {
             return res.status(404).json({ message: 'Department not found' });
-        }
-
-        // Check if department has associated enquiries
-        const hasEnquiries = await Enquiry.exists({ department: departmentId });
-        if (hasEnquiries) {
-            return res.status(400).json({
-                message: 'Cannot delete department with existing enquiries'
-            });
         }
 
         // Delete the department
