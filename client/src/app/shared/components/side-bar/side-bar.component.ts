@@ -7,7 +7,6 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { Privileges } from '../../interfaces/employee.interface';
-import { AnnouncementService } from 'src/app/core/services/announcement/announcement.service';
 import { Observable, Subscription } from 'rxjs';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { NotificationCounts } from '../../interfaces/notification.interface';

@@ -9,6 +9,7 @@ import quotationModel from "../models/quotation.model";
 import categoryModel, { UserRole } from "../models/category.model";
 import departmentModel from "../models/department.model";
 import { calculateCostPricePipe, calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
+import { CostExplorer } from "aws-sdk";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -507,9 +508,11 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         });
 
         const dealSheetCount = await quotationModel.countDocuments({
+            "dealData.status": "pending",
             "dealData.seenByApprover": false,
         });
-        
+
+
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,

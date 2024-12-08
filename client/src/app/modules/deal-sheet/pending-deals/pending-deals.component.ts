@@ -22,7 +22,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./pending-deals.component.css']
 })
 export class PendingDealsComponent {
-  @ViewChildren('quoteItem') quoteItems!: QueryList<ElementRef>;
+  @ViewChildren('dealItem') dealItem!: QueryList<ElementRef>;
 
   userId!: string | undefined;
   selectedFile!: string | undefined;
@@ -68,9 +68,9 @@ export class PendingDealsComponent {
   }
 
   ngAfterViewInit() {
-    this.quoteItems.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.dealItem.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
       setTimeout(() => {
-        this.quoteItems.forEach(item => this.observeJob(item));
+        this.dealItem.forEach(row => this.observeJob(row));
       }, 100);
     });
   }
@@ -128,8 +128,8 @@ export class PendingDealsComponent {
 
   observeAllQuotes() {
     setTimeout(() => {
-      this.quoteItems.forEach(item => {
-        this.observeJob(item)
+      this.dealItem.forEach((row) => {
+        this.observeJob(row);
       });
     }, 100);
   }
@@ -140,22 +140,28 @@ export class PendingDealsComponent {
         if (entry.isIntersecting) {
           const quoteId = entry.target.getAttribute('id');
           if (quoteId && this.notViewedDealIds.has(quoteId)) {
-            this.markQuoteAsViewed(quoteId)
+            this.markQuoteAsViewed(quoteId);
             this.notViewedDealIds.delete(quoteId);
           }
           observer.unobserve(entry.target);
         }
       });
-    }, { root: null, rootMargin: '0px', threshold: 1.0 });
-
+    }, { root: null, rootMargin: '0px', threshold: 0.1 });
     if (element?.nativeElement) {
       observer.observe(element.nativeElement);
     }
-  }
+}
 
   markQuoteAsViewed(quoteIds: string) {
-    this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe();
-    this._notificationService.decrementNotificationCount('dealSheet', 1)
+    this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        console.log(`Successfully marked ${quoteIds} as viewed`);
+        this._notificationService.decrementNotificationCount('dealSheet', 1);
+      },
+      error: (err) => {
+        console.error(`Error marking ${quoteIds} as viewed:`, err);
+      }
+    });
   }
 
   onPreviewPdf(quotedData: getQuotatation) {
