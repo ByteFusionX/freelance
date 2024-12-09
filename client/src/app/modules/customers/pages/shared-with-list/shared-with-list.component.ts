@@ -6,6 +6,7 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { ToastrService } from 'ngx-toastr';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-shared-with-list',
@@ -14,13 +15,22 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class SharedWithListComponent {
 
+  userId!: string | undefined;
   constructor(
     private dialogRef: MatDialogRef<SharedWithListComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { sharedWith: getEmployee[], customerId: string },
     private dialog: MatDialog,
     private customerService: CustomerService,
+    private _employeeService: EmployeeService,
     private toaster: ToastrService
   ) { }
+
+  ngOnInit() {
+    this._employeeService.employeeData$.subscribe((res) => {
+      this.userId = res?._id
+    })
+    console.log(this.data.sharedWith)
+  }
 
   stopSharing(employeeId?: string) {
     const confirmation = this.dialog.open(ConfirmationDialogComponent, {

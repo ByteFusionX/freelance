@@ -20,6 +20,8 @@ export interface getCustomer {
     customerEmailId: string;
     contactNo: number;
     customerType:string;
+    createdBy:string;
+    sharedWith:string[];
 }
 
 export interface getFilteredCustomer {

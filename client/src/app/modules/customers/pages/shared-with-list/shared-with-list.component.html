@@ -19,18 +19,16 @@
           <ul class="divide-y divide-gray-200">
             <li
               *ngFor="let employee of data.sharedWith"
-              class="py-4 flex items-center justify-between"
+              class="py-4 flex items-center justify-between border border-gray-200 rounded px-4"
             >
               <!-- Employee Details -->
               <div>
                 <p class="font-medium text-gray-800">
                   {{ employee.firstName }} {{ employee.lastName }}
                 </p>
-                <p class="text-sm text-gray-500">{{ employee.designation }}</p>
-                <p class="text-sm text-gray-500">{{ employee.email }}</p>
               </div>
               <!-- Stop Sharing Button -->
-              <button
+              <button *ngIf="employee._id !== userId"
                 class="bg-red-500 text-white text-sm px-4 py-2 rounded-md shadow-md transition hover:bg-red-600"
                 (click)="stopSharing(employee._id)"
               >

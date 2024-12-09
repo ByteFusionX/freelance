@@ -59,7 +59,8 @@ import {
   heroArrowUturnLeft,
   heroChartBar,
   heroArrowUpTray,
-  heroDocument
+  heroDocument,
+  heroShare
 } from '@ng-icons/heroicons/outline';
 
 import { heroBellSolid } from '@ng-icons/heroicons/solid'
@@ -126,7 +127,8 @@ import { heroBellSolid } from '@ng-icons/heroicons/solid'
       heroArrowUturnLeft,
       heroChartBar,
       heroArrowUpTray,
-      heroDocument
+      heroDocument,
+      heroShare
     }),
   ],
   exports: [NgIconsModule]

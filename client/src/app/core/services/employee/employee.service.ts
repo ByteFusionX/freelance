@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, filter, Observable, switchMap } from 'rxjs';
 import { CreateEmployee, FilterEmployee, GetCategory, getEmployee, getEmployeeByID, Target } from 'src/app/shared/interfaces/employee.interface';
 import { login } from 'src/app/shared/interfaces/login';
 import { environment } from 'src/environments/environment';
@@ -22,6 +22,20 @@ export class EmployeeService {
 
   getEmployees(filterData: FilterEmployee): Observable<{ total: number, employees: getEmployee[] }> {
     return this.http.post<{ total: number, employees: getEmployee[] }>(`${this.api}/employee/get`, filterData)
+  }
+
+  getEmployeesForCustomerTransfer(customerId: string): Observable<getEmployee[]> {
+    return combineLatest([this.employeeData$]).pipe(
+      filter(([employee]) => !!employee), // Ensure the employee data is defined
+      switchMap(([employee]) =>
+        this.http.get<getEmployee[]>(`${this.api}/employee/no-customer-access/${customerId}/${employee!._id}`).pipe(
+          catchError(error => {
+            console.error('Error fetching employees for customer transfer:', error);
+            throw error;
+          })
+        )
+      )
+    );
   }
 
   createEmployees(employeeData: CreateEmployee): Observable<getEmployee> {

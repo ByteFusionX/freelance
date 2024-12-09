@@ -2,24 +2,33 @@ import { Request, Response, NextFunction } from "express";
 import Customer from '../models/customer.model';
 import Employee from '../models/employee.model';
 import { getAllReportedEmployees } from "../common/util";
+import employeeModel from "../models/employee.model";
 const { ObjectId } = require('mongodb')
 
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req.params.userId;
-        
-        const customers = await Customer.find(userId ? { createdBy: userId } : {}).sort({ createdDate: -1 }).populate('department createdBy')
+        const userId = new ObjectId(req.params.userId);
+
+        // Check if user is either the creator or in the sharedWith array
+        const customers = await Customer.find({
+            $or: [
+                { createdBy: userId },  // User is the creator
+                { sharedWith: { $in: [userId] } }  // User is in the sharedWith array
+            ]
+        })
+            .sort({ createdDate: -1 })
+            .populate('department createdBy');
 
         if (customers.length > 0) {
             return res.status(200).json(customers);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        console.log(error)
-next(error)
+        console.log(error);
+        next(error);
     }
-}
+};
 
 export const getFilteredCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -29,9 +38,6 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
 
 
         let searchRegex = search.split('').join('\\s*');
-        let fullNameRegex = new RegExp(searchRegex, 'i');
-        console.log(search)
-
         let matchFilters = {
             $or: [
                 { companyName: { $regex: search, $options: 'i' } },
@@ -51,16 +57,29 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
 
         switch (access) {
             case 'created':
-                accessFilter = { createdBy: new ObjectId(userId) };
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { sharedWith: { $in: [new ObjectId(userId)] } }
+                    ]
+                };
                 break;
             case 'reported':
-
-
-                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { sharedWith: { $in: [new ObjectId(userId)] } }
+                    ]
+                };
                 break;
             case 'createdAndReported':
                 reportedToUserIds.push(new ObjectId(userId));
-                accessFilter = { createdBy: { $in: reportedToUserIds } };
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { sharedWith: { $in: [new ObjectId(userId)] } }
+                    ]
+                };
                 break;
 
             default:
@@ -87,44 +106,114 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                 }
             })
 
+        const employeeAccess = await employeeModel
+            .findOne({ _id: new ObjectId(userId) })
+            .populate('category') as any;
+
+        let empAccessFilter = {};
+
+        switch (employeeAccess.category.privileges.employee.viewReport) {
+            case 'reported':
+                empAccessFilter = { reportingTo: new ObjectId(userId) };
+                break;
+            case 'created':
+                empAccessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'createdAndReported':
+                empAccessFilter = {
+                    $or: [
+                        { reportingTo: new ObjectId(userId) },
+                        { createdBy: new ObjectId(userId) },
+                    ]
+                };
+                break;
+            default:
+                break;
+        }
+
+        // Fetch all accessible employees
+        const accessibleEmployees = await Employee.aggregate([
+            { $match: empAccessFilter },
+            { $project: { _id: 1 } }, // Only keep the employee IDs
+        ]);
+
+        const accessibleEmployeeIds = accessibleEmployees.map(emp => emp._id);
+
+        // Aggregation pipeline for customers
         const customerData = await Customer.aggregate([
             {
                 $match: filters,
             },
             {
-                $skip: skipNum
+                $skip: skipNum,
             },
             {
-                $limit: row
+                $limit: row,
             },
             {
-                $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department',
+                },
             },
             {
-                $lookup: { from: 'employees', localField: 'createdBy', foreignField: '_id', as: 'createdBy' }
+                $lookup: {
+                    from: 'employees',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                },
             },
             {
-                $unwind: "$department"
+                $lookup: {
+                    from: 'employees',
+                    localField: 'sharedWith',
+                    foreignField: '_id',
+                    as: 'sharedWith',
+                },
             },
             {
-                $unwind: "$createdBy"
+                $addFields: {
+                    sharedWith: {
+                        $filter: {
+                            input: "$sharedWith",
+                            as: "employee",
+                            cond: { $in: ["$$employee._id", accessibleEmployeeIds] },
+                        },
+                    },
+                },
             },
             {
-                $unwind: "$contactDetails"
+                $unwind: {
+                    path: "$sharedWith",
+                    preserveNullAndEmptyArrays: true,
+                },
+                
+            },
+            {
+                $unwind: "$department",
+            },
+            {
+                $unwind: "$createdBy",
+            },
+            {
+                $unwind: "$contactDetails",
             },
             {
                 $lookup: {
                     from: 'departments',
                     localField: 'contactDetails.department',
                     foreignField: '_id',
-                    as: 'contactDetails.department'
-                }
+                    as: 'contactDetails.department',
+                },
             },
             {
                 $unwind: {
                     path: "$contactDetails.department",
-                    preserveNullAndEmptyArrays: true
-                }
+                    preserveNullAndEmptyArrays: true,
+                },
             },
             {
                 $group: {
@@ -137,20 +226,23 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                     customerEmailId: { $first: "$customerEmailId" },
                     contactNo: { $first: "$contactNo" },
                     createdBy: { $first: "$createdBy" },
+                    sharedWith: { $push: "$sharedWith" },
                     createdDate: { $first: "$createdDate" },
                     contactDetails: { $push: "$contactDetails" },
                 },
             },
             {
-                $sort: { createdDate: 1 }
+                $sort: { createdDate: 1 },
             },
         ]);
+
+
         if (!customerData || !total) return res.status(204).json({ err: 'No enquiry data found' })
         return res.status(200).json({ total: total, customers: customerData })
 
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 
@@ -243,7 +335,7 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         return res.status(204).json()
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 
@@ -282,7 +374,84 @@ export const getCustomerCreators = async (req: Request, res: Response, next: Nex
         return res.status(204).json()
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
+    }
+}
+
+export const shareOrTransferCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customerId, employees, type } = req.body;
+        console.log(req.body)
+
+        // Validate the request body
+        if (!customerId || !employees || !type) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const customer = await Customer.findById(customerId);
+
+        if (!customer) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        if (type == "Transfer") {
+            // Transfer ownership to the first employee in the array
+            const newOwner = employees;
+            if (!newOwner) {
+                return res
+                    .status(400)
+                    .json({ message: "Employee ID required for transfer" });
+            }
+            customer.createdBy = newOwner; // Update ownership
+            customer.sharedWith.filter((res) => res !== newOwner)
+        } else if (type == "Share") {
+            // Share the customer with specified employees
+            customer.sharedWith = [
+                ...new Set([...customer.sharedWith, ...employees]), // Avoid duplicates
+            ];
+        } else {
+            return res.status(400).json({ message: "Invalid type. Use 'transfer' or 'share'" });
+        }
+        const savedCustomer = await customer.save();
+
+        // Populate both `createdBy` and `sharedWith`
+        const newCustomer = await Customer.findById(savedCustomer._id)
+            .populate('createdBy') // Populate single reference
+            .populate('sharedWith'); // Populate array of references
+
+        console.log(newCustomer);
+
+        res.status(200).json(newCustomer);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+}
+
+export const stopSharingCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { customerId, employeeId } = req.body;
+
+        // Validate the request body
+        if (!customerId || !employeeId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const customer = await Customer.findById(customerId);
+
+        if (!customer) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        // Remove the employeeId from the sharedWith array
+        customer.sharedWith = customer.sharedWith.filter(id => id.toString() !== employeeId);
+
+        const updatedCustomer = await customer.save();
+
+        res.status(200).json(updatedCustomer);
+    } catch (error) {
+        console.error(error);
+        next(error);
     }
 }
 
@@ -307,7 +476,7 @@ export const createCustomer = async (req: Request, res: Response, next: NextFunc
         return res.status(502).json()
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 
@@ -333,7 +502,7 @@ export const editCustomer = async (req: Request, res: Response, next: NextFuncti
         return res.status(200).json(updatedCustomer)
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 

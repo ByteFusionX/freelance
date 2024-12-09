@@ -1,13 +1,16 @@
 import { Router } from "express";
 
-import { createCustomer, getAllCustomers, getCustomerCreators, getFilteredCustomers, editCustomer, getCustomerByCustomerId } from "../controllers/customer.controller";
+import { createCustomer, getAllCustomers, getCustomerCreators, getFilteredCustomers, editCustomer, getCustomerByCustomerId, shareOrTransferCustomer, stopSharingCustomer } from "../controllers/customer.controller";
 const cusRouter = Router()
 
+cusRouter.get('/creators',getCustomerCreators)
 cusRouter.get('/:userId',getAllCustomers)
 cusRouter.get('/view/get/:customerId', getCustomerByCustomerId)
 cusRouter.post('/',createCustomer)
 cusRouter.post('/get',getFilteredCustomers)
-cusRouter.get('/creators',getCustomerCreators)
 cusRouter.patch('/edit', editCustomer)
+cusRouter.patch('/shareOrTransferCustomer', shareOrTransferCustomer)
+cusRouter.patch('/stopSharing', stopSharingCustomer)
+
 
 export default cusRouter;

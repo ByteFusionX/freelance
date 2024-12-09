@@ -51,7 +51,9 @@ export class EditCategoryComponent {
       }),
       customer: this._fb.group({
         viewReport: 'none',
-        create: [false]
+        create: [false],
+        share: [false],
+        transfer: [false],
       }),
       enquiry: this._fb.group({
         viewReport: 'none',

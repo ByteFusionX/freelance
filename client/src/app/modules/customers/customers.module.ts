@@ -16,6 +16,9 @@ import { CustomerEditComponent } from './pages/customer-edit/customer-edit.compo
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { pipeModule } from 'src/app/shared/pipes/pipe.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ShareTransferCustomerComponent } from './pages/share-transfer-customer/share-transfer-customer.component';
+import { SharedWithListComponent } from './pages/shared-with-list/shared-with-list.component';
 
 
 @NgModule({
@@ -24,7 +27,9 @@ import { pipeModule } from 'src/app/shared/pipes/pipe.module';
     CustomersListComponent,
     CreateCustomerDialog,
     CustomerViewComponent,
-    CustomerEditComponent
+    CustomerEditComponent,
+    ShareTransferCustomerComponent,
+    SharedWithListComponent
   ],
   imports: [
     CommonModule,
@@ -38,7 +43,8 @@ import { pipeModule } from 'src/app/shared/pipes/pipe.module';
     FormsModule,
     NgSelectModule,
     PaginationComponent,
-    pipeModule
+    pipeModule,
+    MatTooltipModule
   ]
 })
 export class CustomersModule { }

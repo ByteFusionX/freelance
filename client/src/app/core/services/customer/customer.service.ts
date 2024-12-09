@@ -25,6 +25,10 @@ export class CustomerService {
     return this.http.patch<getCustomer>(`${this.apiUrl}/customer/edit`, data)
   }
 
+  shareOrTransferCustomer(data: {employees:string[],customerId:string,type:string}): Observable<getCustomer> {
+    return this.http.patch<getCustomer>(`${this.apiUrl}/customer/shareOrTransferCustomer`, data)
+  }
+
   getCustomerCreators(): Observable<getCreators[]> {
     return this.http.get<getCreators[]>(`${this.apiUrl}/customer/creators`)
   }
@@ -36,5 +40,9 @@ export class CustomerService {
   getCustomerByClientRef(employeeId: string,access?:string,userId?:string): Observable<getCustomerByID> {
     return this.http.get<getCustomerByID>(`${this.apiUrl}/customer/view/get/${employeeId}?access=${access}&userId=${userId}`)
   } 
+
+  stopSharingCustomer(data: { customerId: string, employeeId: string }): Observable<getCustomer> {
+    return this.http.patch<getCustomer>(`${this.apiUrl}/customer/stopSharing`, data);
+  }
 
 }

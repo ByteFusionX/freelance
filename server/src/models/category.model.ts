@@ -24,6 +24,8 @@ export interface Privileges {
   customer: {
     viewReport: string;
     create: boolean;
+    share: boolean;
+    transfer: boolean;
   };
   enquiry: {
     viewReport: string;
