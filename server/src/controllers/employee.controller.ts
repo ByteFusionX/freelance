@@ -11,6 +11,7 @@ import departmentModel from "../models/department.model";
 import { calculateCostPricePipe, calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
 import customerModel from "../models/customer.model";
 import employeeModel from "../models/employee.model";
+import { CostExplorer } from "aws-sdk";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -634,9 +635,10 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         });
 
         const dealSheetCount = await quotationModel.countDocuments({
+            "dealData.status": "pending",
             "dealData.seenByApprover": false,
         });
-
+        
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,

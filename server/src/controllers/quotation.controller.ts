@@ -509,16 +509,12 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
 
 export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const quoteIds: string = req.body.quoteIds;
+        const quoteId: string = req.body.quoteIds;
 
-        const result = await Quotation.updateMany(
-            { _id: quoteIds },
+        const result = await Quotation.findByIdAndUpdate(
+            { _id: new ObjectId(quoteId) },
             { $set: { 'dealData.seenByApprover': true } },
         );
-
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: 'No Deal found' });
-        }
 
         res.status(200).json({ message: 'Deal marked as seen', result });
     } catch (error) {
