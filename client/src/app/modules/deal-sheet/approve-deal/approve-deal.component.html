@@ -125,47 +125,47 @@
 
         </div>
 
-
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4">
-            <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
-                <tr>
-                    <th scope="col" class=" border-l border-r border-t px-2">
+<div class="max-h-[450px] overflow-y-scroll">
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4 border-collapse">
+            <thead class="text-xs text-gray-700 uppercase bg-violet-50  sticky top-0 border">
+                <tr class="border">
+                    <th scope="col" class=" border px-2">
                         Sl/<br>No.
 
                     </th>
-                    <th scope="col" class=" w-96 border-l border-r border-t " key="itemDetail">
+                    <th scope="col" class=" w-96 border " key="itemDetail">
                         <div class="px-6 py-3">Item Details</div>
 
                     </th>
-                    <th scope="col" class=" border-l border-r border-t   text-center min-w-[66px]">
+                    <th scope="col" class=" border   text-center min-w-[66px]">
                         <div class="px-2 py-3">QTY</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center">
+                    <th scope="col" class="border   text-center">
                         <div class="px-6 py-3">Unit Selling Price</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center">
+                    <th scope="col" class="border   text-center">
                         <div class="px-6 py-3">Total Selling Price</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center">
+                    <th scope="col" class="border   text-center">
                         <div class="px-6 py-3">Unit Cost</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center">
+                    <th scope="col" class="border   text-center">
                         <div class="px-6 py-3">Total Cost</div>
                     </th>
 
-                    <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+                    <th scope="col" class="border   text-center min-w-[90px]">
                         <div class="px-2 py-3">Supplier Name</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+                    <th scope="col" class="border   text-center min-w-[90px]">
                         <div class="px-2 py-3">Email</div>
                     </th>
-                    <th scope="col" class="border-l border-r border-t   text-center min-w-[90px]">
+                    <th scope="col" class="border   text-center min-w-[90px]">
                         <div class="px-2 py-3">Phone No.</div>
                     </th>
 
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 <ng-container *ngFor="let item of data.quoteItems; let i = index">
                     <ng-container *ngIf="checkAtLeastOneDealSelected(item)">
                         <tr>
@@ -238,6 +238,7 @@
             </tbody>
 
         </table>
+    </div>
         <div class="mb-4" *ngIf="data?.quoteData?.dealData?.attachments?.length">
             <h3 class="text-md font-semibold">Attachements</h3>
             <div class="p-2 bg-gray-100 rounded "
