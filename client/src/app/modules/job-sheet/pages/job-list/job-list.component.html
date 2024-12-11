@@ -150,6 +150,10 @@
                                     <p class="w-24 truncate ..." matTooltip="{{file.originalname}}"
                                         matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}
                                     </p>
+                                    <button class="w-5 h-5 border rounded-full flex justify-center items-center mr-2"
+                                        (click)="onViewPDF(file)">
+                                        <ng-icon class="text-black" name="heroEye"></ng-icon>
+                                    </button>
                                     <button class="w-5 h-5 border rounded-full flex justify-center items-center"
                                         (click)="onDownloadClicks(file)">
                                         <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>

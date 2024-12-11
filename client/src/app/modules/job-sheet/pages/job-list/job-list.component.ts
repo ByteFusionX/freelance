@@ -18,11 +18,13 @@ import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-p
 import { LoadingBarService } from '@ngx-loading-bar/core';
 import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css'],
-  providers:[NumberFormatterPipe]
+  providers: [NumberFormatterPipe]
 })
 export class JobListComponent {
   selectedDateFormat: string = "monthly";
@@ -219,18 +221,18 @@ export class JobListComponent {
       return;
     });
 
-    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
-      if(cost.type == 'Additional Cost'){
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
         priceDetails.totalCost += cost.value
-      }else if(cost.type === 'Supplier Discount'){
+      } else if (cost.type === 'Supplier Discount') {
         priceDetails.totalCost -= cost.value
-      } else if(cost.type === 'Customer Discount'){
+      } else if (cost.type === 'Customer Discount') {
         priceDetails.totalSellingPrice -= cost.value
       } else {
         priceDetails.totalCost += cost.value
       }
     })
-    
+
     priceDetails.totalSellingPrice -= quoteData.totalDiscount;
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
@@ -241,6 +243,44 @@ export class JobListComponent {
         width: '1200x'
       });
   }
+
+  onViewPDF(file: any) {
+    // Check if the file is a PDF
+    if (file.fileName && file.fileName.toLowerCase().endsWith('.pdf')) {
+      this.subscriptions.add(
+        this._jobService.downloadFile(file.fileName)
+          .subscribe({
+            next: (event) => {
+              if (event.type === HttpEventType.Response) {
+                const fileContent: Blob = new Blob([event['body']], { type: 'application/pdf' });
+  
+                // Create an object URL for the PDF blob
+                const fileURL = URL.createObjectURL(fileContent);
+  
+                // Open the PDF in a new tab
+                window.open(fileURL, '_blank');
+  
+                // Optionally revoke the object URL after some time
+                setTimeout(() => {
+                  URL.revokeObjectURL(fileURL);
+                }, 10000);
+              }
+            },
+            error: (error) => {
+              if (error.status === 404) {
+                this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.');
+              } else {
+                this.toast.error('An error occurred while trying to view the PDF. Please try again later.');
+              }
+            }
+          })
+      );
+    } else {
+      // If the file is not a PDF, show a toaster notification
+      this.toast.warning('This file type is not supported for viewing. Please download and view the file.');
+    }
+  }
+
 
   onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
     this.loader.start()
