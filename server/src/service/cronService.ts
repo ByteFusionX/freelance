@@ -30,7 +30,8 @@ const processEmployeeEvent = async (element, eventType) => {
             description: eventDescription,
             date: today,
             celeb: true,
-            viewedBy: []
+            viewedBy: [],
+            category:['all']
         });
 
 

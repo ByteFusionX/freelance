@@ -40,7 +40,6 @@ const AnnouncementSchema = new Schema<announcment>({
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'Employee',
-        required: true
     }
 });
 
