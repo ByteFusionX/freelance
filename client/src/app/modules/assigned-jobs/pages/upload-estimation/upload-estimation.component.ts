@@ -115,6 +115,7 @@ export class UploadEstimationComponent {
       quantity: ['', Validators.required],
       unitCost: ['', Validators.required],
       profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+      unitPrice: [''],
       availability: ['', Validators.required]
     });
   }
