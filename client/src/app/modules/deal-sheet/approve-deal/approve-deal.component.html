@@ -125,129 +125,149 @@
 
         </div>
 
-<div class="max-h-[450px] overflow-y-scroll">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4 border-collapse">
-            <thead class="text-xs text-gray-700 uppercase bg-violet-50  sticky top-0 border">
-                <tr class="border">
-                    <th scope="col" class=" border px-2">
-                        Sl/<br>No.
+        <div class="max-h-[450px] overflow-y-scroll">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4 border-collapse">
+                <thead class="text-xs text-gray-700 uppercase bg-violet-50  sticky top-0 border">
+                    <tr class="border">
+                        <th scope="col" class=" border px-2">
+                            Sl/<br>No.
 
-                    </th>
-                    <th scope="col" class=" w-96 border " key="itemDetail">
-                        <div class="px-6 py-3">Item Details</div>
+                        </th>
+                        <th scope="col" class=" w-96 border " key="itemDetail">
+                            <div class="px-6 py-3">Item Details</div>
 
-                    </th>
-                    <th scope="col" class=" border   text-center min-w-[66px]">
-                        <div class="px-2 py-3">QTY</div>
-                    </th>
-                    <th scope="col" class="border   text-center">
-                        <div class="px-6 py-3">Unit Selling Price</div>
-                    </th>
-                    <th scope="col" class="border   text-center">
-                        <div class="px-6 py-3">Total Selling Price</div>
-                    </th>
-                    <th scope="col" class="border   text-center">
-                        <div class="px-6 py-3">Unit Cost</div>
-                    </th>
-                    <th scope="col" class="border   text-center">
-                        <div class="px-6 py-3">Total Cost</div>
-                    </th>
+                        </th>
+                        <th scope="col" class=" border   text-center min-w-[66px]">
+                            <div class="px-2 py-3">QTY</div>
+                        </th>
+                        <th scope="col" class="border   text-center">
+                            <div class="px-6 py-3">Unit Selling Price</div>
+                        </th>
+                        <th scope="col" class="border   text-center">
+                            <div class="px-6 py-3">Total Selling Price</div>
+                        </th>
+                        <th scope="col" class="border   text-center">
+                            <div class="px-6 py-3">Unit Cost</div>
+                        </th>
+                        <th scope="col" class="border   text-center">
+                            <div class="px-6 py-3">Total Cost</div>
+                        </th>
 
-                    <th scope="col" class="border   text-center min-w-[90px]">
-                        <div class="px-2 py-3">Supplier Name</div>
-                    </th>
-                    <th scope="col" class="border   text-center min-w-[90px]">
-                        <div class="px-2 py-3">Email</div>
-                    </th>
-                    <th scope="col" class="border   text-center min-w-[90px]">
-                        <div class="px-2 py-3">Phone No.</div>
-                    </th>
+                        <th scope="col" class="border   text-center min-w-[90px]">
+                            <div class="px-2 py-3">Supplier Name</div>
+                        </th>
+                        <th scope="col" class="border   text-center min-w-[90px]">
+                            <div class="px-2 py-3">Email</div>
+                        </th>
+                        <th scope="col" class="border   text-center min-w-[90px]">
+                            <div class="px-2 py-3">Phone No.</div>
+                        </th>
 
-                </tr>
-            </thead>
-            <tbody >
-                <ng-container *ngFor="let item of data.quoteItems; let i = index">
-                    <ng-container *ngIf="checkAtLeastOneDealSelected(item)">
-                        <tr>
-                          <td colspan="10" class="border px-6 py-2 bg-gray-50">
-                            <div class="flex justify-center items-center text-md text-black font-medium uppercase">
-                              {{ item?.itemName }}
-                            </div>
-                          </td>
-                        </tr>
-                    
-                        <ng-container *ngFor="let detail of item?.itemDetails; let j = index">
-                          <tr class="border-b text-gray-800" *ngIf="detail.dealSelected">
-                            <td class="px-2 border text-center">
-                              {{ j + 1 }}
-                            </td>
-                            <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
-                              <div [innerHTML]="detail.detail | parseBracketsText | parseBoldText"></div>
-                            </th>
-                            <td class="px-2 border text-center">
-                              {{ detail.quantity }}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                              {{ (detail.unitCost / (1 - (detail.profit / 100))) | numberFormatter }}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                              {{ ((detail.unitCost / (1 - (detail.profit / 100))) * detail.quantity) | numberFormatter }}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                              {{ detail.unitCost | numberFormatter }}
-                            </td>
-                            <td class="py-2 border text-center">
-                              {{ (detail.quantity * detail.unitCost) | numberFormatter }}
-                            </td>
-                            <td class="py-2 border text-center">
-                              {{ detail.supplierName }}
-                            </td>
-                            <td class="py-2 border text-center px-2">
-                              {{ detail.email }}
-                            </td>
-                            <td class="py-2 border text-center  px-2">
-                              {{ detail.phoneNo }}
-                            </td>
-                          </tr>
-                        </ng-container>
-                      </ng-container>
-                </ng-container>
-                <tr class="border-none text-gray-800">
-                    <td colspan="10" class="px-6 py-2 "></td>
-                </tr>
-                <ng-container *ngFor="let cost of data.quoteData.dealData.additionalCosts;let i = index">
-                    <tr class=" border-b text-gray-800 mt-4">
-                        
-                        <td *ngIf="cost.type" colspan="2" class="px-6 border bg-gray-50 py-2 whitespace-pre-line font-semibold">
-                            {{ cost?.type }}
-                        </td>
-                        <td colspan="1" class="border px-6 py-2 bg-gray-50" *ngIf="!cost.type">
-
-                        </td>
-                        <td [attr.colspan]="cost.type ? (cost.type === 'Customer Discount' ? 2 : 4) : 5" class="border px-6 py-2">
-                            {{ cost?.name }}
-                        </td>
-                        <td colspan="1" class=" border py-2 text-center">
-                            {{ cost.value }}
-                        </td>
-                        <td [attr.colspan]="cost.type ? (cost.type === 'Customer Discount' ? 5 : 3) : 2"  class="border px-6 py-2 bg-gray-50">
-
-                        </td>
                     </tr>
-                </ng-container>
-            </tbody>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let item of data.quoteItems; let i = index">
+                        <ng-container *ngIf="checkAtLeastOneDealSelected(item)">
+                            <tr>
+                                <td colspan="10" class="border px-6 py-2 bg-gray-50">
+                                    <div
+                                        class="flex justify-center items-center text-md text-black font-medium uppercase">
+                                        {{ item?.itemName }}
+                                    </div>
+                                </td>
+                            </tr>
 
-        </table>
-    </div>
-        <div class="mb-4" *ngIf="data?.quoteData?.dealData?.attachments?.length">
-            <h3 class="text-md font-semibold">Attachements</h3>
-            <div class="p-2 bg-gray-100 rounded "
-                *ngFor="let file of data?.quoteData?.dealData?.attachments;let i=index">
-                <p class="text-sm w-64 flex  items-center"><span (click)="onDownloadClicks(file)"
-                        class="hover:underline hover:text-purple-600 hover:cursor-pointer max-w-[13rem] truncate"
-                        [matTooltip]="'Download File'" matTooltipPosition="below"
-                        matTooltipClass="mat-tooltip">{{file.originalname}}</span>
-                </p>
+                            <ng-container *ngFor="let detail of item?.itemDetails; let j = index">
+                                <tr class="border-b text-gray-800" *ngIf="detail.dealSelected">
+                                    <td class="px-2 border text-center">
+                                        {{ j + 1 }}
+                                    </td>
+                                    <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                        <div [innerHTML]="detail.detail | parseBracketsText | parseBoldText"></div>
+                                    </th>
+                                    <td class="px-2 border text-center">
+                                        {{ detail.quantity }}
+                                    </td>
+                                    <td class="px-2 py-2 border text-center">
+                                        {{ (detail.unitCost / (1 - (detail.profit / 100))) | numberFormatter }}
+                                    </td>
+                                    <td class="px-2 py-2 border text-center">
+                                        {{ ((detail.unitCost / (1 - (detail.profit / 100))) * detail.quantity) |
+                                        numberFormatter }}
+                                    </td>
+                                    <td class="px-2 py-2 border text-center">
+                                        {{ detail.unitCost | numberFormatter }}
+                                    </td>
+                                    <td class="py-2 border text-center">
+                                        {{ (detail.quantity * detail.unitCost) | numberFormatter }}
+                                    </td>
+                                    <td class="py-2 border text-center">
+                                        {{ detail.supplierName }}
+                                    </td>
+                                    <td class="py-2 border text-center px-2">
+                                        {{ detail.email }}
+                                    </td>
+                                    <td class="py-2 border text-center  px-2">
+                                        {{ detail.phoneNo }}
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+                    <tr class="border-none text-gray-800">
+                        <td colspan="10" class="px-6 py-2 "></td>
+                    </tr>
+                    <ng-container *ngFor="let cost of data.quoteData.dealData.additionalCosts;let i = index">
+                        <tr class=" border-b text-gray-800 mt-4">
+
+                            <td *ngIf="cost.type" colspan="2"
+                                class="px-6 border bg-gray-50 py-2 whitespace-pre-line font-semibold">
+                                {{ cost?.type }}
+                            </td>
+                            <td colspan="1" class="border px-6 py-2 bg-gray-50" *ngIf="!cost.type">
+
+                            </td>
+                            <td [attr.colspan]="cost.type ? (cost.type === 'Customer Discount' ? 2 : 4) : 5"
+                                class="border px-6 py-2">
+                                {{ cost?.name }}
+                            </td>
+                            <td colspan="1" class=" border py-2 text-center">
+                                {{ cost.value }}
+                            </td>
+                            <td [attr.colspan]="cost.type ? (cost.type === 'Customer Discount' ? 5 : 3) : 2"
+                                class="border px-6 py-2 bg-gray-50">
+
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+
+            </table>
+        </div>
+        <div class="mb-6" *ngIf="data?.quoteData?.dealData?.attachments?.length">
+            <h3 class="text-lg font-semibold text-gray-800">Attachments</h3>
+            <div *ngFor="let file of data?.quoteData?.dealData?.attachments; let i = index"
+                class="flex items-center gap-4 p-4 mt-2 bg-gray-50 border rounded-lg shadow-sm hover:bg-gray-100 transition">
+                <div class="flex-1 truncate">
+                    <p class="text-sm font-medium text-gray-700 truncate">
+                        <span class="hover:text-purple-600 hover:underline cursor-pointer truncate"
+                            [matTooltip]="'Download File'" matTooltipPosition="below" matTooltipClass="mat-tooltip">
+                            {{ file.originalname }}
+                        </span>
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <button
+                        class="w-8 h-8 flex justify-center items-center border border-gray-300 rounded-full hover:bg-gray-200 transition"
+                        (click)="onDownloadClicks(file)" aria-label="Download">
+                        <ng-icon class="text-gray-700" name="heroInboxArrowDown"></ng-icon>
+                    </button>
+                    <button
+                        class="w-8 h-8 flex justify-center items-center border border-gray-300 rounded-full hover:bg-gray-200 transition"
+                        (click)="onViewPDF(file)" aria-label="View PDF">
+                        <ng-icon class="text-gray-700" name="heroEye"></ng-icon>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
