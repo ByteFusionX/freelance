@@ -12,5 +12,4 @@ cusRouter.patch('/edit', editCustomer)
 cusRouter.patch('/shareOrTransferCustomer', shareOrTransferCustomer)
 cusRouter.patch('/stopSharing', stopSharingCustomer)
 
-
 export default cusRouter;

@@ -87,9 +87,8 @@ export class QuotationListComponent {
   ngOnInit() {
     this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
-    this.customers$ = this._customerService.getAllCustomers()
     this.departments$ = this._departetmentService.getDepartments()
-
+    
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -97,7 +96,7 @@ export class QuotationListComponent {
         this.getQuotations()
       })
     )
-    console.log(this.userId)
+    this.customers$ = this._customerService.getAllCustomers(this.userId)
 
   }
 

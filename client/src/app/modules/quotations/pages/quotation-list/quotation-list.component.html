@@ -85,7 +85,7 @@
                         <div class="mb-2">
                             <label for="customer" class="font-medium">Customer:</label>
                             <ng-select id="customer" [(ngModel)]="selectedCustomer" class=" filter"
-                                placeholder="Sales Person" appendTo="body" (change)="onfilterApplied()">
+                                placeholder="Customer" appendTo="body" (change)="onfilterApplied()">
                                 <ng-option *ngFor="let customer of customers$ | async"
                                     [value]="customer._id">{{customer.companyName}}</ng-option>
                             </ng-select>

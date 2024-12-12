@@ -5,30 +5,105 @@ import { getAllReportedEmployees } from "../common/util";
 import employeeModel from "../models/employee.model";
 const { ObjectId } = require('mongodb')
 
-
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = new ObjectId(req.params.userId);
 
-        // Check if user is either the creator or in the sharedWith array
-        const customers = await Customer.find({
-            $or: [
-                { createdBy: userId },  // User is the creator
-                { sharedWith: { $in: [userId] } }  // User is in the sharedWith array
-            ]
-        })
-            .sort({ createdDate: -1 })
-            .populate('department createdBy');
+        const employeeAccess = await employeeModel.findOne({ _id:new ObjectId(userId) }).populate('category') as any
 
-        if (customers.length > 0) {
-            return res.status(200).json(customers);
+
+        // Access Filter
+        let accessFilter = {};
+        const reportedToUserIds = await getAllReportedEmployees(userId);
+
+        switch (employeeAccess.category.privileges.customer.viewReport ) {
+            case 'created':
+                accessFilter = {
+                    $or: [
+                        { createdBy: new ObjectId(userId) },
+                        { sharedWith: { $in: [new ObjectId(userId)] } },
+                    ],
+                };
+                break;
+            case 'reported':
+                accessFilter = {
+                    $or: [
+                        { createdBy: { $in: reportedToUserIds } },
+                        { sharedWith: { $in: reportedToUserIds } },
+                    ],
+                };
+                break;
+            case 'createdAndReported':
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = {
+                    $or: [
+                        { createdBy: { $in: reportedToUserIds } },
+                        { sharedWith: { $in: reportedToUserIds } },
+                    ],
+                };
+                break;
+            default:
+                accessFilter = {};
+                break;
         }
-        return res.status(204).json();
+
+        // Combine Filters
+        const filters = accessFilter;
+
+        // Fetch Customers
+        const customers = await Customer.aggregate([
+            { $match: filters },
+            {
+                $lookup: {
+                    from: 'departments',
+                    localField: 'department',
+                    foreignField: '_id',
+                    as: 'department',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                },
+            },
+            {
+                $unwind: {
+                    path: '$department',
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $unwind: {
+                    path: '$createdBy',
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    companyName: 1,
+                    clientRef: 1,
+                    department: 1,
+                    createdBy: 1,
+                },
+            },
+            { $sort: { createdDate: -1 } },
+        ]);
+
+        if (!customers || customers.length === 0) {
+            return res.status(204).json({ message: 'No customers found' });
+        }
+
+        return res.status(200).json(customers);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         next(error);
     }
 };
+
 
 export const getFilteredCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
