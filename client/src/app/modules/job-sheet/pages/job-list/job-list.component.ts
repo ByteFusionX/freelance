@@ -74,7 +74,7 @@ export class JobListComponent {
     this.getAllJobs()
   }
 
-  selectedStatus!: number;
+  selectedStatus!: number | null;
 
   formData = this._fb.group({
     fromDate: new FormControl(),
@@ -126,7 +126,7 @@ export class JobListComponent {
       page: this.page,
       row: this.row,
       salesPerson: this.selectedEmployee,
-      status: this.selectedStatus,
+      status: this.selectedStatus as number,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
       access: access,
@@ -360,7 +360,7 @@ export class JobListComponent {
       search: this.searchQuery,
       page: this.page,
       row: this.row,
-      status: this.selectedStatus,
+      status: this.selectedStatus as number,
       salesPerson: this.selectedEmployee,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
@@ -427,6 +427,13 @@ export class JobListComponent {
       minimumFractionDigits,
       maximumFractionDigits
     });
+  }
+
+  clearFilter() {
+    this.searchQuery = ''; // Clear the search query
+    this.selectedEmployee = null; // Reset selected employee
+    this.selectedStatus = null; // Reset selected status
+    this.onfilterApplied(); // Call the filter applied function to reapply filters
   }
 
 

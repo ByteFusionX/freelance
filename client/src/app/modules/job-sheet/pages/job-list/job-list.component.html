@@ -44,7 +44,7 @@
                     </ng-icon>
                 </div>
             </div>
-                <div class="w-80 flex gap-2" (click)="handleNotClose($event)">
+                <div class="min-w-80 flex gap-2" (click)="handleNotClose($event)">
 
                     <div class="w-full">
                         <ng-select appNoLeadingSpace [(ngModel)]="selectedEmployee" class="filter-createdby"
@@ -58,6 +58,13 @@
                             (change)="onfilterApplied()">
                             <ng-option *ngFor="let status of status" [value]="status.value">{{status.value}}</ng-option>
                         </ng-select>
+                    </div>
+                    <div  class="w-full" *ngIf="searchQuery || selectedEmployee || selectedStatus">
+                        <button 
+                            class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs whitespace-nowrap"
+                            (click)="clearFilter()">
+                            x Clear All Filter
+                        </button>
                     </div>
                 </div>
 
