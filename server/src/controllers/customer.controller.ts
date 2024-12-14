@@ -88,6 +88,7 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
                     clientRef: 1,
                     department: 1,
                     createdBy: 1,
+                    contactDetails: 1
                 },
             },
             { $sort: { createdDate: -1 } },
