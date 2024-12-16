@@ -59,12 +59,18 @@
                                 {{quoteData.createdBy.firstName+' '+quoteData.createdBy.lastName}}
                             </td>
                         </tr>
-                        <tr class="border-b" *ngIf="quoteData.enqId">
-                            <td class="px-2 py-2 border text-start font-medium">
+                        <tr class="border-b" >
+                            <td  *ngIf="quoteData.enqId" class="px-2 py-2 border text-start font-medium">
                                 Enq Ref Id
                             </td>
-                            <td class="px-2 py-2 border text-start">
+                            <td *ngIf="quoteData.enqId" class="px-2 py-2 border text-start">
                                 {{quoteData.enqId.enquiryId}}
+                            </td>
+                            <td  class="px-2 py-2 border text-start font-medium">
+                                Quoting Company
+                            </td>
+                            <td class="px-2 py-2 border text-start">
+                                {{quoteData.quoteCompany}}
                             </td>
                         </tr>
                     </tbody>

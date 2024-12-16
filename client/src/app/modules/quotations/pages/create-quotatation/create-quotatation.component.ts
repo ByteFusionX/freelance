@@ -94,6 +94,7 @@ export class CreateQuotatationComponent {
       department: [null, Validators.required],
       subject: ['', Validators.required],
       currency: [null, Validators.required],
+      quoteCompany: [null, Validators.required],
       items: this._fb.array([
         this._fb.group({
           itemName: ['', Validators.required],

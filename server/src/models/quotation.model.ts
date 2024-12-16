@@ -46,6 +46,7 @@ interface Quotation extends Document {
     department: Types.ObjectId;
     subject: string;
     currency: string;
+    quoteCompany: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: string;
@@ -206,6 +207,10 @@ const quotationSchema = new Schema<Quotation>({
         required: true,
     },
     currency: {
+        type: String,
+        required: true,
+    },
+    quoteCompany: {
         type: String,
         required: true,
     },
