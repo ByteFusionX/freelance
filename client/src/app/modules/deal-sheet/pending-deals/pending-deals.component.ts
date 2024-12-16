@@ -26,10 +26,13 @@ export class PendingDealsComponent {
 
   userId!: string | undefined;
   selectedFile!: string | undefined;
-
+  searchQuery: string = '';
+  searchCriteria: string = 'dealId';
+  
   isLoading: boolean = true;
   isEmpty: boolean = false;
   progress: number = 0
+  isEnter: boolean = false;
 
   loader = this.loadingBar.useRef();
   private readonly destroy$ = new Subject<void>();
@@ -81,6 +84,19 @@ export class PendingDealsComponent {
     this.subscriptions.unsubscribe()
   }
 
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getDealSheet()
+  }
+
   getDealSheet() {
     this.isLoading = true;
     let access;
@@ -95,12 +111,14 @@ export class PendingDealsComponent {
       page: this.page,
       row: this.row,
       access: access,
-      userId: userId
+      userId: userId,
+      searchQuery: this.searchQuery,
+      searchCriteria: this.searchCriteria,
     }
     this.subscriptions.add(
       this._quoteService.getDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data) {
+          if (data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
@@ -108,6 +126,7 @@ export class PendingDealsComponent {
             this.updateNotViewedQuoteIds();
             this.observeAllQuotes();
           } else {
+            this.total = 0;
             this.dataSource.data = [];
             this.isEmpty = true;
           }

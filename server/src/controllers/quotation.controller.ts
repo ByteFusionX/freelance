@@ -207,8 +207,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
 export const getDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId } = req.body;
-        console.log(req.body)
+        let { page, row, access, userId, searchQuery, searchCriteria } = req.body;
+
         let skipNum: number = (page - 1) * row;
 
         let matchFilters = {
@@ -217,6 +217,26 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         };
 
         let accessFilter = {};
+        let searchFilter = {};
+
+        if (searchCriteria && searchQuery) {
+            switch (searchCriteria) {
+                case 'dealId':
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'customer':
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'salesperson':
+                    searchFilter['$or'] = [
+                        { 'createdBy.firstName': { $regex: searchQuery, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: searchQuery, $options: 'i' } }
+                    ];
+                    break;
+                default:
+                    break;
+            }
+        }
 
         let reportedToUserIds = await getAllReportedEmployees(userId);
 
@@ -311,6 +331,9 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                 }
             },
             {
+                $match: searchFilter,
+            },
+            {
                 $unwind: {
                     path: '$enqId',
                     preserveNullAndEmptyArrays: true
@@ -346,13 +369,12 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
 export const getApprovedDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId, role } = req.body;
+        let { page, row, access, userId, role, searchQuery, searchCriteria } = req.body;
         let skipNum: number = (page - 1) * row;
 
-
-
         let accessFilter = {};
-        let matchFilters = {}
+        let matchFilters = {};
+        let searchFilter = {};
 
         let reportedToUserIds = await getAllReportedEmployees(userId);
         if (role == "superAdmin") {
@@ -384,6 +406,26 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
             };
         }
 
+        if (searchCriteria && searchQuery) {
+            switch (searchCriteria) {
+                case 'dealId':
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'customer':
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'salesperson':
+                    searchFilter['$or'] = [
+                        { 'createdBy.firstName': { $regex: searchQuery, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: searchQuery, $options: 'i' } }
+                    ];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
 
         const filters = { $and: [matchFilters, accessFilter] }
 
@@ -404,6 +446,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     total = result[0].total
                 }
             })
+
 
         let dealData = await Quotation.aggregate([
             {
@@ -426,6 +469,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     as: 'client'
                 }
             },
+            
             {
                 $unwind: '$client'
             },
@@ -458,6 +502,9 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     foreignField: '_id',
                     as: 'enqId'
                 }
+            },
+            {
+                $match: searchFilter,
             },
             {
                 $unwind: {

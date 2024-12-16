@@ -48,6 +48,11 @@ export class ApprovedDealsComponent {
   selectedFile!: string | undefined;
   progress: number = 0;
 
+
+  searchQuery: string = '';
+  searchCriteria: string = 'dealId';
+  isEnter: boolean = false;
+
   constructor(
     private _quoteService: QuotationService,
     private _router: Router,
@@ -83,6 +88,19 @@ export class ApprovedDealsComponent {
     this.subscriptions.unsubscribe()
   }
 
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getDealSheet()
+  }
+
   getDealSheet() {
     this.isLoading = true;
     let access;
@@ -100,12 +118,14 @@ export class ApprovedDealsComponent {
       row: this.row,
       access: access,
       userId: userId,
-      role:role
+      searchQuery: this.searchQuery,
+      searchCriteria: this.searchCriteria,
+      role: role
     }
     this.subscriptions.add(
       this._quoteService.getApprovedDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data) {
+          if (data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
@@ -113,6 +133,7 @@ export class ApprovedDealsComponent {
             this.updateNotViewedQuoteIds();
             this.observeAllQuotes();
           } else {
+            this.total = 0;
             this.dataSource.data = [];
             this.isEmpty = true;
           }
@@ -187,12 +208,12 @@ export class ApprovedDealsComponent {
       return;
     });
 
-    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
-      if(cost.type == 'Additional Cost'){
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
         priceDetails.totalCost += cost.value
-      }else if(cost.type === 'Supplier Discount'){
+      } else if (cost.type === 'Supplier Discount') {
         priceDetails.totalCost -= cost.value
-      } else if(cost.type === 'Customer Discount'){
+      } else if (cost.type === 'Customer Discount') {
         priceDetails.totalSellingPrice -= cost.value
       } else {
         priceDetails.totalCost += cost.value
@@ -238,7 +259,7 @@ export class ApprovedDealsComponent {
     })
     rejectModal.afterClosed().subscribe((approved: boolean) => {
       if (approved) {
-        this._quoteService.revokeDeal(quoteData._id,'asdf').subscribe((res) => {
+        this._quoteService.revokeDeal(quoteData._id, 'asdf').subscribe((res) => {
           if (res) {
             this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()

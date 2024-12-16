@@ -36,6 +36,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   isEmpty: boolean = false;
   subscriptions = new Subscription();
   jobIdArr: string[] = []
+
+
   private readonly destroy$ = new Subject<void>();
   private notViewedJobIds: Set<string> = new Set();
 
@@ -223,6 +225,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.toast.warning('Please complete the estimation Uploads')
     }
   }
+
+
 
   viewFeedback(feedback: feedback[], enqId: string, index: number) {
 
