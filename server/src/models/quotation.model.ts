@@ -212,7 +212,6 @@ const quotationSchema = new Schema<Quotation>({
     },
     quoteCompany: {
         type: String,
-        required: true,
     },
     items: {
         type: [quoteItem],
