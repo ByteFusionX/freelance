@@ -55,6 +55,7 @@ export class RecycleComponent implements OnInit, OnDestroy {
           IconColor: 'red'
         }
       });
+      
       dialogRef.afterClosed().subscribe((confirmed: boolean) => {
         if (confirmed) {
           this.subscriptions.add(

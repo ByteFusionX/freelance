@@ -375,7 +375,7 @@ export class PortalManagementComponent {
 
       dialogRef.afterClosed().subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this._profileService.deleteDepartment({dataId: department._id, employee: this.employeeId }).subscribe({
+          this._profileService.deleteDepartment({ dataId: department._id, employee: this.employeeId }).subscribe({
             next: () => {
               // Remove the department from the table
               this.departmentDataSource.data.splice(index, 1);
@@ -405,7 +405,7 @@ export class PortalManagementComponent {
 
       dialogRef.afterClosed().subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this._profileService.deleteInternalDepartment({dataId: department._id, employee: this.employeeId }).subscribe({
+          this._profileService.deleteInternalDepartment({ dataId: department._id, employee: this.employeeId }).subscribe({
             next: () => {
               // Remove the department from the table
               this.internalDepartmentDataSource.data.splice(index, 1);
@@ -435,7 +435,7 @@ export class PortalManagementComponent {
 
       dialogRef.afterClosed().subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this._profileService.deleteCustomerDepartment({dataId: department._id, employee: this.employeeId }).subscribe({
+          this._profileService.deleteCustomerDepartment({ dataId: department._id, employee: this.employeeId }).subscribe({
             next: () => {
               // Remove the department from the table
               this.customerDepartmentDataSource.data.splice(index, 1);
@@ -465,7 +465,7 @@ export class PortalManagementComponent {
 
       dialogRef.afterClosed().subscribe((confirmed: boolean) => {
         if (confirmed) {
-          this._employeeService.deleteCategory(category._id).subscribe({
+          this._employeeService.deleteCategory({ dataId: category._id, employee: this.employeeId }).subscribe({
             next: () => {
               // Remove the category from the table
               this.categoryDataSource.data.splice(index, 1);

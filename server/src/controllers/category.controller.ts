@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Category from '../models/category.model'
+import { newTrash } from '../controllers/trash.controller'
 
 
 export const getCategory = async (req: Request, res: Response, next: NextFunction) => {
@@ -47,10 +48,10 @@ export const getCategory = async (req: Request, res: Response, next: NextFunctio
 export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categoryData = req.body;
-        
+
         const categoryNameLowerCase = categoryData.categoryName.toLowerCase();
-        
-        const existingCategory = await Category.findOne({ 
+
+        const existingCategory = await Category.findOne({
             categoryName: { $regex: new RegExp('^' + categoryNameLowerCase + '$', 'i') }
         });
 
@@ -68,7 +69,7 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
         if (saveCategory) {
             return res.status(200).json(saveCategory);
         }
-        
+
         return res.status(502).json(saveCategory);
     } catch (error) {
         next(error);
@@ -79,11 +80,11 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
     try {
         const categoryData = req.body;
         const categoryId = req.params.categoryId;
-        
+
         const categoryNameLowerCase = categoryData.categoryName.toLowerCase();
-        
-        const existingCategory = await Category.findOne({ 
-            categoryName: { $regex: new RegExp('^' + categoryNameLowerCase + '$', 'i') }, 
+
+        const existingCategory = await Category.findOne({
+            categoryName: { $regex: new RegExp('^' + categoryNameLowerCase + '$', 'i') },
             _id: { $ne: categoryId },
             isDeleted: { $ne: true }
         });
@@ -93,7 +94,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
         }
 
         const categoryUpdated = await Category.findOneAndUpdate(
-            { 
+            {
                 _id: categoryId,
                 isDeleted: { $ne: true }
             },
@@ -104,7 +105,7 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
         if (categoryUpdated) {
             return res.status(200).json(categoryUpdated);
         }
-        
+
         return res.status(404).json({ message: 'Category not found or already deleted' });
     } catch (error) {
         next(error);
@@ -113,11 +114,11 @@ export const updateCategory = async (req: Request, res: Response, next: NextFunc
 
 export const deleteCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const categoryId = req.params.categoryId;
+        const { dataId, employee } = req.body;
 
         // Check if category exists and isn't already deleted
         const category = await Category.findOne({
-            _id: categoryId,
+            _id: dataId,
             isDeleted: { $ne: true }
         });
 
@@ -128,9 +129,11 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
         }
 
         // Soft delete the category
-        await Category.findByIdAndUpdate(categoryId, {
+        await Category.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+
+        newTrash('Category', dataId, employee)
 
         return res.status(200).json({
             success: true,

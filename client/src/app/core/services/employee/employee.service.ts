@@ -92,8 +92,8 @@ export class EmployeeService {
     );
   }
 
-  deleteCategory(categoryId: string): Observable<any> {
-    return this.http.delete<any>(`${this.api}/category/${categoryId}`);
+  deleteCategory(data: { dataId: string, employee: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/category/delete`, data);
   }
 
   deleteEmployee(employeeId: string): Observable<any> {

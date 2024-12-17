@@ -5,6 +5,6 @@ const catRouter = Router()
 catRouter.get('/', getCategory)
 catRouter.post('/', createCategory)
 catRouter.patch('/:categoryId', updateCategory)
-catRouter.delete('/:categoryId', deleteCategory)
+catRouter.post('/delete', deleteCategory)
 
 export default catRouter;
