@@ -3,6 +3,7 @@ import Department from '../models/department.model'
 import Employee from '../models/employee.model'
 import internalDepartment from "../models/internal.department";
 const { ObjectId } = require('mongodb')
+import { newTrash } from '../controllers/trash.controller'
 
 
 export const getDepartments = async (req: Request, res: Response, next: NextFunction) => {
@@ -108,14 +109,14 @@ export const updateCustomerDepartment = async (req: Request, res: Response, next
     try {
         const data = req.body
         let department = await Department.findOneAndUpdate(
-            { 
+            {
                 _id: data._id,
-                isDeleted: { $ne: true }  
+                isDeleted: { $ne: true }
             },
-            { 
-                $set: { 
-                    departmentName: data.departmentName 
-                } 
+            {
+                $set: {
+                    departmentName: data.departmentName
+                }
             }
         );
 
@@ -255,15 +256,15 @@ export const updateInternalDepartment = async (req: Request, res: Response, next
     try {
         const data = req.body
         let department = await internalDepartment.findOneAndUpdate(
-            { 
+            {
                 _id: data._id,
-                isDeleted: { $ne: true } 
-            }, 
-            { 
-                $set: { 
-                    departmentName: data.departmentName, 
-                    departmentHead: data.departmentHead 
-                } 
+                isDeleted: { $ne: true }
+            },
+            {
+                $set: {
+                    departmentName: data.departmentName,
+                    departmentHead: data.departmentHead
+                }
             }
         );
 
@@ -279,19 +280,21 @@ export const updateInternalDepartment = async (req: Request, res: Response, next
 
 export const deleteDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const departmentId = req.params.id;
+        const { dataId, employee } = req.body;
 
         // Check if department exists
-        const department = await Department.findById(departmentId);
+        const department = await Department.findById(dataId);
 
         if (!department) {
             return res.status(404).json({ message: 'Department not found' });
         }
 
         // Delete the department
-        await Department.findByIdAndUpdate(departmentId, {
+        await Department.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+
+        newTrash('Department', dataId, employee)
 
         return res.status(200).json({
             success: true,
@@ -304,11 +307,11 @@ export const deleteDepartment = async (req: Request, res: Response, next: NextFu
 
 export const deleteInternalDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const departmentId = req.params.id;
+        const { dataId, employee } = req.body;
 
         // Check if department exists and isn't already deleted
         const department = await internalDepartment.findOne({
-            _id: departmentId,
+            _id: dataId,
             isDeleted: { $ne: true }
         });
 
@@ -319,9 +322,11 @@ export const deleteInternalDepartment = async (req: Request, res: Response, next
         }
 
         // Soft delete the department
-        await internalDepartment.findByIdAndUpdate(departmentId, {
+        await internalDepartment.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+        
+        newTrash('InternalDepartment', dataId, employee)
 
         return res.status(200).json({
             success: true,
@@ -334,11 +339,11 @@ export const deleteInternalDepartment = async (req: Request, res: Response, next
 
 export const deleteCustomerDepartment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const departmentId = req.params.id;
+        const { dataId, employee } = req.body;
 
         // Check if customer department exists and isn't already deleted
         const department = await Department.findOne({
-            _id: departmentId,
+            _id: dataId,
             forCustomerContact: true,
             isDeleted: { $ne: true }
         });
@@ -350,9 +355,11 @@ export const deleteCustomerDepartment = async (req: Request, res: Response, next
         }
 
         // Soft delete the department
-        await Department.findByIdAndUpdate(departmentId, {
+        await Department.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+
+        newTrash('Department', dataId, employee)
 
         return res.status(200).json({
             success: true,

@@ -535,33 +535,4 @@ export class CreateQuotatationComponent {
     };
   }
 
-  deleteEnquiry() {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-        data: {
-            title: 'Delete Enquiry',
-            description: 'Are you sure you want to delete this enquiry?',
-            icon: 'heroExclamationCircle',
-            IconColor: 'red'
-        }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-        if (confirmed) {
-            const enquiryData = this.enquiryData$.pipe(first()).subscribe(data => {
-                if (data) {
-                    this._enquiryService.deleteEnquiry(data._id).subscribe({
-                        next: () => {
-                            this.toastr.success('Enquiry deleted successfully');
-                            this._router.navigate(['/enquiry']);
-                        },
-                        error: (error) => {
-                            this.toastr.error(error.error.message || 'Failed to delete enquiry');
-                        }
-                    });
-                }
-            });
-        }
-    });
-  }
-
 }

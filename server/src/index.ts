@@ -24,6 +24,7 @@ import { socketConnection } from './service/socket-ioService';
 import noteRouter from './routes/note.router';
 import companyRouter from './routes/company.router';
 import dashboardRouter from './routes/dashboard.router';
+import trashRouter from './routes/trash.router';
 
 const app = express();
 const server = http.createServer(app);
@@ -48,7 +49,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
 }));
 
@@ -65,14 +66,15 @@ app.use('/category', catRouter);
 app.use('/file', fileRouter);
 app.use('/job', jobRouter);
 app.use('/note', noteRouter);
-app.use('/company',companyRouter)
-app.use('/dashboard',dashboardRouter)
+app.use('/company', companyRouter)
+app.use('/dashboard', dashboardRouter)
+app.use('/trash', trashRouter)
 
 let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}?authSource=admin`;
 if (process.env.USE_MONGOATLAS === 'true') {
   mongoUrl = process.env.MONGODB_ATLAS_URL as string;
 }
-console.log(mongoUrl,'mongoUrl');
+console.log(mongoUrl, 'mongoUrl');
 mongoose
   .connect(mongoUrl)
   .then(() => {

@@ -10,13 +10,6 @@
                     Edit
                 </div>
             </button>
-            <button (click)="deleteEnquiry()" *ngIf="enquiryData$ | async"
-                class="bg-red-700 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded text-sm">
-                <div class="flex justify-center items-center gap-2">
-                    <ng-icon name="heroTrash"></ng-icon>
-                    Delete Enquiry
-                </div>
-            </button>
         </div>
     </div>
     <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()">

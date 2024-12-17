@@ -64,6 +64,11 @@
                                     <ng-icon name="heroCog6Tooth" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Portal Management</p>
                                 </li>
+                                <li *ngIf="showPortalMangement" class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
+                                    routerLink="/recycle">
+                                    <ng-icon name="heroTrash" class="text-lg mx-3"></ng-icon>
+                                    <p class="text-sm">Recycle Bin</p>
+                                </li>
                                 <li class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
                                     (click)="signOut()">
                                     <ng-icon name="heroArrowRightOnRectangle" class="text-lg mx-3"></ng-icon>

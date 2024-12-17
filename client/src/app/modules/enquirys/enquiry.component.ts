@@ -14,6 +14,8 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { HttpEventType } from '@angular/common/http';
 import saveAs from 'file-saver';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-enquiry',
@@ -31,7 +33,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'action'];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'presale', 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -44,6 +46,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   selectedStatus: string | null = null;
   selectedSalesPerson: string | null = null;
   selectedDepartment: string | null = null;
+  isDeletedClicked: boolean = false;
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
@@ -253,11 +256,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
-    if (enqData.status != 'Assigned To Presales') {
-      this._enquiryService.emitToQuote(enqData)
-      this.router.navigate(['/quotations/create'])
-    } else {
-      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+    if(!this.isDeletedClicked){
+      if (enqData.status != 'Assigned To Presales') {
+        this._enquiryService.emitToQuote(enqData)
+        this.router.navigate(['/quotations/create'])
+      } else {
+        this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+      }
     }
   }
 
@@ -269,5 +274,39 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  deleteEnquiry(enquiryId: string, status: string) {
+    this.isDeletedClicked = true
+    if (status == 'Assigned To Presales') {
+      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+      return
+    }
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Enquiry',
+        description: 'Are you sure you want to delete this enquiry?',
+        icon: 'heroExclamationCircle',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.subscriptions.add(
+          this._enquiryService.deleteEnquiry(enquiryId).subscribe({
+            next: () => {
+              this.toaster.success('Enquiry deleted successfully');
+              this.getEnquiries()
+            },
+            error: (error) => {
+              this.toaster.error(error.error.message || 'Failed to delete enquiry');
+            }
+          })
+        )
+      }
+      this.isDeletedClicked = false;
+    });
   }
 }

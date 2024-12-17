@@ -23,7 +23,6 @@ const config:SocketIoConfig = { url: environment.api, options: {} };
 @NgModule({
   declarations: [
     AppComponent,
-
   ],
   imports: [
     BrowserModule,

@@ -85,7 +85,6 @@ export class JobListComponent {
     { value: 'Cancelled' },
     { value: 'On Hold' },
     { value: 'Invoiced' }
-
   ];
 
   onfilterApplied() {
@@ -147,7 +146,6 @@ export class JobListComponent {
         })
       })
     )
-
   }
 
   handleNotClose(event: MouseEvent) {
