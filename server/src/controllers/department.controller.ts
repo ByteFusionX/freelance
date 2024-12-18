@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Department from '../models/department.model'
 import Employee from '../models/employee.model'
 import internalDepartment from "../models/internal.department";
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 import { newTrash } from '../controllers/trash.controller'
 
@@ -28,7 +29,8 @@ export const getDepartments = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -43,7 +45,8 @@ export const createDepartment = async (req: Request, res: Response, next: NextFu
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -59,7 +62,8 @@ export const updateDepartment = async (req: Request, res: Response, next: NextFu
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -86,7 +90,8 @@ export const getCustomerDepartments = async (req: Request, res: Response, next: 
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -101,7 +106,8 @@ export const createCustomerDepartment = async (req: Request, res: Response, next
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -127,7 +133,8 @@ export const updateCustomerDepartment = async (req: Request, res: Response, next
 
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -135,8 +142,7 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
     try {
         let { access, userId } = req.query;
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
 
         const departmentsWithCounts = await Department.aggregate([
@@ -208,7 +214,8 @@ export const totalEnquiries = async (req: Request, res: Response, next: NextFunc
         if (departmentsWithCounts) return res.status(200).json(departmentsWithCounts);
         return res.status(502).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -223,7 +230,8 @@ export const createInternalDepartment = async (req: Request, res: Response, next
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -248,7 +256,8 @@ export const getInternalDepartments = async (req: Request, res: Response, next: 
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -274,7 +283,8 @@ export const updateInternalDepartment = async (req: Request, res: Response, next
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

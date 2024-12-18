@@ -8,6 +8,8 @@ export class NumberFormatterPipe implements PipeTransform {
         if (isNaN(value)) {
           return '';
         }
+
+        console.log(value)
     
         return value.toLocaleString('en-US', {
           minimumFractionDigits: 2,

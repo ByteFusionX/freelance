@@ -19,7 +19,7 @@ export class JobService {
   }
 
   downloadFile(fileName: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/file/download?file=${fileName}`,
+    return this.http.get(`${this.apiUrl}/file/download?file=${encodeURIComponent(fileName)}`,
       { responseType: 'blob', observe: 'events', reportProgress: true })
   }
 

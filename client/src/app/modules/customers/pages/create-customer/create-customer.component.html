@@ -94,7 +94,7 @@
                     <ng-option *ngFor="let department of customerDepartments"
                       [value]="department._id">{{department.departmentName}}</ng-option>
                     <ng-template ng-footer-tmp>
-                      <a (click)="createCustomerDepartment()"
+                      <a *ngIf="canCreateDepartment" (click)="createCustomerDepartment()"
                         class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full font-medium">
                         + Create Department
                       </a>

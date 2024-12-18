@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationExtras, Router } from '@angular/router';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { Estimations } from 'src/app/shared/interfaces/enquiry.interface';
 import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 
@@ -11,6 +12,7 @@ import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 })
 export class ViewEstimationComponent {
   constructor(
+    private _dialog:MatDialog,
     private dialogRef: MatDialogRef<ViewEstimationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { estimation: Estimations, enqId: string, isEdit: boolean },
     private _router: Router
@@ -22,6 +24,24 @@ export class ViewEstimationComponent {
       state: { estimation: this.data.estimation, enquiryId: this.data.enqId }
     };
     this._router.navigate(['/assigned-jobs/edit-estimations'], navigationExtras);
+  }
+
+  onClearEstimation(){
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+      {
+        data: {
+          title: `Are you absolutely sure?`,
+          description: `This action is irreversible and this will remove your estimation and you have to re-estmate. `,
+          icon: 'heroExclamationCircle',
+          IconColor: 'orange'
+        }
+      });
+
+    dialogRef.afterClosed().subscribe((approved: boolean) => {
+      if(approved){
+        this.dialogRef.close({remove:true})
+      }
+    })
   }
 
   calculateTotalCost(i: number, j: number) {

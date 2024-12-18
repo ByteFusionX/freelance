@@ -78,7 +78,8 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -99,20 +100,15 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPerson._id': new ObjectId(userId) },
-                        { 'salesPerson._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
 
             default:
                 break;
         }
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const currentDate = new Date();
         const sevenDaysAgo = new Date(currentDate);
@@ -138,40 +134,80 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $addFields: {
                     totalSellingPrice: {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                            ]
-                        }
+                        $round: [ // Ensure totalSellingPrice is rounded to 2 decimals
+                            {
+                                $sum: [
+                                    {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $round: [ // Round USD conversion
+                                                    {
+                                                        $multiply: [
+                                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                            qatarUsdRate
+                                                        ]
+                                                    },
+                                                    2
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                        ]
+                                    },
+                                    {
+                                        $reduce: {
+                                            input: '$quotation.dealData.additionalCosts',
+                                            initialValue: 0,
+                                            in: {
+                                                $cond: [
+                                                    { $eq: ['$$this.type', 'Customer Discount'] },
+                                                    { $round: [ // Round discount adjustment
+                                                        { $subtract: ['$$value', '$$this.value'] },
+                                                        2
+                                                    ] },
+                                                    '$$value'
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            2
+                        ]
                     },
-                    totalCostPrice:
-                    {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateCostPricePipe('$quotation.dealData.updatedItems'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateCostPricePipe('$quotation.dealData.updatedItems')
-                            ]
-                        }
-                    },
-                },
+                    totalCostPrice: {
+                        $round: [ // Ensure totalCostPrice is rounded to 2 decimals
+                            {
+                                $sum: [
+                                    {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $round: [ // Round USD conversion
+                                                    {
+                                                        $multiply: [
+                                                            calculateCostPricePipe('$quotation.dealData.updatedItems'),
+                                                            qatarUsdRate
+                                                        ]
+                                                    },
+                                                    2
+                                                ]
+                                            },
+                                            calculateCostPricePipe('$quotation.dealData.updatedItems')
+                                        ]
+                                    },
+                                    
+                                ]
+                            },
+                            2
+                        ]
+                    }
+                }                
             },
             {
                 $group: {
@@ -211,16 +247,33 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
             {
                 $project: {
                     _id: 0,
-                    totalSellingPrice: 1,
-                    lastWeekSellingPrice: 1,
-                    grossProfit: { $subtract: ['$totalSellingPrice', '$totalCostPrice'] },
-                    lastWeekgrossProfit: { $subtract: ['$lastWeekSellingPrice', '$lastWeekCostPrice'] },
+                    totalSellingPrice: { $round: ['$totalSellingPrice', 2] },
+                    lastWeekSellingPrice: { $round: ['$lastWeekSellingPrice', 2] },
+                    totalCostPrice: { $round: ['$totalCostPrice', 2] }, // Ensure these fields are rounded first
+                    lastWeekCostPrice: { $round: ['$lastWeekCostPrice', 2] },
+                    grossProfit: { 
+                        $round: [{ 
+                            $subtract: [
+                                { $round: ['$totalSellingPrice', 2] },
+                                { $round: ['$totalCostPrice', 2] }
+                            ]
+                        }, 2]
+                    },
+                    lastWeekGrossProfit: { 
+                        $round: [{ 
+                            $subtract: [
+                                { $round: ['$lastWeekSellingPrice', 2] },
+                                { $round: ['$lastWeekCostPrice', 2] }
+                            ]
+                        }, 2]
+                    },
                     totalJobAwarded: 1,
-                    lastWeekJobAwarded: 1,
+                    lastWeekJobAwarded: 1
                 }
-            },
+            }
+            
         ]).exec();
-
+        
 
         return jobTotal[0];
     } catch (error) {
@@ -244,34 +297,19 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPerson._id': new ObjectId(userId) },
-                        { 'salesPerson._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                 break;
 
             default:
                 break;
         }
-        console.log(accessFilter)
-        console.log(!accessFilter['salesPerson._id'])   
-
         const currentDate = new Date();
         const sevenDaysAgo = new Date(currentDate);
         sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
         const enqTotal = await enquiryModel.aggregate([
             { $match: { status: { $ne: 'Quoted' } } },
-            {
-                $unset: "createdDate"
-            },
-            {
-                $addFields: {
-                    createdDate: { $toDate: "$preSale.createdDate" }
-                }
-            },
             {
                 $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
             },
@@ -285,13 +323,13 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $group: {
                     _id: null,
                     totalEnquiries: { $sum: 1 },
-                lastWeekEnquiries: {
+                    lastWeekEnquiries: {
                         $sum: {
                             '$cond': [
                                 { $gte: ['$createdDate', sevenDaysAgo] },
@@ -310,8 +348,6 @@ const getEnquiriesCount = async (access: string, userId: string, filters: Filter
                 }
             }
         ]).exec();
-
-        
 
         return enqTotal[0];
     } catch (error) {
@@ -334,12 +370,8 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -350,13 +382,12 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
         const sevenDaysAgo = new Date(currentDate);
         sevenDaysAgo.setDate(currentDate.getDate() - 7);
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const quoteTotal = await quotationModel.aggregate([
             {
-                $match:{
-                    status: { $ne : 'Work In Progress'}
+                $match: {
+                    status: { $ne: 'Work In Progress' }
                 }
             },
             {
@@ -377,7 +408,7 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $addFields: {
@@ -475,7 +506,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: buildDashboardFilters(filters,accessFilter)
+                $match: buildDashboardFilters(filters, accessFilter)
             },
             {
                 $facet: {
@@ -499,7 +530,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                     totalCompletedJob: [
                         {
                             $match: {
-                                status: {$ne: 'Assigned To Presales'}
+                                status: { $ne: 'Assigned To Presales' }
                             }
                         },
                         { $count: "total" }
@@ -508,7 +539,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                         {
                             $match: {
                                 createdDate: { $gte: oneWeekAgo },
-                                status: {$ne: 'Assigned To Presales'}
+                                status: { $ne: 'Assigned To Presales' }
                             }
                         },
                         { $count: "lastWeek" }
@@ -525,7 +556,6 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
             }
         ]).exec();
 
-        console.log(assignedJobCount)
 
 
 
@@ -539,8 +569,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
         }
 
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
 
         const assignedJobAwarded = await jobModel.aggregate([
@@ -569,7 +598,7 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                 $unwind: "$department"
             },
             {
-                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters,accessFilter) }
+                $match: { ...accessFilterForAwarded, ...buildDashboardFilters(filters, accessFilter) }
             },
             {
                 $addFields: {
@@ -654,7 +683,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
 
             switch (privileges.jobSheet.viewReport) {
                 case 'none':
-                    return res.status(204) 
+                    return res.status(204)
                 case 'created':
                     accessFilter = { 'salesPerson._id': new ObjectId(userId) };
                     break;
@@ -662,21 +691,16 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { 'salesPerson._id': new ObjectId(userId) },
-                            { 'salesPerson._id': { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
 
                 default:
                     break;
             }
-            
 
-            const USDRates = await getUSDRated();
-            const qatarUsdRates = USDRates.usd.qar;
+
+            const qatarUsdRates = await getUSDRated();
 
 
             const jobTotal = await jobModel.aggregate([
@@ -699,7 +723,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $group: {
@@ -749,7 +773,8 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -775,24 +800,20 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { 'salesPerson._id': new ObjectId(userId) },
-                            { 'salesPerson._id': { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
                     break;
-                    
+
                 default:
                     break;
             }
-            
-            const dateRange = getDateRange(filters.fromDate,filters.toDate)
 
-            const USDRates = await getUSDRated();
-            const qatarUsdRate = USDRates.usd.qar;
+            const dateRange = getDateRange(filters.fromDate, filters.toDate)
+
+            const qatarUsdRate = await getUSDRated();
+
             let jobGrossProfit = [];
-            if(privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none'){
+            if (privileges.jobSheet.viewReport && privileges.jobSheet.viewReport !== 'none') {
                 jobGrossProfit = await jobModel.aggregate([
                     {
                         $lookup: {
@@ -830,7 +851,7 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     {
                         $match: {
                             ...accessFilter,
-                            ...buildDashboardFilters(filters,accessFilter),
+                            ...buildDashboardFilters(filters, accessFilter),
                             createdDate: { $gte: dateRange.gte, $lte: dateRange.lte }
                         }
                     },
@@ -887,25 +908,25 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                     {
                         $project: {
                             year: 1,
-                            month: '$month.name', 
+                            month: '$month.name',
                             grossProfit: 1
                         }
                     },
                     {
                         $sort: { year: 1, month: 1 }
                     }
-                ]);      
-            }      
+                ]);
+            }
 
             const completeData = lastRangedMonths(dateRange).map(month => {
-                const found = jobGrossProfit.find(data => 
+                const found = jobGrossProfit.find(data =>
                     data.month === month.name && data.year === month.year
                 );
                 return {
                     month: month.name,
                     grossProfit: found ? found.grossProfit : 0
                 };
-            });            
+            });
 
             const monthArray = completeData.map(data => data.month);
             const profitArray = completeData.map(data => data.grossProfit);
@@ -914,7 +935,8 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -939,12 +961,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     accessFilter = { salesPerson: { $in: reportedToUserIds } };
                     break;
                 case 'createdAndReported':
-                    accessFilter = {
-                        $or: [
-                            { salesPerson: new ObjectId(userId) },
-                            { salesPerson: { $in: reportedToUserIds } }
-                        ]
-                    };
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { salesPerson: { $in: reportedToUserIds } };
                     break;
 
                 default:
@@ -973,7 +991,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 }
             ]).exec();
 
@@ -999,7 +1017,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $lookup: {
@@ -1031,7 +1049,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -1080,7 +1099,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 }
             ]).exec();
 
@@ -1111,7 +1130,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     $unwind: "$department"
                 },
                 {
-                    $match: buildDashboardFilters(filters,accessFilter)
+                    $match: buildDashboardFilters(filters, accessFilter)
                 },
                 {
                     $lookup: {
@@ -1143,6 +1162,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
         }
 
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }

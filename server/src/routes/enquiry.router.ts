@@ -18,14 +18,16 @@ import {
     markFeedbackResponseAsViewed,
     uploadEstimations,
     markAsSeenEstimation,
-    deleteEnquiry
+    deleteEnquiry,
+    deleteEstimation,
+    RejectPresaleJob
 } from "../controllers/enquiry.controller";
 const equiRouter = Router()
 
 equiRouter.post('/create', upload.fields([{ name: 'attachments' }, { name: 'presaleFiles' }]), createEnquiry);
 equiRouter.post('/get', getEnquiries);
 equiRouter.get('/presales', getPreSaleJobs);
-equiRouter.patch('/presales/:enquiryId', upload.fields([{ name: 'presaleFiles' }]), assignPresale);
+equiRouter.patch('/presales/:enquiryId', upload.fields([{ name: 'newPresaleFile' }]), assignPresale);
 equiRouter.put('/update', updateEnquiryStatus);
 equiRouter.get('/monthly', monthlyEnquiries);
 equiRouter.patch('/feedback-request', sendFeedbackRequest);
@@ -40,5 +42,8 @@ equiRouter.post('/markAsSeenFeeback', markAsSeenFeedback);
 equiRouter.patch('/markAsSeenFeebackResponse', markFeedbackResponseAsViewed);
 equiRouter.get('/presales/count', presalesCount)
 equiRouter.post('/delete', deleteEnquiry);
+equiRouter.delete('/presales/estimation/:enqId', deleteEstimation)
+equiRouter.put('/presales/reject', RejectPresaleJob)
+
 
 export default equiRouter;

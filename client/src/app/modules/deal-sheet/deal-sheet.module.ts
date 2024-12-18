@@ -15,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UpdatedealsheetComponent } from './updatedealsheet-component/updatedealsheet-component.component';
 import { ApprovedDealsComponent } from './approved-deals/approved-deals.component';
 import { PendingDealsComponent } from './pending-deals/pending-deals.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 
 
@@ -39,6 +40,9 @@ import { PendingDealsComponent } from './pending-deals/pending-deals.component';
     pipeModule,
     ReactiveFormsModule,
     FormsModule,
+    MatProgressBarModule,
+    ReactiveFormsModule,
+    FormsModule
 ]
 })
 export class DealSheetModule { }

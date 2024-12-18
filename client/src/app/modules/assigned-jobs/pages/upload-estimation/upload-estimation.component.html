@@ -168,7 +168,7 @@
                             Total Cost
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                            {{calculateAllTotalCost().toFixed(2)}}
+                            {{formatNumber(calculateAllTotalCost().toFixed(2))}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -176,7 +176,15 @@
                             Total Selling price
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{formatNumber(calculateSellingPrice().toFixed(2))}}
+                        </td>
+                    </tr>
+                    <tr class=" border-b ">
+                        <td class="px-2 py-3  border text-center font-medium text-xl ">
+                            Profit Margin
+                        </td>
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{formatNumber((calculateSellingPrice() - calculateAllTotalCost()).toFixed(2))}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -184,7 +192,7 @@
                             Profit margin with %
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                            {{calculateTotalProfit().toFixed(2)}}%
+                            {{formatNumber(calculateTotalProfit().toFixed(2))}}%
                         </td>
                     </tr>
 
@@ -197,7 +205,7 @@
                             Subtotal
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{formatNumber(calculateSellingPrice().toFixed(2))}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -216,7 +224,7 @@
                             Total Amount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                            {{calculateDiscoutPrice().toFixed(2)}}
+                            {{formatNumber(calculateDiscoutPrice().toFixed(2))}}
                         </td>
                     </tr>
 

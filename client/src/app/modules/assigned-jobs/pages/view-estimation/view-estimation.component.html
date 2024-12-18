@@ -8,6 +8,12 @@
                 <ng-icon name="heroPencilSquare"></ng-icon>
                 Edit
             </button>
+            <button *ngIf="data.isEdit"
+                class="bg-orange-600 hover:bg-orange-500 text-white font-medium py-2 px-4 rounded text-sm flex items-center gap-2"
+                (click)="onClearEstimation()">
+                <ng-icon name="heroTrash"></ng-icon>
+                Clear Estimation
+            </button>
             <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
                 <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
             </button>
@@ -76,20 +82,20 @@
                                 {{itemsDetail.quantity}}
                             </td>
                             <td class="px-2 py-2 border text-center">
-                                {{itemsDetail.unitCost.toFixed(2)}}
+                                {{itemsDetail.unitCost | numberFormatter}}
                             </td>
                             <td class=" py-2  text-center ">
-                                {{(itemsDetail.quantity * itemsDetail.unitCost).toFixed(2)}}
+                                {{(itemsDetail.quantity * itemsDetail.unitCost) | numberFormatter}}
                             </td>
                             <td class="px-2 py-2 border text-center">
                                 {{ itemsDetail.profit | number:'1.2-2' }}%
                             </td>
                             <td class="px-2 py-2 border text-center">
-                                {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))).toFixed(2)}}
+                                {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) | numberFormatter}}
                             </td>
                             <td class="px-2 py-2 border text-center">
                                 {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
-                                itemsDetail.quantity).toFixed(2)}}
+                                itemsDetail.quantity) | numberFormatter}}
                             </td>
                             <td class="px-2 py-2 border text-center">
                                 {{itemsDetail.availability}}
@@ -107,7 +113,7 @@
                             Total Cost
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateAllTotalCost().toFixed(2)}}
+                            {{calculateAllTotalCost() | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
@@ -115,15 +121,15 @@
                             Total Selling price
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateSellingPrice().toFixed(2)}}
+                            {{calculateSellingPrice() | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">
                         <td class="px-2 py-3  border text-center font-medium text-xl ">
                             Profit Margin
                         </td>
-                        <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{calculateProfitMargin().toFixed(2)}}
+                        <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
+                            {{(calculateSellingPrice() - calculateAllTotalCost()) | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">

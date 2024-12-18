@@ -5,11 +5,12 @@ import Department from '../models/department.model';
 import Employee from '../models/employee.model'
 import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
-import { calculateDiscountPrice, getUSDRated } from "../common/util";
+import { calculateDiscountPrice, getAllReportedEmployees, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
-import { removeFile } from '../common/util';
-import { uploadFileToAws } from '../common/aws-connect';
 import { newTrash } from '../controllers/trash.controller'
+import { removeFile } from '../common/util'
+import quotationModel from "../models/quotation.model";
+import { deleteFileFromAws, uploadFileToAws } from '../common/aws-connect';
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -30,6 +31,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -39,6 +41,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
     try {
         let { page, search, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
+
 
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
@@ -68,8 +71,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -79,12 +81,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -213,7 +211,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
 
 export const getDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId, search } = req.body;
+        let { page, row, access, userId, searchQuery, searchCriteria } = req.body;
+
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
@@ -224,9 +223,28 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
 
         let accessFilter = {};
+        let searchFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        if (searchCriteria && searchQuery) {
+            switch (searchCriteria) {
+                case 'dealId':
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'customer':
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'salesperson':
+                    searchFilter['$or'] = [
+                        { 'createdBy.firstName': { $regex: searchQuery, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: searchQuery, $options: 'i' } }
+                    ];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -236,12 +254,8 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -314,15 +328,6 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
             {
                 $unwind: '$createdBy',
             },
-            ...(search ? [{
-                $match: {
-                    $or: [
-                        { 'client.companyName': { $regex: search, $options: 'i' } },
-                        { 'createdBy.firstName': { $regex: search, $options: 'i' } },
-                        { 'createdBy.lastName': { $regex: search, $options: 'i' } }
-                    ]
-                }
-            }] : []),
             {
                 $lookup: {
                     from: 'enquiries',
@@ -330,6 +335,9 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
                     foreignField: '_id',
                     as: 'enqId'
                 }
+            },
+            {
+                $match: searchFilter,
             },
             {
                 $unwind: {
@@ -367,39 +375,63 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
 export const getApprovedDealSheet = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, access, userId, search } = req.body;
+        let { page, row, access, userId, role, searchQuery, searchCriteria } = req.body;
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters: any = {
-            isDeleted: { $ne: true },
-            dealData: { $exists: true },
-            'dealData.status': 'approved'
-        };
-
         let accessFilter = {};
+        let matchFilters = {};
+        let searchFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
+        if (role == "superAdmin") {
+            matchFilters = {
+                dealData: { $exists: true },
+                'dealData.status': 'approved'
+            };
+        } else {
+            switch (access) {
+                case 'created':
+                    accessFilter = { createdBy: new ObjectId(userId) };
+                    break;
+                case 'reported':
+                    accessFilter = { createdBy: { $in: reportedToUserIds } };
+                    break;
+                case 'createdAndReported':
+                    reportedToUserIds.push(new ObjectId(userId));
+                    accessFilter = { createdBy: { $in: reportedToUserIds } };
+                    break;
 
-        switch (access) {
-            case 'created':
-                accessFilter = { createdBy: new ObjectId(userId) };
-                break;
-            case 'reported':
-                accessFilter = { createdBy: { $in: reportedToUserIds } };
-                break;
-            case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
-                break;
+                default:
+                    break;
+            }
 
-            default:
-                break;
+            matchFilters = {
+                dealData: { $exists: true },
+                'dealData.status': 'approved',
+                'dealData.approvedBy': new ObjectId(userId)
+            };
         }
+
+        if (searchCriteria && searchQuery) {
+            switch (searchCriteria) {
+                case 'dealId':
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'customer':
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    break;
+                case 'salesperson':
+                    searchFilter['$or'] = [
+                        { 'createdBy.firstName': { $regex: searchQuery, $options: 'i' } },
+                        { 'createdBy.lastName': { $regex: searchQuery, $options: 'i' } }
+                    ];
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
 
         const filters = { $and: [matchFilters, accessFilter] }
 
@@ -420,6 +452,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     total = result[0].total
                 }
             })
+
 
         let dealData = await Quotation.aggregate([
             {
@@ -442,6 +475,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     as: 'client'
                 }
             },
+            
             {
                 $unwind: '$client'
             },
@@ -467,15 +501,6 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
             {
                 $unwind: '$createdBy',
             },
-            ...(search ? [{
-                $match: {
-                    $or: [
-                        { 'client.companyName': { $regex: search, $options: 'i' } },
-                        { 'createdBy.firstName': { $regex: search, $options: 'i' } },
-                        { 'createdBy.lastName': { $regex: search, $options: 'i' } }
-                    ]
-                }
-            }] : []),
             {
                 $lookup: {
                     from: 'enquiries',
@@ -483,6 +508,9 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     foreignField: '_id',
                     as: 'enqId'
                 }
+            },
+            {
+                $match: searchFilter,
             },
             {
                 $unwind: {
@@ -534,19 +562,16 @@ export const getNextQuoteId = async (req: Request, res: Response, next: NextFunc
 
 export const markAsSeenDeal = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const quoteIds: string = req.body.quoteIds;
+        const quoteId: string = req.body.quoteIds;
 
-        const result = await Quotation.updateMany(
-            { _id: quoteIds },
+        const result = await Quotation.findByIdAndUpdate(
+            { _id: new ObjectId(quoteId) },
             { $set: { 'dealData.seenByApprover': true } },
         );
 
-        if (result.modifiedCount === 0) {
-            return res.status(404).json({ message: 'No Deal found' });
-        }
-
         res.status(200).json({ message: 'Deal marked as seen', result });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -656,6 +681,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -672,6 +698,7 @@ export const updateQuotation = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -722,6 +749,8 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
+        console.log(error)
         next(error)
     }
 }
@@ -747,6 +776,7 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -762,14 +792,15 @@ export const rejectDeal = async (req: Request, res: Response, next: NextFunction
         deal.dealData.status = 'rejected';
         deal.dealData.seenedBySalsePerson = false
         deal.dealData.comments.push(comment);
-        await deal.save();
+        const savedDeal = await deal.save();
 
         const socket = req.app.get('io') as Server;
-        socket.emit("notifications", 'quotation')
+        socket.to(savedDeal.createdBy.toString()).emit("notifications", 'quotation')
 
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -795,6 +826,7 @@ export const revokeDeal = async (req: Request, res: Response, next: NextFunction
         return res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -804,18 +836,28 @@ export const uploadLpo = async (req: any, res: Response, next: NextFunction) => 
         if (!req.files) return res.status(204).json({ err: 'No data' });
 
         const lpoFiles = req.files;
-        const files = await Promise.all(lpoFiles.map(async (file: any) => {
+        const newFiles = await Promise.all(lpoFiles.map(async (file: any) => {
             await uploadFileToAws(file.filename, file.path);
             return { fileName: file.filename, originalname: file.originalname };
         }));
 
-        const quote = await Quotation.findByIdAndUpdate(req.body.quoteId, { lpoSubmitted: true, lpoFiles: files });
+        // Use $push to append new files to existing array
+        const quote = await Quotation.findByIdAndUpdate(
+            req.body.quoteId,
+            {
+                lpoSubmitted: true,
+                $push: { lpoFiles: { $each: newFiles } }
+            },
+            { new: true } // Return updated document
+        );
+
         if (quote) {
             return res.status(200).json(quote);
         }
 
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -826,8 +868,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -837,12 +878,8 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -878,6 +915,7 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -908,8 +946,7 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -919,12 +956,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { createdBy: new ObjectId(userId) },
-                        { createdBy: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -1012,9 +1045,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
             value: totalValues.statusCounts[status]
         }));
 
-        const USDRates = await getUSDRated();
+        const qatarUsdRates = await getUSDRated();
 
-        const qatarUsdRates = USDRates.usd.qar;
         const tatalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
         const totalWonValue = totalValues.totalQARValue + (totalValues.totalUSDWonValue * qatarUsdRates);
         const totalLossValue = totalValues.totalQARLossValue + (totalValues.totalUSDLossValue * qatarUsdRates);
@@ -1098,6 +1130,7 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
         return res.status(200).json({ success: true });
 
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -1129,6 +1162,21 @@ export const deleteQuotation = async (req: Request, res: Response, next: NextFun
             message: 'Quote deleted successfully'
         });
     } catch (error) {
+        next(error);
+    }
+}
+export const removeLpo = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { quoteId, fileName } = req.params;
+        const quote = await Quotation.findById(quoteId);
+        if (quote) {
+            quote.lpoFiles = quote.lpoFiles.filter((file: any) => file.fileName !== fileName) as [];
+            await deleteFileFromAws(fileName);
+            await quote.save();
+        }
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.log(error)
         next(error);
     }
 }

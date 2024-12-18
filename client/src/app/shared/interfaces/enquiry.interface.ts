@@ -103,7 +103,7 @@ export interface feedback {
 
 export interface Presale {
     presalePerson: string;
-    presaleFile: File[];
+    newPresaleFile: File[];
     comment: string;
     presalePersonName: string;
     feedback: feedback

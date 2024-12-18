@@ -1,4 +1,4 @@
-import { Schema, Document, model } from "mongoose";
+import { Schema, Document, model, Types } from "mongoose";
 
 interface announcment extends Document {
     title: String
@@ -7,6 +7,8 @@ interface announcment extends Document {
     createdDate: Date,
     celeb: boolean
     viewedBy: string[]
+    category: string[]
+    createdBy: Types.ObjectId
 }
 
 const AnnouncementSchema = new Schema<announcment>({
@@ -19,8 +21,7 @@ const AnnouncementSchema = new Schema<announcment>({
         required: true,
     },
     createdDate: {
-        type: Date,
-        default: () => Date.now()
+        type: Date
     },
     date: {
         type: Date,
@@ -32,6 +33,13 @@ const AnnouncementSchema = new Schema<announcment>({
     },
     viewedBy: {
         type: [String]
+    },
+    category: {
+        type: [String]
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
     }
 });
 

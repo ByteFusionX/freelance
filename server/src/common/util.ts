@@ -2,6 +2,8 @@ import { ObjectId } from "mongodb";
 import { Filters } from "../interface/dashboard.interface";
 import fs from 'fs';
 import path from 'path';
+import axios from "axios";
+import employeeModel from "../models/employee.model";
 
 
 export const calculateDiscountPrice = (quotation: any, items: any): number => {
@@ -49,19 +51,21 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     if (filters) {
 
         if (filters.fromDate && filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-
+            const startDate = new Date(filters.fromDate);
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            
             matchFilter['createdDate'] = {
-                $gte: new Date(filters.fromDate),
-                $lt: toDate
+                $gte: startDate,
+                $lt: endDate
             };
+
         } else if (filters.fromDate) {
             matchFilter['createdDate'] = { $gte: new Date(filters.fromDate) };
         } else if (filters.toDate) {
-            const toDate = new Date(filters.toDate);
-            toDate.setHours(23, 59, 59, 999); // Set to last time of the day (11:59:59 PM)
-            matchFilter['createdDate'] = { $lt: toDate };
+            const endDate = new Date(filters.toDate);
+            endDate.setHours(23, 59, 59, 999); // Set to end of the day
+            matchFilter['createdDate'] = { $lt: endDate };
         }
 
         // Handle multiple salesPersons
@@ -111,72 +115,125 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {
         $subtract: [
             {
-                $sum: {
-                    $map: {
-                        input: input,
-                        as: 'item',
-                        in: {
-                            $sum: {
-                                $map: {
-                                    input: '$$item.itemDetails',
-                                    as: 'itemDetail',
-                                    in: {
-                                        $multiply: [
-                                            {
-                                                $divide: [
-                                                    '$$itemDetail.unitCost',
-                                                    { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                $round: [
+                    {
+                        $sum: {
+                            $map: {
+                                input: input,
+                                as: 'item',
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: '$$item.itemDetails',
+                                            as: 'itemDetail',
+                                            in: {
+                                                $round: [ // Round intermediate multiplication
+                                                    {
+                                                        $multiply: [
+                                                            {
+                                                                $round: [ // Round division for unit price calculation
+                                                                    {
+                                                                        $divide: [
+                                                                            '$$itemDetail.unitCost',
+                                                                            { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                                                                        ]
+                                                                    },
+                                                                    2
+                                                                ]
+                                                            },
+                                                            '$$itemDetail.quantity'
+                                                        ]
+                                                    },
+                                                    2
                                                 ]
-                                            },
-                                            '$$itemDetail.quantity'
-                                        ]
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                }
+                    },
+                    2 // Final rounding to 2 decimal places
+                ]
             },
             discount
         ]
     }
 }
 
+
+
 export const calculateCostPricePipe = (input: string) => {
     return {
-        $sum: [
+        $round: [
             {
-                $sum: {
-                    $map: {
-                        input: input,
-                        as: 'item',
-                        in: {
-                            $sum: {
-                                $map: {
-                                    input: '$$item.itemDetails',
-                                    as: 'itemDetail',
-                                    in: {
-                                        $multiply: ['$$itemDetail.quantity', '$$itemDetail.unitCost']
+                $sum: [
+                    {
+                        $sum: {
+                            $map: {
+                                input: input,
+                                as: 'item',
+                                in: {
+                                    $sum: {
+                                        $map: {
+                                            input: '$$item.itemDetails',
+                                            as: 'itemDetail',
+                                            in: {
+                                                $round: [ // Round intermediate multiplication
+                                                    {
+                                                        $multiply: ['$$itemDetail.quantity', '$$itemDetail.unitCost']
+                                                    },
+                                                    2
+                                                ]
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     },
-
-                }
-            }, {
-                $sum: {
-                    $map: {
-                        input: '$quotation.dealData.additionalCosts',
-                        as: 'additionalCost',
-                        in: '$$additionalCost.value'
+                    {
+                        $reduce: {
+                            input: '$quotation.dealData.additionalCosts',
+                            initialValue: 0,
+                            in: {
+                                $switch: {
+                                    branches: [
+                                        {
+                                            case: { $eq: ['$$this.type', 'Additional Cost'] },
+                                            then: { $round: [ // Round additional cost
+                                                { $add: ['$$value', '$$this.value'] },
+                                                2
+                                            ] }
+                                        },
+                                        {
+                                            case: { $eq: ['$$this.type', 'Supplier Discount'] },
+                                            then: { $round: [ // Round discount adjustment
+                                                { $subtract: ['$$value', '$$this.value'] },
+                                                2
+                                            ] }
+                                        },
+                                        {
+                                            case: { $eq: ['$$this.type', 'Customer Discount'] },
+                                            then: { $add: ['$$value', 0] }
+                                        },
+                                    ],
+                                    default: { $round: [ // Default case rounding
+                                        { $add: ['$$value', '$$this.value'] },
+                                        2
+                                    ] }
+                                }
+                            }
+                        }
                     },
-
-                }
-            }
+                ]
+            },
+            2 // Final rounding to 2 decimal places
         ]
     }
 }
+
+
 
 export const months = [
     { month: 1, name: 'Jan' },
@@ -229,10 +286,15 @@ export const lastRangedMonths = (dateRange: any) => {
 
 
 export async function getUSDRated() {
-    const url = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json';
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    return jsonResponse;
+    let rate = getCachedRate();
+
+    if (!rate) {
+        rate = await fetchExchangeRate();
+    } else {
+        console.log('Using cached exchange rate:', rate);
+    }
+
+    return rate;
 }
 
 export const removeFile = (fileName: string) => {
@@ -245,4 +307,69 @@ export const removeFile = (fileName: string) => {
             console.log(`File removed: ${fileName}`);
         }
     });
+};
+
+const CACHE_FILE = path.join(__dirname, 'exchangeRate.json');
+const API_URL = 'https://latest.currency-api.pages.dev/v1/currencies/usd.min.json'; // Replace with your actual API endpoint
+
+export async function fetchExchangeRate() {
+    try {
+        const response = await axios.get(API_URL);
+        const rate = response.data.usd.qar;
+        cacheExchangeRate(rate);
+        return rate;
+    } catch (error) {
+        console.error('Error fetching exchange rate:', error);
+        return null;
+    }
+}
+
+function cacheExchangeRate(rate) {
+    const data = { rate, timestamp: Date.now() };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data));
+}
+
+function getCachedRate() {
+    if (fs.existsSync(CACHE_FILE)) {
+        const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+        return data.rate;
+    }
+    return null;
+}
+
+export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> => {
+    try {
+        // Step 1: Fetch all employees and their reportingTo relationships in one go
+        const employees = await employeeModel.find({}, '_id reportingTo').lean();
+        
+        // Step 2: Build a lookup map for quick access
+        const employeeMap = new Map<string, string[]>(); // key: managerId, value: list of employeeIds
+        for (const employee of employees) {
+            const managerId = employee.reportingTo?.toString(); // Use `null` or empty string if no manager
+            if (!employeeMap.has(managerId)) {
+                employeeMap.set(managerId, []);
+            }
+            employeeMap.get(managerId)!.push(employee._id.toString());
+        }
+
+        // Step 3: Perform a breadth-first search (BFS) to collect all reported employees
+        const visited = new Set<string>();
+        const queue = [userId.toString()]; // Start with the provided userId
+        const reportedIds: ObjectId[] = [];
+
+        while (queue.length > 0) {
+            const currentId = queue.shift()!;
+            if (visited.has(currentId)) continue;
+
+            visited.add(currentId);
+            const directReports = employeeMap.get(currentId) || [];
+            reportedIds.push(...directReports.map(id => new ObjectId(id)));
+            queue.push(...directReports); // Enqueue for further processing
+        }
+
+        return reportedIds;
+    } catch (error) {
+        console.error('Error fetching reported employees:', error);
+        return [];
+    }
 };

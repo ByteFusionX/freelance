@@ -17,12 +17,16 @@ export class CustomerService {
     return this.http.post<getCustomer>(`${this.apiUrl}/customer`, data)
   }
 
-  getAllCustomers(): Observable<getCustomer[]> {
-    return this.http.get<getCustomer[]>(`${this.apiUrl}/customer`)
+  getAllCustomers(userId?:string | undefined): Observable<getCustomer[]> {
+    return this.http.get<getCustomer[]>(`${this.apiUrl}/customer/${userId}`)
   }
 
   editCustomer(data: getCustomer): Observable<getCustomer> {
     return this.http.patch<getCustomer>(`${this.apiUrl}/customer/edit`, data)
+  }
+
+  shareOrTransferCustomer(data: {employees:string[],customerId:string,type:string}): Observable<getCustomer> {
+    return this.http.patch<getCustomer>(`${this.apiUrl}/customer/shareOrTransferCustomer`, data)
   }
 
   getCustomerCreators(): Observable<getCreators[]> {
@@ -39,6 +43,10 @@ export class CustomerService {
 
   deleteCustomer(data: { dataId: string, employeeId: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/customer/delete`, data);
+  }
+
+  stopSharingCustomer(data: { customerId: string, employeeId: string }): Observable<getCustomer> {
+    return this.http.patch<getCustomer>(`${this.apiUrl}/customer/stopSharing`, data);
   }
 
 }

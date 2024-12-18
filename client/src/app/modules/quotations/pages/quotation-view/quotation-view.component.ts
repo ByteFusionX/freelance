@@ -30,7 +30,7 @@ export class QuotationViewComponent {
   showError: boolean = false;
   revisionComment: string = '';
   progress: number = 0;
-  subscriptions = new Subscription()
+  subscriptions = new Subscription();
 
 
   constructor(
@@ -63,10 +63,10 @@ export class QuotationViewComponent {
     this._router.navigate(['/quotations/edit'], navigationExtras);
   }
 
-  onDownloadPdf() {
+  onDownloadPdf(includeStamp:boolean) {
     this.isDownloading = true;
     let quoteData: getQuotatation = this.quoteData;
-    const pdfDoc = this.quotationService.generatePDF(quoteData)
+    const pdfDoc = this.quotationService.generatePDF(quoteData, includeStamp)
     pdfDoc.then((pdf) => {
       pdf.download(quoteData.quoteId as string)
       this.isDownloading = false;
@@ -76,15 +76,13 @@ export class QuotationViewComponent {
   onPreviewPdf() {
     this.isPreviewing = true;
     let quoteData: getQuotatation = this.quoteData;
-    const pdfDoc = this.quotationService.generatePDF(quoteData)
+    const pdfDoc = this.quotationService.generatePDF(quoteData,true)
     pdfDoc.then((pdf) => {
       pdf.getBlob((blob: Blob) => {
         let url = window.URL.createObjectURL(blob);
         this.isPreviewing = false;
         let dialogRef = this._dialog.open(QuotationPreviewComponent,
-          {
-            data: url
-          });
+          { data: { url: url, formatedQuote: quoteData }});
       });
     });
 

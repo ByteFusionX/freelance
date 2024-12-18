@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import quotationModel from "../models/quotation.model";
 import { uploadFileToAws } from "../common/aws-connect";
 import { newTrash } from '../controllers/trash.controller'
+import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -93,47 +94,86 @@ export const createEnquiry = async (req: any, res: Response, next: NextFunction)
 
         return res.status(200).json(savedEnquiryData[0]);
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
 
 export const assignPresale = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const presale = JSON.parse(req.body.presaleData)
-        const presaleFiles = await Promise.all(req.files.presaleFiles.map(async (file: any) => {
-            await uploadFileToAws(file.filename, file.path);
-            return { fileName: file.filename, originalname: file.originalname };
-        }));
+        // Parse the incoming presale data
+        const presale = JSON.parse(req.body.presaleData || '{}'); // Default to an empty object to prevent crashes
+        let presaleFiles = [];
+        
+        // console.log(req.files?.newPresaleFile); // Safely access newPresaleFile
+        // console.log(presale);
 
-        let enquiryId = req.params.enquiryId;
-        if (presaleFiles) {
-            presale.presaleFiles = presaleFiles
+        // Upload new files to AWS and build the `presaleFiles` array
+        if (req.files?.newPresaleFile) {
+            presaleFiles = await Promise.all(req.files.newPresaleFile.map(async (file: any) => {
+                await uploadFileToAws(file.filename, file.path);
+                return { fileName: file.filename, originalname: file.originalname };
+            }));
         }
 
+        const enquiryId = req.params.enquiryId;
+
+        // Append new files and existing files to presale.presaleFiles
+        presale.presaleFiles = presale.presaleFiles || []; // Ensure presaleFiles exists
+        if (presaleFiles.length) {
+            presaleFiles.forEach((file) => presale.presaleFiles.push(file));
+        }
+
+        if (presale.existingPresaleFiles) {
+            presale.existingPresaleFiles.forEach((file) => presale.presaleFiles.push(file));
+        }
+
+        presale.presaleFiles = presale.presaleFiles.filter(
+            (file) => Object.keys(file).length > 0
+        );
+
+        console.log(presale);
+
+        // Fetch the enquiry to preserve rejectionHistory
+        const enquiry = await enquiryModel.findOne({ _id: enquiryId });
+        if (!enquiry) {
+            return res.status(404).json({ success: false, message: 'Enquiry not found' });
+        }
+
+        // Update the enquiry with presale data
         const update = await enquiryModel.updateOne(
             { _id: enquiryId },
             {
                 $set: {
                     preSale: {
                         ...presale,
+                        rejectionHistory: enquiry.preSale?.rejectionHistory || [], // Default to an empty array
                         newFeedbackAccess: true,
                         createdDate: Date.now(),
                     },
-                    status: 'Assigned To Presales'
-                }
+                    status: 'Assigned To Presales',
+                },
             }
         );
 
-        console.log(update);
-        const socket = req.app.get('io') as Server;
-        socket.to(presale.presalePerson).emit("notifications", 'assignedJob')
-        if (update.modifiedCount) return res.status(200).json({ success: true })
+        // Notify the presale person via socket.io
+        if (presale.presalePerson) {
+            const socket = req.app.get('io') as Server;
+            socket.to(presale.presalePerson).emit('notifications', 'assignedJob');
+        }
 
-        return res.status(502).json()
+        // Respond based on update results
+        if (update.modifiedCount) {
+            return res.status(200).json({ success: true });
+        }
+
+        return res.status(502).json({ success: false, message: 'Failed to update enquiry' });
     } catch (error) {
-
+        console.error('Error in assignPresale:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
     }
-}
+};
+
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -163,8 +203,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -174,12 +213,8 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                 accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -230,13 +265,50 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
                         ]
                     }
                 }
-            }
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'preSale.rejectionHistory.rejectedBy',
+                    foreignField: '_id',
+                    as: 'employeeDetails'
+                }
+            },
+            {
+                $addFields: {
+                    "preSale.rejectionHistory": {
+                        $map: {
+                            input: "$preSale.rejectionHistory",
+                            as: "rejection",
+                            in: {
+                                $mergeObjects: [
+                                    "$$rejection",
+                                    {
+                                        employeeId: {
+                                            $arrayElemAt: [
+                                                {
+                                                    $filter: {
+                                                        input: "$employeeDetails",
+                                                        as: "emp",
+                                                        cond: { $eq: ["$$emp._id", "$$rejection.rejectedBy"] }
+                                                    }
+                                                }, 0
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
         ]);
 
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })
         return res.status(504).json({ err: 'No enquiry data found' })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -349,6 +421,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -374,6 +447,7 @@ export const updateEnquiryStatus = async (req: Request, res: Response, next: Nex
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -383,8 +457,7 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         let { access, userId } = req.query;
 
         let accessFilter = {};
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -394,12 +467,8 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
                 accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { salesPerson: new ObjectId(userId) },
-                        { salesPerson: { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { salesPerson: { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -453,6 +522,7 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         if (result) return res.status(200).json(result)
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -492,6 +562,7 @@ export const sendFeedbackRequest = async (req: any, res: Response, next: NextFun
 
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -558,6 +629,7 @@ export const getFeedbackRequestsById = async (req: Request, res: Response, next:
         if (totalFeedbacks.length) return res.status(200).json({ total: totalFeedbacks[0].total, feedbacks: feedbacks });
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -589,6 +661,7 @@ export const giveFeedback = async (req: any, res: Response, next: NextFunction) 
 
         return res.status(502).json();
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -618,6 +691,7 @@ export const giveRevision = async (req: any, res: Response, next: NextFunction) 
 
         return res.status(200).json({ success: true })
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -649,6 +723,7 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
 
         return res.status(200).json({ success: true })
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -691,6 +766,7 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
 
         return res.status(200).json({ success: true });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -803,9 +879,29 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
+
+export const deleteEstimation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const enquiryId = req.params.enqId;
+
+        const deleteEstimations = await enquiryModel.updateOne(
+            { _id: enquiryId },
+            { $unset: { 'preSale.estimations': "" } }
+        )
+
+        if (deleteEstimations.modifiedCount) {
+            res.status(200).json({ success: true });
+        }
+
+    } catch (error) {
+        console.log(error)
+        next(error);
+    }
+}
 
 
 export const markAsSeenEstimation = async (req: Request, res: Response, next: NextFunction) => {
@@ -826,6 +922,7 @@ export const markAsSeenEstimation = async (req: Request, res: Response, next: Ne
 
         res.status(200).json({ success: true });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -846,6 +943,7 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
 
         res.status(200).json({ message: 'Enquiries marked as seen', result });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -865,6 +963,7 @@ export const markAsSeenFeedback = async (req: Request, res: Response, next: Next
 
         res.status(200).json({ message: 'Feedback marked as seen', result });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };
@@ -885,6 +984,47 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
 
         res.status(200).json({ message: 'Feedback response marked as viewed', result });
     } catch (error) {
+        console.log(error)
+        next(error);
+    }
+};
+
+
+export const RejectPresaleJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        console.log(req.body)
+        const { enqId, comment } = req.body;
+
+        const enquiry = await enquiryModel.findOne({ _id: new ObjectId(enqId) });
+
+        if (!enquiry) {
+            throw new Error('Enquiry not found');
+        }
+
+        // Add a new rejection event to the history
+        enquiry.preSale.rejectionHistory.push({
+            rejectionReason: comment,
+            rejectedBy: enquiry.preSale.presalePerson
+        });
+
+        enquiry.preSale.feedback = [];
+        enquiry.preSale.revisionComment = [];
+        enquiry.preSale.seenbyEmployee = false;
+        enquiry.preSale.seenbySalesPerson = true;
+
+        delete enquiry.preSale.estimations;
+        enquiry.preSale.newFeedbackAccess = true;
+
+        enquiry.status = 'Rejected by Presale';
+
+        const result = await enquiry.save();
+        if (!result) {
+            return res.status(404).json({ message: 'Something went wrong' });
+        }
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.log(error)
         next(error);
     }
 };

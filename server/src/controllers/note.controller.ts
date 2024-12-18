@@ -22,7 +22,8 @@ export const createCustomerNote = async (req: Request, res: Response, next: Next
         );
         res.status(200).json(updatedNotes);
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -47,7 +48,8 @@ export const createTermsAndCondition = async (req: Request, res: Response, next:
 
         res.status(200).json(updatedNotes);
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -77,7 +79,8 @@ export const updateNote = async (req: Request, res: Response, next: NextFunction
 
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -95,19 +98,29 @@ export const deleteNote = async (req: Request, res: Response, next: NextFunction
 
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
 export const getNote = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const notes = await Notes.findOne();
+        if(!notes){
+            const emptyNote = {
+                customerNotes: [],
+                termsAndConditions: []
+            };
+            const newNotes = await Notes.create(emptyNote);
+            return res.status(200).json(newNotes);
+        }
 
         if (notes) {
             return res.status(200).json(notes);
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }

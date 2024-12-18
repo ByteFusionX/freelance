@@ -153,22 +153,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         let jobAccess = employee?.category.privileges.jobSheet.viewReport;
         this.jobAccess = jobAccess && jobAccess !== 'none' ? true : false
         userId = employee?._id
+
+        let filterData = {
+          page: 1,
+          row: 1000,
+          search: '',
+          access: access,
+          userId: userId
+        }
+    
+        if (access && access !== 'none') {
+          this._employeeService.getEmployees(filterData).subscribe((employees) => {
+            this.salesPersons = employees.employees;
+          })
+        }
       })
     )
 
-    let filterData = {
-      page: 1,
-      row: 1000,
-      search: '',
-      access: access,
-      userId: userId
-    }
 
-    if (access && access !== 'none') {
-      this._employeeService.getEmployees(filterData).subscribe((employees) => {
-        this.salesPersons = employees.employees;
-      })
-    }
   }
 
   getSalesTarget(reset: boolean) {
@@ -236,6 +238,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
     }
+    console.log(this.minDate,this.maxDate)
     this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
@@ -432,6 +435,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
     })
 
+  }
+
+   formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 

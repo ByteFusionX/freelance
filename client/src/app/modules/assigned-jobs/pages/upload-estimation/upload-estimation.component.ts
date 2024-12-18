@@ -115,6 +115,7 @@ export class UploadEstimationComponent {
       quantity: ['', Validators.required],
       unitCost: ['', Validators.required],
       profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
+      unitPrice: [''],
       availability: ['', Validators.required]
     });
   }
@@ -268,6 +269,17 @@ export class UploadEstimationComponent {
       const value = control.value;
       return value < 0 ? { negativeProfit: true } : null;
     };
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return parseInt(value).toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
   }
 
 }

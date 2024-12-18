@@ -7,8 +7,11 @@ import enquiryModel from "../models/enquiry.model";
 import quotationModel from "../models/quotation.model";
 import categoryModel, { UserRole } from "../models/category.model";
 import departmentModel from "../models/department.model";
-import { getUSDRated } from "../common/util";
 import { newTrash } from '../controllers/trash.controller'
+import { getAllReportedEmployees, getUSDRated } from "../common/util";
+import customerModel from "../models/customer.model";
+import employeeModel from "../models/employee.model";
+import { CostExplorer } from "aws-sdk";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -25,9 +28,134 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        next(error)
     }
 }
+
+export const getEmployeesForCustomerTransfer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const customerId = req.params.customerId;
+        const userId = req.params.userId;
+
+        if (!customerId) {
+            return res.status(400).json({ message: "Customer ID is required" });
+        }
+
+        // Fetch the customer data to determine access criteria
+        const customer = await customerModel.findOne({ _id: new ObjectId(customerId) });
+        if (!customer) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        const employeeAccess = await employeeModel.findOne({ _id:new ObjectId(userId) }).populate('category') as any
+
+        if(employeeAccess.category.privileges.employee.viewReport == 'none'){
+            const reportedEmployee = await employeeModel.findOne({_id:employeeAccess.reportingTo})
+            res.status(200).json([reportedEmployee]);
+        }
+
+        let accessFilter = {};
+
+        switch (employeeAccess.category.privileges.employee.viewReport) {
+            case 'reported':
+                accessFilter = { reportingTo: new ObjectId(userId) };
+                break;
+            case 'created':
+                accessFilter = { createdBy: new ObjectId(userId) };
+                break;
+            case 'createdAndReported':
+                accessFilter = {
+                    $or: [
+                        { reportingTo: new ObjectId(userId) },
+                        { createdBy: new ObjectId(userId) }
+                    ]
+                };
+                break;
+
+            default:
+                break;
+        }
+
+
+        // Fetch all employees
+        const allEmployees = await Employee.aggregate([
+            {
+                $match: accessFilter
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "category",
+                },
+            },
+            { $unwind: "$category" },
+            { $project: { password: 0 } },
+        ]);
+
+        // Filter employees without access
+        const employeesWithoutAccess = await Promise.all(
+            allEmployees.map(async (employee) => {
+                // Check if the employee is in the sharedWith array
+                const isShared = customer.sharedWith.some(
+                    (sharedEmployeeId) => String(sharedEmployeeId) === String(employee._id)
+                );
+                if (isShared) {
+                    return { employee, hasAccess: true }; // Mark as having access
+                }
+
+                const privilege = employee.category?.privileges?.customer?.viewReport;
+
+                switch (privilege) {
+                    case "created":
+                        // Employee created the customer
+                        return {
+                            employee,
+                            hasAccess: String(customer.createdBy) === String(employee._id),
+                        };
+
+                    case "reported":
+                        // Employee reports to someone who created the customer
+                        const reportedEmployees = await getAllReportedEmployees(customer.createdBy);
+                        return {
+                            employee,
+                            hasAccess: reportedEmployees.includes(employee._id.toString()),
+                        };
+
+                    case "createdAndReported":
+                        // Employee either created or reports to someone who created the customer
+                        const reportedAndCreated = [
+                            ...(await getAllReportedEmployees(customer.createdBy)),
+                            customer.createdBy.toString(),
+                        ];
+                        return {
+                            employee,
+                            hasAccess: reportedAndCreated.includes(employee._id.toString()),
+                        };
+
+                    default:
+                        // No explicit access privilege
+                        return { employee, hasAccess: true };
+                }
+            })
+        );
+
+        // Filter out employees who have access
+        const result = employeesWithoutAccess
+            .filter(({ hasAccess }) => !hasAccess) // Keep employees without access
+            .map(({ employee }) => employee); // Extract the employee objects
+
+        if (result.length) {
+            return res.status(200).json(result);
+        }
+
+        return res.status(204).json({ message: "All employees have access to the customer" });
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
 
 export const isEmployeePresent = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -41,6 +169,7 @@ export const isEmployeePresent = async (req: Request, res: Response, next: NextF
 
         return res.status(200).json({ exists: false });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 }
@@ -118,6 +247,7 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
 
         return res.status(204).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -179,8 +309,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 }
             })
 
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        const qatarUsdRate = await getUSDRated();
 
         const employeeData = await Employee.aggregate([
             {
@@ -206,14 +335,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                     localField: 'category',
                     foreignField: '_id',
                     as: 'category'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'employees',
-                    localField: 'reportingTo',
-                    foreignField: '_id',
-                    as: 'reportingTo'
                 }
             },
             {
@@ -246,11 +367,11 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $sort: { employeeId: 1 }
             },
         ]);
-
         if (!employeeData || !total) return res.status(204).json({ err: 'No data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -272,6 +393,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -283,6 +405,7 @@ export const getPasswordForEmployee = async (req: Request, res: Response, next: 
         const employee = await Employee.findById(id)
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -315,6 +438,7 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
         }
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -361,6 +485,7 @@ export const setTarget = async (req: Request, res: Response, next: NextFunction)
         return res.status(204).json();
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -401,6 +526,7 @@ export const updateTarget = async (req: Request, res: Response, next: NextFuncti
         }
         return res.status(204).json();
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -423,6 +549,7 @@ export const changePasswordOfEmployee = async (req: Request, res: Response, next
             }
         })
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -472,6 +599,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             res.send({ employeeNotFoundError: true })
         }
     } catch (error) {
+        console.log(error)
         next(error)
     }
 
@@ -491,6 +619,7 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -500,7 +629,20 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const token = req.params.token
         const jwtPayload = jwt.verify(token, process.env.JWT_SECRET)
         const userId = (<any>jwtPayload).id
-        const announcementCount = await announcementModel.countDocuments({ viewedBy: { $ne: new ObjectId(userId) } });
+
+        // Get user's category
+        const employee = await Employee.findById(userId);
+        const userCategoryId = employee.category;
+
+        // Updated announcement count query
+        const announcementCount = await announcementModel.countDocuments({
+            viewedBy: { $ne: new ObjectId(userId) },
+            $or: [
+                { category: { $in: ['all'] } },
+                { category: { $in: [userCategoryId] } }
+            ]
+        });
+
         const assignedJobCount = await enquiryModel.countDocuments({
             'preSale.presalePerson': new ObjectId(userId),
             $or: [
@@ -516,6 +658,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         });
 
         const dealSheetCount = await quotationModel.countDocuments({
+            "dealData.status": "pending",
             "dealData.seenByApprover": false,
         });
 
@@ -546,6 +689,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }

@@ -37,6 +37,10 @@ export class EnquiryService {
     return this.http.put<{ update: getEnquiry, quoteId: string | undefined }>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
+  rejectJob(enqId:any,comment:string): Observable<{ success:boolean }> {
+    return this.http.put<{ success:boolean }>(`${this.api}/enquiry/presales/reject`, {enqId,comment})
+  }
+
   emitToQuote(enquiry: getEnquiry | undefined) {
     this.quoteSubject.next(enquiry)
   }
@@ -54,7 +58,7 @@ export class EnquiryService {
   }
 
   downloadFile(fileName: string): Observable<any> {
-    return this.http.get(`${this.api}/file/download?file=${fileName}`,
+    return this.http.get(`${this.api}/file/download?file=${encodeURIComponent(fileName)}`,
       { responseType: 'blob', observe: 'events', reportProgress: true })
   }
 
@@ -68,6 +72,10 @@ export class EnquiryService {
 
   clearAllPresaleFiles(enquiryId: string) {
     return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
+  }
+  
+  clearEstimations(enquiryId: string) {
+    return this.http.delete(`${this.api}/enquiry/presales/estimation/${enquiryId}`)
   }
 
   sendFeedbackRequest(feedbackBody: { enquiryId: string, employeeId: string, comment: string }) {

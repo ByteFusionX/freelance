@@ -18,7 +18,8 @@ const TokenLogger = (req: Request, res: Response, next: NextFunction) => {
             return res.status(401).json({ error: 'Authorization token is missing' })
         }
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

@@ -6,13 +6,18 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
-import { getDealSheet, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
+import { getDealSheet, getQuotatation, getQuotation, Quotatation, QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { ApproveDealComponent } from '../approve-deal/approve-deal.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { RejectDealComponent } from '../reject-deal/reject-deal.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { HttpEventType } from '@angular/common/http';
+import { JobService } from 'src/app/core/services/job/job.service';
+import { ToastrService } from 'ngx-toastr';
+import saveAs from 'file-saver';
+import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 
 @Component({
   selector: 'app-approved-deals',
@@ -31,7 +36,7 @@ export class ApprovedDealsComponent {
   private readonly destroy$ = new Subject<void>();
   private notViewedDealIds: Set<string> = new Set();
 
-  displayedColumns: string[] = ['dealId', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'action'];
+  displayedColumns: string[] = ['dealId', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'lpo', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
 
@@ -43,6 +48,13 @@ export class ApprovedDealsComponent {
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
   searchControl = new FormControl('');
+  selectedFile!: string | undefined;
+  progress: number = 0;
+
+
+  searchQuery: string = '';
+  searchCriteria: string = 'dealId';
+  isEnter: boolean = false;
 
   constructor(
     private _quoteService: QuotationService,
@@ -50,7 +62,9 @@ export class ApprovedDealsComponent {
     private _dialog: MatDialog,
     private _employeeService: EmployeeService,
     private _notificationService: NotificationService,
-    private loadingBar: LoadingBarService
+    private loadingBar: LoadingBarService,
+    private _jobService: JobService,
+    private toast: ToastrService,
   ) { }
 
   ngOnInit() {
@@ -88,12 +102,27 @@ export class ApprovedDealsComponent {
     this.subscriptions.unsubscribe()
   }
 
+  ngModelChange() {
+    if (this.searchQuery == '' && this.isEnter) {
+      this.onSearch();
+      this.isEnter = !this.isEnter;
+    }
+  }
+
+  onSearch() {
+    this.isEnter = true
+    this.isLoading = true;
+    this.getDealSheet()
+  }
+
   getDealSheet() {
     this.isLoading = true;
     let access;
     let userId;
+    let role;
     this._employeeService.employeeData$.subscribe((employee) => {
       access = employee?.category.privileges.quotation.viewReport
+      role = employee?.category.role
       userId = employee?._id
       this.userId = userId;
     })
@@ -103,12 +132,15 @@ export class ApprovedDealsComponent {
       row: this.row,
       access: access,
       userId: userId,
-      search: this.searchControl.value || ''
+      search: this.searchControl.value || '',
+      searchQuery: this.searchQuery,
+      searchCriteria: this.searchCriteria,
+      role: role
     }
     this.subscriptions.add(
       this._quoteService.getApprovedDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data) {
+          if (data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
@@ -116,6 +148,7 @@ export class ApprovedDealsComponent {
             this.updateNotViewedQuoteIds();
             this.observeAllQuotes();
           } else {
+            this.total = 0;
             this.dataSource.data = [];
             this.isEmpty = true;
           }
@@ -190,6 +223,18 @@ export class ApprovedDealsComponent {
       return;
     });
 
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
+        priceDetails.totalCost += cost.value
+      } else if (cost.type === 'Supplier Discount') {
+        priceDetails.totalCost -= cost.value
+      } else if (cost.type === 'Customer Discount') {
+        priceDetails.totalSellingPrice -= cost.value
+      } else {
+        priceDetails.totalCost += cost.value
+      }
+    })
+
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
@@ -229,7 +274,7 @@ export class ApprovedDealsComponent {
     })
     rejectModal.afterClosed().subscribe((approved: boolean) => {
       if (approved) {
-        this._quoteService.revokeDeal(quoteData._id,'asdf').subscribe((res) => {
+        this._quoteService.revokeDeal(quoteData._id, 'asdf').subscribe((res) => {
           if (res) {
             this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()
@@ -241,4 +286,51 @@ export class ApprovedDealsComponent {
       }
     })
   }
+
+  onDownloadClicks(file: any) {
+    this.selectedFile = file.fileName
+    this.subscriptions.add(
+      this._jobService.downloadFile(file.fileName)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              this.progress = Math.round(100 * event.loaded / event.total);
+            } else if (event.type === HttpEventType.Response) {
+              const fileContent: Blob = new Blob([event['body']])
+              saveAs(fileContent, file.originalname)
+              this.clearProgress()
+            }
+          },
+          error: (error) => {
+            if (error.status == 404) {
+              this.selectedFile = undefined
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+            }
+          }
+        })
+    )
+  }
+
+  clearProgress() {
+    setTimeout(() => {
+      this.selectedFile = undefined;
+      this.progress = 0
+    }, 1000)
+  }
+
+  onPreviewPdf(quotedData: getQuotatation) {
+    this.loader.start()
+    let quoteData: getQuotatation = quotedData;
+    const pdfDoc = this._quoteService.generatePDF(quoteData, true)
+    pdfDoc.then((pdf) => {
+      pdf.getBlob((blob: Blob) => {
+        let url = window.URL.createObjectURL(blob);
+
+        let dialogRef = this._dialog.open(QuotationPreviewComponent,
+          { data: { url: url, formatedQuote: quoteData } });
+      });
+    });
+    this.loader.complete()
+  }
+
 }

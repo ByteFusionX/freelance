@@ -46,11 +46,14 @@ export class EditCategoryComponent {
       }),
       announcement: this._fb.group({
         viewReport: 'none',
-        create: [false]
+        create: [false],
+        deleteOrEdit: [false]
       }),
       customer: this._fb.group({
         viewReport: 'none',
-        create: [false]
+        create: [false],
+        share: [false],
+        transfer: [false],
       }),
       enquiry: this._fb.group({
         viewReport: 'none',

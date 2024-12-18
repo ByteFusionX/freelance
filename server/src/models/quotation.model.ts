@@ -19,6 +19,7 @@ interface QuoteItem {
 }
 
 interface AdditionalCost {
+    type: string;
     name: string;
     value: number;
 }
@@ -45,6 +46,7 @@ interface Quotation extends Document {
     department: Types.ObjectId;
     subject: string;
     currency: string;
+    quoteCompany: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: string;
@@ -55,6 +57,8 @@ interface Quotation extends Document {
     dealData: Deal;
     enqId: Types.ObjectId;
     isDeleted: boolean;
+    rfqNo: string;
+    closingDate: Date;
 }
 
 export enum quoteStatus {
@@ -118,13 +122,16 @@ const quoteItem = new Schema<QuoteItem>({
 });
 
 const additionalCostSchema = new Schema<AdditionalCost>({
+    type: {
+        type: String,
+        enum: ['Additional Cost', 'Supplier Discount', 'Customer Discount']
+    },
     name: {
         type: String,
-        required: false,
     },
     value: {
         type: Number,
-        required: false,
+        required: true,
     }
 });
 
@@ -204,6 +211,9 @@ const quotationSchema = new Schema<Quotation>({
         type: String,
         required: true,
     },
+    quoteCompany: {
+        type: String,
+    },
     items: {
         type: [quoteItem],
         required: true,
@@ -241,7 +251,11 @@ const quotationSchema = new Schema<Quotation>({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    },
+    closingDate: {
+        type: Date,
+        required: false,
+    },
 });
 
 export default model<Quotation>("Quotation", quotationSchema);

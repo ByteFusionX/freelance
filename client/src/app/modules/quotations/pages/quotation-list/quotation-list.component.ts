@@ -24,6 +24,7 @@ import * as ExcelJS from 'exceljs';
 import * as FileSaver from 'file-saver';
 import { DatePipe } from '@angular/common';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-quotation-list',
@@ -75,6 +76,7 @@ export class QuotationListComponent {
     private loadingBar: LoadingBarService,
     private datePipe: DatePipe,
     private numberFormat: NumberFormatterPipe,
+    private toaster: ToastrService
   ) { }
 
   formData = this._fb.group({
@@ -85,9 +87,8 @@ export class QuotationListComponent {
   ngOnInit() {
     this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
-    this.customers$ = this._customerService.getAllCustomers()
     this.departments$ = this._departetmentService.getDepartments()
-
+    
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -95,6 +96,7 @@ export class QuotationListComponent {
         this.getQuotations()
       })
     )
+    this.customers$ = this._customerService.getAllCustomers(this.userId)
 
   }
 
@@ -124,6 +126,8 @@ export class QuotationListComponent {
       userId = employee?._id
       this.userId = userId;
     })
+    console.log(this.userId)
+
 
     let filterData = {
       search: this.searchQuery,
@@ -239,8 +243,7 @@ export class QuotationListComponent {
 
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
-    console.log(quoteData);
-
+    console.log(quoteData)
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,
@@ -265,11 +268,17 @@ export class QuotationListComponent {
       return item;
     });
 
-    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
-      return acc += curr.value;
-    }, 0)
-
-    priceDetails.totalCost += totalAdditionalValue;
+    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
+      if(cost.type == 'Additional Cost'){
+        priceDetails.totalCost += cost.value
+      }else if(cost.type === 'Supplier Discount'){
+        priceDetails.totalCost -= cost.value
+      } else if(cost.type === 'Customer Discount'){
+        priceDetails.totalSellingPrice -= cost.value
+      } else {
+        priceDetails.totalCost += cost.value
+      }
+    })
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
@@ -330,11 +339,16 @@ export class QuotationListComponent {
     })
   }
 
-  onViewLpo(data: Quotatation, event: Event) {
+  onViewLpo(data: Quotatation, event: Event, index: number) {
     event.stopPropagation()
     this._dialog.open(ViewLpoComponent,
       {
         data: data
+      }).afterClosed().subscribe((quote: Quotatation) => {
+        if (quote) {
+          this.dataSource.data[index].lpoFiles = quote.lpoFiles
+          this.dataSource._updateChangeSubscription();
+        }
       });
   }
 
@@ -358,6 +372,7 @@ export class QuotationListComponent {
   }
 
   generateExcelReport() {
+    this.loader.start()
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Quotations');
 
@@ -374,29 +389,61 @@ export class QuotationListComponent {
       { header: 'Deal Status', key: 'dealStatus', width: 15 }
     ];
 
-    // Adding data
-    this.dataSource.data.forEach((element: any) => {
-      worksheet.addRow({
-        date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
-        quoteId: element.quoteId,
-        customerName: element.client.companyName,
-        description: element.subject,
-        salesPerson: element.createdBy.firstName + ' ' + element.createdBy.lastName,
-        department: element.department.departmentName,
-        totalCost: this.numberFormat.transform(this.calculateDiscoutPrice(element)) + ' ' + element.currency,
-        status: element.status,
-        dealStatus: element.dealData?.status || 'N/A'
-      });
-    });
+    let access;
+    let userId;
+    this._employeeService.employeeData$.subscribe((employee) => {
+      access = employee?.category.privileges.quotation.viewReport
+      userId = employee?._id
+      this.userId = userId;
+    })
 
-    // Styling the header
-    worksheet.getRow(1).font = { bold: true };
+    let filterData = {
+      search: this.searchQuery,
+      page: this.page,
+      row: Number.MAX_SAFE_INTEGER,
+      salesPerson: this.selectedSalesPerson,
+      customer: this.selectedCustomer,
+      fromDate: this.fromDate,
+      toDate: this.toDate,
+      department: this.selectedDepartment,
+      access: access,
+      userId: userId
+    }
+    this.subscriptions.add(
+      this._quoteService.getQuotation(filterData)
+        .subscribe((data: getQuotation) => {
+          if (data) {
+            // Sort quotations by date
+            data.quotations.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Generate & download Excel
-    workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      FileSaver.saveAs(blob, 'quotations_report.xlsx');
-    });
+            data.quotations.forEach((element: any) => {
+              worksheet.addRow({
+                date: this.datePipe.transform(element.date, 'dd/MM/yyyy'),
+                quoteId: element.quoteId,
+                customerName: element.client.companyName,
+                description: element.subject,
+                salesPerson: element.createdBy.firstName + ' ' + element.createdBy.lastName,
+                department: element.department.departmentName,
+                totalCost: this.numberFormat.transform(this.calculateDiscoutPrice(element)) + ' ' + element.currency,
+                status: element.status,
+                dealStatus: element.dealData?.status || 'N/A'
+              });
+            });
+
+            // Styling the header
+            worksheet.getRow(1).font = { bold: true };
+
+            // Generate & download Excel
+            workbook.xlsx.writeBuffer().then((buffer: BlobPart) => {
+              const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+              FileSaver.saveAs(blob, 'quotations_report.xlsx');
+            });
+          } else {
+            this.toaster.warning('There is no quotation.')
+          }
+        })
+    )
+    this.loader.complete()
   }
 
   checkPermission() {

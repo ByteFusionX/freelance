@@ -38,6 +38,7 @@ export interface Quotatation {
     department: getDepartment;
     subject: string;
     currency: string;
+    quoteCompany: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;
@@ -49,6 +50,8 @@ export interface Quotatation {
     lpoSubmitted: boolean;
     enqId: string;
     dealData: dealData;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export interface getQuotatation {
@@ -60,6 +63,7 @@ export interface getQuotatation {
     department: getDepartment;
     subject: string;
     currency: string;
+    quoteCompany: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;
@@ -70,6 +74,8 @@ export interface getQuotatation {
     lpoSubmitted: boolean;
     enqId: getEnquiry;
     dealData: dealData;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export interface DefaultAndText {
@@ -96,12 +102,15 @@ export interface quotatationForm {
     department: string | getDepartment | undefined;
     subject: string;
     currency: string;
+    quoteCompany: string;
     items: QuoteItem[];
     totalDiscount: number;
     customerNote: DefaultAndText;
     termsAndCondition: DefaultAndText;
     createdBy: string | getEmployee | undefined;
     status: QuoteStatus;
+    rfqNo: string;
+    closingDate: string;
 }
 
 export enum QuoteStatus {
@@ -118,7 +127,9 @@ export interface dealData {
     dealId: string;
     paymentTerms: string;
     updatedItems: QuoteItem[];
-    additionalCosts: { name: string, value: number }[];
+    additionalCosts: {
+      type: string; name: string, value: number 
+}[];
     savedDate: string;
     seenByApprover: boolean;
     status: string;
@@ -144,6 +155,7 @@ export interface FilterDeal {
     access?: string;
     userId?: string;
     search?: string;
+    role?:string;
 }
 
 export interface nextQuoteData {

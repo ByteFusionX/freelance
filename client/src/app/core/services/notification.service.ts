@@ -39,6 +39,7 @@ export class NotificationService {
         switch (notificationType) {
             case 'announcement':
                 updatedCounts.announcementCount += 1;
+                console.log(updatedCounts)
                 break;
             case 'assignedJob':
                 updatedCounts.assignedJobCount += 1;

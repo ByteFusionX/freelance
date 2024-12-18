@@ -85,7 +85,7 @@
                         <div class="mb-2">
                             <label for="customer" class="font-medium">Customer:</label>
                             <ng-select id="customer" [(ngModel)]="selectedCustomer" class=" filter"
-                                placeholder="Sales Person" appendTo="body" (change)="onfilterApplied()">
+                                placeholder="Customer" appendTo="body" (change)="onfilterApplied()">
                                 <ng-option *ngFor="let customer of customers$ | async"
                                     [value]="customer._id">{{customer.companyName}}</ng-option>
                             </ng-select>
@@ -256,7 +256,7 @@
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroDocumentArrowUp"></ng-icon>
                             </div>
-                            <div (click)="onViewLpo(element,$event)"
+                            <div (click)="onViewLpo(element,$event,i)"
                                 *ngIf="element.status == 'Won' && element.lpoFiles.length " matTooltip="View Lpo"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer w-8 h-8 rounded-full  border border-gray-300 hover:border-gray-500 flex justify-center items-center">
@@ -267,7 +267,7 @@
                                 matTooltip="Deal Status" matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer w-8 h-8 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center relative">
                                 <ng-icon name="heroClipboardDocumentCheck" class="text-black"></ng-icon>
-                                <div *ngIf="element.dealData.seenedBySalsePerson === false && element.createdBy == userId"
+                                <div *ngIf="element.dealData.seenedBySalsePerson === false && element.createdBy._id == userId"
                                     class="w-2.5 h-2.5 bg-orange-500 rounded-full absolute -top-1 -right-1 border border-white">
                                 </div>
                             </div>

@@ -31,7 +31,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: process.env.ORIGIN1 ?? 'http://localhost:4200',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true
   }
 });
@@ -49,7 +49,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
 
@@ -74,7 +74,7 @@ let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD
 if (process.env.USE_MONGOATLAS === 'true') {
   mongoUrl = process.env.MONGODB_ATLAS_URL as string;
 }
-console.log(mongoUrl, 'mongoUrl');
+
 mongoose
   .connect(mongoUrl)
   .then(() => {

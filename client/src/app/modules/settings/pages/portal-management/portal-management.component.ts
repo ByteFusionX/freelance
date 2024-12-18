@@ -126,9 +126,10 @@ export class PortalManagementComponent {
             this._profileService.getNotes().subscribe((data) => {
               if (data) {
                 this.cstcDataSource.data = [data]
-
-                this.isNotesLoading = false
+              }else {
+                this.cstcDataSource.data = []
               }
+              this.isNotesLoading = false
             })
           )
         }

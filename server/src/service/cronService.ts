@@ -1,5 +1,6 @@
 import employeeModel from "../models/employee.model";
 import announcementModel from "../models/announcement.model";
+import { fetchExchangeRate } from "../common/util";
 const cron = require('node-cron');
 
 const processEmployeeEvent = async (element, eventType) => {
@@ -29,7 +30,8 @@ const processEmployeeEvent = async (element, eventType) => {
             description: eventDescription,
             date: today,
             celeb: true,
-            viewedBy: []
+            viewedBy: [],
+            category:['all']
         });
 
 
@@ -83,6 +85,13 @@ const startCronJob = () => {
         } catch (error) {
             console.error('Cron job error:', error.message);
         }
+    }).start();
+
+    fetchExchangeRate();
+
+    cron.schedule('0 */4 * * *', () => {
+        console.log('Updating exchange rate...');
+        fetchExchangeRate();
     }).start();
 };
 

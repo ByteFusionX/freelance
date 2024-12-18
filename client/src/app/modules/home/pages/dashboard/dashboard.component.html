@@ -124,11 +124,10 @@
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
                             <p class="font-semibold text-sm">{{ metric.name }}</p>
                             <p class="font-bold text-[1.7rem]">
-                                {{ metric.type === 'QAR' ? metric.value.toFixed(2) : metric.value }} {{ metric.type }}
+                                {{ metric.type === 'QAR' ? this.formatNumber(metric.value) : this.formatNumber(metric.value)  }} {{ metric.type }}
                             </p>
                             <p class="font-medium text-gray-800 text-xs">
-                                +{{ metric.type === 'QAR' ? metric.lastWeek.toFixed(2) : metric.lastWeek + ' ' +
-                                metric.type }}
+                                +{{ metric.type === 'QAR' ? this.formatNumber(metric.lastWeek) : this.formatNumber(metric.lastWeek)  }}
                                 {{ metric.lastWeekName }} this week
                             </p>
                         </div>

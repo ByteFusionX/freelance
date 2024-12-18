@@ -50,7 +50,8 @@ export class CustomerEditComponent {
           lastName: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
           phoneNo: ['', [Validators.required]],
-          department: [null, [Validators.required]]
+          department: [null, [Validators.required]],
+          _id: ['', [Validators.required]],
         })
       ]),
       companyName: ['', Validators.required],
@@ -156,7 +157,8 @@ export class CustomerEditComponent {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNo: ['', [Validators.required]],
-      department: [null, [Validators.required]]
+      department: [null, [Validators.required]],
+      _id: ['', [Validators.required]],
     }));
   }
 

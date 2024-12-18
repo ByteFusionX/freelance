@@ -13,7 +13,7 @@
             <div class="flex justify-end items-center gap-4">
                
                 <div *ngIf="!isLoading && !isEmpty" class="flex justify-end items-center  h-full">
-                    <p class="text-lg font-medium">Total LPO Value: {{ totalLpoValue.toFixed(2) }}  QAR</p>
+                    <p class="text-lg font-medium">Total LPO Value: {{formatNumber(totalLpoValue.toFixed(2)) }}  QAR</p>
                 </div>
                 <div class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px]"
                     [matMenuTriggerFor]="beforeMenu" mat-button>
@@ -44,7 +44,7 @@
                     </ng-icon>
                 </div>
             </div>
-                <div class="w-80 flex gap-2" (click)="handleNotClose($event)">
+                <div class="min-w-80 flex gap-2" (click)="handleNotClose($event)">
 
                     <div class="w-full">
                         <ng-select appNoLeadingSpace [(ngModel)]="selectedEmployee" class="filter-createdby"
@@ -58,6 +58,13 @@
                             (change)="onfilterApplied()">
                             <ng-option *ngFor="let status of status" [value]="status.value">{{status.value}}</ng-option>
                         </ng-select>
+                    </div>
+                    <div  class="w-full" *ngIf="searchQuery || selectedEmployee || selectedStatus">
+                        <button 
+                            class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs whitespace-nowrap"
+                            (click)="clearFilter()">
+                            x Clear All Filter
+                        </button>
                     </div>
                 </div>
 
@@ -150,6 +157,10 @@
                                     <p class="w-24 truncate ..." matTooltip="{{file.originalname}}"
                                         matTooltipPosition="above" matTooltipClass="mat-tooltip">{{file.originalname}}
                                     </p>
+                                    <button class="w-5 h-5 border rounded-full flex justify-center items-center mr-2"
+                                        (click)="onViewPDF(file)">
+                                        <ng-icon class="text-black" name="heroEye"></ng-icon>
+                                    </button>
                                     <button class="w-5 h-5 border rounded-full flex justify-center items-center"
                                         (click)="onDownloadClicks(file)">
                                         <ng-icon class="text-black" name="heroInboxArrowDown"></ng-icon>
@@ -169,7 +180,7 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         LPO Value </th>
-                    <td mat-cell *matCellDef="let element"> {{element.lpoValue.toFixed(2)}} QAR </td>
+                    <td mat-cell *matCellDef="let element"> {{formatNumber(element.lpoValue.toFixed(2))}} QAR </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">

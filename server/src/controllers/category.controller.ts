@@ -41,7 +41,8 @@ export const getCategory = async (req: Request, res: Response, next: NextFunctio
         }
         return res.status(204).json();
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -72,7 +73,8 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 
         return res.status(502).json(saveCategory);
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -139,6 +141,7 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
             message: 'Category deleted successfully'
         });
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }

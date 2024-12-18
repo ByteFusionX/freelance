@@ -26,7 +26,6 @@ import { HalfDoughnutChartComponent } from 'src/app/shared/components/charts/hal
 import { LineChartComponent } from 'src/app/shared/components/charts/line-chart/line-chart.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { NumberShortenerPipe } from 'src/app/shared/pipes/numberShortener.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -59,7 +58,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     LineChartComponent,
     pipeModule,
     NumberShortenerPipe,
-    MatTooltipModule
+
 ]
 })
 export class HomeModule { }

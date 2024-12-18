@@ -22,6 +22,7 @@ export class CreateCustomerDialog {
   isSubmitted: boolean = false;
   isSaving: boolean = false;
   customerExist: boolean = false;
+  canCreateDepartment:boolean = false;
 
   constructor(
     private _fb: FormBuilder,
@@ -36,6 +37,10 @@ export class CreateCustomerDialog {
   ngOnInit() {
     this.getDepartment()
     this.getCustomerDepartment()
+    this._employeeService.employeeData$.subscribe((data)=>{
+      this.canCreateDepartment = data?.category.privileges.portalManagement.department as boolean
+    })
+    
     this.customerForm = this._fb.group({
       department: ['', Validators.required],
       contactDetails: this._fb.array([

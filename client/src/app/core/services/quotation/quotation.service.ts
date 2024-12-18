@@ -80,6 +80,10 @@ export class QuotationService {
     return this.http.post(`${this.api}/quotation/markAsQuotationSeened`, { quoteId, userId })
   }
 
+  removeLpo(fileName: string, quoteId: string): Observable<any> {
+    return this.http.delete(`${this.api}/quotation/lpo/${quoteId}/${fileName}`)
+  }
+
 
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {
@@ -107,7 +111,7 @@ export class QuotationService {
     });
   }
 
-  async generatePDF(quoteData: getQuotatation) {
+  async generatePDF(quoteData: getQuotatation, includeStamp: boolean) {
     const items = quoteData.items
 
     if (!quoteData.quoteId) {
@@ -127,7 +131,8 @@ export class QuotationService {
       { text: 'Qty', style: 'tableHeader' },
       { text: 'Unit', style: 'tableHeader' },
       { text: `Unit Price (${quoteData.currency})`, style: 'tableHeader' },
-      { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' }
+      { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' },
+      { text: `Availability`, style: 'tableHeader' },
     ];
 
     // Table body
@@ -137,8 +142,8 @@ export class QuotationService {
     items.forEach(item => {
       let serialNumber = 1;
       tableBody.push([
-        { text: item.itemName, colSpan: 6, style: 'itemRow' },
-        '', '', '', '', ''
+        { text: item.itemName, colSpan: 7, style: 'itemRow' },
+        '', '', '', '', '', ''
       ]);
       item.itemDetails.forEach(detail => {
         const decimalMargin = detail.profit / 100;
@@ -183,15 +188,17 @@ export class QuotationService {
           { text: result, style: 'tableText' },
           { text: detail.quantity, style: 'tableText', alignment: 'center' },
           { text: 'Ea', style: 'tableText', alignment: 'center' },
-          { text: unitPrice.toFixed(2), style: 'tableText', alignment: 'center' },
-          { text: totalPrice.toFixed(2), style: 'tableText', alignment: 'center' },
+          { text: this.formatNumber(unitPrice), style: 'tableText', alignment: 'center' },
+          { text: this.formatNumber(totalPrice), style: 'tableText', alignment: 'center' },
+          { text: detail.availability, style: 'tableText', alignment: 'center' },
         ]);
       });
     });
 
     const totalAmount = [
       { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-      { text: totalCost.toFixed(2), style: 'tableFooter' },
+      { text: this.formatNumber(totalCost), style: 'tableFooter' },
+      { text: '', style: 'tableFooter' }
     ];
 
 
@@ -201,16 +208,19 @@ export class QuotationService {
     if (quoteData.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: quoteData.totalDiscount.toFixed(2), style: 'tableFooter' },
+        { text: this.formatNumber(quoteData.totalDiscount), style: 'tableFooter' },
+        { text: '', style: 'tableFooter' }
       ];
       finalAmount = [
-        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: (totalCost - quoteData.totalDiscount).toFixed(2), style: 'tableFooter' },
+        { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: this.formatNumber(totalCost - quoteData.totalDiscount), style: 'tableFooter' },
+        { text: '', style: 'tableFooter' }
       ];
     } else {
       finalAmount = [
-        { text: `Total Ammount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: (totalCost).toFixed(2), style: 'tableFooter' },
+        { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+        { text: this.formatNumber(totalCost), style: 'tableFooter' },
+        { text: '', style: 'tableFooter' }
       ];
     }
 
@@ -236,7 +246,7 @@ export class QuotationService {
     const table = {
       table: {
         headerRows: 1,
-        widths: [20, '*', 25, 40, 60, 60],
+        widths: [20, '*', 25, 40, 60, 60, 60],
         body: body,
       }
     };
@@ -265,7 +275,9 @@ export class QuotationService {
       },
       header: {
         image: await this.getBase64ImageFromURL(
-          "../../assets/images/pdfheader.jpg"
+          quoteData.quoteCompany === "Neuron Security System"
+            ? "../../assets/images/pdfheader-security.jpg"
+            : "../../assets/images/pdfheader.jpg"
         ),
         width: 550,
         alignment: 'center',
@@ -281,6 +293,22 @@ export class QuotationService {
       },
       pageMargins: [45, 115, 45, 100],
       content: [
+        ...(quoteData.quoteCompany == 'Neuron Security System'
+          ? [
+            { text: 'Respected Sir/ Ma’am,', style: 'text' },
+            { text: 'Reference to your query on the above subject, we are pleased to enclose herewith our OFFER for your perusal and due consideration.', style: 'text' },
+            { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text' },
+            { text: 'Statement of Confidentiality', style: 'orangeHeading' },
+            { text: 'Copyright: © 2020 Neuron Security System.', style: 'italicText' },
+            { text: 'This document is the property of Neuron Security Systems and the information contained herein is confidential. This work, either in whole or in part, must not be reproduced or disclosed to others or used for purposes other than that for which it is supplied, without Neuron’ s prior written permission, or if any part hereof is furnished by virtue of a contract with a third party, as expressly authorized under that contract. Neuron Security System must not be considered liable for any mistake or omission in the edition of this document.', style: 'text' },
+            { text: 'Disclaimer', style: 'orangeHeading' },
+            { text: 'The information included in this document is proprietary to Neuron Security Systems and is solely for the use of the designated recipient. No part of this document may be quoted, circulated, repurposed, reproduced, or distributed without prior written permission from Neuron. The information contained within is subject to change if there is any change in end client requirement or change in our assumptions or even due to change in socio-economic environments.', style: 'text' },
+            {
+              text: '', // Blank text to initiate the next page
+              pageBreak: 'before'
+            },
+          ]
+          : []),
 
         {
           "style": "header",
@@ -303,20 +331,26 @@ export class QuotationService {
         {
           style: 'tableExample',
           color: '#444',
+           margin: [0, 10, 0, 15] ,
           table: {
             widths: [78.66, '*', 43.24, '*', 73.60, 'auto'],
             body: [
               [{ style: 'tableHead', text: 'Company:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyName, alignment: 'left', colSpan: 4 }, {}, {}, {}, { text: ['Total Pages : 0', { pageReference: 'lastPage' }], alignment: 'left', style: 'pageNumber' }],
-              [{ style: 'tableHead', text: 'Attention:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.attention.courtesyTitle + ' ' + quoteData.attention.firstName + ' ' + quoteData.attention.lastName}`, alignment: 'left', colSpan: 3, bold: true }, {}, {}, { style: 'tableHead', text: 'Date:', alignment: 'left' }, { style: 'tableHead', text: '14-03-2024', alignment: 'left' }],
-              [{ style: 'tableHead', text: 'Address:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.companyAddress, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Client Ref:', alignment: 'left' }, { style: 'tableHead', text: quoteData.client.clientRef, alignment: 'left' }],
-              [{ style: 'tableHead', text: 'Client Tel:', alignment: 'left' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'FAX:', alignment: 'center' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'Salesperson:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}`, alignment: 'left' }],
+              [{ style: 'tableHead', text: 'Attention:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.attention.courtesyTitle + ' ' + quoteData.attention.firstName + ' ' + quoteData.attention.lastName}`, alignment: 'left', colSpan: 3, bold: true }, {}, {}, { style: 'tableHead', text: 'Date:', alignment: 'left' }, { style: 'tableHead', text: new Date(quoteData.date).toLocaleDateString('en-GB'), alignment: 'left' }],
+              [{ rowSpan: 2, style: 'vCentertableHead', text: 'Address:', alignment: 'left' }, { rowSpan: 2, style: 'vCentertableHead', text: quoteData.client.companyAddress, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'stableHead', text: 'RFQ No:', alignment: 'left' }, { style: 'stableHead', text: quoteData.client.clientRef, alignment: 'left' }],
+              ['', '', '', '', { style: 'stableHead', text: 'Closing Date:', alignment: 'left' }, { style: 'stableHead', text: quoteData.closingDate ? new Date(quoteData.closingDate).toLocaleDateString('en-GB') : '', alignment: 'left' }],
+              [{ style: 'tableHead', text: 'Client Tel:', alignment: 'left' }, { style: 'tableHead', text: `+974 ${quoteData.attention.phoneNo}`, alignment: 'left' }, { style: 'tableHead', text: 'FAX:', alignment: 'center' }, { style: 'tableHead', text: '+974', alignment: 'left' }, { style: 'tableHead', text: 'Salesperson:', alignment: 'left' }, { style: 'tableHead', text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}`, alignment: 'left' }],
               [{ style: 'tableHead', text: 'Subject:', alignment: 'left' }, { style: 'tableHead', text: quoteData.subject, alignment: 'left', colSpan: 3 }, {}, {}, { style: 'tableHead', text: 'Quote Ref:', alignment: 'left' }, { style: 'quoteId', text: quoteData.quoteId, alignment: 'left' }],
             ]
           }
         },
-        { text: 'Respected Sir/ Ma’am,', style: 'text' },
-        { text: 'Reference to your query on the above subject, we are pleased to enclose herewith our OFFER for your perusal and due consideration.', style: 'text' },
-        { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text', margin: [0, 10, 0, 15] },
+        ...(quoteData.quoteCompany !== 'Neuron Security System'
+          ? [
+            { text: 'Respected Sir/ Ma’am,', style: 'text' },
+            { text: 'Reference to your query on the above subject, we are pleased to enclose herewith our OFFER for your perusal and due consideration.', style: 'text' },
+            { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text', margin: [0, 10, 0, 15] },
+          ]
+          : []),
         table,
         { text: 'TERMS & CONDITIONS', style: 'subHeading' },
         { text: quoteData.termsAndCondition, style: 'text' },
@@ -326,15 +360,15 @@ export class QuotationService {
             {
               text: [
                 { text: 'Thanking you\nFor ', style: 'footerText' },
-                { text: 'Neuron Technologies W.L.L', style: 'footerBoldText', id: 'lastPage' }]
+                { text: quoteData.quoteCompany == "Neuron Security System" ? 'Neuron Security System W.L.L' : 'Neuron Technologies W.L.L', style: 'footerBoldText', id: 'lastPage' }]
             },
-            {
+            ...(includeStamp ? [{
               image: await this.getBase64ImageFromURL(
                 "../../assets/images/stamp.jpg"
               ),
               width: 90,
               margin: [30, 5, 0, 0]
-            },
+            }] : []),
             { text: `${quoteData.createdBy.firstName + ' ' + quoteData.createdBy.lastName}\nMob: - ${quoteData.createdBy.contactNo}\nE: ${quoteData.createdBy.email}`, style: 'footerText', alignment: 'right' },
           ],
           margin: [0, 10, 0, 0],
@@ -347,9 +381,28 @@ export class QuotationService {
           color: 'white',
           bold: true
         },
+        orangeHeading: {
+          fontSize: 16,
+          color: '#ED7D31',
+          margin: [0, 10, 0, 0],
+          bold: true
+        },
+        italicText: {
+          italics: true
+        },
         tableHead: {
           color: 'black',
           fontSize: 10
+        },
+        stableHead: {
+          color: 'black',
+          fontSize: 9
+        },
+        vCentertableHead: {
+          color: 'black',
+          fontSize: 10,
+          margin: [0, 5, 0, 5],
+          verticalAlignment: 'middle'
         },
         quoteId: {
           color: 'black',
@@ -368,7 +421,7 @@ export class QuotationService {
           fontSize: 10
         },
         text: {
-          fontSize: 10,
+          fontSize: 12,
           margin: [0, 5, 0, 0]
         },
         subHeading: {

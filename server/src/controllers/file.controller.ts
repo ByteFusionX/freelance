@@ -13,7 +13,9 @@ export const DownloadFile = async (req: Request, res: Response, next: NextFuncti
         const fileName = req.query.file as string;
         console.log(fileName);
 
+        console.log(fileName)
         const url = await getFileUrlFromAws(fileName);
+        console.log(url)
 
         // Stream the file from S3 to the response
         const response = await fetch(url);
@@ -25,7 +27,8 @@ export const DownloadFile = async (req: Request, res: Response, next: NextFuncti
         response.body.pipe(res);
     } catch (error) {
         console.error('An error occurred while processing the request:', error);
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -44,7 +47,8 @@ export const fetchFile = async (req: Request, res: Response, next: NextFunction)
         response.body.pipe(res);
     } catch (error) {
         console.error('An error occurred while processing the request:', error);
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -72,7 +76,8 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
             );
         }
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }
 
@@ -98,6 +103,7 @@ export const clearAllPresaleFiles = async (req: Request, res: Response, next: Ne
             res.status(404).send('Something went Wrong');
         }
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 }

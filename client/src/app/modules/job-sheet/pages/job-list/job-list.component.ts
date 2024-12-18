@@ -17,10 +17,14 @@ import { QuotationService } from 'src/app/core/services/quotation/quotation.serv
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { LoadingBarService } from '@ngx-loading-bar/core';
 import { getCreators } from 'src/app/shared/interfaces/employee.interface';
+import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+
 @Component({
   selector: 'app-job-list',
   templateUrl: './job-list.component.html',
-  styleUrls: ['./job-list.component.css']
+  styleUrls: ['./job-list.component.css'],
+  providers: [NumberFormatterPipe]
 })
 export class JobListComponent {
 
@@ -77,7 +81,7 @@ export class JobListComponent {
     )
   }
 
-  selectedStatus!: number;
+  selectedStatus!: number | null;
 
   formData = this._fb.group({
     fromDate: new FormControl(),
@@ -128,7 +132,7 @@ export class JobListComponent {
       page: this.page,
       row: this.row,
       salesPerson: this.selectedEmployee,
-      status: this.selectedStatus,
+      status: this.selectedStatus as number,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
       access: access,
@@ -222,11 +226,18 @@ export class JobListComponent {
       return;
     });
 
-    const totalAdditionalValue = quoteData.dealData.additionalCosts.reduce((acc, curr) => {
-      return acc += curr.value;
-    }, 0)
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
+        priceDetails.totalCost += cost.value
+      } else if (cost.type === 'Supplier Discount') {
+        priceDetails.totalCost -= cost.value
+      } else if (cost.type === 'Customer Discount') {
+        priceDetails.totalSellingPrice -= cost.value
+      } else {
+        priceDetails.totalCost += cost.value
+      }
+    })
 
-    priceDetails.totalCost += totalAdditionalValue;
     priceDetails.totalSellingPrice -= quoteData.totalDiscount;
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
@@ -238,21 +249,57 @@ export class JobListComponent {
       });
   }
 
+  onViewPDF(file: any) {
+    // Check if the file is a PDF
+    if (file.fileName && file.fileName.toLowerCase().endsWith('.pdf')) {
+      this.subscriptions.add(
+        this._jobService.downloadFile(file.fileName)
+          .subscribe({
+            next: (event) => {
+              if (event.type === HttpEventType.Response) {
+                const fileContent: Blob = new Blob([event['body']], { type: 'application/pdf' });
+  
+                // Create an object URL for the PDF blob
+                const fileURL = URL.createObjectURL(fileContent);
+  
+                // Open the PDF in a new tab
+                window.open(fileURL, '_blank');
+  
+                // Optionally revoke the object URL after some time
+                setTimeout(() => {
+                  URL.revokeObjectURL(fileURL);
+                }, 10000);
+              }
+            },
+            error: (error) => {
+              if (error.status === 404) {
+                this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.');
+              } else {
+                this.toast.error('An error occurred while trying to view the PDF. Please try again later.');
+              }
+            }
+          })
+      );
+    } else {
+      // If the file is not a PDF, show a toaster notification
+      this.toast.warning('This file type is not supported for viewing. Please download and view the file.');
+    }
+  }
+
+
   onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
     this.loader.start()
     quotedData.createdBy = salesPerson;
     quotedData.client = customer;
     quotedData.attention = attention;
     let quoteData: getQuotatation = quotedData;
-    const pdfDoc = this._quotationService.generatePDF(quoteData)
+    const pdfDoc = this._quotationService.generatePDF(quoteData, true)
     pdfDoc.then((pdf) => {
       pdf.getBlob((blob: Blob) => {
         let url = window.URL.createObjectURL(blob);
 
         let dialogRef = this._dialog.open(QuotationPreviewComponent,
-          {
-            data: url
-          });
+          { data: { url: url, formatedQuote: quoteData } });
       });
     });
     this.loader.complete()
@@ -318,7 +365,7 @@ export class JobListComponent {
       search: this.searchQuery,
       page: this.page,
       row: this.row,
-      status: this.selectedStatus,
+      status: this.selectedStatus as number,
       salesPerson: this.selectedEmployee,
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
@@ -374,6 +421,24 @@ export class JobListComponent {
   onRemoveReport() {
     this.reportDate = ''
     this.getAllJobs()
+  }
+
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+    if (isNaN(value)) {
+      return '';
+    }
+
+    return parseInt(value).toLocaleString('en-US', {
+      minimumFractionDigits,
+      maximumFractionDigits
+    });
+  }
+
+  clearFilter() {
+    this.searchQuery = ''; // Clear the search query
+    this.selectedEmployee = null; // Reset selected employee
+    this.selectedStatus = null; // Reset selected status
+    this.onfilterApplied(); // Call the filter applied function to reapply filters
   }
 
 

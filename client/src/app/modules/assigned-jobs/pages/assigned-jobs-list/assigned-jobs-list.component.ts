@@ -19,6 +19,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
+import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -35,6 +36,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   isEmpty: boolean = false;
   subscriptions = new Subscription();
   jobIdArr: string[] = []
+
+
   private readonly destroy$ = new Subject<void>();
   private notViewedJobIds: Set<string> = new Set();
 
@@ -223,6 +226,8 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
+
+
   viewFeedback(feedback: feedback[], enqId: string, index: number) {
 
     this._dialog.open(ViewFeedbackComponent, {
@@ -259,8 +264,26 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   onViewEstimation(estimation: Estimations, enqId: string) {
-    this._dialog.open(ViewEstimationComponent, {
+    const estimationDialog = this._dialog.open(ViewEstimationComponent, {
       data: { estimation, enqId, isEdit: true }
+    })
+
+    estimationDialog.afterClosed().subscribe((remove: boolean) => {
+      if (remove) {
+        this._enquiryService.clearEstimations(enqId).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              this.dataSource.data = this.dataSource.data.map((enquiry) => {
+                if (enquiry._id == enqId) {
+                  delete (enquiry.preSale as any).estimations
+                }
+                return enquiry
+              })
+              this.dataSource._updateChangeSubscription()
+            }
+          }
+        })
+      }
     })
   }
 
@@ -303,6 +326,35 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   handleNotClose(event: MouseEvent) {
     event.stopPropagation();
   }
+
+  onRejectJob(enquiry: any, index: number) {
+    if (!enquiry.preSale.estimations) {
+      const rejectModal = this._dialog.open(RejectJobCommentComponent, {
+        width: '500px'
+      })
+      rejectModal.afterClosed().subscribe((comment) => {
+        if (comment) {
+          this._enquiryService.rejectJob(enquiry._id, comment).subscribe({
+            next: (res) => {
+              if (res.success) {
+                this.dataSource.data.splice(index, 1)
+                this.dataSource._updateChangeSubscription()
+                if (this.dataSource.data.length <= 0) {
+                  this.isEmpty = true;
+                }
+              }
+            },
+            error: () => {
+              this.toast.warning('Something went wrong while rejecting. Please try again later')
+            }
+          })
+        }
+      })
+    } else {
+      this.toast.warning('Job rejection failed. Please ensure all estimations are cleared before rejecting the job.')
+    }
+  }
+
   chooseType(file: any): string {
     const contentTypes: any = {
       'pdf': 'application/pdf',

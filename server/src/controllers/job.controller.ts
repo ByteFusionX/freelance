@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
-import { calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
 import { newTrash } from '../controllers/trash.controller';
+import { calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
+
 
 const { ObjectId } = require('mongodb')
 
@@ -39,8 +40,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -50,24 +50,15 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:
                 break;
         }
-
-        console.log(access);
-
-
-
-        const USDRates = await getUSDRated();
-        const qatarUsdRate = USDRates.usd.qar;
+        
+        const qatarUsdRate = await getUSDRated();
 
         const jobData = await jobModel.aggregate([
             {
@@ -115,20 +106,40 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                         ]
                     },
                     lpoValue: {
-                        $sum: {
-                            $cond: [
-                                { $eq: ['$quotation.currency', 'USD'] },
-                                {
-                                    $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
-                                        qatarUsdRate
-                                    ]
-                                },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
-                            ]
+                        $let: {
+                            vars: {
+                                baseLpoValue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $multiply: [
+                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                    qatarUsdRate
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                        ]
+                                    }
+                                }
+                            },
+                            in: {
+                                $reduce: {
+                                    input: '$quotation.dealData.additionalCosts',
+                                    initialValue: '$$baseLpoValue',
+                                    in: {
+                                        $cond: [
+                                            { $eq: ['$$this.type', 'Customer Discount'] },
+                                            { $subtract: ['$$value', '$$this.value'] },
+                                            '$$value'
+                                        ]
+                                    }
+                                }
+                            }
                         }
-                    },
-                },
+                    }
+                }
+                
             },
             {
                 $match: { ...accessFilter, ...matchFilters }
@@ -164,16 +175,13 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
         ]).exec();
 
-
-
         const totalValues = jobData.reduce((acc, job) => {
             const quote = job?.quotation;
             if (quote.currency == 'USD') {
-                const updatedItems = quote?.dealData?.updatedItems || [];
-                acc.totalUSDValue += calculateDiscountPrice(quote, updatedItems);
+                acc.totalUSDValue += Number(job?.lpoValue.toFixed(2))
             } else {
-                const updatedItems = quote?.dealData?.updatedItems || [];
-                acc.totalQARValue += calculateDiscountPrice(quote, updatedItems);
+                acc.totalQARValue += Number(job?.lpoValue.toFixed(2))
+
             }
             return acc;
         }, {
@@ -190,7 +198,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             return res.status(504).json({ err: 'No job data found' });
         }
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -200,8 +209,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         let accessFilter = {};
 
-        let employeesReportingToUser = await Employee.find({ reportingTo: userId }, '_id');
-        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+        let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
             case 'created':
@@ -211,12 +219,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
                 accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
             case 'createdAndReported':
-                accessFilter = {
-                    $or: [
-                        { 'salesPersonDetails._id': new ObjectId(userId) },
-                        { 'salesPersonDetails._id': { $in: reportedToUserIds } }
-                    ]
-                };
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPersonDetails._id': { $in: reportedToUserIds } };
                 break;
 
             default:
@@ -252,7 +256,8 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         return res.status(502).json()
     } catch (error) {
-        next(error);
+        console.log(error)
+next(error);
     }
 };
 
@@ -270,7 +275,8 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
         }
         return res.status(502).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 
@@ -318,7 +324,8 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
         }
         return res.status(204).json()
     } catch (error) {
-        next(error)
+        console.log(error)
+next(error)
     }
 }
 

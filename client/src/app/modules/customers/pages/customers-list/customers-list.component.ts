@@ -4,9 +4,12 @@ import { getCustomer, getFilteredCustomer } from 'src/app/shared/interfaces/cust
 import { MatTableDataSource } from '@angular/material/table';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { NavigationExtras, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, share, Subscription } from 'rxjs';
 import { getCreators, getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ShareTransferCustomerComponent } from '../share-transfer-customer/share-transfer-customer.component';
+import { SharedWithListComponent } from '../shared-with-list/shared-with-list.component';
 
 @Component({
   selector: 'app-customers-list',
@@ -16,14 +19,16 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 export class CustomersListComponent {
 
   employees$!: Observable<getCreators[]>;
-
+  userId:string | undefined;
+  shareAccess: boolean | undefined = false;
+  transferAccess: boolean | undefined = false;
   isLoading: boolean = true;
   isEmpty: boolean = false;
   isEnter: boolean = false;
   createCustomer: boolean | undefined = false;
 
-  displayedColumns: string[] = ['position', 'clientRef', 'name', 'createdBy', 'department'];
 
+  displayedColumns: string[] = ['position', 'clientRef', 'name', 'createdBy', 'department', 'share'];
   dataSource = new MatTableDataSource<getCustomer>()
   filteredData = new MatTableDataSource<getCustomer>()
 
@@ -40,6 +45,7 @@ export class CustomersListComponent {
     private _customerService: CustomerService,
     private _router: Router,
     private _employeeService: EmployeeService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -58,12 +64,19 @@ export class CustomersListComponent {
     this.subscriptions.unsubscribe()
   }
 
+  preventClick(event: Event) {
+    event.stopPropagation()
+  }
+
   getAllCustomers() {
     this.isLoading = true;
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
       access = employee?.category.privileges.customer.viewReport
+      this.shareAccess = employee?.category.privileges.customer.share
+      this.transferAccess = employee?.category.privileges.customer.transfer
+      this.userId = employee?._id;
       userId = employee?._id
     })
 
@@ -95,6 +108,51 @@ export class CustomersListComponent {
 
   onfilterApplied() {
     this.getAllCustomers()
+  }
+
+  onShareOrTransfer(type: String, customerId: string, index: number) {
+    const shareDialog = this.dialog.open(ShareTransferCustomerComponent, {
+      data: {
+        type: type,
+        customerId: customerId
+      },
+      width: '500px'
+    })
+
+    shareDialog.afterClosed().subscribe((res) => {
+      if (res) {
+        console.log({
+          customerId: customerId,
+          employees: res.employees,
+          type: res.type
+        });
+        this._customerService.shareOrTransferCustomer({
+          customerId: customerId,
+          employees: res.employees,
+          type: res.type
+        }).subscribe((res) => {
+          this.dataSource.data[index].createdBy = res.createdBy;
+          this.dataSource.data[index].sharedWith = res.sharedWith;
+          this.dataSource._updateChangeSubscription();
+        })
+      }
+    })
+  }
+
+  onSharedList(sharedWith: any, customerId: string, index: number) {
+    const shareDialog = this.dialog.open(SharedWithListComponent, {
+      data: {
+        sharedWith,
+        customerId
+      },
+      disableClose: true,
+      width: '500px'
+    })
+
+    shareDialog.afterClosed().subscribe((res) => {
+      this.dataSource.data[index].sharedWith = res;
+      this.dataSource._updateChangeSubscription()
+    })
   }
 
   ngModelChange() {
