@@ -28,7 +28,6 @@ const trashSchema = new Schema<Trash>({
         required: true,
         ref: 'Employee'
     },
-    sessionActivity: { type: Date, expires: '1d', default: Date.now },
 })
 
 export default model<Trash>('Trash', trashSchema)

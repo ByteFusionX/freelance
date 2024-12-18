@@ -28,6 +28,8 @@ export const newTrash = async (from: string, dataId: string, employee: string) =
 
 export const fetchTrash = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const result = await Trash.deleteMany({ date: { $lt: oneDayAgo } });
         const trashes = await Trash.find().populate(['deletedData', 'deletedBy']).sort({ date: -1 })
         return res.status(200).json(trashes)
     } catch (error) {
