@@ -6,6 +6,7 @@ import Category from '../models/category.model'
 import Employee from '../models/employee.model'
 import Customer from '../models/customer.model'
 import Enquiry from '../models/enquiry.model'
+import Quotation from '../models/quotation.model'
 const allowedModels = ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category'];
 
 export const newTrash = async (from: string, dataId: string, employee: string) => {
@@ -55,6 +56,9 @@ export const restoreTrash = async (req: Request, res: Response, next: NextFuncti
                 break;
             case 'Enquiry':
                 await Enquiry.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'Quotation':
+                await Quotation.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
                 break;
             default:
                 break;

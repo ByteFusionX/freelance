@@ -7,9 +7,9 @@ import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
 import { calculateDiscountPrice, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
-import { removeFile } from '../common/util'
-import quotationModel from "../models/quotation.model";
+import { removeFile } from '../common/util';
 import { uploadFileToAws } from '../common/aws-connect';
+import { newTrash } from '../controllers/trash.controller'
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -1104,12 +1104,11 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
 
 export const deleteQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const quoteId = req.params.id;
+        const { dataId, employeeId } = req.body;
 
         // Check if quote exists and isn't already deleted
         const quote = await Quotation.findOne({
-            _id: quoteId,
-            isDeleted: { $ne: true }
+            _id: dataId,
         });
 
         if (!quote) {
@@ -1119,9 +1118,11 @@ export const deleteQuotation = async (req: Request, res: Response, next: NextFun
         }
 
         // Soft delete the quote
-        await Quotation.findByIdAndUpdate(quoteId, {
+        await Quotation.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+
+        newTrash('Quotation', dataId, employeeId)
 
         return res.status(200).json({
             success: true,

@@ -438,8 +438,8 @@ export class QuotationService {
     });
   }
 
-  deleteQuotation(quoteId: string): Observable<any> {
-    return this.http.delete<any>(`${this.api}/quotation/${quoteId}`);
+  deleteQuotation(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/quotation/delete`, data);
   }
 
 }

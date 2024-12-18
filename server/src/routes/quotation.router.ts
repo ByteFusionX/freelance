@@ -38,6 +38,6 @@ quoteRouter.get('/total', totalQuotation)
 quoteRouter.post('/nextQuoteId', getNextQuoteId)
 quoteRouter.post('/markAsSeenedDeal', markAsSeenDeal);
 quoteRouter.post('/markAsQuotationSeened', markAsQuotationSeened);
-quoteRouter.delete('/:id', deleteQuotation);
+quoteRouter.post('/delete', deleteQuotation);
 
 export default quoteRouter;

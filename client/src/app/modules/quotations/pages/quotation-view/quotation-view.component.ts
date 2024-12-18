@@ -14,6 +14,7 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-quotation-view',
@@ -38,6 +39,7 @@ export class QuotationViewComponent {
     private _enquiryService: EnquiryService,
     private _dialog: MatDialog,
     private toast: ToastrService,
+    private _employeeService: EmployeeService
   ) {
     this.getQuoteData();
   }
@@ -90,25 +92,25 @@ export class QuotationViewComponent {
   }
 
   onDownloadClicks(file: any) {
-      this._enquiryService.downloadFile(file.fileName)
-        .subscribe({
-          next: (event) => {
-            if (event.type === HttpEventType.DownloadProgress) {
-            } else if (event.type === HttpEventType.Response) {
-              const fileContent: Blob = new Blob([event['body']])
-              saveAs(fileContent, file.originalname)
-            }
-          },
-          error: (error) => {
-            if (error.status == 404) {
-              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
-            }
+    this._enquiryService.downloadFile(file.fileName)
+      .subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.DownloadProgress) {
+          } else if (event.type === HttpEventType.Response) {
+            const fileContent: Blob = new Blob([event['body']])
+            saveAs(fileContent, file.originalname)
           }
-        })
+        },
+        error: (error) => {
+          if (error.status == 404) {
+            this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+          }
+        }
+      })
   }
 
-  isReviseNeeded(){
-    if(this.quoteData.enqId?.preSale && this.quoteData.status !== 'Won'){
+  isReviseNeeded() {
+    if (this.quoteData.enqId?.preSale && this.quoteData.status !== 'Won') {
       return true
     }
     return false
@@ -190,6 +192,7 @@ export class QuotationViewComponent {
   }
 
   deleteQuote() {
+    const employee = this._employeeService.employeeToken()
     const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Quote',
@@ -201,7 +204,7 @@ export class QuotationViewComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        this.quotationService.deleteQuotation(this.quoteData._id!).subscribe({
+        this.quotationService.deleteQuotation({ dataId: this.quoteData._id!, employeeId: employee.id }).subscribe({
           next: () => {
             this.toast.success('Quote deleted successfully');
             this._router.navigate(['/quotations']);
@@ -213,7 +216,7 @@ export class QuotationViewComponent {
       }
     });
   }
-  
+
 
 
 }
