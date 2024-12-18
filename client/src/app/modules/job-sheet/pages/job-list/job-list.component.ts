@@ -130,7 +130,7 @@ export class JobListComponent {
 
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
-        next: (data: JobTable) => {       
+        next: (data: JobTable) => {
           this.dataSource.data = [...data.job];
           this.filteredData.data = data.job;
           this.total = data.total;
@@ -197,7 +197,7 @@ export class JobListComponent {
       perc: 0
     }
 
-    const quoteItems =  quoteData.dealData.updatedItems.map((item) => {
+    const quoteItems = quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
 
       item.itemDetails.map((itemDetail) => {
@@ -316,7 +316,7 @@ export class JobListComponent {
       selectedMonth: selectedMonth,
       selectedYear: selectedYear,
       access: access,
-      userId: userId      
+      userId: userId
     };
 
     return this._jobService.getJobs(filterData).pipe(
@@ -342,7 +342,7 @@ export class JobListComponent {
 
   generatePdfAfterDataFetch() {
     if (!this.isEmpty) {
-      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote','Deal', 'LPO Val.', 'Status'];
+      const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
         return [
           data.jobId,
@@ -356,7 +356,7 @@ export class JobListComponent {
           data.status
         ];
       });
-      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto','auto', 'auto'];
+      const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
       this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width)
     } else {
       this.toast.warning('No Data to generate Report');
@@ -375,6 +375,7 @@ export class JobListComponent {
   }
 
   onDeleteJob(jobId: string) {
+    const employee = this._employeeService.employeeToken()
     const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Job',
@@ -386,7 +387,7 @@ export class JobListComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this._jobService.deleteJob(jobId).subscribe({
+        this._jobService.deleteJob({ dataId: jobId, employeeId: employee.id }).subscribe({
           next: () => {
             this.toast.success('Job deleted successfully');
             this.getAllJobs();

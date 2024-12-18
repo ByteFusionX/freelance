@@ -6,7 +6,7 @@ jobRouter.post('/getJobs',jobList)
 jobRouter.patch('/status/:jobId', updateJobStatus)
 jobRouter.get('/total', totalJob)
 jobRouter.get('/sales', getJobSalesPerson)
-jobRouter.delete('/:id', deleteJob)
+jobRouter.post('/delete', deleteJob)
 
 
 export default jobRouter

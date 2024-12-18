@@ -7,7 +7,8 @@ import Employee from '../models/employee.model'
 import Customer from '../models/customer.model'
 import Enquiry from '../models/enquiry.model'
 import Quotation from '../models/quotation.model'
-const allowedModels = ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category'];
+import Job from '../models/job.model'
+const allowedModels = ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category', 'Job'];
 
 export const newTrash = async (from: string, dataId: string, employee: string) => {
     if (!allowedModels.includes(from)) {
@@ -59,6 +60,9 @@ export const restoreTrash = async (req: Request, res: Response, next: NextFuncti
                 break;
             case 'Quotation':
                 await Quotation.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'Job':
+                await Job.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
                 break;
             default:
                 break;

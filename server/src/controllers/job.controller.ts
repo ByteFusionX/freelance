@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
 import { calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
-
+import { newTrash } from '../controllers/trash.controller';
 
 const { ObjectId } = require('mongodb')
 
@@ -63,7 +63,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         }
 
         console.log(access);
-        
+
 
 
         const USDRates = await getUSDRated();
@@ -225,7 +225,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
 
         const jobTotal: { total: number }[] = await jobModel.aggregate([
             {
-                $match: { isDeleted: { $ne: true } } 
+                $match: { isDeleted: { $ne: true } }
             },
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
@@ -324,12 +324,11 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
 
 export const deleteJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jobId = req.params.id;
-        
+        const { dataId, employeeId } = req.body
+
         // Check if job exists and isn't already deleted
         const job = await jobModel.findOne({
-            _id: jobId,
-            isDeleted: { $ne: true }
+            _id: dataId,
         });
 
         if (!job) {
@@ -339,9 +338,11 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
         }
 
         // Soft delete the job
-        await jobModel.findByIdAndUpdate(jobId, {
+        await jobModel.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+        
+        newTrash('Job', dataId, employeeId)
 
         return res.status(200).json({
             success: true,
