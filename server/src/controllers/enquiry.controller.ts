@@ -6,6 +6,7 @@ import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
 import quotationModel from "../models/quotation.model";
 import { uploadFileToAws } from "../common/aws-connect";
+import { newTrash } from '../controllers/trash.controller'
 const { ObjectId } = require('mongodb')
 
 export const createEnquiry = async (req: any, res: Response, next: NextFunction) => {
@@ -408,7 +409,7 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
             {
                 $match: {
                     ...accessFilter,
-                    isDeleted: { $ne: true }  
+                    isDeleted: { $ne: true }
                 }
             },
             {
@@ -764,7 +765,7 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
             {
                 $match: {
                     ...accessFilter,
-                    isDeleted: { $ne: true }  
+                    isDeleted: { $ne: true }
                 }
             },
             {
@@ -781,7 +782,7 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
             {
                 $match: {
                     ...accessFilter,
-                    isDeleted: { $ne: true }  
+                    isDeleted: { $ne: true }
                 }
             },
             {
@@ -890,12 +891,11 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
 
 export const deleteEnquiry = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const enquiryId = req.params.id;
-        
+        const { dataId, employeeId } = req.body
+
         // Check if enquiry exists and isn't already deleted
         const enquiry = await enquiryModel.findOne({
-            _id: enquiryId,
-            isDeleted: { $ne: true }
+            _id: dataId,
         });
 
         if (!enquiry) {
@@ -903,21 +903,9 @@ export const deleteEnquiry = async (req: Request, res: Response, next: NextFunct
                 message: 'Enquiry not found or already deleted'
             });
         }
-
-        // Check if any active quotation is using this enquiry
-        const hasActiveQuotation = await quotationModel.exists({
-            enqId: enquiryId,
-            isDeleted: { $ne: true }
-        });
-
-        if (hasActiveQuotation) {
-            return res.status(400).json({
-                message: 'Cannot delete enquiry as it is associated with an active quotation'
-            });
-        }
-
+        newTrash('Enquiry', dataId, employeeId)
         // Soft delete the enquiry
-        await enquiryModel.findByIdAndUpdate(enquiryId, {
+        await enquiryModel.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
 

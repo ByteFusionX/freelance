@@ -110,8 +110,8 @@ export class EnquiryService {
     return this.http.post(`${this.api}/enquiry/markAsSeenFeeback`, { enqIds })
   }
 
-  deleteEnquiry(enquiryId: string): Observable<any> {
-    return this.http.delete<any>(`${this.api}/enquiry/${enquiryId}`);
+  deleteEnquiry(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/enquiry/delete`, data);
   }
 
 }

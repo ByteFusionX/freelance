@@ -39,6 +39,6 @@ equiRouter.post('/markAsSeenedJob', markAsSeenJob);
 equiRouter.post('/markAsSeenFeeback', markAsSeenFeedback);
 equiRouter.patch('/markAsSeenFeebackResponse', markFeedbackResponseAsViewed);
 equiRouter.get('/presales/count', presalesCount)
-equiRouter.delete('/:id', deleteEnquiry);
+equiRouter.post('/delete', deleteEnquiry);
 
 export default equiRouter;

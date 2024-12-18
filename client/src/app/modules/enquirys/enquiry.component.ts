@@ -256,7 +256,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
-    if(!this.isDeletedClicked){
+    if (!this.isDeletedClicked) {
       if (enqData.status != 'Assigned To Presales') {
         this._enquiryService.emitToQuote(enqData)
         this.router.navigate(['/quotations/create'])
@@ -282,7 +282,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
       return
     }
-
+    const employee = this._employeeService.employeeToken()
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Enquiry',
@@ -295,7 +295,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.subscriptions.add(
-          this._enquiryService.deleteEnquiry(enquiryId).subscribe({
+          this._enquiryService.deleteEnquiry({ dataId: enquiryId, employeeId: employee.id }).subscribe({
             next: () => {
               this.toaster.success('Enquiry deleted successfully');
               this.getEnquiries()
