@@ -3,6 +3,7 @@ import Trash from '../models/trash.model'
 import Department from '../models/department.model'
 import InternalDepartment from '../models/internal.department'
 import Category from '../models/category.model'
+import Employee from '../models/employee.model'
 const allowedModels = ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category'];
 
 export const newTrash = async (from: string, dataId: string, employee: string) => {
@@ -39,6 +40,8 @@ export const restoreTrash = async (req: Request, res: Response, next: NextFuncti
             await InternalDepartment.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
         } else if (from == 'Category') {
             await Category.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+        }else if(from == 'Employee'){
+            await Employee.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
         }
 
         const deleteTrash = await Trash.findOneAndDelete({ deletedData: dataId })

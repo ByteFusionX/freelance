@@ -14,6 +14,6 @@ empRouter.patch('/update-target/:employeeId/:targetId', updateTarget)
 empRouter.post('/login', login)
 empRouter.get('/get/:id', getEmployee)
 empRouter.get('/notifications/:token', getNotificationCounts)
-empRouter.delete('/:id', deleteEmployee)
+empRouter.post('/delete', deleteEmployee)
 
 export default empRouter;

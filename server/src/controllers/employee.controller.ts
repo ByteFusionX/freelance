@@ -1,25 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
-import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import announcementModel from "../models/announcement.model";
 import enquiryModel from "../models/enquiry.model";
 import quotationModel from "../models/quotation.model";
 import categoryModel, { UserRole } from "../models/category.model";
 import departmentModel from "../models/department.model";
-import { calculateCostPricePipe, calculateDiscountPrice, calculateDiscountPricePipe, getUSDRated } from "../common/util";
+import { getUSDRated } from "../common/util";
+import { newTrash } from '../controllers/trash.controller'
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employees = await Employee.find(
-            { isDeleted: { $ne: true } }, 
+            { isDeleted: { $ne: true } },
             { password: 0 }
         )
-        .sort({ createdDate: -1 })
-        .populate('department');
-        
+            .sort({ createdDate: -1 })
+            .populate('department');
+
         if (employees.length) {
             return res.status(200).json(employees);
         }
@@ -71,13 +71,13 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
                 break;
         }
 
-        const matchFilters = { 
+        const matchFilters = {
             employeeId: employeeId,
             isDeleted: { $ne: true }
         }
         const filters = { $and: [matchFilters, accessFilter] }
-        const employeeExist = await Employee.findOne({ 
-            employeeId: employeeId, 
+        const employeeExist = await Employee.findOne({
+            employeeId: employeeId,
             isDeleted: { $ne: true }
         });
 
@@ -302,7 +302,7 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
         }
 
         const saveEmployeeEdit = await Employee.findOneAndUpdate(
-            { 
+            {
                 _id: employeeId,
                 isDeleted: { $ne: true }
             },
@@ -454,7 +454,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const { employeeId, password } = req.body
         const employee = await Employee.findOne(
-            { 
+            {
                 employeeId: employeeId,
                 isDeleted: { $ne: true }
             }
@@ -481,13 +481,13 @@ export const getEmployee = async (req: Request, res: Response, next: NextFunctio
     try {
         const employeeId = req.params.id
         const employeeData = await Employee.findOne(
-            { 
-                employeeId: employeeId, 
+            {
+                employeeId: employeeId,
                 isDeleted: { $ne: true }
-            }, 
+            },
             { password: 0 }
         ).populate('category');
-        
+
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
@@ -518,7 +518,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const dealSheetCount = await quotationModel.countDocuments({
             "dealData.seenByApprover": false,
         });
-        
+
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,
@@ -552,11 +552,11 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
 
 export const deleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employeeId = req.params.id;
+        const { dataId, employeeId } = req.body
 
         // Check if employee exists and isn't already deleted
         const employee = await Employee.findOne({
-            _id: employeeId,
+            _id: dataId,
             isDeleted: { $ne: true }
         });
 
@@ -567,9 +567,11 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
         }
 
         // Soft delete the employee
-        await Employee.findByIdAndUpdate(employeeId, {
+        await Employee.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+
+        newTrash('Employee', dataId, employeeId)
 
         return res.status(200).json({
             success: true,

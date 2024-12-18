@@ -15,6 +15,7 @@ import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmat
   styleUrls: ['./view-employee.component.css']
 })
 export class ViewEmployeeComponent {
+
   employeeData!: getEmployeeDetails;
   targetDataSource: any = new MatTableDataSource();
   targetColumns: string[] = ['year', 'targetType', 'targetValue', 'critical', 'moderate', 'action'];
@@ -158,31 +159,33 @@ export class ViewEmployeeComponent {
         }
       ]);
     }
-    return 
+    return
   }
 
   deleteEmployee() {
+    const employee = this.employeeService.employeeToken()
+
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-        data: {
-            title: 'Delete Employee',
-            description: `Are you sure you want to delete "${this.employeeData.firstName} ${this.employeeData.lastName}"?`,
-            icon: 'heroExclamationCircle',
-            IconColor: 'red'
-        }
+      data: {
+        title: 'Delete Employee',
+        description: `Are you sure you want to delete "${this.employeeData.firstName} ${this.employeeData.lastName}"?`,
+        icon: 'heroExclamationCircle',
+        IconColor: 'red'
+      }
     });
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-        if (confirmed) {
-            this.employeeService.deleteEmployee(this.employeeData._id!).subscribe({
-                next: () => {
-                    this._toast.success('Employee deleted successfully');
-                    this.navigateToEmployeeList();
-                },
-                error: (error) => {
-                    this._toast.error(error.error.message || 'Failed to delete employee');
-                }
-            });
-        }
+      if (confirmed) {
+        this.employeeService.deleteEmployee({ dataId: this.employeeData._id!, employeeId: employee.id }).subscribe({
+          next: () => {
+            this._toast.success('Employee deleted successfully');
+            this.navigateToEmployeeList();
+          },
+          error: (error) => {
+            this._toast.error(error.error.message || 'Failed to delete employee');
+          }
+        });
+      }
     });
   }
 
