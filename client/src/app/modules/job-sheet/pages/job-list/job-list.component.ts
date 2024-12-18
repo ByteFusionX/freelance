@@ -23,6 +23,7 @@ import { getCreators } from 'src/app/shared/interfaces/employee.interface';
   styleUrls: ['./job-list.component.css']
 })
 export class JobListComponent {
+
   selectedDateFormat: string = "monthly";
   selectedEmployee: string | null = null;
   selectedFile!: string | undefined;
@@ -67,7 +68,13 @@ export class JobListComponent {
 
   ngOnInit() {
     this.employees$ = this._jobService.getJobSalesPerson();
-    this.getAllJobs()
+    this.subscriptions.add(
+      this.subject.subscribe((data) => {
+        this.page = data.page
+        this.row = data.row
+        this.getAllJobs()
+      })
+    )
   }
 
   selectedStatus!: number;
