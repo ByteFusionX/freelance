@@ -33,12 +33,12 @@ export class CustomerService {
     return this.http.post<getFilteredCustomer>(`${this.apiUrl}/customer/get`, filterData)
   }
 
-  getCustomerByClientRef(employeeId: string,access?:string,userId?:string): Observable<getCustomerByID> {
+  getCustomerByClientRef(employeeId: string, access?: string, userId?: string): Observable<getCustomerByID> {
     return this.http.get<getCustomerByID>(`${this.apiUrl}/customer/view/get/${employeeId}?access=${access}&userId=${userId}`)
-  } 
+  }
 
-  deleteCustomer(customerId: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/customer/${customerId}`);
+  deleteCustomer(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/customer/delete`, data);
   }
 
 }

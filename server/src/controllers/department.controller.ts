@@ -311,8 +311,7 @@ export const deleteInternalDepartment = async (req: Request, res: Response, next
 
         // Check if department exists and isn't already deleted
         const department = await internalDepartment.findOne({
-            _id: dataId,
-            isDeleted: { $ne: true }
+            _id: dataId
         });
 
         if (!department) {
@@ -344,8 +343,7 @@ export const deleteCustomerDepartment = async (req: Request, res: Response, next
         // Check if customer department exists and isn't already deleted
         const department = await Department.findOne({
             _id: dataId,
-            forCustomerContact: true,
-            isDeleted: { $ne: true }
+            forCustomerContact: true
         });
 
         if (!department) {

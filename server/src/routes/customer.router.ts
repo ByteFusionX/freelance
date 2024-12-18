@@ -9,6 +9,6 @@ cusRouter.post('/',createCustomer)
 cusRouter.post('/get',getFilteredCustomers)
 cusRouter.get('/creators',getCustomerCreators)
 cusRouter.patch('/edit', editCustomer)
-cusRouter.delete('/:id', deleteCustomer)
+cusRouter.post('/delete', deleteCustomer)
 
 export default cusRouter;

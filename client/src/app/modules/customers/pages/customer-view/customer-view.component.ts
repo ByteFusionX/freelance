@@ -62,6 +62,7 @@ export class CustomerViewComponent {
   }
 
   deleteCustomer() {
+    const employee = this._employeeService.employeeToken()
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Customer',
@@ -73,7 +74,8 @@ export class CustomerViewComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        this._customerService.deleteCustomer(this.customerData._id).subscribe({
+        console.log(this.customerData);
+        this._customerService.deleteCustomer({ dataId: this.customerData._id, employeeId: employee.id }).subscribe({
           next: () => {
             this._toast.success('Customer deleted successfully');
             this._router.navigate(['/customers']);

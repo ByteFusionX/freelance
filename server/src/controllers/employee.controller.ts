@@ -556,8 +556,7 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
 
         // Check if employee exists and isn't already deleted
         const employee = await Employee.findOne({
-            _id: dataId,
-            isDeleted: { $ne: true }
+            _id: dataId
         });
 
         if (!employee) {

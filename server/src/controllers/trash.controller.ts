@@ -4,6 +4,7 @@ import Department from '../models/department.model'
 import InternalDepartment from '../models/internal.department'
 import Category from '../models/category.model'
 import Employee from '../models/employee.model'
+import Customer from '../models/customer.model'
 const allowedModels = ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category'];
 
 export const newTrash = async (from: string, dataId: string, employee: string) => {
@@ -34,14 +35,24 @@ export const fetchTrash = async (req: Request, res: Response, next: NextFunction
 export const restoreTrash = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { from, dataId } = req.body
-        if (from == 'Department') {
-            await Department.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
-        } else if (from == 'InternalDepartment') {
-            await InternalDepartment.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
-        } else if (from == 'Category') {
-            await Category.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
-        }else if(from == 'Employee'){
-            await Employee.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+
+        switch (from) {
+            case 'Department':
+                await Department.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'InternalDepartment':
+                await InternalDepartment.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'Category':
+                await Category.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'Employee':
+                await Employee.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+                break;
+            case 'Customer':
+                await Customer.findOneAndUpdate({ _id: dataId }, { $set: { isDeleted: false } })
+            default:
+                break;
         }
 
         const deleteTrash = await Trash.findOneAndDelete({ deletedData: dataId })

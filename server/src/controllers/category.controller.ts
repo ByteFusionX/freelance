@@ -119,7 +119,6 @@ export const deleteCategory = async (req: Request, res: Response, next: NextFunc
         // Check if category exists and isn't already deleted
         const category = await Category.findOne({
             _id: dataId,
-            isDeleted: { $ne: true }
         });
 
         if (!category) {

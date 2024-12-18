@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Customer from '../models/customer.model';
 import Employee from '../models/employee.model';
+import { newTrash } from '../controllers/trash.controller'
 const { ObjectId } = require('mongodb')
 
 
@@ -186,7 +187,7 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         }
 
 
-        const matchFilters = { 
+        const matchFilters = {
             clientRef: customerId,
             isDeleted: { $ne: true }
         }
@@ -391,12 +392,11 @@ const generateClientRef = async (date: string) => {
 
 export const deleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customerId = req.params.id;
+        const { dataId, employeeId } = req.body
 
         // Check if customer exists and isn't already deleted
         const customer = await Customer.findOne({
-            _id: customerId,
-            isDeleted: { $ne: true }
+            _id: dataId,
         });
 
         if (!customer) {
@@ -406,9 +406,10 @@ export const deleteCustomer = async (req: Request, res: Response, next: NextFunc
         }
 
         // Soft delete the customer
-        await Customer.findByIdAndUpdate(customerId, {
+        await Customer.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
+        newTrash('Customer', dataId, employeeId)
 
         return res.status(200).json({
             success: true,
