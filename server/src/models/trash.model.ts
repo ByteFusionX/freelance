@@ -5,6 +5,7 @@ interface Trash {
     deletedData: any,
     date: Date,
     deletedBy: any,
+    sessionActivity: any
 }
 
 const trashSchema = new Schema<Trash>({
@@ -26,7 +27,8 @@ const trashSchema = new Schema<Trash>({
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'Employee'
-    }
+    },
+    sessionActivity: { type: Date, expires: '1d', default: Date.now },
 })
 
 export default model<Trash>('Trash', trashSchema)
