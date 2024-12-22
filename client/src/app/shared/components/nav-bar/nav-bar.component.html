@@ -16,18 +16,24 @@
                 <!-- <div class="flex items-center me-5">
                     <ng-icon name="heroMagnifyingGlass" class="text-2xl cursor-pointer"></ng-icon>
                 </div> -->
-                <button (click)="onFeedbacks()" class="relative flex items-center px-2 py-1  border border-purple-600 text-sm bg-white text-black rounded-md hover:bg-gray-100 ">
+                <button (click)="onFeedbacks()"
+                    class="relative flex items-center px-2 py-1  border border-purple-600 text-sm bg-white text-black rounded-md hover:bg-gray-100 ">
                     Feedback Requests
-                    <ng-container  *ngIf="(notificationCounts$ | async) as notifications">    
-                        <span *ngIf="notifications.feedbackCount > 0"  class="absolute top-0 right-0 -mt-1 -mr-1 h-2 w-2 rounded-full bg-red-500"></span>
+                    <ng-container *ngIf="(notificationCounts$ | async) as notifications">
+                        <span *ngIf="notifications.feedbackCount > 0"
+                            class="absolute top-0 right-0 -mt-1 -mr-1 h-2 w-2 rounded-full bg-red-500"></span>
                     </ng-container>
-                  </button>
+                </button>
                 <div class="flex items-center cursor-pointer" [matMenuTriggerFor]="beforeMenu"
                     (menuOpened)="menuOpened()" (menuClosed)="menuClosed()">
-                    <div class="w-8 rounded-full overflow-hidden">
-                        <img src="assets/images/avatar.avif" alt="">
-                    </div>
-                    
+                    <div *ngIf="employeeData$ | async as employeeData"
+                    class="w-8 h-8 flex items-center justify-center rounded-full overflow-hidden bg-orange-200 text-center">
+                    <p class="text-orange-400 text-xs font-bold">
+                        {{ employeeData.firstName[0].toUpperCase() }}{{
+                        employeeData.lastName[0].toUpperCase() }}
+                    </p>
+                </div>
+
                     <div class="flex items-center" *ngIf="employeeData$ | async as employeeData">
                         <p class="mx-2 text-sm font-medium">{{employeeData.firstName}} {{employeeData.lastName}}</p>
                         <div class="mt-1">
@@ -44,12 +50,19 @@
                 <mat-menu #beforeMenu="matMenu" class="w-96 mt-2">
                     <div class="p-3">
                         <div class="bg-gray-100 p-5 flex items-center">
-                            <div class="w-10 rounded-full overflow-hidden">
-                                <img src="assets/images/avatar.avif" alt="">
+                            <div *ngIf="employeeData$ | async as employeeData"
+                                class="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden bg-orange-200 text-center">
+                                <p class="text-orange-400 text-sm font-bold">
+                                    {{ employeeData.firstName[0].toUpperCase() }}{{
+                                    employeeData.lastName[0].toUpperCase() }}
+                                </p>
                             </div>
-                            <div class="mx-3"  *ngIf="employeeData$ | async as employeeData">
-                                <p class="text-sm leading-3 font-medium">{{employeeData.firstName}} {{employeeData.lastName}}</p>
-                                <span class="text-xs leading-3">{{employeeData.category.categoryName}} - {{employeeData.category.role | titlecase}}</span>
+
+                            <div class="mx-3" *ngIf="employeeData$ | async as employeeData">
+                                <p class="text-sm leading-3 font-medium">{{employeeData.firstName}}
+                                    {{employeeData.lastName}}</p>
+                                <span class="text-xs leading-3">{{employeeData.category.categoryName}} -
+                                    {{employeeData.category.role | titlecase}}</span>
                             </div>
                         </div>
                         <div class="">
@@ -59,7 +72,8 @@
                                     <ng-icon name="heroUser" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Profile</p>
                                 </li>
-                                <li *ngIf="showPortalMangement" class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
+                                <li *ngIf="showPortalMangement"
+                                    class="mt-2 py-2 flex items-center hover:rounded-lg hover:bg-gray-100 hover:text-violet-900 hover:scale-105 cursor-pointer"
                                     routerLink="/settings">
                                     <ng-icon name="heroCog6Tooth" class="text-lg mx-3"></ng-icon>
                                     <p class="text-sm">Portal Management</p>
