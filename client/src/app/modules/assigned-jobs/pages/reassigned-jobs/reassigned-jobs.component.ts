@@ -1,4 +1,3 @@
-
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -17,14 +16,13 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
-import { ReassignEmployeeComponent } from '../reassign-employee/reassign-employee.component';
 
 @Component({
-  selector: 'app-assigned-jobs-list',
-  templateUrl: './assigned-jobs-list.component.html',
-  styleUrls: ['./assigned-jobs-list.component.css']
+  selector: 'app-reassigned-jobs',
+  templateUrl: './reassigned-jobs.component.html',
+  styleUrls: ['./reassigned-jobs.component.css']
 })
-export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
   displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'estimation', 'send'];
@@ -63,7 +61,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
     if (this.viewAssignedFor) {
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'assignedTo', 'department', 'comment', 'download', 'estimation', 'send'];
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'department', 'comment', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -116,7 +114,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   observeAllJobs() {
     setTimeout(() => {
       this.jobItems.forEach(item => this.observeJob(item));
-    }, 100);
+    }, 100); // slight delay to ensure the DOM is fully rendered
   }
 
   observeJob(element: ElementRef) {
@@ -364,18 +362,4 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     const extension: string = <string>file.split('.').pop().toLowerCase();
     return contentTypes[extension]
   }
-
-  onReassignClicks(enqId: string) {
-    const estimationDialog = this._dialog.open(ReassignEmployeeComponent, {
-      data: { enquiryId: enqId }
-    })
-    estimationDialog.afterClosed().subscribe((res) => {
-      if (res) {
-        this.getJobsData()
-        this.toast.success(res.message)
-      }
-    })
-  }
-
 }
-

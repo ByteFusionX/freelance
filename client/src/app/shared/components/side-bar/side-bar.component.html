@@ -151,7 +151,23 @@
                                             </div>
                                         </div>
                                     </div>
-
+                                </li>
+                                <li class="p-2 flex justify-between hover:text-violet-800 rounded-md cursor-pointer"
+                                    routerLink="/assigned-jobs/reassigned"
+                                    [class.active]="activeLink === '/assigned-jobs/reassigned'"
+                                    *ngIf="privileges?.announcement?.viewReport !== 'none' && showTabs">
+                                    <button class=" mx-6 relative">
+                                        Reassigned Jobs
+                                    </button>
+                                    <!-- <div *ngIf="(notificationCounts$ | async) as notifications">
+                                        <div *ngIf="notifications.assignedJobCount"
+                                            class="flex justify-center items-center">
+                                            <div
+                                                class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
+                                                <p>{{notifications.assignedJobCount}}</p>
+                                            </div>
+                                        </div>
+                                    </div> -->
                                 </li>
                                 <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer"
                                     routerLink="/assigned-jobs/completed" routerLinkActive="active"
@@ -219,7 +235,8 @@
                             <ul class="">
 
                                 <li class="p-2 flex justify-between hover:text-violet-800 rounded-md cursor-pointer"
-                                    routerLink="/deal-sheet/pendings" [class.active]="activeLink === '/deal-sheet/pendings'"
+                                    routerLink="/deal-sheet/pendings"
+                                    [class.active]="activeLink === '/deal-sheet/pendings'"
                                     *ngIf="privileges?.dealSheet && showTabs">
                                     <button class=" mx-6 relative">
                                         Pending

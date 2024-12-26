@@ -3,4 +3,4 @@
 /uploads
 /src/uploads
 /dist
-/common/exchangeRate.json
+/src/common/exchangeRate.json

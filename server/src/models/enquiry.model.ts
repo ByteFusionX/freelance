@@ -16,7 +16,8 @@ interface Enquiry extends Document {
     assignedFiles: []
     status: string;
     attachments: []
-    isDeleted: boolean
+    isDeleted: boolean,
+    reAssigned: any,
 }
 
 interface ItemDetail {
@@ -173,6 +174,9 @@ const enquirySchema = new Schema<Enquiry>({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    reAssigned: {
+        type: Schema.Types.ObjectId,
     }
 });
 

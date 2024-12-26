@@ -104,7 +104,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         // Parse the incoming presale data
         const presale = JSON.parse(req.body.presaleData || '{}'); // Default to an empty object to prevent crashes
         let presaleFiles = [];
-        
+
         // console.log(req.files?.newPresaleFile); // Safely access newPresaleFile
         // console.log(presale);
 
@@ -386,6 +386,19 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $addFields: {
+                    reAssignedForLookup: { $ifNull: ['$reAssigned', null] }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'reAssignedForLookup',
+                    foreignField: '_id',
+                    as: 'reAssigned'
+                }
+            },
+            {
+                $addFields: {
                     "preSale.feedback": {
                         $map: {
                             input: "$preSale.feedback",
@@ -415,7 +428,6 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             {
                 $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
             },
-
         ])
 
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -1055,5 +1067,18 @@ export const deleteEnquiry = async (req: Request, res: Response, next: NextFunct
         });
     } catch (error) {
         next(error);
+    }
+}
+
+export const reAssignJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { enquiryId, employeeId } = req.body
+        if (!employeeId) {
+            return res.status(404).json({ message: 'Something went wrong' });
+        }
+        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId } })
+        return res.status(200).json({ message: 'Enquiry Reassigned successfully' })
+    } catch (error) {
+        next(error)
     }
 }
