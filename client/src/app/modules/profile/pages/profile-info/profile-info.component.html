@@ -1,8 +1,10 @@
 <div class="w-full p-8">
     <div class="w-full h-full bg-white p-10 m-2 mb-5 rounded-md">
         <div class="flex">
-            <div class="w-40">
-                <img src="assets/images/avatar.avif" alt="">
+            <div *ngIf="employeeData$ | async as employeeData"
+                class="w-40 bg-orange-200 rounded-md flex justify-center items-center">
+                <p class="text-center text-6xl font-semibold text-orange-400">{{ employeeData.firstName[0].toUpperCase()
+                    }}{{employeeData.lastName[0].toUpperCase() }}</p>
             </div>
             <div class=" px-4">
                 <div class="flex gap-1">
@@ -73,7 +75,7 @@
     </ng-template>
 
 
-    
+
 
 </div>
 <div class="w-full p-5 bg-white"></div>
