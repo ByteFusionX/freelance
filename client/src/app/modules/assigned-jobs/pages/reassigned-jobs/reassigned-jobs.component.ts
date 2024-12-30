@@ -88,8 +88,11 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
       this.subscriptions.add(
         this._enquiryService.getPresale(this.page, this.row, 'none', access, this.userId).subscribe({
           next: (data) => {
-            this.dataSource.data = data.enquiry;
-            this.total = data.total;
+            const filteredEnquiries = data.enquiry.filter(
+              (enq: any) => enq.status == 'Assigned To Presale Engineer'
+            );
+            this.dataSource.data = filteredEnquiries;
+            this.total = filteredEnquiries.length;
             this.isLoading = false;
             this.updateNotViewedJobIds();
             this.observeAllJobs();
@@ -164,7 +167,7 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
         if (approved) {
           let selectedEnquiry: { id: string, status: string } = {
             id: this.dataSource.data[index]._id,
-            status: 'Work In Progress'
+            status: 'Sended by Presale Engineer'
           }
           Object.seal(selectedEnquiry)
           this.subscriptions.add(
@@ -329,7 +332,7 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
       })
       rejectModal.afterClosed().subscribe((comment) => {
         if (comment) {
-          this._enquiryService.rejectJob(enquiry._id, comment).subscribe({
+          this._enquiryService.rejectJob(enquiry._id, comment, 'Engineer').subscribe({
             next: (res) => {
               if (res.success) {
                 this.dataSource.data.splice(index, 1)

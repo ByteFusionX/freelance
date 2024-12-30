@@ -18,6 +18,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
 import { ReassignEmployeeComponent } from '../reassign-employee/reassign-employee.component';
+import { ViewRejectsComponent } from 'src/app/modules/enquirys/view-rejects/view-rejects.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -63,7 +64,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
     if (this.viewAssignedFor) {
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'assignedTo', 'department', 'comment', 'download', 'estimation', 'send'];
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedTo', 'department', 'status', 'comment', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -90,8 +91,11 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.subscriptions.add(
         this._enquiryService.getPresale(this.page, this.row, 'none', access, this.userId).subscribe({
           next: (data) => {
-            this.dataSource.data = data.enquiry;
-            this.total = data.total;
+            const filteredEnquiries = data.enquiry.filter(
+              (enq: any) => enq.status != 'Work In Progress' && enq.status != 'Rejected by Presale Manager'
+            );
+            this.dataSource.data = filteredEnquiries;
+            this.total = filteredEnquiries.length;
             this.isLoading = false;
             this.updateNotViewedJobIds();
             this.observeAllJobs();
@@ -331,7 +335,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       })
       rejectModal.afterClosed().subscribe((comment) => {
         if (comment) {
-          this._enquiryService.rejectJob(enquiry._id, comment).subscribe({
+          this._enquiryService.rejectJob(enquiry._id, comment, 'Manager').subscribe({
             next: (res) => {
               if (res.success) {
                 this.dataSource.data.splice(index, 1)
@@ -375,6 +379,13 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
         this.toast.success(res.message)
       }
     })
+  }
+
+  openReview(rejectionHistory: any) {
+    this._dialog.open(ViewRejectsComponent, {
+      data: rejectionHistory,
+      width: '500px'
+    });
   }
 
 }

@@ -34,7 +34,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   isFiltered: boolean = false;
   createEnquiry: boolean | undefined = false;
 
-  status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
+  status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presale Manager' }];
   displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'presale', 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
@@ -114,10 +114,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
-            console.log(data)
-            this.dataSource.data = [...data.enquiry];
+            const filteredEnquiries = data.enquiry.filter(
+              (enq: any) => enq.status != 'Rejected by Presale Engineer' && enq.status != 'Sended by Presale Engineer'
+            );
+            this.dataSource.data = filteredEnquiries;
             this.filteredData.data = data.enquiry;
-            this.total = data.total
+            this.total = filteredEnquiries.length;
             this.isLoading = false
             this.isEmpty = false
             this.enqId = this.total.toString().padStart(3, '0')
@@ -184,11 +186,10 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     presaleDialog.afterClosed().subscribe((success: boolean) => {
       this.dataSource.data[i].preSale.seenbySalesPerson = true;
       if (success) {
-        this.dataSource.data[i].status = 'Assigned To Presales'
+        this.dataSource.data[i].status = 'Assigned To Presale Manager'
         this.dataSource._updateChangeSubscription();
       }
     })
-
   }
 
   onAssignPresale(event: Event, preSale: any, enquiryId: string, index: number) {
@@ -196,8 +197,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
     const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: preSale })
     presaleDialog.afterClosed().subscribe((data: any) => {
-      this.assigningPresale = true;
       if (data) {
+        this.assigningPresale = true;
         const presaleData = {
           comment: data.comment,
           newPresaleFile: data.newPresaleFile,
@@ -216,7 +217,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
         this._enquiryService.assignPresale(formData, enquiryId).subscribe((res) => {
           if (res.success) {
             // this.dataSource.data[index].preSale = presaleData as getEnquiry["preSale"];
-            this.dataSource.data[index].status = 'Assigned To Presales'
+            this.dataSource.data[index].status = 'Assigned To Presale Manager'
             this.dataSource._updateChangeSubscription();
             this.assigningPresale = false;
             this.toaster.success('Assinged Presale successfully')
@@ -263,7 +264,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
     if (!this.isDeletedClicked) {
-      if (enqData.status != 'Assigned To Presales') {
+      if (enqData.status != 'Assigned To Presale Manager') {
         this._enquiryService.emitToQuote(enqData)
         this.router.navigate(['/quotations/create'])
       } else {
@@ -291,7 +292,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   deleteEnquiry(enquiryId: string, status: string) {
     this.isDeletedClicked = true
-    if (status == 'Assigned To Presales') {
+    if (status == 'Assigned To Presale Manager' || 'Assign To Presale Engineer') {
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
       return
     }

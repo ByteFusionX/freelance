@@ -132,8 +132,6 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
             (file) => Object.keys(file).length > 0
         );
 
-        console.log(presale);
-
         // Fetch the enquiry to preserve rejectionHistory
         const enquiry = await enquiryModel.findOne({ _id: enquiryId });
         if (!enquiry) {
@@ -151,7 +149,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
                         newFeedbackAccess: true,
                         createdDate: Date.now(),
                     },
-                    status: 'Assigned To Presales',
+                    status: 'Assigned To Presale Manager',
                 },
             }
         );
@@ -335,7 +333,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
                 $match: {
-                    ...accessFilter,
+                    // ...accessFilter,
                     isDeleted: { $ne: true }
                 }
             },
@@ -351,7 +349,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         const preSaleData = await enquiryModel.aggregate([
             {
                 $match: {
-                    ...accessFilter,
+                    // ...accessFilter,
                     isDeleted: { $ne: true }
                 }
             },
@@ -1004,9 +1002,7 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
 
 export const RejectPresaleJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
-        const { enqId, comment } = req.body;
-
+        const { enqId, comment, role } = req.body;
         const enquiry = await enquiryModel.findOne({ _id: new ObjectId(enqId) });
 
         if (!enquiry) {
@@ -1016,7 +1012,8 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
         // Add a new rejection event to the history
         enquiry.preSale.rejectionHistory.push({
             rejectionReason: comment,
-            rejectedBy: enquiry.preSale.presalePerson
+            rejectedBy: enquiry.preSale.presalePerson,
+            rejectedRole: role
         });
 
         enquiry.preSale.feedback = [];
@@ -1027,7 +1024,7 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
         delete enquiry.preSale.estimations;
         enquiry.preSale.newFeedbackAccess = true;
 
-        enquiry.status = 'Rejected by Presale';
+        enquiry.status = `Rejected by Presale ${role}`;
 
         const result = await enquiry.save();
         if (!result) {
@@ -1076,7 +1073,7 @@ export const reAssignJob = async (req: Request, res: Response, next: NextFunctio
         if (!employeeId) {
             return res.status(404).json({ message: 'Something went wrong' });
         }
-        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId } })
+        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId, status: 'Assigned To Presale Engineer' } })
         return res.status(200).json({ message: 'Enquiry Reassigned successfully' })
     } catch (error) {
         next(error)

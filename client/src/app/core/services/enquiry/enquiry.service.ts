@@ -37,8 +37,8 @@ export class EnquiryService {
     return this.http.put<{ update: getEnquiry, quoteId: string | undefined }>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
-  rejectJob(enqId: any, comment: string): Observable<{ success: boolean }> {
-    return this.http.put<{ success: boolean }>(`${this.api}/enquiry/presales/reject`, { enqId, comment })
+  rejectJob(enqId: any, comment: string, role: string): Observable<{ success: boolean }> {
+    return this.http.put<{ success: boolean }>(`${this.api}/enquiry/presales/reject`, { enqId, comment, role })
   }
 
   emitToQuote(enquiry: getEnquiry | undefined) {
