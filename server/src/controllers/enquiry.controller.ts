@@ -714,7 +714,7 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
             { _id: enquiryId },
             {
                 $push: { 'preSale.revisionComment': revisionComment },
-                status: 'Assigned To Presales',
+                status: 'Assigned To Presales Manager',
                 'preSale.seenbyEmployee': false,
                 'preSale.newFeedbackAccess': true,
                 'preSale.createdDate': Date.now()
