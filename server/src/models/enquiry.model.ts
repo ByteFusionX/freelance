@@ -18,6 +18,7 @@ interface Enquiry extends Document {
     attachments: []
     isDeleted: boolean,
     reAssigned: any,
+    eventId: string,
 }
 
 interface ItemDetail {
@@ -180,6 +181,9 @@ const enquirySchema = new Schema<Enquiry>({
     },
     reAssigned: {
         type: Schema.Types.ObjectId,
+    },
+    eventId: {
+        type: String,
     }
 });
 

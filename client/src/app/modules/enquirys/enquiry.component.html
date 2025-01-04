@@ -182,11 +182,18 @@
                         Action
                     </th>
                     <td mat-cell *matCellDef="let element" class="text-center">
-                        <button class="text-red-600 hover:text-red-800"
-                            (click)="deleteEnquiry(element._id,element.status)" matTooltip="Delete Enquiry"
-                            matTooltipPosition="above">
-                            <ng-icon name="heroTrash"></ng-icon>
-                        </button>
+                        <div class="flex">
+                            <button class="text-violet-600 hover:text-violet-800 p-2"
+                                (click)="onEventClicks(element._id)" matTooltip="Event"
+                                matTooltipPosition="above">
+                                <ng-icon name="heroCalendarDays" class="text-lg"></ng-icon>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800 p-2"
+                                (click)="deleteEnquiry(element._id,element.status)" matTooltip="Delete Enquiry"
+                                matTooltipPosition="above">
+                                <ng-icon name="heroTrash" class="text-lg"></ng-icon>
+                            </button>
+                        </div>
                     </td>
                 </ng-container>
 

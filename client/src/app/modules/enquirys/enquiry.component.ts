@@ -17,6 +17,7 @@ import saveAs from 'file-saver';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
+import { EventsComponent } from 'src/app/shared/components/events/events.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -49,6 +50,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   selectedSalesPerson: string | null = null;
   selectedDepartment: string | null = null;
   isDeletedClicked: boolean = false;
+  isEventClicked: boolean = false;
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
@@ -263,7 +265,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
-    if (!this.isDeletedClicked) {
+    if (!this.isDeletedClicked && !this.isEventClicked) {
       if (enqData.status != 'Assigned To Presale Manager') {
         this._enquiryService.emitToQuote(enqData)
         this.router.navigate(['/quotations/create'])
@@ -292,7 +294,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   deleteEnquiry(enquiryId: string, status: string) {
     this.isDeletedClicked = true
-    if (status == 'Assigned To Presale Manager' || 'Assign To Presale Engineer') {
+    if (status == 'Assigned To Presale Manager' || status == 'Assigned To Presale Engineer' || status == 'Assigned To Presales') {
       this.toaster.warning('Sorry,Selected enquiry assinged to presales')
       return
     }
@@ -322,5 +324,17 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       }
       this.isDeletedClicked = false;
     });
+  }
+
+  onEventClicks(enquiryId: string) {
+    this.isEventClicked = true;
+    const dialog = this.dialog.open(EventsComponent, { data: { collectionId: enquiryId, from: 'Enquiry' } })
+    dialog.afterClosed().subscribe((res) => {
+      this.isEventClicked = false;
+      if (res) {
+        console.log(res);
+        this.toaster.success(res.message || 'Event created successfully');
+      }
+    })
   }
 }

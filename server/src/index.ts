@@ -25,6 +25,7 @@ import noteRouter from './routes/note.router';
 import companyRouter from './routes/company.router';
 import dashboardRouter from './routes/dashboard.router';
 import trashRouter from './routes/trash.router';
+import eventRouter from './routes/event.router';
 
 const app = express();
 const server = http.createServer(app);
@@ -49,7 +50,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 app.use(cors({
   origin: process.env.ORIGIN1,
-  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
 
@@ -69,6 +70,7 @@ app.use('/note', noteRouter);
 app.use('/company', companyRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/trash', trashRouter)
+app.use('/events', eventRouter)
 
 let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}?authSource=admin`;
 if (process.env.USE_MONGOATLAS === 'true') {

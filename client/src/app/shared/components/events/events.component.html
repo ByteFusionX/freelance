@@ -1,0 +1,82 @@
+<div class="w-[500px]  max-h-[95vh]">
+    <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
+        <h3 class="text-md font-medium">New Event</h3>
+        <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
+            <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col mx-auto text-gray-900 bg-white rounded-lg shadow overflow-y-scroll max-h-[77vh]">
+        <form action="">
+            <div class="flex px-5 py-2 gap-3">
+                <div class="w-1/2">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="event">
+                        Events *
+                    </label>
+                    <ng-select id="events" class="form" placeholder="Select Event" appendTo="body" name="events"
+                        (change)="onChangeEvent($event)" [(ngModel)]="selectedEvent">
+                        <ng-option [value]="'Meeting'">Meeting</ng-option>
+                        <ng-option [value]="'Call'">Call</ng-option>
+                        <ng-option [value]="'Send/Recieved Email'">Send/Recieved Email</ng-option>
+                        <ng-option [value]="'Other'">Other</ng-option>
+                    </ng-select>
+                    <p class="text-sm mt-1 text-red-500" *ngIf="eventError">Select Event</p>
+                </div>
+                <div class="w-1/2">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="date">Date
+                        *</label>
+                    <input type="datetime-local" id="date" name="date" [(ngModel)]="selectedDate"
+                        class="w-full border px-2 py-2 bg-gray-200 placeholder:text-gray-300 outline-none">
+                </div>
+            </div>
+            <div class="w-full px-5 py-2">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="employee">
+                    Employee *
+                </label>
+                <ng-select id="saleperson" class="form" placeholder="Select Employee" appendTo="body" name="employee"
+                    (change)="onChange($event)" [(ngModel)]="selectedEmployee">
+                    <ng-option *ngFor="let employee of employees$ | async" [value]="employee._id">{{employee.firstName}}
+                        {{employee.lastName}}</ng-option>
+                </ng-select>
+                <p class="text-sm mt-1 text-red-500" *ngIf="employeeError">Select Sales Person</p>
+            </div>
+
+            <div class="w-full px-5 py-2">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="summary">
+                    Summary *
+                </label>
+                <textarea appNoLeadingSpace [(ngModel)]="summary" name="summary" (ngModelChange)="validateComment()"
+                    [ngClass]="{'border-red-500':commentError}" placeholder="Write Summary here"
+                    class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-3 leading-tight focus:ring-1 focus:ring-inset focus:ring-violet-300 focus:outline-none focus:bg-white "
+                    id="summary"></textarea>
+                <div *ngIf="commentError" class="text-red-500 mt-1 text-sm">
+                    Please provide your summary.
+                </div>
+            </div>
+
+            <div class="w-full mb-5 -mt-3">
+                <app-upload-file (fileUpload)="onFileUpload($event)" [selectedFiles]="selectedFiles"></app-upload-file>
+                <p class="text-red-500 text-sm pl-5" *ngIf="fileError">Select atleast one file</p>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="border border-white border-t-gray-300 py-3 px-6 flex justify-between gap-2">
+        <div>
+            <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm"
+                *ngIf="isClear" (click)="onClear()">
+                Clear
+            </button>
+        </div>
+        <div>
+            <button class="border text-black font-medium py-2 px-4 rounded text-sm mr-2" (click)="onClose()">
+                Close
+            </button>
+            <button class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2 px-4 rounded text-sm"
+                (click)="onSubmit()">
+                <ng-icon *ngIf="isSaving" class="spin" name="heroArrowPath"></ng-icon>
+                Submit
+            </button>
+        </div>
+    </div>
