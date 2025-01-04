@@ -7,7 +7,8 @@ interface events {
     date: Date,
     employee: any,
     summary: string,
-    eventFiles: any
+    eventFiles: any,
+    status:string,
 }
 
 const eventSchema = new Schema<events>({
@@ -37,6 +38,10 @@ const eventSchema = new Schema<events>({
     summary: {
         type: String,
         required: true
+    },
+    status:{
+        type:String,
+        default: 'pending',
     },
     eventFiles: []
 })
