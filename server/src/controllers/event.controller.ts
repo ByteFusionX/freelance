@@ -33,9 +33,22 @@ export const newEvent = async (req: any, res: Response, next: NextFunction) => {
                 break;
         }
         if (newEvent) {
-            return res.status(200).json({ message: 'Event created successfully' })
+            return res.status(200).json({ event: newEvent, message: 'Event created successfully' })
         }
-        return res.status(500).json({message: 'Event failed to create'})
+        return res.status(500).json({ message: 'Event failed to create' })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const fechEvents = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const collectionId = req.params.collectionId;
+        const events = await Event.find({ collectionId: collectionId }).populate('employee').sort({ date: 1 });
+        if(events.length > 0) {
+            return res.status(200).json(events);
+        }
+        return res.status(200).json()
     } catch (error) {
         next(error)
     }

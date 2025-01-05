@@ -11,7 +11,11 @@ export class EventsService {
   api: string = environment.api
   constructor(private http: HttpClient) { }
 
-  newEvent(formData: FormData): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.api}/events/new-event`, formData)
+  newEvent(formData: FormData): Observable<{ message: string, event: any }> {
+    return this.http.post<{ message: string, event: any }>(`${this.api}/events/new-event`, formData)
+  }
+
+  fetchEvents(collectionId: string): Observable<any> {
+    return this.http.get<any>(`${this.api}/events/fetch/${collectionId}`)
   }
 }

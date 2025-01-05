@@ -53,7 +53,7 @@ import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
     UploadFileComponent,
     PaginationComponent,
     MatDividerModule,
-    pipeModule
+    pipeModule,
 ],
   providers: []
 })

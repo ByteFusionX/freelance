@@ -15,9 +15,8 @@ import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { HttpEventType } from '@angular/common/http';
 import saveAs from 'file-saver';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
-
 import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
-import { EventsComponent } from 'src/app/shared/components/events/events.component';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -328,13 +327,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onEventClicks(enquiryId: string) {
     this.isEventClicked = true;
-    const dialog = this.dialog.open(EventsComponent, { data: { collectionId: enquiryId, from: 'Enquiry' } })
-    dialog.afterClosed().subscribe((res) => {
-      this.isEventClicked = false;
-      if (res) {
-        console.log(res);
-        this.toaster.success(res.message || 'Event created successfully');
-      }
+    const dialog = this.dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe(()=>{
+      this.isEventClicked = false
     })
   }
 }

@@ -8,7 +8,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UploadFileComponent } from '../upload-file/upload-file.component';
-import { EventsService } from 'src/app/core/services/services/events.service';
+import { EventsService } from 'src/app/core/services/events/events.service';
 
 @Component({
   selector: 'app-events',
