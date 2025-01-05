@@ -332,6 +332,9 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
+                $match: { status: { $ne: 'Quoted' }}
+            },
+            {
                 $match: {
                     // ...accessFilter,
                     isDeleted: { $ne: true }
@@ -352,6 +355,9 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                     // ...accessFilter,
                     isDeleted: { $ne: true }
                 }
+            },
+            {
+                $match: { status: { $ne: 'Quoted' }}
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }

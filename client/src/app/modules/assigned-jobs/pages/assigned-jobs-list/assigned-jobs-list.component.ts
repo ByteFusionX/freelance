@@ -19,6 +19,7 @@ import { ViewEstimationComponent } from '../view-estimation/view-estimation.comp
 import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
 import { ReassignEmployeeComponent } from '../reassign-employee/reassign-employee.component';
 import { ViewRejectsComponent } from 'src/app/modules/enquirys/view-rejects/view-rejects.component';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -28,7 +29,7 @@ import { ViewRejectsComponent } from 'src/app/modules/enquirys/view-rejects/view
 export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'estimation', 'send'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'events', 'download', 'estimation', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   viewAssignedFor: boolean = false;
   isLoading: boolean = true;
@@ -64,7 +65,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
     if (this.viewAssignedFor) {
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedTo', 'department', 'status', 'comment', 'download', 'estimation', 'send'];
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedTo', 'department', 'status', 'comment', 'events', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -386,6 +387,11 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       data: rejectionHistory,
       width: '500px'
     });
+  }
+
+  onEventClicks(enquiryId: string) {
+    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe()
   }
 
 }

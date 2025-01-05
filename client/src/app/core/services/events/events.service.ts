@@ -18,4 +18,8 @@ export class EventsService {
   fetchEvents(collectionId: string): Observable<any> {
     return this.http.get<any>(`${this.api}/events/fetch/${collectionId}`)
   }
+
+  eventStatus(eventId: string, status: string): Observable<any> {
+    return this.http.patch(`${this.api}/events/status`, { eventId, status })
+  }
 }

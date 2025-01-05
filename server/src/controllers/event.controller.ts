@@ -45,10 +45,20 @@ export const fechEvents = async (req: Request, res: Response, next: NextFunction
     try {
         const collectionId = req.params.collectionId;
         const events = await Event.find({ collectionId: collectionId }).populate('employee').sort({ date: 1 });
-        if(events.length > 0) {
+        if (events.length > 0) {
             return res.status(200).json(events);
         }
         return res.status(200).json()
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const eventStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { status, eventId } = req.body
+        const eventUpdate = await Event.findOneAndUpdate({ _id: eventId }, { $set: { status: status } })
+        return res.status(200).json({ success: true })
     } catch (error) {
         next(error)
     }

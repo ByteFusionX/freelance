@@ -16,6 +16,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
 import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-reassigned-jobs',
@@ -25,7 +26,7 @@ import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comm
 export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'estimation', 'send'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'events', 'download', 'estimation', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   viewAssignedFor: boolean = false;
   isLoading: boolean = true;
@@ -61,7 +62,7 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
     if (this.viewAssignedFor) {
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'department', 'comment', 'download', 'estimation', 'send'];
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'department', 'comment', 'events', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -364,5 +365,10 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
     }
     const extension: string = <string>file.split('.').pop().toLowerCase();
     return contentTypes[extension]
+  }
+
+  onEventClicks(enquiryId: string) {
+    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe()
   }
 }

@@ -7,11 +7,13 @@ import { Observable, Subscription } from 'rxjs';
 import { EventsComponent } from '../events/events.component';
 import { ToastrService } from 'ngx-toastr';
 import { Events } from '../../interfaces/evets.interface';
+import { Router } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-events-list',
   standalone: true,
-  imports: [CommonModule, IconsModule, MatDialogModule, EventsComponent],
+  imports: [CommonModule, IconsModule, MatDialogModule, EventsComponent, MatTooltipModule],
   templateUrl: './events-list.component.html',
   styleUrls: ['./events-list.component.css'],
   providers: [DatePipe]
@@ -20,6 +22,8 @@ export class EventsListComponent implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription()
   events$!: Observable<Events[]>;
+  isReassigned: boolean = false;
+  isChecked = false;
 
   constructor(
     public dialog: MatDialog,
@@ -27,25 +31,26 @@ export class EventsListComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: { collectionId: string, from: string },
     private _eventsServices: EventsService,
     private toaster: ToastrService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     if (this.data.collectionId) {
       this.fetchEvents()
-      // this.subscriptions.add(
-      //   this._eventsServices.fetchEvents(this.data.collectionId).subscribe((res) => {
-      //     console.log(res);
-      //   })
-      // )
+    }
+    const urlSegment = this.router.url.split('/').pop()
+    if (urlSegment == 'reassigned') {
+      this.isReassigned = true
     }
   }
-  
-  fetchEvents(){
+
+  fetchEvents() {
     this.events$ = this._eventsServices.fetchEvents(this.data.collectionId)
   }
 
   ngOnDestroy(): void {
+    this.isReassigned = false
     this.subscriptions.unsubscribe()
   }
 
@@ -72,5 +77,22 @@ export class EventsListComponent implements OnInit, OnDestroy {
     const day = parseInt(dateStr.split(' ')[0], 10);
     const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3 || Math.floor(day / 10) === 1) ? 0 : day % 10];
     return dateStr.replace(day.toString(), `${day}${suffix}`);
+  }
+
+  onCheckboxClick(event: Event, eventId: string): void {
+    const checkbox = event.target as HTMLInputElement;
+    this.isChecked = checkbox.checked;
+    if (this.isChecked == true) {
+      this.subscriptions.add(
+        this._eventsServices.eventStatus(eventId, 'completed').subscribe(
+          (res)=>{
+            if(res.success === true) {
+              this.fetchEvents()
+              this.toaster.success('Event completion updated')
+            }
+          })
+      )
+    };
+
   }
 }

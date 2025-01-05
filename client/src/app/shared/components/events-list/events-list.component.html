@@ -11,7 +11,16 @@
             <div *ngIf="events$ | async as events, else noEvent">
                 <div class="space-y-4 px-6 py-2" *ngFor="let event of events">
                     <div class="p-4 bg-gray-100 rounded">
-                        <p class="text-gray-900 text-lg"><ng-icon name="heroCalendarDays"></ng-icon> {{event.event}} </p>
+                        <div class="w-full flex justify-between">
+                            <p class="text-gray-900 text-lg"><ng-icon name="heroCalendarDays"></ng-icon> {{event.event}}</p>
+                            <div *ngIf="event.status == 'pending' else completeBox">
+                                <input type="checkbox" class="size-4 border border-violet-500" (click)="onCheckboxClick($event, event._id)" 
+                                [checked]="isChecked">
+                            </div>
+                            <ng-template #completeBox>
+                                <input type="checkbox" class="size-4 border border-violet-500 cursor-pointer" disabled checked matTooltip="Completed" matTooltipPosition="above" matTooltipClass="mat-tooltip">
+                            </ng-template>
+                        </div>
                         <p class="text-gray-600">{{event.summary}}</p>
                         <p class="text-gray-600">{{formatDate(event.date)}}</p>
                     </div>
@@ -25,8 +34,8 @@
                     </div>
                 </div>
             </ng-template>
-            <div class="border border-white border-t-gray-300 flex justify-between gap-2 px-6 py-2">
-                <div>
+            <div class="border border-white border-t-gray-300 flex justify-end gap-2 px-6 py-2">
+                <div *ngIf="!isReassigned">
                     <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm"
                         (click)="onNewEventClicks()">
                         New Event
