@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Company from "../models/company.model"
-
-
-
+import { ObjectId } from "mongodb";
 
 export const getCompanyDetails = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -122,14 +120,13 @@ export const updateCompanyTarget = async (req: Request, res: Response, next: Nex
         const targetId = req.params.targetId;
 
         const targetWithYearExists = await Company.findOne({
-            "targets.year": target.year
+            targets: { $elemMatch: { year: target.year } }
         });
 
         if (targetWithYearExists) {
-            console.log(targetWithYearExists);
             
             const isDuplicate = targetWithYearExists.targets.some((t, i) =>
-                t._id !== targetId && t.year == target.year
+             t._id.toString() !== targetId && t.year === target.year
             );
 
             if (isDuplicate) {
