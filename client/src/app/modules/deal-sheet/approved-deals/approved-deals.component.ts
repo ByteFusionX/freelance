@@ -125,7 +125,7 @@ export class ApprovedDealsComponent {
     this.subscriptions.add(
       this._quoteService.getApprovedDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data.dealSheet.length) {
+          if (data && data.dealSheet  && data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total

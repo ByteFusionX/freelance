@@ -285,12 +285,7 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
             {
                 $sort: { 'dealData.savedDate': -1 }
             },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
+
             {
                 $lookup: {
                     from: 'customers',
@@ -334,6 +329,12 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
             },
             {
                 $match: searchFilter,
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
             },
             {
                 $unwind: {
@@ -457,12 +458,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
             {
                 $sort: { 'dealData.savedDate': -1 }
             },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
-            },
+
             {
                 $lookup: {
                     from: 'customers',
@@ -507,6 +503,12 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
             },
             {
                 $match: searchFilter,
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
             },
             {
                 $unwind: {

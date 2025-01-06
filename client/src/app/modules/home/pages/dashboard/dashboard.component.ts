@@ -77,6 +77,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.getDepartments();
     this.getSalesTarget(true);
     this.getDashboardReports();
+
+    const currentYear = new Date().getFullYear().toString()
+    this.selectedTargetYear = currentYear
   }
 
   getDashboardReports() {
@@ -161,7 +164,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           access: access,
           userId: userId
         }
-    
+
         if (access && access !== 'none') {
           this._employeeService.getEmployees(filterData).subscribe((employees) => {
             this.salesPersons = employees.employees;
@@ -238,7 +241,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
     }
-    console.log(this.minDate,this.maxDate)
+    console.log(this.minDate, this.maxDate)
     this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
@@ -437,7 +440,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   }
 
-   formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
+  formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
     if (isNaN(value)) {
       return '';
     }

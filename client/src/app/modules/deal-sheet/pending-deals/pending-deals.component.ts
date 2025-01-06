@@ -118,7 +118,7 @@ export class PendingDealsComponent {
     this.subscriptions.add(
       this._quoteService.getDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data.dealSheet.length) {
+          if (data && data.dealSheet  && data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
