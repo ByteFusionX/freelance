@@ -7,6 +7,17 @@ services:
     ports:
       - 4200:80
 
+  mongoCont:
+    image: mongo
+    restart: always
+    env_file:
+      - ../server/.env
+    volumes:
+      - mongo-db:/data/db
+    ports:
+      - 27018:27017
+
+
   api:
     restart: always
     build:
@@ -20,15 +31,6 @@ services:
     depends_on:
       - mongoCont
 
-  mongoCont:
-    image: mongo
-    restart: always
-    env_file:
-      - ../server/.env
-    volumes:
-      - mongo-db:/data/db
-    ports:
-      - 27018:27017
 
 volumes:
   mongo-db:

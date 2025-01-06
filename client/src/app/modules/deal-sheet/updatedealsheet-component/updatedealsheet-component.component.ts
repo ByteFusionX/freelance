@@ -64,7 +64,7 @@ export class UpdatedealsheetComponent implements OnInit {
         email: detail.email,
       })),
     }));
-    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles,totalDiscount : this.data.quoteData.optionalItems[this.selectedOption].totalDiscount }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }
