@@ -28,6 +28,8 @@ services:
       - ../server/.env
     ports:
       - 3000:3000
+    extra_hosts:
+      - "mongoservice:172.17.0.1"
     depends_on:
       - mongoCont
 
