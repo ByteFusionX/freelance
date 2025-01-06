@@ -31,7 +31,7 @@ interface Deal {
     savedDate: Date;
     seenByApprover: boolean;
     status: string;
-    approvedBy:Types.ObjectId;
+    approvedBy: Types.ObjectId;
     comments: string[];
     seenedBySalsePerson: boolean;
     attachments: [];
@@ -59,6 +59,7 @@ interface Quotation extends Document {
     isDeleted: boolean;
     rfqNo: string;
     closingDate: Date;
+    eventId: any;
 }
 
 export enum quoteStatus {
@@ -255,6 +256,10 @@ const quotationSchema = new Schema<Quotation>({
     closingDate: {
         type: Date,
         required: false,
+    },
+    eventId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Event'
     },
 });
 

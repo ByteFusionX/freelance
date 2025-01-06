@@ -9,8 +9,8 @@ import { calculateDiscountPrice, getAllReportedEmployees, getUSDRated } from "..
 const { ObjectId } = require('mongodb');
 import { newTrash } from '../controllers/trash.controller'
 import { removeFile } from '../common/util'
-import quotationModel from "../models/quotation.model";
 import { deleteFileFromAws, uploadFileToAws } from '../common/aws-connect';
+import Event from '../models/events.model'
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -24,6 +24,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
         if (quoteData.enqId) {
             await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
+            await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: saveQuote._id } })
         }
 
         if (saveQuote) {
@@ -228,10 +229,10 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         if (searchCriteria && searchQuery) {
             switch (searchCriteria) {
                 case 'dealId':
-                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'customer':
-                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'salesperson':
                     searchFilter['$or'] = [
@@ -415,10 +416,10 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
         if (searchCriteria && searchQuery) {
             switch (searchCriteria) {
                 case 'dealId':
-                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'customer':
-                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'salesperson':
                     searchFilter['$or'] = [
@@ -475,7 +476,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     as: 'client'
                 }
             },
-            
+
             {
                 $unwind: '$client'
             },

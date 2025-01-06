@@ -6,5 +6,6 @@ export interface Events {
     employee: any,
     summary: string,
     date: Date,
-    status: string
+    status: string,
+    createdBy:any,
 }

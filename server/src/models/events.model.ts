@@ -8,7 +8,8 @@ interface events {
     employee: any,
     summary: string,
     eventFiles: any,
-    status:string,
+    status: string,
+    createdBy:any
 }
 
 const eventSchema = new Schema<events>({
@@ -39,9 +40,14 @@ const eventSchema = new Schema<events>({
         type: String,
         required: true
     },
-    status:{
-        type:String,
+    status: {
+        type: String,
         default: 'pending',
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'Employee',
+        required: true
     },
     eventFiles: []
 })

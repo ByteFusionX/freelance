@@ -68,6 +68,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    const token = this._employeeService.employeeToken()
     this.isSaving = true;
     const eventData = {
       from: this.data.from,
@@ -76,7 +77,8 @@ export class EventsComponent implements OnInit, OnDestroy {
       date: this.selectedDate,
       employee: this.selectedEmployee,
       summary: this.summary,
-      eventFiles: this.selectedFiles
+      eventFiles: this.selectedFiles,
+      createdBy: token.id
     }
 
     let formData = new FormData();

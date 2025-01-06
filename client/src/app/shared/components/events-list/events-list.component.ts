@@ -9,6 +9,8 @@ import { ToastrService } from 'ngx-toastr';
 import { Events } from '../../interfaces/evets.interface';
 import { Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 
 @Component({
   selector: 'app-events-list',
@@ -24,6 +26,7 @@ export class EventsListComponent implements OnInit, OnDestroy {
   events$!: Observable<Events[]>;
   isReassigned: boolean = false;
   isChecked = false;
+  employeeToken!: any;
 
   constructor(
     public dialog: MatDialog,
@@ -32,7 +35,8 @@ export class EventsListComponent implements OnInit, OnDestroy {
     private _eventsServices: EventsService,
     private toaster: ToastrService,
     private datePipe: DatePipe,
-    private router: Router
+    private router: Router,
+    private _employeeServices: EmployeeService,
   ) { }
 
   ngOnInit(): void {
@@ -43,6 +47,8 @@ export class EventsListComponent implements OnInit, OnDestroy {
     if (urlSegment == 'reassigned') {
       this.isReassigned = true
     }
+
+    this.employeeToken = this._employeeServices.employeeToken()
   }
 
   fetchEvents() {
@@ -85,14 +91,44 @@ export class EventsListComponent implements OnInit, OnDestroy {
     if (this.isChecked == true) {
       this.subscriptions.add(
         this._eventsServices.eventStatus(eventId, 'completed').subscribe(
-          (res)=>{
-            if(res.success === true) {
+          (res) => {
+            if (res.success === true) {
               this.fetchEvents()
               this.toaster.success('Event completion updated')
             }
           })
       )
     };
+  }
 
+  onDeleteEvent(eventId: string) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Event',
+        description: 'Are you sure you want to delete this event?',
+        icon: 'heroExclamationCircle',
+        IconColor: 'red'
+      }
+    });
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.subscriptions.add(
+          this._eventsServices.eventDelete(eventId).subscribe(
+            (res) => {
+              if (res.success) {
+                this.toaster.success('Event Deleted')
+                this.fetchEvents()
+              }
+            })
+        )
+      }
+    })
+  }
+
+  isCreatedEmployee(employeeId:string): boolean {
+    if(this.employeeToken.id == employeeId){
+      return true;
+    }
+    return false;
   }
 }

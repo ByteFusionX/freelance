@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { uploadFileToAws } from "../common/aws-connect";
 import Event from '../models/events.model';
 import Enquiry from '../models/enquiry.model';
+import Quotation from '../models/quotation.model'
 
 export const newEvent = async (req: any, res: Response, next: NextFunction) => {
     try {
@@ -28,7 +29,8 @@ export const newEvent = async (req: any, res: Response, next: NextFunction) => {
             case 'Enquiry':
                 await Enquiry.findOneAndUpdate({ _id: eventData.collectionId }, { $set: { eventId: newEvent._id } })
                 break;
-
+            case 'Quotation':
+                await Quotation.findOneAndUpdate({ _id: eventData.collectionId }, { $set: { eventId: newEvent._id } });
             default:
                 break;
         }
@@ -44,7 +46,8 @@ export const newEvent = async (req: any, res: Response, next: NextFunction) => {
 export const fechEvents = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const collectionId = req.params.collectionId;
-        const events = await Event.find({ collectionId: collectionId }).populate('employee').sort({ date: 1 });
+        const events = await Event.find({ collectionId: collectionId })
+        .populate('employee').populate('createdBy').sort({ date: 1 }).exec();
         if (events.length > 0) {
             return res.status(200).json(events);
         }
@@ -58,6 +61,16 @@ export const eventStatus = async (req: Request, res: Response, next: NextFunctio
     try {
         const { status, eventId } = req.body
         const eventUpdate = await Event.findOneAndUpdate({ _id: eventId }, { $set: { status: status } })
+        return res.status(200).json({ success: true })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const eventId = req.params.eventId
+        const eventDelete = await Event.findOneAndDelete({ _id: eventId })
         return res.status(200).json({ success: true })
     } catch (error) {
         next(error)
