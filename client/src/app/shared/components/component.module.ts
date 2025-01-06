@@ -4,13 +4,26 @@ import { ConfettiComponentComponent } from './confetti-component/confetti-compon
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { CommonModule } from '@angular/common';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { OptionalItemsComponent } from './optional-items/optional-items.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 
 @NgModule({
-    imports: [ConfettiComponentComponent,IconsModule,CommonModule,NgxExtendedPdfViewerModule],
-    exports: [],
-    declarations: [CelebrationDialogComponent],
+    imports: [
+        ConfettiComponentComponent,
+        IconsModule,
+        CommonModule,
+        NgxExtendedPdfViewerModule,
+        NgSelectModule,
+        ReactiveFormsModule,
+        MatSnackBarModule,
+        FormsModule
+    ],
+    exports: [OptionalItemsComponent],
+    declarations: [CelebrationDialogComponent, OptionalItemsComponent],
     providers: [],
 })
 export class componentModule { }

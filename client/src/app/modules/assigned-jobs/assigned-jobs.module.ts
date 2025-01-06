@@ -26,6 +26,8 @@ import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job-comment.component';
 import { ReassignedJobsComponent } from './pages/reassigned-jobs/reassigned-jobs.component';
 import { ReassignEmployeeComponent } from './pages/reassign-employee/reassign-employee.component';
+import { OptionalItemsComponent } from 'src/app/shared/components/optional-items/optional-items.component';
+import { componentModule } from 'src/app/shared/components/component.module';
 
 @NgModule({
   declarations: [
@@ -57,7 +59,8 @@ import { ReassignEmployeeComponent } from './pages/reassign-employee/reassign-em
     NgSelectModule,
     FormsModule,
     ReactiveFormsModule,
-    pipeModule
+    pipeModule,
+    componentModule
 ]
 })
 export class AssignedJobsModule { }

@@ -238,7 +238,7 @@ export class JobListComponent {
       }
     })
 
-    priceDetails.totalSellingPrice -= quoteData.totalDiscount;
+    priceDetails.totalSellingPrice -= quoteData.dealData.totalDiscount;
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 

@@ -7,8 +7,21 @@ services:
     ports:
       - 4200:80
 
+  mongoCont:
+    image: mongo
+    restart: always
+    env_file:
+      - ../server/.env
+    volumes:
+      - mongo-db:/data/db
+    ports:
+      - 27018:27017
+
+
   api:
     restart: always
+    extra_hosts:
+      - "mongoservice:172.17.0.1"
     build:
       context: ../server
       dockerfile: Dockerfile
@@ -20,15 +33,6 @@ services:
     depends_on:
       - mongoCont
 
-  mongoCont:
-    image: mongo
-    restart: always
-    env_file:
-      - ../server/.env
-    volumes:
-      - mongo-db:/data/db
-    ports:
-      - 27018:27017
 
 volumes:
   mongo-db:

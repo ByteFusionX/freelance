@@ -18,6 +18,7 @@ export class DealFormComponent {
   isAllSelected: boolean = false;
   costForm!: FormGroup;
   selectedFiles: any[] = [];
+  selectedOption: number = 0;
 
   constructor(
     public dialogRef: MatDialogRef<DealFormComponent>,
@@ -28,7 +29,7 @@ export class DealFormComponent {
   ngOnInit() {
     this.costForm = this.fb.group({
       paymentTerms: ['', Validators.required],
-      items: this.fb.array(this.data.items.map(item => this.createItemGroup(item))),
+      items: this.fb.array(this.data.optionalItems[0].items.map(item => this.createItemGroup(item))),
       costs: this.fb.array([], this.additionalCostsValidator())
     });
   }
@@ -40,6 +41,13 @@ export class DealFormComponent {
 
   get costs(): FormArray {
     return this.costForm.get('costs') as FormArray;
+  }
+
+  onCalculationOptionChange() {
+    this.items.clear();
+    this.data.optionalItems[this.selectedOption].items.forEach(item => {
+        this.items.push(this.createItemGroup(item));
+    });
   }
 
   createItemGroup(item: any): FormGroup {
@@ -110,9 +118,9 @@ export class DealFormComponent {
     });
 
     if (!event.target.checked) {
-      this.getItemDetailsArray(this.items.controls[i])[j].get('quantity')?.setValue(this.data.items[i].itemDetails[j].quantity)
-      this.getItemDetailsArray(this.items.controls[i])[j].get('unitCost')?.setValue(this.data.items[i].itemDetails[j].unitCost)
-      this.getItemDetailsArray(this.items.controls[i])[j].get('profit')?.setValue(this.data.items[i].itemDetails[j].profit)
+      this.getItemDetailsArray(this.items.controls[i])[j].get('quantity')?.setValue(this.data.optionalItems[this.selectedOption].items[i].itemDetails[j].quantity)
+      this.getItemDetailsArray(this.items.controls[i])[j].get('unitCost')?.setValue(this.data.optionalItems[this.selectedOption].items[i].itemDetails[j].unitCost)
+      this.getItemDetailsArray(this.items.controls[i])[j].get('profit')?.setValue(this.data.optionalItems[this.selectedOption].items[i].itemDetails[j].profit)
       this.getItemDetailsArray(this.items.controls[i])[j].get('supplierName')?.setValue('')
       this.getItemDetailsArray(this.items.controls[i])[j].get('phoneNo')?.setValue('')
       this.getItemDetailsArray(this.items.controls[i])[j].get('email')?.setValue('')
@@ -150,7 +158,7 @@ export class DealFormComponent {
         email: detail.email,
       }))
     }));
-    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, totalDiscount : this.data.optionalItems[this.selectedOption].totalDiscount }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }

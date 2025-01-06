@@ -746,8 +746,7 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
 
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let { items, enquiryId, currency, totalDiscount, preSaleNote } = req.body;
-
+        let { optionalItems, enquiryId, currency, totalDiscount, preSaleNote,selectedOption } = req.body;
 
         const quote = await quotationModel.findOne({ enqId: enquiryId })
         if (quote) {
@@ -755,7 +754,7 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
                 { _id: quote._id },
                 {
                     $set: {
-                        'items': items,
+                        'optionalItems': optionalItems,
                         'currency': currency,
                         'totalDiscount': totalDiscount,
                     }
@@ -767,9 +766,8 @@ export const uploadEstimations = async (req: any, res: Response, next: NextFunct
             { _id: new ObjectId(enquiryId) },
             {
                 $set: {
-                    'preSale.estimations.items': items,
+                    'preSale.estimations.optionalItems': optionalItems,
                     'preSale.estimations.currency': currency,
-                    'preSale.estimations.totalDiscount': totalDiscount,
                     'preSale.estimations.presaleNote': preSaleNote,
                 }
             }

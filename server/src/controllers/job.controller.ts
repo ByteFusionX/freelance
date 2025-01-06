@@ -114,11 +114,11 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                                             { $eq: ['$quotation.currency', 'USD'] },
                                             {
                                                 $multiply: [
-                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
                                                     qatarUsdRate
                                                 ]
                                             },
-                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                                         ]
                                     }
                                 }

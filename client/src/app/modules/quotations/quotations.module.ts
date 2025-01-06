@@ -27,6 +27,8 @@ import { ViewLpoComponent } from './pages/view-lpo/view-lpo.component';
 import { ViewReportComponent } from './pages/view-report/view-report.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { OptionalItemsComponent } from 'src/app/shared/components/optional-items/optional-items.component';
+import { componentModule } from 'src/app/shared/components/component.module';
 
 
 @NgModule({
@@ -61,7 +63,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         pipeModule,
         MatTooltipModule,
         NgApexchartsModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        componentModule
     ]
 })
 export class QuotationsModule { }

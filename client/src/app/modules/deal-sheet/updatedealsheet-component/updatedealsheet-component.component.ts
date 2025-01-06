@@ -21,6 +21,9 @@ export class UpdatedealsheetComponent implements OnInit {
   removedFiles: any[] = [];
   existingFiles: any[] = [];
 
+  selectedOption: number = 0;
+
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean },
     public dialogRef: MatDialogRef<UpdatedealsheetComponent>,
@@ -41,6 +44,13 @@ export class UpdatedealsheetComponent implements OnInit {
     this.existingFiles = [...this.selectedFiles]
   }
 
+  onCalculationOptionChange() {
+    this.items.clear();
+    this.data.quoteData.optionalItems[this.selectedOption].items.forEach(item => {
+        this.items.push(this.createItemGroup(item));
+    });
+  }
+
   setUpFormData(): FormData {
     let formData = new FormData();
 
@@ -54,7 +64,7 @@ export class UpdatedealsheetComponent implements OnInit {
         email: detail.email,
       })),
     }));
-    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles,totalDiscount : this.data.quoteData.optionalItems[this.selectedOption].totalDiscount }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }

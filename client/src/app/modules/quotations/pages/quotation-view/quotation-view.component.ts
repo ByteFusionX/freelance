@@ -30,8 +30,9 @@ export class QuotationViewComponent {
   showError: boolean = false;
   revisionComment: string = '';
   progress: number = 0;
-  subscriptions = new Subscription();
+  selectedOption: number = 0;
 
+  subscriptions = new Subscription();
 
   constructor(
     private _router: Router,
@@ -85,7 +86,6 @@ export class QuotationViewComponent {
           { data: { url: url, formatedQuote: quoteData }});
       });
     });
-
 
   }
 
@@ -144,37 +144,40 @@ export class QuotationViewComponent {
     }
   }
 
-  calculateTotalCost(i: number, j: number) {
-    return this.quoteData.items[i].itemDetails[j].quantity * this.quoteData.items[i].itemDetails[j].unitCost;
-  }
-
-  calculateUnitPrice(i: number, j: number) {
-    const decimalMargin = this.quoteData.items[i].itemDetails[j].profit / 100;
-    return this.quoteData.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
-  }
-
-  calculateTotalPrice(i: number, j: number) {
-    return this.calculateUnitPrice(i, j) * this.quoteData.items[i].itemDetails[j].quantity;
+  calculateTotalCost(i: number, j: number, k: number) {
+    return this.quoteData.optionalItems[this.selectedOption].items[j].itemDetails[k].quantity *
+      this.quoteData.optionalItems[this.selectedOption].items[j].itemDetails[k].unitCost;
   }
 
   calculateAllTotalCost() {
     let totalCost = 0;
-    this.quoteData.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalCost(i, j)
+    this.quoteData.optionalItems[this.selectedOption].items.forEach((item, j) => {
+        item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalCost(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
   }
 
   calculateSellingPrice(): number {
     let totalCost = 0;
-    this.quoteData.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalPrice(i, j)
+    this.quoteData.optionalItems[this.selectedOption].items.forEach((item, j) => {
+      item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalPrice(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
+  }
+
+  calculateUnitPrice(i: number, j: number, k: number) {
+    const decimalMargin = this.quoteData.optionalItems[i].items[j].itemDetails[k].profit / 100;
+    return this.quoteData.optionalItems[i].items[j].itemDetails[k].unitCost / (1 - decimalMargin)
+  }
+
+  calculateTotalPrice(i: number, j: number, k: number) {
+    return this.calculateUnitPrice(i, j, k) * this.quoteData.optionalItems[i].items[j].itemDetails[k].quantity;
   }
 
   calculateProfitMargin(): number {
@@ -186,7 +189,7 @@ export class QuotationViewComponent {
   }
 
   calculateDiscoutPrice(): number {
-    return this.calculateSellingPrice() - this.quoteData.totalDiscount
+    return this.calculateSellingPrice() - this.quoteData.optionalItems[this.selectedOption].totalDiscount
   }
 
   deleteQuote() {
@@ -214,7 +217,5 @@ export class QuotationViewComponent {
       }
     });
   }
-
-
-
+  
 }

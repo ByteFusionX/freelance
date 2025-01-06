@@ -1,7 +1,7 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
 import { getEmployee } from "./employee.interface";
-import { QuoteItem } from "./quotation.interface";
+import { OptionalItems, QuoteItem } from "./quotation.interface";
 
 export interface Enquiry {
     enquiryId: string;
@@ -17,7 +17,7 @@ export interface Enquiry {
 }
 
 export interface Estimations {
-    items: QuoteItem[];
+    optionalItems: OptionalItems[];
     currency: string;
     totalDiscount: number;
     presaleNote: string;

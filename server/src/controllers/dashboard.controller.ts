@@ -3,7 +3,7 @@ import quotationModel from "../models/quotation.model";
 import { ObjectId } from "mongodb"
 import employeeModel from "../models/employee.model";
 import jobModel from "../models/job.model";
-import { buildDashboardFilters, calculateCostPricePipe, calculateDiscountPrice, calculateTotalCost, getUSDRated, lastRangedMonths, months, calculateDiscountPricePipe, getDateRange } from "../common/util";
+import { buildDashboardFilters, calculateCostPricePipe, calculateDiscountPrice, calculateTotalCost, getUSDRated, lastRangedMonths, months, calculateDiscountPricePipe, getDateRange, calculateQuoteDiscountPricePipe } from "../common/util";
 import categoryModel, { Privileges } from "../models/category.model";
 import { Filters } from "../interface/dashboard.interface";
 import enquiryModel from "../models/enquiry.model";
@@ -149,14 +149,14 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                                                 $round: [ // Round USD conversion
                                                     {
                                                         $multiply: [
-                                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
                                                             qatarUsdRate
                                                         ]
                                                     },
                                                     2
                                                 ]
                                             },
-                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                                         ]
                                     },
                                     {
@@ -418,11 +418,11 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                                 { $eq: ['$currency', 'USD'] },
                                 {
                                     $multiply: [
-                                        calculateDiscountPricePipe('$items', '$totalDiscount'),
+                                        calculateQuoteDiscountPricePipe('$optionalItems'),
                                         qatarUsdRate
                                     ]
                                 },
-                                calculateDiscountPricePipe('$items', '$totalDiscount')
+                                calculateQuoteDiscountPricePipe('$optionalItems')
                             ]
                         }
                     },
@@ -463,6 +463,8 @@ const getQuotations = async (access: string, userId: string, filters: Filters) =
                 }
             }
         ]).exec();
+
+        console.log(quoteTotal)
 
         return quoteTotal[0];
     } catch (error) {
@@ -608,11 +610,11 @@ const getAssignedJobs = async (access: string, userId: string, filters: Filters)
                                 { $eq: ['$quotation.currency', 'USD'] },
                                 {
                                     $multiply: [
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
                                         qatarUsdRate
                                     ]
                                 },
-                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                             ]
                         }
                     },
@@ -734,11 +736,11 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                                     { $eq: ['$quotation.currency', 'USD'] },
                                     {
                                         $multiply: [
-                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
                                             qatarUsdRates
                                         ]
                                     },
-                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                                 ]
                             }
                         },
@@ -863,11 +865,11 @@ export const getGrossProfitForLastSevenMonths = async (req: Request, res: Respon
                                         { $eq: ['$quotation.currency', 'USD'] },
                                         {
                                             $multiply: [
-                                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount'),
+                                                calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
                                                 qatarUsdRate
                                             ]
                                         },
-                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.totalDiscount')
+                                        calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                                     ]
                                 }
                             },

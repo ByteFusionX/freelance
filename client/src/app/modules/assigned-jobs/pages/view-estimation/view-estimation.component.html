@@ -21,90 +21,106 @@
     </div>
 
     <div class="relative overflow-x-auto my-6 px-6">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 border">
-            <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
-                <tr>
-                    <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
-                        key="itemDetail">
-                        <div class="px-6 py-3">Item Details</div>
-
-                    </th>
-                    <th scope="col" resizable key="qty"
-                        class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
-                        <div class="px-2 py-3">QTY</div>
-                    </th>
-                    <th scope="col" resizable key="unitCost"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
-                        <div class="px-6 py-3">Unit Cost ({{data.estimation.currency}})</div>
-                    </th>
-                    <th scope="col" resizable key="totalCost"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
-                        <div class="px-6 py-3">Total Cost ({{data.estimation.currency}})</div>
-                    </th>
-                    <th scope="col" resizable key="profit"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
-                        <div class="px-6 py-3">Profit</div>
-                    </th>
-                    <th scope="col" resizable key="unitPrice"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
-                        <div class="px-6 py-3">Unit Price ({{data.estimation.currency}})</div>
-                    </th>
-                    <th scope="col" resizable key="totalPrice"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center">
-                        <div class="px-6 py-3">Total Price ({{data.estimation.currency}})</div>
-                    </th>
-                    <th scope="col" resizable key="avbl"
-                        class="border-l border-r border-t hover:border-r-slate-950  text-center min-w-[90px]">
-                        <div class="px-2 py-3">AVBL.</div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <ng-container *ngFor="let item of data.estimation.items">
+        <div class="mb-4" *ngIf="data.estimation.optionalItems.length > 1">
+            <label for="mainCalculationOption" class="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                Select Item Options:
+            </label>
+            <select id="mainCalculationOption" [(ngModel)]="selectedOption"
+                class="w-52 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-transparent focus:border-violet-500 p-2.5 ">
+                <option *ngFor="let option of data.estimation.optionalItems; let i = index" [value]="i">
+                    Option {{ i + 1 }}
+                </option>
+            </select>
+        </div>
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-2">
+                <thead class="text-xs text-gray-700 uppercase bg-violet-50  ">
                     <tr>
-                        <td colspan="9" class="border px-6 py-2 bg-gray-50 ">
-                            <div class="flex justify-center items-center text-md text-black font-medium uppercase">
-                                {{item.itemName}}
-                            </div>
-                        </td>
+                        <th scope="col" resizable class=" w-96 border-l border-r border-t hover:border-r-slate-950"
+                            key="itemDetail">
+                            <div class="px-6 py-3">Item Details</div>
+
+                        </th>
+                        <th scope="col" resizable key="qty"
+                            class=" border-l border-r border-t hover:border-r-slate-950  text-center min-w-[66px]">
+                            <div class="px-2 py-3">QTY</div>
+                        </th>
+                        <th scope="col" resizable key="unitCost"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                            <div class="px-6 py-3">Unit Cost ({{data.estimation.currency}})</div>
+                        </th>
+                        <th scope="col" resizable key="totalCost"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                            <div class="px-6 py-3">Total Cost ({{data.estimation.currency}})</div>
+                        </th>
+                        <th scope="col" resizable key="profit"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                            <div class="px-6 py-3">Profit</div>
+                        </th>
+                        <th scope="col" resizable key="unitPrice"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                            <div class="px-6 py-3">Unit Price ({{data.estimation.currency}})</div>
+                        </th>
+                        <th scope="col" resizable key="totalPrice"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center">
+                            <div class="px-6 py-3">Total Price ({{data.estimation.currency}})</div>
+                        </th>
+                        <th scope="col" resizable key="avbl"
+                            class="border-l border-r border-t hover:border-r-slate-950  text-center min-w-[90px]">
+                            <div class="px-2 py-3">AVBL.</div>
+                        </th>
                     </tr>
-                    <ng-container *ngFor="let itemsDetail of item.itemDetails">
-                        <tr class="bg-white border-b text-gray-800">
-                            <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
-                                <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
-                            </th>
+                </thead>
+                <tbody>
 
 
-
-
-
-                            <td class="px-2  border text-center">
-                                {{itemsDetail.quantity}}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                                {{itemsDetail.unitCost | numberFormatter}}
-                            </td>
-                            <td class=" py-2  text-center ">
-                                {{(itemsDetail.quantity * itemsDetail.unitCost) | numberFormatter}}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                                {{ itemsDetail.profit | number:'1.2-2' }}%
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                                {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) | numberFormatter}}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                                {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
-                                itemsDetail.quantity) | numberFormatter}}
-                            </td>
-                            <td class="px-2 py-2 border text-center">
-                                {{itemsDetail.availability}}
+                    <ng-container *ngFor="let item of data.estimation.optionalItems[selectedOption].items">
+                        <tr>
+                            <td colspan="9" class="border px-6 py-2 bg-gray-50 ">
+                                <div class="flex justify-center items-center text-md text-black font-medium uppercase">
+                                    {{item.itemName}}
+                                </div>
                             </td>
                         </tr>
+                        <ng-container *ngFor="let itemsDetail of item.itemDetails">
+                            <tr class="bg-white border-b text-gray-800">
+                                <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                    <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
+                                </th>
+
+
+
+
+
+                                <td class="px-2  border text-center">
+                                    {{itemsDetail.quantity}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{itemsDetail.unitCost | numberFormatter}}
+                                </td>
+                                <td class=" py-2  text-center ">
+                                    {{(itemsDetail.quantity * itemsDetail.unitCost) | numberFormatter}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{ itemsDetail.profit | number:'1.2-2' }}%
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{(itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) | numberFormatter}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{((itemsDetail.unitCost / (1 - (itemsDetail.profit/100))) *
+                                    itemsDetail.quantity) | numberFormatter}}
+                                </td>
+                                <td class="px-2 py-2 border text-center">
+                                    {{itemsDetail.availability}}
+                                </td>
+                            </tr>
+                        </ng-container>
                     </ng-container>
-                </ng-container>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+
+
+        
         <div class="relative overflow-x-auto mt-6 w-full flex gap-6">
             <table class="w-1/2 text-sm text-left rtl:text-right text-black border bg-gray-50">
                 <tbody>
@@ -158,7 +174,7 @@
                             Discount
                         </td>
                         <td class="px-2 py-2 border text-center uppercase text-xl">
-                            {{(data.estimation.totalDiscount) | numberFormatter}}
+                            {{(data.estimation.optionalItems[selectedOption].totalDiscount) | numberFormatter}}
                         </td>
                     </tr>
                     <tr class=" border-b ">

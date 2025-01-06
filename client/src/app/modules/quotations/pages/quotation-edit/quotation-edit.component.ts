@@ -14,7 +14,7 @@ import { customerNotes, termsAndConditions } from 'src/app/shared/constants/cons
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
-import { Quotatation, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
+import { OptionalItems, Quotatation, QuoteItem, getQuotatation, quotatationForm } from 'src/app/shared/interfaces/quotation.interface';
 import { fadeInOut } from 'src/app/shared/animations/animations';
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
@@ -46,8 +46,8 @@ export class QuotationEditComponent {
     "4-6 Weeks"
   ];
   availabiltyInput$ = new Subject<string>();
-  removedItems: any[] = []; 
-  removedItemDetails: any[] = []; 
+  removedItems: any[] = [];
+  removedItemDetails: any[] = [];
 
   submit: boolean = false;
   isSaving: boolean = false;
@@ -56,6 +56,14 @@ export class QuotationEditComponent {
   isTextSelected: boolean = false;
 
   @ViewChild('inputTextArea') inputTextArea!: ElementRef;
+
+  estimatedOptionalItems!: OptionalItems[];
+  calculatedValues: { totalCost: number, sellingPrice: number, totalProfit: number, discount: number } = {
+    totalCost: 0,
+    sellingPrice: 0,
+    totalProfit: 0,
+    discount: 0
+  }
 
   constructor(
     private config: NgSelectConfig,
@@ -98,21 +106,7 @@ export class QuotationEditComponent {
       subject: ['', Validators.required],
       currency: [null, Validators.required],
       quoteCompany: [null, Validators.required],
-      items: this._fb.array([
-        this._fb.group({
-          itemName: ['', Validators.required],
-          itemDetails: this._fb.array([
-            this._fb.group({
-              detail: ['', Validators.required],
-              quantity: ['', Validators.required],
-              unitCost: ['', Validators.required],
-              profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
-              unitPrice: [''],
-              availability: ['', Validators.required],
-            }),
-          ])
-        })
-      ]),
+      optionalItems: this._fb.array([]),
       totalDiscount: ['', Validators.required],
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
@@ -126,25 +120,8 @@ export class QuotationEditComponent {
         this.quoteData.closingDate = this._datePipe.transform(this.quoteData.closingDate, 'yyyy-MM-dd') as string;
       }
       this.quoteForm.controls['client'].setValue(this.quoteData.client);
-      this.items.clear()
-      this.quoteData.items.forEach((item: any, index: number) => {
-        this.addItemFormGroup()
-        item.itemDetails.forEach((_: any, ind: number) => {
-          if (ind > 0) {
-            this.addItemDetail(index)
-          }
-        })
-      })
-
       this.quoteForm.patchValue(this.quoteData)
-
-      this.quoteData.items.forEach((item:any,i:number)=>{
-        item.itemDetails.forEach((itemDetail:any,j:number)=>{
-          if(itemDetail){
-            this.calculateUnitPriceForInput(i,j)
-          }
-        })
-      })
+      this.estimatedOptionalItems = this.quoteData.optionalItems;
     }
   }
 
@@ -162,49 +139,13 @@ export class QuotationEditComponent {
     }
   }
 
-  get items(): FormArray {
-    return this.quoteForm.get('items') as FormArray;
+  get optionalItems() {
+    return this.quoteForm.get('optionalItems') as FormArray;
   }
-
-  getItemDetailsControls(index: number): FormArray {
-    return this.items.at(index).get('itemDetails') as FormArray;
-  }
-
-  addItemFormGroup() {
-    this.items.push(this._fb.group({
-      itemName: ['', Validators.required],
-      itemDetails: this._fb.array([
-        this._fb.group({
-          detail: ['', Validators.required],
-          quantity: ['', Validators.required],
-          unitCost: ['', Validators.required],
-          profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
-          unitPrice: [''],
-          availability: ['', Validators.required],
-        })
-      ])
-    }));
-  }
-
-  createItemDetail(): FormGroup {
-    return this._fb.group({
-      detail: ['', Validators.required],
-      quantity: ['', Validators.required],
-      unitCost: ['', Validators.required],
-      profit: ['', [Validators.required, this.nonNegativeProfitValidator()]],
-      unitPrice: [''],
-      availability: ['', Validators.required]
-    });
-  }
-
-  addItemDetail(index: number): void {
-    this.getItemDetailsControls(index).push(this.createItemDetail());
-  }
-
 
   getAllCustomers() {
     let userId;
-    this._employeeService.employeeData$.subscribe((data)=>{
+    this._employeeService.employeeData$.subscribe((data) => {
       userId = data?._id
     })
     this.customers$ = this._customerService.getAllCustomers(userId);
@@ -258,120 +199,18 @@ export class QuotationEditComponent {
     }
   }
 
-
-  
-  onRemoveItem(index: number): void {
-    const removedItem = this.items.at(index).value; 
-    this.removedItems.push({ item: removedItem, index }); 
-    this.items.removeAt(index);  
-
-    this.showUndoOption('item');
+  onCalculatedValuesReceived(values: { totalCost: number, sellingPrice: number, totalProfit: number , discount: number }) {
+    this.calculatedValues = values;
   }
 
-  onRemoveItemDetail(i: number, j: number): void {
-    const removedItemDetail = this.getItemDetailsControls(i).at(j).value;
-    this.removedItemDetails.push({ item: removedItemDetail, i, j }); 
-    this.getItemDetailsControls(i).removeAt(j); 
-
-    this.showUndoOption('item detail');
+  calculateDiscountPrice() {
+    return (
+      this.calculatedValues.sellingPrice -
+      (this.quoteForm.get('totalDiscount')?.value || 0)
+    );
   }
 
-  undoRemoveItem() {
-    if (this.removedItems.length > 0) {
-      const { item, index } = this.removedItems.pop();  
-      this.items.insert(index, this._fb.group({
-        itemName: item.itemName,
-        itemDetails: this._fb.array(item.itemDetails.map((detail:any) => this._fb.group({
-          detail: detail.detail,
-          quantity: detail.quantity,
-          unitCost: detail.unitCost,
-          profit: detail.profit,
-          availability: detail.availability
-        })))
-      }));
-      this.items.updateValueAndValidity()
-    }
-  }
-
-  undoRemoveItemDetail() {
-    if (this.removedItemDetails.length > 0) {
-      const { item, i, j } = this.removedItemDetails.pop();  
-      this.getItemDetailsControls(i).insert(j, this._fb.group(item));  
-      this.getItemDetailsControls(i).updateValueAndValidity()
-    }
-  }
-
-  showUndoOption(type: string) {
-    const snackBarRef = this.snackBar.open(`Item removed. Undo?`, 'Undo', { duration: 3000 });
-  
-    snackBarRef.onAction().subscribe(() => {
-      if (type === 'item') {
-        this.undoRemoveItem();
-      } else if (type === 'item detail') {
-        this.undoRemoveItemDetail();
-      }
-    });
-  }
-
-  calculateTotalCost(i: number, j: number) {
-    return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value
-  }
-  
-
-  calculateUnitPrice(i: number, j: number) {
-    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
-    return this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
-  }
-
-  calculateUnitPriceForInput(i: number, j: number) {
-    const decimalMargin = this.getItemDetailsControls(i).controls[j].get('profit')?.value / 100;
-    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value / (1 - decimalMargin)
-    this.getItemDetailsControls(i).controls[j].get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)))
-  }
-
-  calculateTotalPrice(i: number, j: number) {
-    return this.calculateUnitPrice(i, j) * this.getItemDetailsControls(i).controls[j].get('quantity')?.value
-  }
-
-  calculateAllTotalCost() {
-    let totalCost = 0;
-    this.items.value.forEach((item: any, i: number) => {
-      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
-        totalCost += this.calculateTotalCost(i, j)
-      })
-    })
-
-    return totalCost;
-  }
-
-  calculateSellingPrice(): number {
-    let totalCost = 0;
-    this.items.value.forEach((item: any, i: number) => {
-      this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
-        totalCost += this.calculateTotalPrice(i, j)
-      })
-    })
-    return totalCost;
-  }
-
-  calculateTotalProfit(): number {
-    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
-  }
-
-  calculateDiscoutPrice(): number {
-    return this.calculateSellingPrice() - this.quoteForm.get('totalDiscount')?.value;
-  }
-
-  calculateProfit(i: number, j: number) {
-    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
-    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
-    if (unitCost && unitPrice) {
-        const profit = ((unitPrice - unitCost) / unitPrice) * 100;
-        this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(2));
-    }
-  }
-
-  async onDownloadPdf(includeStamp:boolean) {
+  async onDownloadPdf(includeStamp: boolean) {
     this.submit = true;
 
     if (this.quoteForm.valid) {
@@ -453,7 +292,8 @@ export class QuotationEditComponent {
   }
 
   onQuoteSaveSubmit() {
-    this.submit = true
+    this.submit = true;
+    console.log(this.quoteForm.value,this.quoteForm)
     if (this.quoteForm.valid) {
       this.isSaving = true;
       this._quoteService.updateQuotation(this.quoteForm.value, this.quoteData._id).subscribe((res: Quotatation) => {
@@ -471,57 +311,6 @@ export class QuotationEditComponent {
     this.isTextSelected = selectedText.length > 0;
   }
 
-  applyFormatting(i: number, j: number, textarea: HTMLTextAreaElement): void {
-    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
-    let currentValue = control.value;
-    const selectionStart = textarea.selectionStart;
-    const selectionEnd = textarea.selectionEnd;
-    if (selectionStart === selectionEnd) return;
 
-    const selectedText = currentValue.substring(selectionStart, selectionEnd);
-
-    const isBold = /^\*{2}.*\*{2}$/.test(selectedText);
-
-    let newText: string;
-    if (isBold) {
-      newText = currentValue.substring(0, selectionStart) + selectedText.substring(2, selectedText.length - 2) + currentValue.substring(selectionEnd);
-    } else {
-      const escapedText = selectedText.replace(/\\/g, '\\\\');
-      const formattedText = `**${escapedText}**`.replace(/\n/g, ' ');
-      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
-    }
-
-    control.setValue(newText);
-  }
-
-  applyHighlighter(i: number, j: number, textarea: HTMLTextAreaElement): void {
-    const control = this.getItemDetailsControls(i).controls[j].get('detail') as FormControl;
-    let currentValue = control.value;
-    const selectionStart = textarea.selectionStart;
-    const selectionEnd = textarea.selectionEnd;
-    if (selectionStart === selectionEnd) return;
-
-    const selectedText = currentValue.substring(selectionStart, selectionEnd);
-
-    const isBold = /^\{.*\}$/.test(selectedText);
-
-    let newText: string;
-    if (isBold) {
-      newText = currentValue.substring(0, selectionStart) + selectedText.substring(1, selectedText.length - 1) + currentValue.substring(selectionEnd);
-    } else {
-      const escapedText = selectedText.replace(/\\/g, '\\\\');
-      const formattedText = `{${escapedText}}`.replace(/\n/g, ' ');
-      newText = currentValue.substring(0, selectionStart) + formattedText + currentValue.substring(selectionEnd);
-    }
-
-    control.setValue(newText);
-  }
-
-  nonNegativeProfitValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      return value < 0 ? { negativeProfit: true } : null;
-    };
-  }
 
 }

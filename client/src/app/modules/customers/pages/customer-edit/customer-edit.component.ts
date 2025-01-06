@@ -158,7 +158,6 @@ export class CustomerEditComponent {
       email: ['', [Validators.required, Validators.email]],
       phoneNo: ['', [Validators.required]],
       department: [null, [Validators.required]],
-      _id: ['', [Validators.required]],
     }));
   }
 

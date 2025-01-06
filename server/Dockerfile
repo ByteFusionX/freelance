@@ -17,9 +17,11 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY package*.json .
+COPY . .
 
 RUN npm ci --only=production
+
+RUN npx migrate up
 
 COPY --from=development /usr/src/app/dist ./dist
 
