@@ -21,6 +21,8 @@ COPY package*.json .
 
 RUN npm ci --only=production
 
+COPY .env .env
+
 RUN npx migrate up
 
 COPY --from=development /usr/src/app/dist ./dist
