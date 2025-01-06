@@ -20,6 +20,8 @@ services:
 
   api:
     restart: always
+    extra_hosts:
+      - "mongoservice:172.17.0.1"
     build:
       context: ../server
       dockerfile: Dockerfile
@@ -28,8 +30,6 @@ services:
       - ../server/.env
     ports:
       - 3000:3000
-    extra_hosts:
-      - "mongoservice:172.17.0.1"
     depends_on:
       - mongoCont
 
