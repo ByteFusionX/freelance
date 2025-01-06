@@ -112,7 +112,15 @@ export class QuotationService {
   }
 
   async generatePDF(quoteData: getQuotatation, includeStamp: boolean) {
-    const items = quoteData.items
+    (pdfMake as any).fonts = {
+      EBGaramond: {
+        normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
+        bold: `${window.location.origin}/assets/font/EBGaramond-Bold.ttf`,
+        italics: `${window.location.origin}/assets/font/EBGaramond-Italic.ttf`,
+      }
+    };
+
+    const optionalItems = quoteData.optionalItems;
 
     if (!quoteData.quoteId) {
       let getQuoteIdData: nextQuoteData = {
@@ -124,78 +132,81 @@ export class QuotationService {
         quoteData.quoteId = res.quoteId;
       });
     }
-    // Table header
-    const tableHeader = [
-      { text: 'Sl.\nNo', style: 'tableSlNo' },
-      { text: 'Part Number/Description', style: 'tableHeader' },
-      { text: 'Qty', style: 'tableHeader' },
-      { text: 'Unit', style: 'tableHeader' },
-      { text: `Unit Price (${quoteData.currency})`, style: 'tableHeader' },
-      { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' },
-      { text: `Availability`, style: 'tableHeader' },
-    ];
 
-    // Table body
-    const tableBody: any[] = [];
-    let totalCost = 0;
+    const tables = optionalItems.map((items, index) => {
+      const tableHeader = [
+        { text: `Option ${index + 1}`, style: 'optionHeader', colSpan: 7, border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] },
+        { text: '', border: [false, false, false, false] }
+      ];
+      const itemTableHeader = [
+        { text: 'Sl.\nNo', style: 'tableSlNo' },
+        { text: 'Part Number/Description', style: 'tableHeader' },
+        { text: 'Qty', style: 'tableHeader' },
+        { text: 'Unit', style: 'tableHeader' },
+        { text: `Unit Price (${quoteData.currency})`, style: 'tableHeader' },
+        { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' },
+        { text: `Availability`, style: 'tableHeader' },
+      ];
 
-    items.forEach(item => {
+      const tableBody: any[] = [];
+      let totalCost = 0;
       let serialNumber = 1;
-      tableBody.push([
-        { text: item.itemName, colSpan: 7, style: 'itemRow' },
-        '', '', '', '', '', ''
-      ]);
-      item.itemDetails.forEach(detail => {
-        const decimalMargin = detail.profit / 100;
-        const unitPrice = detail.unitCost / (1 - decimalMargin)
-        const totalPrice = unitPrice * detail.quantity;
-        totalCost += totalPrice;
 
-        const segments = detail.detail
-        const result = [];
-
-        // Regular expression to match the patterns, including spaces
-        const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
-        let match;
-
-        while ((match = regex.exec(segments)) !== null) {
-          const [fullMatch] = match;
-
-          if (fullMatch.startsWith('**')) {
-            if (fullMatch.includes('{') && fullMatch.includes('}')) {
-              // Bold placeholder: **{text}**
-              const text = fullMatch.slice(3, -3).trim(); // Remove **{ and }**
-              result.push({ text, bold: true, color: 'orange' });
-            } else {
-              // Bold text: **text**
-              const text = fullMatch.slice(2, -2); // Remove **, don't trim spaces
-              result.push({ text, bold: true });
-            }
-          } else if (fullMatch.startsWith('{') && fullMatch.endsWith('}')) {
-            // Placeholder: {text}
-            const text = fullMatch.slice(1, -1).trim(); // Remove { and }
-            result.push({ text, color: 'orange' });
-          } else {
-            // Regular text (including spaces)
-            const text = fullMatch; // No trim, preserve spaces
-            if (text) result.push({ text });
-          }
-        }
-
-
+      items.items.forEach(item => {
         tableBody.push([
-          { text: serialNumber++, style: 'tableText', alignment: 'center' },
-          { text: result, style: 'tableText' },
-          { text: detail.quantity, style: 'tableText', alignment: 'center' },
-          { text: 'Ea', style: 'tableText', alignment: 'center' },
-          { text: this.formatNumber(unitPrice), style: 'tableText', alignment: 'center' },
-          { text: this.formatNumber(totalPrice), style: 'tableText', alignment: 'center' },
-          { text: detail.availability, style: 'tableText', alignment: 'center' },
+          { text: item.itemName, colSpan: 7, style: 'itemRow' },
+          '', '', '', '', '', ''
         ]);
-      });
-    });
 
-    const totalAmount = [
+        item.itemDetails.forEach(detail => {
+          const decimalMargin = detail.profit / 100;
+          const unitPrice = detail.unitCost / (1 - decimalMargin);
+          const totalPrice = unitPrice * detail.quantity;
+          totalCost += totalPrice;
+
+          const segments = detail.detail;
+          const result = [];
+          const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
+          let match;
+
+          while ((match = regex.exec(segments)) !== null) {
+            const [fullMatch] = match;
+
+            if (fullMatch.startsWith('**')) {
+              if (fullMatch.includes('{') && fullMatch.includes('}')) {
+                const text = fullMatch.slice(3, -3).trim();
+                result.push({ text, bold: true, color: 'orange' });
+              } else {
+                const text = fullMatch.slice(2, -2);
+                result.push({ text, bold: true });
+              }
+            } else if (fullMatch.startsWith('{') && fullMatch.endsWith('}')) {
+              const text = fullMatch.slice(1, -1).trim();
+              result.push({ text, color: 'orange' });
+            } else {
+              const text = fullMatch;
+              if (text) result.push({ text });
+            }
+          }
+
+          tableBody.push([
+            { text: serialNumber++, style: 'tableText', alignment: 'center' },
+            { text: result, style: 'tableText' },
+            { text: detail.quantity, style: 'tableText', alignment: 'center' },
+            { text: 'Ea', style: 'tableText', alignment: 'center' },
+            { text: this.formatNumber(unitPrice), style: 'tableText', alignment: 'center' },
+            { text: this.formatNumber(totalPrice), style: 'tableText', alignment: 'center' },
+            { text: detail.availability, style: 'tableText', alignment: 'center' },
+          ]);
+        });
+      });
+
+          const totalAmount = [
       { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
       { text: this.formatNumber(totalCost), style: 'tableFooter' },
       { text: '', style: 'tableFooter' }
@@ -205,15 +216,15 @@ export class QuotationService {
     let discount;
     let finalAmount;
 
-    if (quoteData.totalDiscount != 0) {
+    if (items.totalDiscount != 0) {
       discount = [
         { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: this.formatNumber(quoteData.totalDiscount), style: 'tableFooter' },
+        { text: this.formatNumber(items.totalDiscount), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
       finalAmount = [
         { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: this.formatNumber(totalCost - quoteData.totalDiscount), style: 'tableFooter' },
+        { text: this.formatNumber(totalCost - items.totalDiscount), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
     } else {
@@ -227,15 +238,17 @@ export class QuotationService {
 
 
     let body;
-    if (quoteData.totalDiscount == 0) {
+    if (items.totalDiscount == 0) {
       body = [
         tableHeader,
+        itemTableHeader,
         ...tableBody,
         finalAmount
       ]
     } else {
       body = [
         tableHeader,
+        itemTableHeader,
         ...tableBody,
         totalAmount,
         discount,
@@ -243,22 +256,14 @@ export class QuotationService {
       ]
     }
 
-    const table = {
-      table: {
-        headerRows: 1,
-        widths: [20, '*', 25, 40, 60, 60, 60],
-        body: body,
-      }
-    };
-
-    (pdfMake as any).fonts = {
-      EBGaramond: {
-        normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
-        bold: `${window.location.origin}/assets/font/EBGaramond-Bold.ttf`,
-        italics: `${window.location.origin}/assets/font/EBGaramond-Italic.ttf`,
-      }
-    }
-
+      return {
+        table: {
+          headerRows: 2,
+          widths: [20, '*', 25, 40, 60, 60, 60],
+          body: body
+        }
+      };
+    });
 
     const documentDefinition: any = {
       defaultStyle: {
@@ -331,7 +336,7 @@ export class QuotationService {
         {
           style: 'tableExample',
           color: '#444',
-           margin: [0, 10, 0, 15] ,
+          margin: [0, 10, 0, 15],
           table: {
             widths: [78.66, '*', 43.24, '*', 73.60, 'auto'],
             body: [
@@ -351,7 +356,7 @@ export class QuotationService {
             { text: 'Thanking you for your co-operation and assuring you of our commitment to always providing professional support and services.', style: 'text', margin: [0, 10, 0, 15] },
           ]
           : []),
-        table,
+        ...tables,
         { text: 'TERMS & CONDITIONS', style: 'subHeading' },
         { text: quoteData.termsAndCondition, style: 'text' },
         { text: 'Notes', style: 'subHeading' },
@@ -470,6 +475,12 @@ export class QuotationService {
           fontSize: 10,
           margin: [5, 10, 0, 0],
           bold: true
+        },
+        optionHeader: {
+          fontSize: 12  ,
+          color: 'red',
+          bold: true,
+          margin: [0, 5, 0, 5]
         }
       }
 

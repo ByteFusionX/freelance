@@ -6,7 +6,7 @@ import axios from "axios";
 import employeeModel from "../models/employee.model";
 
 
-export const calculateDiscountPrice = (quotation: any, items: any): number => {
+export const calculateDiscountPrice = (discount: any, items: any): number => {
     const calculateUnitPrice = (i: number, j: number): number => {
         const decimalMargin = items[i].itemDetails[j].profit / 100;
         return items[i].itemDetails[j].unitCost / (1 - decimalMargin);
@@ -25,7 +25,7 @@ export const calculateDiscountPrice = (quotation: any, items: any): number => {
         });
         return totalCost;
     };
-    return calculateSellingPrice() - quotation.totalDiscount;
+    return calculateSellingPrice() - discount;
 };
 
 export const calculateTotalCost = (quotation: any, items: any): number => {
@@ -54,7 +54,7 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
             const startDate = new Date(filters.fromDate);
             const endDate = new Date(filters.toDate);
             endDate.setHours(23, 59, 59, 999); // Set to end of the day
-            
+
             matchFilter['createdDate'] = {
                 $gte: startDate,
                 $lt: endDate
@@ -162,6 +162,71 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
 }
 
 
+export const calculateQuoteDiscountPricePipe = (input: string) => {
+    return {
+        $let: {
+            vars: {
+                firstOptionalItem: { $arrayElemAt: [input, 0] } // Extract the first element of optionalItems
+            },
+            in: {
+                $subtract: [
+                    {
+                        $round: [
+                            {
+                                $sum: {
+                                    $map: {
+                                        input: "$$firstOptionalItem.items", // Access the first element of optionalItems.items
+                                        as: 'item',
+                                        in: {
+                                            $sum: {
+                                                $map: {
+                                                    input: '$$item.itemDetails',
+                                                    as: 'itemDetail',
+                                                    in: {
+                                                        $round: [
+                                                            {
+                                                                $multiply: [
+                                                                    {
+                                                                        $round: [
+                                                                            {
+                                                                                $divide: [
+                                                                                    '$$itemDetail.unitCost',
+                                                                                    {
+                                                                                        $subtract: [
+                                                                                            1,
+                                                                                            {
+                                                                                                $divide: ['$$itemDetail.profit', 100]
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            2
+                                                                        ]
+                                                                    },
+                                                                    '$$itemDetail.quantity'
+                                                                ]
+                                                            },
+                                                            2
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            2
+                        ]
+                    },
+                    "$$firstOptionalItem.totalDiscount"
+                ]
+            }
+        }
+    }
+}
+
+
 
 export const calculateCostPricePipe = (input: string) => {
     return {
@@ -201,27 +266,33 @@ export const calculateCostPricePipe = (input: string) => {
                                     branches: [
                                         {
                                             case: { $eq: ['$$this.type', 'Additional Cost'] },
-                                            then: { $round: [ // Round additional cost
-                                                { $add: ['$$value', '$$this.value'] },
-                                                2
-                                            ] }
+                                            then: {
+                                                $round: [ // Round additional cost
+                                                    { $add: ['$$value', '$$this.value'] },
+                                                    2
+                                                ]
+                                            }
                                         },
                                         {
                                             case: { $eq: ['$$this.type', 'Supplier Discount'] },
-                                            then: { $round: [ // Round discount adjustment
-                                                { $subtract: ['$$value', '$$this.value'] },
-                                                2
-                                            ] }
+                                            then: {
+                                                $round: [ // Round discount adjustment
+                                                    { $subtract: ['$$value', '$$this.value'] },
+                                                    2
+                                                ]
+                                            }
                                         },
                                         {
                                             case: { $eq: ['$$this.type', 'Customer Discount'] },
                                             then: { $add: ['$$value', 0] }
                                         },
                                     ],
-                                    default: { $round: [ // Default case rounding
-                                        { $add: ['$$value', '$$this.value'] },
-                                        2
-                                    ] }
+                                    default: {
+                                        $round: [ // Default case rounding
+                                            { $add: ['$$value', '$$this.value'] },
+                                            2
+                                        ]
+                                    }
                                 }
                             }
                         }
@@ -341,7 +412,7 @@ export const getAllReportedEmployees = async (userId: any): Promise<ObjectId[]> 
     try {
         // Step 1: Fetch all employees and their reportingTo relationships in one go
         const employees = await employeeModel.find({}, '_id reportingTo').lean();
-        
+
         // Step 2: Build a lookup map for quick access
         const employeeMap = new Map<string, string[]>(); // key: managerId, value: list of employeeIds
         for (const employee of employees) {

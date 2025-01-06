@@ -18,6 +18,11 @@ interface QuoteItem {
     itemDetails: QuoteItemDetail[]
 }
 
+interface OptionalItems {
+    items: QuoteItem[];
+    totalDiscount: number;
+}
+
 interface AdditionalCost {
     type: string;
     name: string;
@@ -36,6 +41,7 @@ interface Deal {
     seenedBySalsePerson: boolean;
     attachments: [];
     updatedItems: QuoteItem[];
+    totalDiscount:number;
 }
 
 interface Quotation extends Document {
@@ -47,8 +53,7 @@ interface Quotation extends Document {
     subject: string;
     currency: string;
     quoteCompany: string;
-    items: QuoteItem[];
-    totalDiscount: number;
+    optionalItems: OptionalItems[];
     customerNote: string;
     termsAndCondition: string;
     status: string;
@@ -120,6 +125,15 @@ const quoteItem = new Schema<QuoteItem>({
     },
 });
 
+const optionalItems = new Schema<OptionalItems>({
+    items: {
+        type: [quoteItem],
+    },
+    totalDiscount: {
+        type: Number,
+    },
+});
+
 const additionalCostSchema = new Schema<AdditionalCost>({
     type: {
         type: String,
@@ -152,6 +166,9 @@ const dealDatas = new Schema<Deal>({
         required: false,
     },
     attachments: [],
+    totalDiscount: {
+        type: Number
+    },
     seenByApprover: {
         type: Boolean,
         default: false
@@ -213,12 +230,8 @@ const quotationSchema = new Schema<Quotation>({
     quoteCompany: {
         type: String,
     },
-    items: {
-        type: [quoteItem],
-        required: true,
-    },
-    totalDiscount: {
-        type: Number,
+    optionalItems: {
+        type: [optionalItems],
         required: true,
     },
     customerNote: {

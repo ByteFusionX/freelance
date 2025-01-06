@@ -18,7 +18,7 @@ export class ViewPresaleComponent {
   showRevision: boolean = false;
   isSaving: boolean = false;
   showError: boolean = false;
-
+  selectedOption: number = 0;
 
   progress: number = 0;
   revisionComment: string = '';
@@ -108,37 +108,41 @@ export class ViewPresaleComponent {
     }, 1000)
   }
 
-  calculateTotalCost(i: number, j: number) {
-    return this.data.preSale.estimations?.items[i].itemDetails[j].quantity * this.data.preSale.estimations?.items[i].itemDetails[j].unitCost;
+  
+  calculateTotalCost(i: number, j: number, k: number) {
+    return this.data.preSale.estimations.optionalItems[this.selectedOption].items[j].itemDetails[k].quantity *
+      this.data.preSale.estimations.optionalItems[this.selectedOption].items[j].itemDetails[k].unitCost;
   }
 
   calculateAllTotalCost() {
     let totalCost = 0;
-    this.data.preSale.estimations?.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalCost(i, j)
+    this.data.preSale.estimations.optionalItems[this.selectedOption].items.forEach((item, j) => {
+        item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalCost(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
   }
 
   calculateSellingPrice(): number {
     let totalCost = 0;
-    this.data.preSale.estimations?.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalPrice(i, j)
+    this.data.preSale.estimations.optionalItems[this.selectedOption].items.forEach((item, j) => {
+      item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalPrice(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
   }
 
-  calculateUnitPrice(i: number, j: number) {
-    const decimalMargin = this.data.preSale.estimations?.items[i].itemDetails[j].profit / 100;
-    return this.data.preSale.estimations?.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
+  calculateUnitPrice(i: number, j: number, k: number) {
+    const decimalMargin = this.data.preSale.estimations.optionalItems[i].items[j].itemDetails[k].profit / 100;
+    return this.data.preSale.estimations.optionalItems[i].items[j].itemDetails[k].unitCost / (1 - decimalMargin)
   }
 
-  calculateTotalPrice(i: number, j: number) {
-    return this.calculateUnitPrice(i, j) * this.data.preSale.estimations?.items[i].itemDetails[j].quantity;
+  calculateTotalPrice(i: number, j: number, k: number) {
+    return this.calculateUnitPrice(i, j, k) * this.data.preSale.estimations.optionalItems[i].items[j].itemDetails[k].quantity;
   }
 
   calculateProfitMargin(): number {
@@ -150,10 +154,8 @@ export class ViewPresaleComponent {
   }
 
   calculateDiscoutPrice(): number {
-    return this.calculateSellingPrice() - this.data.preSale.estimations?.totalDiscount
+    return this.calculateSellingPrice() - this.data.preSale.estimations.totalDiscount
   }
-
-
 
   closeModal() {
     this.dialogRef.close()

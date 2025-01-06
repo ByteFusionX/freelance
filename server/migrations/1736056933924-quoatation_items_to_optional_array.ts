@@ -5,25 +5,57 @@ import { connectToDatabase } from '../src/db/connect';
 export async function up(): Promise<void> {
   await connectToDatabase();
 
+  await quotationModel.updateMany(
+    {
+      items: { $exists: true },
+      dealData: { $exists: true }
+    },
+    [
+      {
+        $set: {
+          "dealData.totalDiscount": {
+            $ifNull: ["$totalDiscount", 0]
+          }
+        }
+      }
+    ]
+  );
+  
+
   const result = await quotationModel.updateMany(
     { items: { $exists: true } },
-    [
+    [ 
       {
         $set: {
           optionalItems: {
             $cond: {
-              if: { $isArray: "$items" },
-              then: ["$items"], 
-              else: []
+              if: { $isArray: "$optionalItems" },
+              then: {
+                $concatArrays: [
+                  [
+                    {
+                      items: "$items",
+                      totalDiscount: "$totalDiscount"
+                    }
+                  ],
+                  { $slice: ["$optionalItems", 1, { $size: "$optionalItems" }] }
+                ]
+              },
+              else: [
+                {
+                  items: "$items",
+                  totalDiscount: "$totalDiscount"
+                }
+              ]
             }
           }
         }
       },
       {
-        $unset: 'items'
+        $unset: ["items", "totalDiscount"]
       }
     ]
-  );
+  );  
 
   console.log(`Documents matched: ${result.matchedCount}`);
   console.log(`Documents modified: ${result.modifiedCount}`);

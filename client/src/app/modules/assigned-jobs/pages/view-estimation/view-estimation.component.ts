@@ -11,8 +11,9 @@ import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
   styleUrls: ['./view-estimation.component.css']
 })
 export class ViewEstimationComponent {
+  selectedOption: number = 0;
   constructor(
-    private _dialog:MatDialog,
+    private _dialog: MatDialog,
     private dialogRef: MatDialogRef<ViewEstimationComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { estimation: Estimations, enqId: string, isEdit: boolean },
     private _router: Router
@@ -26,7 +27,7 @@ export class ViewEstimationComponent {
     this._router.navigate(['/assigned-jobs/edit-estimations'], navigationExtras);
   }
 
-  onClearEstimation(){
+  onClearEstimation() {
     const dialogRef = this._dialog.open(ConfirmationDialogComponent,
       {
         data: {
@@ -38,43 +39,47 @@ export class ViewEstimationComponent {
       });
 
     dialogRef.afterClosed().subscribe((approved: boolean) => {
-      if(approved){
-        this.dialogRef.close({remove:true})
+      if (approved) {
+        this.dialogRef.close({ remove: true })
       }
     })
   }
 
-  calculateTotalCost(i: number, j: number) {
-    return this.data.estimation.items[i].itemDetails[j].quantity * this.data.estimation.items[i].itemDetails[j].unitCost;
+
+  calculateTotalCost(i: number, j: number, k: number) {
+    return this.data.estimation.optionalItems[this.selectedOption].items[j].itemDetails[k].quantity *
+      this.data.estimation.optionalItems[this.selectedOption].items[j].itemDetails[k].unitCost;
   }
 
   calculateAllTotalCost() {
     let totalCost = 0;
-    this.data.estimation.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalCost(i, j)
+    this.data.estimation.optionalItems[this.selectedOption].items.forEach((item, j) => {
+        item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalCost(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
   }
 
   calculateSellingPrice(): number {
     let totalCost = 0;
-    this.data.estimation.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalPrice(i, j)
+    this.data.estimation.optionalItems[this.selectedOption].items.forEach((item, j) => {
+      item.itemDetails.forEach((itemDetail, k) => {
+          totalCost += this.calculateTotalPrice(this.selectedOption, j, k)
+        })
       })
-    })
+
     return totalCost;
   }
 
-  calculateUnitPrice(i: number, j: number) {
-    const decimalMargin = this.data.estimation.items[i].itemDetails[j].profit / 100;
-    return this.data.estimation.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
+  calculateUnitPrice(i: number, j: number, k: number) {
+    const decimalMargin = this.data.estimation.optionalItems[i].items[j].itemDetails[k].profit / 100;
+    return this.data.estimation.optionalItems[i].items[j].itemDetails[k].unitCost / (1 - decimalMargin)
   }
 
-  calculateTotalPrice(i: number, j: number) {
-    return this.calculateUnitPrice(i, j) * this.data.estimation.items[i].itemDetails[j].quantity;
+  calculateTotalPrice(i: number, j: number, k: number) {
+    return this.calculateUnitPrice(i, j, k) * this.data.estimation.optionalItems[i].items[j].itemDetails[k].quantity;
   }
 
   calculateProfitMargin(): number {

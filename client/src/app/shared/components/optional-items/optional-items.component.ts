@@ -49,7 +49,7 @@ export class OptionalItemsComponent implements OnInit {
     this.optionalItems.clear();
     this.oldOptionalItems.forEach((optionItem: any, optionIndex: number) => {
       this.addOptionalItem();
-      optionItem.forEach((item: any, itemIndex: number) => {
+      optionItem.items.forEach((item: any, itemIndex: number) => {
         if (itemIndex > 0) {
           this.addItemFormGroup(optionIndex);
         }

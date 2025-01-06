@@ -88,7 +88,7 @@ export class QuotationListComponent {
     this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.departments$ = this._departetmentService.getDepartments()
-    
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -126,8 +126,6 @@ export class QuotationListComponent {
       userId = employee?._id
       this.userId = userId;
     })
-    console.log(this.userId)
-
 
     let filterData = {
       search: this.searchQuery,
@@ -268,12 +266,12 @@ export class QuotationListComponent {
       return item;
     });
 
-    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
-      if(cost.type == 'Additional Cost'){
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
         priceDetails.totalCost += cost.value
-      }else if(cost.type === 'Supplier Discount'){
+      } else if (cost.type === 'Supplier Discount') {
         priceDetails.totalCost -= cost.value
-      } else if(cost.type === 'Customer Discount'){
+      } else if (cost.type === 'Customer Discount') {
         priceDetails.totalSellingPrice -= cost.value
       } else {
         priceDetails.totalCost += cost.value
@@ -363,7 +361,7 @@ export class QuotationListComponent {
     dialogRef.afterClosed().subscribe((dealData: dealData) => {
       if (dealData) {
         this._quoteService.saveDealSheet(dealData, data._id).subscribe((res) => {
-          this.dataSource.data[index].items = res.items;
+          this.dataSource.data[index].optionalItems = res.optionalItems;
           this.dataSource.data[index].dealData = res.dealData;
           this.dataSource._updateChangeSubscription();
         })
@@ -456,26 +454,27 @@ export class QuotationListComponent {
     this.subject.next(event)
   }
 
-  calculateUnitPrice(i: number, j: number, quoteData: Quotatation) {
-    const decimalMargin = quoteData.items[i].itemDetails[j].profit / 100;
-    return quoteData.items[i].itemDetails[j].unitCost / (1 - decimalMargin)
+  calculateUnitPrice(j: number, k: number, quoteData: Quotatation) {
+    const decimalMargin = quoteData.optionalItems[0].items[j].itemDetails[k].profit / 100;
+    return quoteData.optionalItems[0].items[j].itemDetails[k].unitCost / (1 - decimalMargin)
   }
 
-  calculateTotalPrice(i: number, j: number, quoteData: Quotatation) {
-    return this.calculateUnitPrice(i, j, quoteData) * quoteData.items[i].itemDetails[j].quantity;
+  calculateTotalPrice(j: number, k: number, quoteData: Quotatation) {
+    return this.calculateUnitPrice(j, k, quoteData) * quoteData.optionalItems[0].items[j].itemDetails[k].quantity;
   }
 
   calculateSellingPrice(quoteData: Quotatation): number {
     let totalCost = 0;
-    quoteData.items.forEach((item, i) => {
-      item.itemDetails.forEach((itemDetail, j) => {
-        totalCost += this.calculateTotalPrice(i, j, quoteData)
+    quoteData.optionalItems[0].items.forEach((item, j) => {
+      item.itemDetails.forEach((itemDetail, k) => {
+        totalCost += this.calculateTotalPrice(j, k, quoteData)
       })
     })
+
     return totalCost;
   }
 
   calculateDiscoutPrice(quoteData: Quotatation): number {
-    return this.calculateSellingPrice(quoteData) - quoteData.totalDiscount
+    return this.calculateSellingPrice(quoteData) - quoteData.optionalItems[0].totalDiscount
   }
 }

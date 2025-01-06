@@ -12,7 +12,7 @@ interface Enquiry extends Document {
     title: String;
     date: string | number | Date;
     createdDate: Date;
-    preSale: { presalePerson: Types.ObjectId, estimations: { items: [], currency: string, totalDiscount: number, presaleNote: string }, presaleFiles: [], comment: string, feedback: Feedback[], newFeedbackAccess: boolean, seenbyEmployee: boolean, seenbySalesPerson: boolean, revisionComment: string[], createdDate: Date, rejectionHistory: { rejectionReason: any; rejectedBy: Types.ObjectId; }[] };
+    preSale: { presalePerson: Types.ObjectId, estimations: { optionalItems: any[], currency: string, totalDiscount: number, presaleNote: string }, presaleFiles: [], comment: string, feedback: Feedback[], newFeedbackAccess: boolean, seenbyEmployee: boolean, seenbySalesPerson: boolean, revisionComment: string[], createdDate: Date, rejectionHistory: { rejectionReason: any; rejectedBy: Types.ObjectId; }[] };
     assignedFiles: []
     status: string;
     attachments: []
@@ -59,7 +59,10 @@ const feedbackSchema = new Schema({
 })
 
 const estimationSchema = new Schema({
-    items: [],
+    optionalItems: {
+        type: Array,
+        default: []
+    },
     currency: {
         type: String
     },
@@ -69,7 +72,8 @@ const estimationSchema = new Schema({
     presaleNote: {
         type: String
     },
-})
+});
+
 
 const rejectionHistorySchema = new Schema({
     rejectedAt: {

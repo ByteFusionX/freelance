@@ -21,6 +21,9 @@ export class UpdatedealsheetComponent implements OnInit {
   removedFiles: any[] = [];
   existingFiles: any[] = [];
 
+  selectedOption: number = 0;
+
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean },
     public dialogRef: MatDialogRef<UpdatedealsheetComponent>,
@@ -39,6 +42,13 @@ export class UpdatedealsheetComponent implements OnInit {
 
     this.selectedFiles = this.data.quoteData.dealData.attachments;
     this.existingFiles = [...this.selectedFiles]
+  }
+
+  onCalculationOptionChange() {
+    this.items.clear();
+    this.data.quoteData.optionalItems[this.selectedOption].items.forEach(item => {
+        this.items.push(this.createItemGroup(item));
+    });
   }
 
   setUpFormData(): FormData {

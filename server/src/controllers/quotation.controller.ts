@@ -23,6 +23,8 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
         if (quoteData.enqId) {
             await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
+        }else{
+            delete quoteData.enqId
         }
 
         if (saveQuote) {
@@ -709,7 +711,7 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
             }));
         }
 
-        const { paymentTerms, items, removedFiles, existingFiles, costs } = JSON.parse(req.body.dealData);
+        const { paymentTerms, items, removedFiles, existingFiles, costs, totalDiscount } = JSON.parse(req.body.dealData);
         if (existingFiles && removedFiles) {
             files = [...files, ...existingFiles];
             removedFiles.map((file: any) => removeFile(file.fileName))
@@ -728,7 +730,8 @@ export const saveDealSheet = async (req: any, res: Response, next: NextFunction)
                 savedDate: createdDate,
                 status: 'pending',
                 attachments: files,
-                updatedItems: items
+                updatedItems: items,
+                totalDiscount: totalDiscount
             },
         }
 
@@ -993,22 +996,22 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalValues = quotations.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDValue += calculateDiscountPrice(quote, quote.items);
+                acc.totalUSDValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARValue += calculateDiscountPrice(quote, quote.items);
+                acc.totalQARValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
             }
 
             if (quote.status === quoteStatus.Won) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDWonValue += calculateDiscountPrice(quote, quote.items);
+                    acc.totalUSDWonValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARWonValue += calculateDiscountPrice(quote, quote.items);
+                    acc.totalQARWonValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
                 }
             } else if (quote.status === quoteStatus.Lost) {
                 if (quote.currency == 'USD') {
-                    acc.totalUSDLossValue += calculateDiscountPrice(quote, quote.items);
+                    acc.totalUSDLossValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
                 } else if (quote.currency == 'QAR') {
-                    acc.totalQARLossValue += calculateDiscountPrice(quote, quote.items);
+                    acc.totalQARLossValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
                 }
             }
             acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
@@ -1025,9 +1028,9 @@ export const getReportDetails = async (req: Request, res: Response) => {
 
         const totalJobAwardedUQ = jobQuoataions.reduce((acc: any, quote: any) => {
             if (quote.currency == 'USD') {
-                acc.totalUSDJobAwarded += calculateDiscountPrice(quote, quote.items);
+                acc.totalUSDJobAwarded += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
             } else if (quote.currency == 'QAR') {
-                acc.totalQARJobAwarded += calculateDiscountPrice(quote, quote.items);
+                acc.totalQARJobAwarded += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
             }
             return acc
         }, {

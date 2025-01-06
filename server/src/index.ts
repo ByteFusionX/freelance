@@ -24,6 +24,7 @@ import { socketConnection } from './service/socket-ioService';
 import noteRouter from './routes/note.router';
 import companyRouter from './routes/company.router';
 import dashboardRouter from './routes/dashboard.router';
+import { connectToDatabase } from './db/connect';
 
 const app = express();
 const server = http.createServer(app);
@@ -68,19 +69,6 @@ app.use('/note', noteRouter);
 app.use('/company',companyRouter)
 app.use('/dashboard',dashboardRouter)
 
-let mongoUrl = `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_IP}:${process.env.MONGO_PORT}/${process.env.MONGO_DATABASE}?authSource=admin`;
-if (process.env.USE_MONGOATLAS === 'true') {
-  mongoUrl = process.env.MONGODB_ATLAS_URL as string;
-}
-
-mongoose
-  .connect(mongoUrl)
-  .then(() => {
-    console.log("Database connected and Working");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
 
 const uploadFolderPath = path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadFolderPath));
@@ -89,9 +77,14 @@ if (!fs.existsSync(uploadFolderPath)) {
   fs.mkdirSync(uploadFolderPath);
 }
 
-
-
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+connectToDatabase()
+  .then(() => {
+    const port = process.env.PORT || 3000;
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to the database:', err);
+    process.exit(1); // Exit the process if the database connection fails
+  });

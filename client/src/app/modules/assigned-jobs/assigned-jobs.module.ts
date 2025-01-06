@@ -24,6 +24,8 @@ import { UploadEstimationComponent } from './pages/upload-estimation/upload-esti
 import { ViewEstimationComponent } from './pages/view-estimation/view-estimation.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job-comment.component';
+import { OptionalItemsComponent } from 'src/app/shared/components/optional-items/optional-items.component';
+import { componentModule } from 'src/app/shared/components/component.module';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,7 @@ import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job
     ViewFeedbackComponent,
     UploadEstimationComponent,
     ViewEstimationComponent,
-    RejectJobCommentComponent
+    RejectJobCommentComponent,
   ],
   imports: [
     CommonModule,
@@ -53,7 +55,8 @@ import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job
     NgSelectModule,
     FormsModule,
     ReactiveFormsModule,
-    pipeModule
+    pipeModule,
+    componentModule
 ]
 })
 export class AssignedJobsModule { }

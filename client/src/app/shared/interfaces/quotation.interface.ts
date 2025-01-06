@@ -9,6 +9,11 @@ export interface QuoteItem {
     itemDetails: QuoteItemDetail[]
 }
 
+export interface OptionalItems {
+    items: QuoteItem[];
+    totalDiscount: number;
+}
+
 export interface QuoteItemDetail {
     _id: string;
     detail: string;
@@ -39,8 +44,7 @@ export interface Quotatation {
     subject: string;
     currency: string;
     quoteCompany: string;
-    items: QuoteItem[];
-    totalDiscount: number;
+    optionalItems: OptionalItems[];
     customerNote: DefaultAndText;
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
@@ -64,8 +68,7 @@ export interface getQuotatation {
     subject: string;
     currency: string;
     quoteCompany: string;
-    items: QuoteItem[];
-    totalDiscount: number;
+    optionalItems: OptionalItems[];
     customerNote: DefaultAndText;
     termsAndCondition: DefaultAndText;
     createdBy: getEmployee;
@@ -103,8 +106,7 @@ export interface quotatationForm {
     subject: string;
     currency: string;
     quoteCompany: string;
-    items: QuoteItem[];
-    totalDiscount: number;
+    optionalItems: OptionalItems[];
     customerNote: DefaultAndText;
     termsAndCondition: DefaultAndText;
     createdBy: string | getEmployee | undefined;
@@ -127,6 +129,7 @@ export interface dealData {
     dealId: string;
     paymentTerms: string;
     updatedItems: QuoteItem[];
+    totalDiscount: number;
     additionalCosts: {
       type: string; name: string, value: number 
 }[];
