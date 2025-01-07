@@ -71,7 +71,9 @@ export class JobListComponent {
 
   ngOnInit() {
     this.employees$ = this._jobService.getJobSalesPerson();
-    this.getAllJobs()
+    const currentYear = new Date().getFullYear()
+    this.getAllJobs(undefined,currentYear)
+    this.reportDate = `${currentYear}`;
   }
 
   selectedStatus!: number | null;

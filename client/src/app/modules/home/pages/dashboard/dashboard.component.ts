@@ -73,13 +73,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const currentYear = new Date().getFullYear().toString()
+    this.selectedTargetYear = currentYear;
+    this.onTargetYearChange(true)
     this.getSalesPerson();
     this.getDepartments();
-    this.getSalesTarget(true);
+    // this.getSalesTarget(true);
     this.getDashboardReports();
 
-    const currentYear = new Date().getFullYear().toString()
-    this.selectedTargetYear = currentYear
   }
 
   getDashboardReports() {
@@ -203,7 +204,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onCompareChange() {
     this.ngSelectLoading = true;
     this.selectedTargetYear = 'total';
-    this.onTargetYearChange();
+    this.onTargetYearChange(false);
 
     const salesPersonIds = this.filterForm.get('salesPersonIds')?.value;
     const oneSalesPersonSelected = Array.isArray(salesPersonIds) && salesPersonIds.length === 1;
@@ -233,7 +234,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  onTargetYearChange() {
+  onTargetYearChange(reset:boolean) {
     if (this.selectedTargetYear == 'total') {
       this.minDate = ''
       this.maxDate = ''
@@ -245,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
-    this.getSalesTarget(false)
+    this.getSalesTarget(reset)
   }
 
 
