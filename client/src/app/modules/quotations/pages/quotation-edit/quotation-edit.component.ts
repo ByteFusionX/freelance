@@ -107,7 +107,6 @@ export class QuotationEditComponent {
       currency: [null, Validators.required],
       quoteCompany: [null, Validators.required],
       optionalItems: this._fb.array([]),
-      totalDiscount: ['', Validators.required],
       customerNote: ['', Validators.required],
       termsAndCondition: ['', Validators.required],
       createdBy: [''],
@@ -249,7 +248,7 @@ export class QuotationEditComponent {
 
   async onPreviewPdf() {
     this.submit = true;
-
+console.log(this.quoteForm,this.quoteForm.value)
     if (this.quoteForm.valid) {
       this.isPreviewing = true;
 
@@ -271,15 +270,13 @@ export class QuotationEditComponent {
           quoteData.createdBy = employee
         })
 
-        quoteData.quoteId = this.quoteData.quoteId;
-
-        const finalQuoteData: getQuotatation = quoteData as getQuotatation;
+        const finalQuoteData: getQuotatation = quoteData as unknown as getQuotatation;
 
         const pdfDoc = await this._quoteService.generatePDF(finalQuoteData, true);
         pdfDoc.getBlob((blob: Blob) => {
           let url = window.URL.createObjectURL(blob);
           this.isPreviewing = false;
-          this._dialog.open(QuotationPreviewComponent, { data: url });
+          this._dialog.open(QuotationPreviewComponent, { data: { url: url, formatedQuote: finalQuoteData } });
         });
 
       } catch (error) {
@@ -290,6 +287,7 @@ export class QuotationEditComponent {
       this.toastr.warning('Check the fields properly!', 'Warning !');
     }
   }
+
 
   onQuoteSaveSubmit() {
     this.submit = true;

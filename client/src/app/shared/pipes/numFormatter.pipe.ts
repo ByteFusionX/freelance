@@ -9,8 +9,6 @@ export class NumberFormatterPipe implements PipeTransform {
           return '';
         }
 
-        console.log(value)
-    
         return value.toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2

@@ -112,6 +112,7 @@ export class QuotationService {
   }
 
   async generatePDF(quoteData: getQuotatation, includeStamp: boolean) {
+    console.log(quoteData);
     (pdfMake as any).fonts = {
       EBGaramond: {
         normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
@@ -206,55 +207,73 @@ export class QuotationService {
         });
       });
 
-          const totalAmount = [
-      { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-      { text: this.formatNumber(totalCost), style: 'tableFooter' },
-      { text: '', style: 'tableFooter' }
-    ];
-
-
-    let discount;
-    let finalAmount;
-
-    if (items.totalDiscount != 0) {
-      discount = [
-        { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: this.formatNumber(items.totalDiscount), style: 'tableFooter' },
-        { text: '', style: 'tableFooter' }
-      ];
-      finalAmount = [
-        { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
-        { text: this.formatNumber(totalCost - items.totalDiscount), style: 'tableFooter' },
-        { text: '', style: 'tableFooter' }
-      ];
-    } else {
-      finalAmount = [
-        { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+      const totalAmount = [
+        { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: this.formatNumber(totalCost), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
-    }
+
+
+      let discount;
+      let finalAmount;
+
+      if (items.totalDiscount != 0) {
+        discount = [
+          { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+          { text: this.formatNumber(items.totalDiscount), style: 'tableFooter' },
+          { text: '', style: 'tableFooter' }
+        ];
+        finalAmount = [
+          { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+          { text: this.formatNumber(totalCost - items.totalDiscount), style: 'tableFooter' },
+          { text: '', style: 'tableFooter' }
+        ];
+      } else {
+        finalAmount = [
+          { text: `Total Amount (${quoteData.currency})`, style: 'tableFooter', colSpan: 5 }, '', '', '', '',
+          { text: this.formatNumber(totalCost), style: 'tableFooter' },
+          { text: '', style: 'tableFooter' }
+        ];
+      }
 
 
 
-    let body;
-    if (items.totalDiscount == 0) {
-      body = [
-        tableHeader,
-        itemTableHeader,
-        ...tableBody,
-        finalAmount
-      ]
-    } else {
-      body = [
-        tableHeader,
-        itemTableHeader,
-        ...tableBody,
-        totalAmount,
-        discount,
-        finalAmount
-      ]
-    }
+      let body;
+      if (optionalItems.length > 1) {
+        if (items.totalDiscount != 0) {
+          body = [
+            tableHeader,
+            itemTableHeader,
+            ...tableBody,
+            totalAmount,
+            discount,
+            finalAmount
+          ];
+        } else {
+          body = [
+            tableHeader,
+            itemTableHeader,
+            ...tableBody,
+            finalAmount
+          ];
+        }
+      } else {
+        if (items.totalDiscount != 0) {
+          body = [
+            itemTableHeader,
+            ...tableBody,
+            totalAmount,
+            discount,
+            finalAmount
+          ];
+        } else {
+          body = [
+            itemTableHeader,
+            ...tableBody,
+            finalAmount
+          ];
+        }
+      }
 
       return {
         table: {
@@ -477,7 +496,7 @@ export class QuotationService {
           bold: true
         },
         optionHeader: {
-          fontSize: 12  ,
+          fontSize: 12,
           color: 'red',
           bold: true,
           margin: [0, 5, 0, 5]
