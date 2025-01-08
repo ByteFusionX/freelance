@@ -60,7 +60,8 @@ import {
   heroChartBar,
   heroArrowUpTray,
   heroDocument,
-  heroShare
+  heroShare,
+  heroUserPlus
 } from '@ng-icons/heroicons/outline';
 
 import { heroBellSolid } from '@ng-icons/heroicons/solid'
@@ -128,7 +129,8 @@ import { heroBellSolid } from '@ng-icons/heroicons/solid'
       heroChartBar,
       heroArrowUpTray,
       heroDocument,
-      heroShare
+      heroShare,
+      heroUserPlus
     }),
   ],
   exports: [NgIconsModule]

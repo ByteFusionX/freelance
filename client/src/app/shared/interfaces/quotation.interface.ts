@@ -56,6 +56,7 @@ export interface Quotatation {
     dealData: dealData;
     rfqNo: string;
     closingDate: string;
+    eventId?: any;
 }
 
 export interface getQuotatation {
@@ -79,6 +80,7 @@ export interface getQuotatation {
     dealData: dealData;
     rfqNo: string;
     closingDate: string;
+    eventId?: any;
 }
 
 export interface DefaultAndText {
@@ -131,14 +133,14 @@ export interface dealData {
     updatedItems: QuoteItem[];
     totalDiscount: number;
     additionalCosts: {
-      type: string; name: string, value: number 
-}[];
+        type: string; name: string, value: number
+    }[];
     savedDate: string;
     seenByApprover: boolean;
     status: string;
     comments: string[]
     seenedBySalsePerson: boolean
-    attachments:Files[]
+    attachments: Files[]
 }
 
 
@@ -157,7 +159,8 @@ export interface FilterDeal {
     row: number;
     access?: string;
     userId?: string;
-    role?:string;
+    search?: string;
+    role?: string;
 }
 
 export interface nextQuoteData {

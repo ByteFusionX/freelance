@@ -37,9 +37,13 @@ export class CustomerService {
     return this.http.post<getFilteredCustomer>(`${this.apiUrl}/customer/get`, filterData)
   }
 
-  getCustomerByClientRef(employeeId: string,access?:string,userId?:string): Observable<getCustomerByID> {
+  getCustomerByClientRef(employeeId: string, access?: string, userId?: string): Observable<getCustomerByID> {
     return this.http.get<getCustomerByID>(`${this.apiUrl}/customer/view/get/${employeeId}?access=${access}&userId=${userId}`)
-  } 
+  }
+
+  deleteCustomer(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/customer/delete`, data);
+  }
 
   stopSharingCustomer(data: { customerId: string, employeeId: string }): Observable<getCustomer> {
     return this.http.patch<getCustomer>(`${this.apiUrl}/customer/stopSharing`, data);

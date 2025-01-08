@@ -24,6 +24,8 @@ import { UploadEstimationComponent } from './pages/upload-estimation/upload-esti
 import { ViewEstimationComponent } from './pages/view-estimation/view-estimation.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { RejectJobCommentComponent } from './pages/reject-job-comment/reject-job-comment.component';
+import { ReassignedJobsComponent } from './pages/reassigned-jobs/reassigned-jobs.component';
+import { ReassignEmployeeComponent } from './pages/reassign-employee/reassign-employee.component';
 import { OptionalItemsComponent } from 'src/app/shared/components/optional-items/optional-items.component';
 import { componentModule } from 'src/app/shared/components/component.module';
 
@@ -38,6 +40,8 @@ import { componentModule } from 'src/app/shared/components/component.module';
     UploadEstimationComponent,
     ViewEstimationComponent,
     RejectJobCommentComponent,
+    ReassignedJobsComponent,
+    ReassignEmployeeComponent
   ],
   imports: [
     CommonModule,

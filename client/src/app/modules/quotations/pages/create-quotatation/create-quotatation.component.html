@@ -2,14 +2,15 @@
     <div class="  border-b p-3 px-9 flex justify-between items-center">
         <h3 class="text-md font-medium">Create Quote <span class="text-orange-600 text-sm"
                 *ngIf="enquiryData$ | async as enquiryData">- {{enquiryData.enquiryId}}</span></h3>
-        <button (click)="onEnquiryEdit()" *ngIf="(enquiryData$ | async) && !isEdit"
-            class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm">
-            <div class="flex justify-center items-center gap-2">
-                <ng-icon name="heroPencilSquare"></ng-icon>
-                Edit
-            </div>
-        </button>
-
+        <div class="flex gap-2">
+            <button (click)="onEnquiryEdit()" *ngIf="(enquiryData$ | async) && !isEdit"
+                class="bg-violet-700 hover:bg-violet-600 text-white font-medium py-2.5 px-4 rounded text-sm">
+                <div class="flex justify-center items-center gap-2">
+                    <ng-icon name="heroPencilSquare"></ng-icon>
+                    Edit
+                </div>
+            </button>
+        </div>
     </div>
     <form [formGroup]="quoteForm" (ngSubmit)="onQuoteSubmit()">
         <div class="flex flex-col py-6 mx-auto w-full  text-gray-900 bg-white  px-9">

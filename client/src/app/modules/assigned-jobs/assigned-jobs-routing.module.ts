@@ -4,6 +4,7 @@ import { AssignedJobsComponent } from './assigned-jobs.component';
 import { AssignedJobsListComponent } from './pages/assigned-jobs-list/assigned-jobs-list.component';
 import { CompletedJobsListComponent } from './pages/completed-jobs-list/completed-jobs-list.component';
 import { UploadEstimationComponent } from './pages/upload-estimation/upload-estimation.component';
+import { ReassignedJobsComponent } from './pages/reassigned-jobs/reassigned-jobs.component';
 
 const routes: Routes = [
   {
@@ -12,7 +13,8 @@ const routes: Routes = [
       { path: '', component: AssignedJobsListComponent },
       { path: 'upload-estimations', component: UploadEstimationComponent },
       { path: 'edit-estimations', component: UploadEstimationComponent },
-      { path: 'completed', component: CompletedJobsListComponent }
+      { path: 'completed', component: CompletedJobsListComponent },
+      { path: 'reassigned', component: ReassignedJobsComponent }
     ]
   }
 ];

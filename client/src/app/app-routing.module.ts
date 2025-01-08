@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'settings', canActivate: [AuthGuard], loadChildren: () => import('./modules/settings/settings.module').then((m) => m.SettingsModule) },
   { path: 'feedback-requests', canActivate: [AuthGuard], loadChildren: () => import('./modules/feedback-requests/feedback-requests.module').then((m) => m.FeedbackRequestsModule) },
   { path: 'login', canActivate: [LoginGuard], loadChildren: () => import('./modules/login/login.module').then((m) => m.LoginModule) },
+  { path: 'recycle', canActivate: [AuthGuard], loadChildren: () => import('./modules/recycle/recycle.module').then((m) => m.RecycleModule) },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];
 

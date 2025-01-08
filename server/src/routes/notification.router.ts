@@ -3,7 +3,7 @@ import { createNotification, getAllNotifications, markAsRead } from "../controll
 
 const notificationRouter = Router();
 
-notificationRouter.get('/all', getAllNotifications);
+notificationRouter.get('/:token', getAllNotifications);
 notificationRouter.patch('/mark-as-read', markAsRead);
 
 export default notificationRouter;

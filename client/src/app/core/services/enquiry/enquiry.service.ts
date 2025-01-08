@@ -37,8 +37,8 @@ export class EnquiryService {
     return this.http.put<{ update: getEnquiry, quoteId: string | undefined }>(`${this.api}/enquiry/update`, selectedEnquiry)
   }
 
-  rejectJob(enqId:any,comment:string): Observable<{ success:boolean }> {
-    return this.http.put<{ success:boolean }>(`${this.api}/enquiry/presales/reject`, {enqId,comment})
+  rejectJob(enqId: any, comment: string, role: string): Observable<{ success: boolean }> {
+    return this.http.put<{ success: boolean }>(`${this.api}/enquiry/presales/reject`, { enqId, comment, role })
   }
 
   emitToQuote(enquiry: getEnquiry | undefined) {
@@ -73,7 +73,7 @@ export class EnquiryService {
   clearAllPresaleFiles(enquiryId: string) {
     return this.http.delete(`${this.api}/file/clearAll?enquiryId=${enquiryId}`)
   }
-  
+
   clearEstimations(enquiryId: string) {
     return this.http.delete(`${this.api}/enquiry/presales/estimation/${enquiryId}`)
   }
@@ -118,5 +118,12 @@ export class EnquiryService {
     return this.http.post(`${this.api}/enquiry/markAsSeenFeeback`, { enqIds })
   }
 
+  deleteEnquiry(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/enquiry/delete`, data);
+  }
+
+  reassignjob(data: { enquiryId: string, employeeId: string }): Observable<any> {
+    return this.http.put<any>(`${this.api}/enquiry/reassignjob`, data)
+  }
 
 }

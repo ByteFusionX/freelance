@@ -26,7 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     RejectDealComponent,
     UpdatedealsheetComponent,
     ApprovedDealsComponent,
-    PendingDealsComponent
+    PendingDealsComponent,
   ],
   imports: [
     CommonModule,
@@ -38,6 +38,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     IconsModule,
     MatTooltipModule,
     pipeModule,
+    ReactiveFormsModule,
+    FormsModule,
     MatProgressBarModule,
     ReactiveFormsModule,
     FormsModule

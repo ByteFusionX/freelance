@@ -12,10 +12,10 @@ import { environment } from 'src/environments/environment';
 export class JobService {
 
   constructor(private http: HttpClient) { }
- apiUrl = environment.api
+  apiUrl = environment.api
 
-  getJobs(filterData:filterJob):Observable<JobTable>{
-    return this.http.post<JobTable>(`${this.apiUrl}/job/getJobs`,filterData)
+  getJobs(filterData: filterJob): Observable<JobTable> {
+    return this.http.post<JobTable>(`${this.apiUrl}/job/getJobs`, filterData)
   }
 
   downloadFile(fileName: string): Observable<any> {
@@ -33,5 +33,9 @@ export class JobService {
 
   getJobSalesPerson(): Observable<getCreators[]> {
     return this.http.get<getCreators[]>(`${this.apiUrl}/job/sales`)
+  }
+
+  deleteJob(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/job/delete`, data);
   }
 }

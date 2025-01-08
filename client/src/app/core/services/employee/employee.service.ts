@@ -105,4 +105,12 @@ export class EmployeeService {
       }
     );
   }
+
+  deleteCategory(data: { dataId: string, employee: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/category/delete`, data);
+  }
+
+  deleteEmployee(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/employee/delete`, data);
+  }
 }

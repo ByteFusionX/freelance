@@ -1,4 +1,3 @@
-
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { celebCheckService } from './core/services/celebrationCheck/celebCheck.service';
@@ -9,6 +8,7 @@ import { CelebrationDialogComponent } from './shared/components/celebration-dial
 import { Subject } from 'rxjs';
 import { NotificationService } from './core/services/notification.service';
 import { EmployeeService } from './core/services/employee/employee.service';
+import { MatDrawer } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +28,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
   private subscriptions: Subscription = new Subscription()
 
+  @ViewChild('drawer') drawer!: MatDrawer;
 
   constructor(
     private route: ActivatedRoute,
@@ -127,6 +128,12 @@ export class AppComponent implements OnDestroy, OnInit {
       data: data,
       width: '400px',
     });
+  }
+
+  closeSidenav() {
+    if (this.drawer) {
+      this.drawer.close();
+    }
   }
 
   ngOnDestroy() {

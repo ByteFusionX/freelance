@@ -14,7 +14,9 @@ import { AssignPresaleComponent } from './assign-presale/assign-presale.componen
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
 import { HttpEventType } from '@angular/common/http';
 import saveAs from 'file-saver';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-enquiry',
@@ -32,8 +34,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   isFiltered: boolean = false;
   createEnquiry: boolean | undefined = false;
 
-  status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presales' }];
-  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'action'];
+  status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presale Manager' }];
+  displayedColumns: string[] = ['enquiryId', 'customerName', 'enquiryDescription', 'salesPersonName', 'department', 'attachedFiles', 'status', 'presale', 'events', 'action'];
 
   dataSource = new MatTableDataSource<getEnquiry>()
   filteredData = new MatTableDataSource<getEnquiry>()
@@ -46,6 +48,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   selectedStatus: string | null = null;
   selectedSalesPerson: string | null = null;
   selectedDepartment: string | null = null;
+  isDeletedClicked: boolean = false;
+  isEventClicked: boolean = false;
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
@@ -111,10 +115,12 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       this._enquiryService.getEnquiry(filterData)
         .subscribe({
           next: (data: EnquiryTable) => {
-            console.log(data)
-            this.dataSource.data = [...data.enquiry];
+            const filteredEnquiries = data.enquiry.filter(
+              (enq: any) => enq.status != 'Rejected by Presale Engineer' && enq.status != 'Sended by Presale Engineer'
+            );
+            this.dataSource.data = filteredEnquiries;
             this.filteredData.data = data.enquiry;
-            this.total = data.total
+            this.total = filteredEnquiries.length;
             this.isLoading = false
             this.isEmpty = false
             this.enqId = this.total.toString().padStart(3, '0')
@@ -130,7 +136,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
 
   onDownloadClicks(file: any) {
-    console.log(file)
+    // console.log(file)
     this.subscriptions.add(
       this._enquiryService.downloadFile(file.fileName)
         .subscribe({
@@ -181,11 +187,10 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     presaleDialog.afterClosed().subscribe((success: boolean) => {
       this.dataSource.data[i].preSale.seenbySalesPerson = true;
       if (success) {
-        this.dataSource.data[i].status = 'Assigned To Presales'
+        this.dataSource.data[i].status = 'Assigned To Presale Manager'
         this.dataSource._updateChangeSubscription();
       }
     })
-
   }
 
   onAssignPresale(event: Event, preSale: any, enquiryId: string, index: number) {
@@ -193,8 +198,8 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
     const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: preSale })
     presaleDialog.afterClosed().subscribe((data: any) => {
-      this.assigningPresale = true;
       if (data) {
+        this.assigningPresale = true;
         const presaleData = {
           comment: data.comment,
           newPresaleFile: data.newPresaleFile,
@@ -213,7 +218,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
         this._enquiryService.assignPresale(formData, enquiryId).subscribe((res) => {
           if (res.success) {
             // this.dataSource.data[index].preSale = presaleData as getEnquiry["preSale"];
-            this.dataSource.data[index].status = 'Assigned To Presales'
+            this.dataSource.data[index].status = 'Assigned To Presale Manager'
             this.dataSource._updateChangeSubscription();
             this.assigningPresale = false;
             this.toaster.success('Assinged Presale successfully')
@@ -259,11 +264,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
-    if (enqData.status != 'Assigned To Presales') {
-      this._enquiryService.emitToQuote(enqData)
-      this.router.navigate(['/quotations/create'])
-    } else {
-      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+    if (!this.isDeletedClicked && !this.isEventClicked) {
+      if (enqData.status != 'Assigned To Presale Manager') {
+        this._enquiryService.emitToQuote(enqData)
+        this.router.navigate(['/quotations/create'])
+      } else {
+        this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+      }
     }
   }
 
@@ -282,5 +289,47 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  deleteEnquiry(enquiryId: string, status: string) {
+    this.isDeletedClicked = true
+    if (status == 'Assigned To Presale Manager' || status == 'Assigned To Presale Engineer' || status == 'Assigned To Presales') {
+      this.toaster.warning('Sorry,Selected enquiry assinged to presales')
+      return
+    }
+    const employee = this._employeeService.employeeToken()
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Enquiry',
+        description: 'Are you sure you want to delete this enquiry?',
+        icon: 'heroExclamationCircle',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.subscriptions.add(
+          this._enquiryService.deleteEnquiry({ dataId: enquiryId, employeeId: employee.id }).subscribe({
+            next: () => {
+              this.toaster.success('Enquiry deleted successfully');
+              this.getEnquiries()
+            },
+            error: (error) => {
+              this.toaster.error(error.error.message || 'Failed to delete enquiry');
+            }
+          })
+        )
+      }
+      this.isDeletedClicked = false;
+    });
+  }
+
+  onEventClicks(enquiryId: string) {
+    this.isEventClicked = true;
+    const dialog = this.dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe(()=>{
+      this.isEventClicked = false
+    })
   }
 }

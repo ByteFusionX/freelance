@@ -1,29 +1,34 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from '../models/employee.model'
 import * as bcrypt from 'bcrypt';
-import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import announcementModel from "../models/announcement.model";
 import enquiryModel from "../models/enquiry.model";
 import quotationModel from "../models/quotation.model";
 import categoryModel, { UserRole } from "../models/category.model";
 import departmentModel from "../models/department.model";
-import { calculateCostPricePipe, calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
+import { newTrash } from '../controllers/trash.controller'
+import { getAllReportedEmployees, getUSDRated } from "../common/util";
 import customerModel from "../models/customer.model";
 import employeeModel from "../models/employee.model";
 import { CostExplorer } from "aws-sdk";
+import notificationModel from "../models/notification.model";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employees = await Employee.find({}, { password: 0 }).sort({ createdDate: -1 }).populate('department')
+        const employees = await Employee.find(
+            { isDeleted: { $ne: true } },
+            { password: 0 }
+        )
+            .sort({ createdDate: -1 })
+            .populate('department');
 
         if (employees.length) {
             return res.status(200).json(employees);
         }
-        return res.status(204).json()
+        return res.status(204).json();
     } catch (error) {
-        console.log(error)
         next(error)
     }
 }
@@ -155,7 +160,7 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
 
 export const isEmployeePresent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const employeeCount = await Employee.countDocuments();
+        const employeeCount = await Employee.countDocuments({ isDeleted: { $ne: true } });
         const categoryCount = await categoryModel.countDocuments();
         const departmentCount = await departmentModel.countDocuments();
 
@@ -195,9 +200,16 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
             default:
                 break;
         }
-        const matchFilters = { employeeId: employeeId }
+
+        const matchFilters = {
+            employeeId: employeeId,
+            isDeleted: { $ne: true }
+        }
         const filters = { $and: [matchFilters, accessFilter] }
-        const employeeExist = await Employee.findOne({ employeeId: employeeId });
+        const employeeExist = await Employee.findOne({
+            employeeId: employeeId,
+            isDeleted: { $ne: true }
+        });
 
         if (employeeExist) {
             const employeeData = await Employee.aggregate([
@@ -244,15 +256,13 @@ export const getEmployeeByEmployeId = async (req: Request, res: Response, next: 
 export const getFilteredEmployees = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, row, search, access, userId } = req.body;
-
         let skipNum: number = (page - 1) * row;
-
         let searchRegex = search.split('').join('\\s*');
         let fullNameRegex = new RegExp(searchRegex, 'i');
         let total: number = 0;
 
-
         let matchFilters = {
+            isDeleted: { $ne: true },
             $or: [
                 { $expr: { $regexMatch: { input: { $concat: ["$firstName", " ", "$lastName"] }, regex: fullNameRegex } } },
                 { firstName: { $regex: search, $options: 'i' } },
@@ -262,7 +272,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
         }
 
         let accessFilter = {};
-
         switch (access) {
             case 'reported':
                 accessFilter = { reportingTo: new ObjectId(userId) };
@@ -278,7 +287,6 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                     ]
                 };
                 break;
-
             default:
                 break;
         }
@@ -360,7 +368,7 @@ export const getFilteredEmployees = async (req: Request, res: Response, next: Ne
                 $sort: { employeeId: 1 }
             },
         ]);
-        if (!employeeData || !total) return res.status(204).json({ err: 'No enquiry data found' })
+        if (!employeeData || !total) return res.status(204).json({ err: 'No data found' })
         return res.status(200).json({ total: total, employees: employeeData })
 
     } catch (error) {
@@ -417,10 +425,14 @@ export const editEmployee = async (req: Request, res: Response, next: NextFuncti
             updatedEmployeeData.password = hashedPassword
         }
 
-        const saveEmployeeEdit = await Employee.findByIdAndUpdate(
-            employeeId,
+        const saveEmployeeEdit = await Employee.findOneAndUpdate(
+            {
+                _id: employeeId,
+                isDeleted: { $ne: true }
+            },
             updatedEmployeeData,
-            { new: true }).populate('category department reportingTo')
+            { new: true }
+        ).populate('category department reportingTo')
 
         if (saveEmployeeEdit) {
             return res.status(200).json(saveEmployeeEdit);
@@ -569,7 +581,12 @@ const generateEmployeeId = async () => {
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { employeeId, password } = req.body
-        const employee = await Employee.findOne({ employeeId: employeeId })
+        const employee = await Employee.findOne(
+            {
+                employeeId: employeeId,
+                isDeleted: { $ne: true }
+            }
+        )
         if (employee) {
             const passwordMatch = await bcrypt.compare(password, employee.password)
             if (passwordMatch) {
@@ -592,7 +609,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const getEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const employeeId = req.params.id
-        const employeeData = await Employee.findOne({ employeeId: employeeId }, { password: 0 }).populate('category');
+        const employeeData = await Employee.findOne(
+            {
+                employeeId: employeeId,
+                isDeleted: { $ne: true }
+            },
+            { password: 0 }
+        ).populate('category');
+
         if (employeeData) return res.status(200).json(employeeData)
         return res.status(502).json()
     } catch (error) {
@@ -638,7 +662,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             "dealData.status": "pending",
             "dealData.seenByApprover": false,
         });
-        
+
         const feedbackCount = await enquiryModel.countDocuments({
             'preSale.feedback.employeeId': new ObjectId(userId),
             "preSale.feedback.seenByFeedbackProvider": false,
@@ -655,6 +679,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             "preSale.seenbySalesPerson": false,
             status: 'Work In Progress'
         })
+
         const employeeCount = {
             announcementCount,
             assignedJobCount,
@@ -668,6 +693,37 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
     } catch (error) {
         console.log(error)
         next(error)
+    }
+}
+
+export const deleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { dataId, employeeId } = req.body
+
+        // Check if employee exists and isn't already deleted
+        const employee = await Employee.findOne({
+            _id: dataId
+        });
+
+        if (!employee) {
+            return res.status(404).json({
+                message: 'Employee not found or already deleted'
+            });
+        }
+
+        // Soft delete the employee
+        await Employee.findByIdAndUpdate(dataId, {
+            isDeleted: true
+        });
+
+        newTrash('Employee', dataId, employeeId)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Employee deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }
 

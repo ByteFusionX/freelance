@@ -14,12 +14,12 @@ import { ViewCommentComponent } from '../view-comment/view-comment.component';
 import { SelectEmployeeComponent } from '../select-employee/select-employee.component';
 import { ViewFeedbackComponent } from '../view-feedback/view-feedback.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
-import { UploadEstimationComponent } from '../upload-estimation/upload-estimation.component';
 import { NavigationExtras, Router } from '@angular/router';
 import { ViewEstimationComponent } from '../view-estimation/view-estimation.component';
-import { QuoteItem } from 'src/app/shared/interfaces/quotation.interface';
-import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comment.component';
+import { ReassignEmployeeComponent } from '../reassign-employee/reassign-employee.component';
+import { ViewRejectsComponent } from 'src/app/modules/enquirys/view-rejects/view-rejects.component';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-assigned-jobs-list',
@@ -29,7 +29,7 @@ import { RejectJobCommentComponent } from '../reject-job-comment/reject-job-comm
 export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('jobItem') jobItems!: QueryList<ElementRef>;
   @ViewChild('fileInput') fileInput!: ElementRef;
-  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'download', 'estimation', 'send'];
+  displayedColumns: string[] = ['enqId', 'customerName', 'description', 'assignedBy', 'department', 'comment', 'events', 'download', 'estimation', 'send'];
   dataSource = new MatTableDataSource<getEnquiry>();
   viewAssignedFor: boolean = false;
   isLoading: boolean = true;
@@ -58,7 +58,6 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     private _employeeService: EmployeeService,
     private _notificationService: NotificationService,
     private _router: Router,
-    private _quoteService: QuotationService
   ) { }
 
   ngOnInit(): void {
@@ -66,7 +65,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.viewAssignedFor = data?.category.privileges.assignedJob.viewReport == 'all'
     })
     if (this.viewAssignedFor) {
-      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedFor', 'department', 'comment', 'download', 'estimation', 'send'];
+      this.displayedColumns = ['enqId', 'customerName', 'description', 'assignedBy', 'assignedTo', 'department', 'status', 'comment', 'events', 'download', 'estimation', 'send'];
     }
     this.subject.subscribe((data) => {
       this.page = data.page;
@@ -93,8 +92,11 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       this.subscriptions.add(
         this._enquiryService.getPresale(this.page, this.row, 'none', access, this.userId).subscribe({
           next: (data) => {
-            this.dataSource.data = data.enquiry;
-            this.total = data.total;
+            const filteredEnquiries = data.enquiry.filter(
+              (enq: any) => enq.status != 'Work In Progress' && enq.status != 'Rejected by Presale Manager'
+            );
+            this.dataSource.data = filteredEnquiries;
+            this.total = filteredEnquiries.length;
             this.isLoading = false;
             this.updateNotViewedJobIds();
             this.observeAllJobs();
@@ -119,7 +121,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
   observeAllJobs() {
     setTimeout(() => {
       this.jobItems.forEach(item => this.observeJob(item));
-    }, 100); // slight delay to ensure the DOM is fully rendered
+    }, 100);
   }
 
   observeJob(element: ElementRef) {
@@ -334,7 +336,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
       })
       rejectModal.afterClosed().subscribe((comment) => {
         if (comment) {
-          this._enquiryService.rejectJob(enquiry._id, comment).subscribe({
+          this._enquiryService.rejectJob(enquiry._id, comment, 'Manager').subscribe({
             next: (res) => {
               if (res.success) {
                 this.dataSource.data.splice(index, 1)
@@ -366,6 +368,30 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     }
     const extension: string = <string>file.split('.').pop().toLowerCase();
     return contentTypes[extension]
+  }
+
+  onReassignClicks(enqId: string) {
+    const estimationDialog = this._dialog.open(ReassignEmployeeComponent, {
+      data: { enquiryId: enqId }
+    })
+    estimationDialog.afterClosed().subscribe((res) => {
+      if (res) {
+        this.getJobsData()
+        this.toast.success(res.message)
+      }
+    })
+  }
+
+  openReview(rejectionHistory: any) {
+    this._dialog.open(ViewRejectsComponent, {
+      data: rejectionHistory,
+      width: '500px'
+    });
+  }
+
+  onEventClicks(enquiryId: string) {
+    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe()
   }
 
 }

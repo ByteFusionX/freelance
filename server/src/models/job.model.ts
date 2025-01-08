@@ -5,6 +5,7 @@ interface Job extends Document {
     jobId: string;
     status: string;
     createdDate: Date;
+    isDeleted: boolean;
 }
 
 export enum jobStatus {
@@ -36,6 +37,10 @@ const jobSchema = new Schema<Job>({
     createdDate: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 });
 

@@ -1,15 +1,14 @@
-import { Schema, model } from "mongoose";
+import { Schema, model,Types } from "mongoose";
 
 interface Notification {
-    type: string; // The type of notification (e.g., 'Info', 'Warning', 'Alert')
-    title: string; // Brief title for the notification
-    message: string; // Detailed message content
-    recipients: any[]; // Array of recipient IDs (can be employees or other entities)
-    sentBy: any; // Sender ID (can be an employee or system)
-    date: Date; // Timestamp of the notification
-    referenceId: any; // Link to related entities like events, tasks, or projects
-    referenceType: string; // Type of the related entity (e.g., 'Event', 'Task')
-    additionalData: any; // JSON object for extensibility
+    type: string; 
+    title: string; 
+    message: string;
+    recipients: any[];
+    sentBy: any;
+    date: Date; 
+    referenceId: Types.ObjectId; 
+    additionalData: any; 
 }
 
 
@@ -30,7 +29,7 @@ const notificationSchema = new Schema<Notification>({
     recipients: {
         type: [{
             objectId: { type: Schema.Types.ObjectId, ref: 'Employee', required: true },
-            status: { type: String, enum: ['unread', 'read', 'archived'], default: 'unread' }
+            status: { type: String, enum: ['unread', 'read', 'archived'], default: 'unread' },
         }],
         required: true,
     },
@@ -42,14 +41,9 @@ const notificationSchema = new Schema<Notification>({
         type: Date,
         default: Date.now,
     },
-    referenceType: {
-        type: String,
-        required: true,
-        enum: ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category', 'Job'],
-    },
     referenceId: {
         type: Schema.Types.ObjectId,
-        refPath: 'referenceType',
+        refPath: 'type',
     },
     additionalData: {
         type: Schema.Types.Mixed,

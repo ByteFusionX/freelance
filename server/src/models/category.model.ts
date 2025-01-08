@@ -5,6 +5,7 @@ interface Category extends Document {
   role: string;
   isSalespersonWithTarget: boolean,
   privileges: Privileges;
+  isDeleted: boolean;
 }
 
 export interface Privileges {
@@ -73,6 +74,10 @@ const categorySchema = new Schema<Category>({
   privileges: {
     type: Object,
     required: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 });
 

@@ -182,7 +182,7 @@ export class PendingDealsComponent {
       }
     });
   }
-
+ 
   onPreviewPdf(quotedData: getQuotatation) {
     this.loader.start()
     let quoteData: getQuotatation = quotedData;
@@ -314,4 +314,5 @@ export class PendingDealsComponent {
       }
     })
   }
+
 }

@@ -1,0 +1,65 @@
+<div>
+    <div class="bg-black bg-opacity-50 flex items-center justify-center ">
+        <div class="bg-white rounded-lg shadow-lg max-w-lg w-full py-3">
+            <div class="flex justify-between items-center mb-4 px-6">
+                <h2 class="text-xl font-semibold">Open Events</h2>
+                <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center"
+                    (click)="onClose()">
+                    <ng-icon name="heroXMark" class="text-md p-0 m-0"></ng-icon>
+                </button>
+            </div>
+            <div *ngIf="events$ | async as events, else noEvent">
+                <div class="space-y-4 px-6 py-2" *ngFor="let event of events">
+                    <div class="p-4 bg-gray-100 rounded">
+                        <div class="w-full flex justify-between">
+                            <p class="text-gray-900 text-lg"><ng-icon name="heroCalendarDays"></ng-icon> {{event.event}}
+                            </p>
+                            <div class="flex">
+                                <div class="">
+                                    <div *ngIf="event.status == 'pending' else completeBox">
+                                        <input type="checkbox" class="size-4 border border-violet-500"
+                                            (click)="onCheckboxClick($event, event._id)" [checked]="isChecked">
+                                    </div>
+                                    <ng-template #completeBox>
+                                        <input type="checkbox" class="size-4 border border-violet-500 cursor-pointer"
+                                            disabled checked matTooltip="Completed" matTooltipPosition="above"
+                                            matTooltipClass="mat-tooltip">
+                                    </ng-template>
+                                </div>
+                                <div *ngIf="isCreatedEmployee(event.createdBy._id)">
+                                    <button class="text-red-600 hover:text-red-800 px-2" matTooltip="Delete Event"
+                                        matTooltipPosition="above" (click)="onDeleteEvent(event._id)">
+                                        <ng-icon name="heroTrash" class="text-md"></ng-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">{{event.summary}}</p>
+                        <p class="text-gray-600">{{formatDate(event.date)}}</p>
+                    </div>
+                </div>
+            </div>
+            <ng-template #noEvent>
+                <div class="space-y-4 px-6 py-2">
+                    <div class="p-4 bg-gray-100 rounded">
+                        <p class="text-gray-700"></p>
+                        <p class="text-gray-700">No Events</p>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="border border-white border-t-gray-300 flex justify-end gap-2 px-6 py-2">
+                <div *ngIf="!isReassigned">
+                    <button class="bg-orange-500 hover:bg-orange-400 text-white font-medium py-2 px-4 rounded text-sm"
+                        (click)="onNewEventClicks()">
+                        New Event
+                    </button>
+                </div>
+                <div>
+                    <button class="border text-black font-medium py-2 px-4 rounded text-sm mr-2" (click)="onClose()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

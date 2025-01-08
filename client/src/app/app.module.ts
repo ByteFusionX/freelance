@@ -19,12 +19,13 @@ import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { NotificationComponent } from './shared/components/notification/notification.component';
 const config:SocketIoConfig = { url: environment.api, options: {} };
 
 @NgModule({
   declarations: [
     AppComponent,
-
   ],
   imports: [
     BrowserModule,
@@ -46,6 +47,8 @@ const config:SocketIoConfig = { url: environment.api, options: {} };
     LoadingBarRouterModule,
     LoadingBarHttpClientModule,
     SocketIoModule.forRoot(config),
+    MatSidenavModule,
+    NotificationComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },

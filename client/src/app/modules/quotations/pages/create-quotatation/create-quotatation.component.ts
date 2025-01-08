@@ -19,6 +19,7 @@ import { customerNoteValidator } from 'src/app/shared/validators/quoation.valida
 import { Note, Notes } from 'src/app/shared/interfaces/notes.interface';
 import { QuotationPreviewComponent } from 'src/app/shared/components/quotation-preview/quotation-preview.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-create-quotatation',
@@ -74,6 +75,7 @@ export class CreateQuotatationComponent {
     private _router: Router,
     private _enquiryService: EnquiryService,
     private toastr: ToastrService,
+    private snackBar: MatSnackBar,
   ) { }
 
   ngOnInit() {
@@ -106,7 +108,7 @@ export class CreateQuotatationComponent {
     this.quoteForm.patchValue({ totalDiscount: '0', createdBy: this.tokenData.id })
     this.enquiryData$ = this._enquiryService.enquiryData$;
     this.subscriptions.add(this.enquiryData$.subscribe((data) => {
-      if (data && data?.preSale?.estimations?.optionalItems?.length) {
+      if (data) {
         this.patchValues(data)
       }
     })
@@ -275,6 +277,8 @@ console.log(this.quoteForm,this.quoteForm.value)
 
   onQuoteSubmit() {
     this.submit = true;
+    console.log(this.quoteForm.value);
+    
     if (this.quoteForm.valid) {
       this.isSaving = true;
       const quoteFormValue = this.quoteForm.value;
@@ -307,6 +311,8 @@ console.log(this.quoteForm,this.quoteForm.value)
   }
 
   patchValues(data: getEnquiry) {
+    console.log(data);
+    
     this.quoteForm.patchValue({
       client: data?.client._id,
       department: data?.department._id,
@@ -316,8 +322,10 @@ console.log(this.quoteForm,this.quoteForm.value)
     this.onChange(data?.client._id as string);
     this.quoteForm.patchValue({ attention: data?.contact._id, currency: data?.preSale?.estimations?.currency });
 
-    this.estimatedOptionalItems = data.preSale.estimations.optionalItems;
-    this.calculateTotalValuesAfterPactch()
+    if(data?.preSale?.estimations?.optionalItems?.length){
+      this.estimatedOptionalItems = data.preSale.estimations.optionalItems;
+      this.calculateTotalValuesAfterPactch()
+    }
   }
 
   onCalculationOptionChange() {

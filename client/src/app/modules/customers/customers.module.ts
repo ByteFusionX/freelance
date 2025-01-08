@@ -16,6 +16,7 @@ import { CustomerEditComponent } from './pages/customer-edit/customer-edit.compo
 import { NgSelectModule } from '@ng-select/ng-select';
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { pipeModule } from 'src/app/shared/pipes/pipe.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ShareTransferCustomerComponent } from './pages/share-transfer-customer/share-transfer-customer.component';
 import { SharedWithListComponent } from './pages/shared-with-list/shared-with-list.component';
@@ -44,6 +45,7 @@ import { SharedWithListComponent } from './pages/shared-with-list/shared-with-li
     NgSelectModule,
     PaginationComponent,
     pipeModule,
+    SharedModule, 
     MatTooltipModule
   ]
 })

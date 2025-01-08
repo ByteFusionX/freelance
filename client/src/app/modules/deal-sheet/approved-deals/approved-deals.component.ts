@@ -11,6 +11,8 @@ import { ApproveDealComponent } from '../approve-deal/approve-deal.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { RejectDealComponent } from '../reject-deal/reject-deal.component';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { HttpEventType } from '@angular/common/http';
 import { JobService } from 'src/app/core/services/job/job.service';
 import { ToastrService } from 'ngx-toastr';
@@ -45,6 +47,7 @@ export class ApprovedDealsComponent {
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
 
+  searchControl = new FormControl('');
   selectedFile!: string | undefined;
   progress: number = 0;
 
@@ -65,6 +68,17 @@ export class ApprovedDealsComponent {
   ) { }
 
   ngOnInit() {
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.page = 1;
+        this.getDealSheet();
+      });
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -118,6 +132,7 @@ export class ApprovedDealsComponent {
       row: this.row,
       access: access,
       userId: userId,
+      search: this.searchControl.value || '',
       searchQuery: this.searchQuery,
       searchCriteria: this.searchCriteria,
       role: role

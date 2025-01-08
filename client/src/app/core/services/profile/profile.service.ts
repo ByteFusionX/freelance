@@ -33,6 +33,10 @@ export class ProfileService {
     return this.http.get<getDepartment[]>(`${this.api}/department/customer`)
   }
 
+  updateCustomerDepartment(department: Department): Observable<getDepartment> {
+    return this.http.put<getDepartment>(`${this.api}/department/customer`, department)
+  }
+
   totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
     return this.http.get<TotalEnquiry[]>(`${this.api}/department/enquiry-count?access=${access}&userId=${userId}`)
   }
@@ -77,7 +81,7 @@ export class ProfileService {
     return this.http.get<{ targets: Target[] }>(`${this.api}/company/target`)
   }
 
-  getInternalDepartments():Observable<getInternalDep[]>{
+  getInternalDepartments(): Observable<getInternalDep[]> {
     return this.http.get<getInternalDep[]>(`${this.api}/department/internalDepartment`)
   }
 
@@ -87,5 +91,17 @@ export class ProfileService {
 
   updateInternalDepartment(department: getInternalDep): Observable<getInternalDep> {
     return this.http.put<getInternalDep>(`${this.api}/department/internalDepartment`, department)
+  }
+
+  deleteDepartment(data: { dataId: string, employee: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/department/delete-department`, data)
+  }
+
+  deleteInternalDepartment(data: { dataId: string, employee: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/department/delete-internalDepartment/`,data)
+  }
+
+  deleteCustomerDepartment(data: { dataId: string, employee: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/department/delete-customer`,data)
   }
 }

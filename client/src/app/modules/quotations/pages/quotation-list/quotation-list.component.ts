@@ -25,6 +25,7 @@ import * as FileSaver from 'file-saver';
 import { DatePipe } from '@angular/common';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
 import { ToastrService } from 'ngx-toastr';
+import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
 
 @Component({
   selector: 'app-quotation-list',
@@ -47,8 +48,10 @@ export class QuotationListComponent {
   searchQuery: string = '';
   userId: string | undefined = ''
 
+  isEventClicked: boolean = false
+
   quoteStatuses = Object.values(QuoteStatus);
-  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'dealStatus', 'action'];
+  displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'dealStatus', 'events', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
   filteredData = new MatTableDataSource<Quotatation>()
@@ -158,6 +161,7 @@ export class QuotationListComponent {
   }
 
   onRowClicks(index: number) {
+
     let data = this.dataSource.data[index]
     const navigationExtras: NavigationExtras = {
       state: data
@@ -476,5 +480,13 @@ export class QuotationListComponent {
 
   calculateDiscoutPrice(quoteData: Quotatation): number {
     return this.calculateSellingPrice(quoteData) - quoteData.optionalItems[0].totalDiscount
+  }
+
+  onEventClicks(enquiryId: string) {
+    this.isEventClicked = true;
+    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    dialog.afterClosed().subscribe(() => {
+      this.isEventClicked = false
+    })
   }
 }

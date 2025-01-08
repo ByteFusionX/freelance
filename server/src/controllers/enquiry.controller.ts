@@ -6,6 +6,7 @@ import { Enquiry } from "../interface/enquiry.interface";
 import { Server } from "socket.io";
 import quotationModel from "../models/quotation.model";
 import { uploadFileToAws } from "../common/aws-connect";
+import { newTrash } from '../controllers/trash.controller'
 import { getAllReportedEmployees } from "../common/util";
 const { ObjectId } = require('mongodb')
 
@@ -103,9 +104,9 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         // Parse the incoming presale data
         const presale = JSON.parse(req.body.presaleData || '{}'); // Default to an empty object to prevent crashes
         let presaleFiles = [];
-        
-        console.log(req.files?.newPresaleFile); // Safely access newPresaleFile
-        console.log(presale);
+
+        // console.log(req.files?.newPresaleFile); // Safely access newPresaleFile
+        // console.log(presale);
 
         // Upload new files to AWS and build the `presaleFiles` array
         if (req.files?.newPresaleFile) {
@@ -131,8 +132,6 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
             (file) => Object.keys(file).length > 0
         );
 
-        console.log(presale);
-
         // Fetch the enquiry to preserve rejectionHistory
         const enquiry = await enquiryModel.findOne({ _id: enquiryId });
         if (!enquiry) {
@@ -150,7 +149,7 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
                         newFeedbackAccess: true,
                         createdDate: Date.now(),
                     },
-                    status: 'Assigned To Presales',
+                    status: 'Assigned To Presale Manager',
                 },
             }
         );
@@ -184,6 +183,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
         let isDepartment = department == null ? true : false;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             $and: [
                 { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
                 { $or: [{ status: status }, { status: { $exists: isStatus } }] },
@@ -332,7 +332,13 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: { status: { $ne: 'Quoted' }}
+            },
+            {
+                $match: {
+                    // ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
@@ -345,7 +351,13 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const preSaleData = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    // ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
+            },
+            {
+                $match: { status: { $ne: 'Quoted' }}
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
@@ -374,6 +386,19 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                     localField: 'preSale.feedback.employeeId',
                     foreignField: '_id',
                     as: 'employeeDetails'
+                }
+            },
+            {
+                $addFields: {
+                    reAssignedForLookup: { $ifNull: ['$reAssigned', null] }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'reAssignedForLookup',
+                    foreignField: '_id',
+                    as: 'reAssigned'
                 }
             },
             {
@@ -407,7 +432,6 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             {
                 $lookup: { from: 'employees', localField: 'preSale.presalePerson', foreignField: '_id', as: 'preSale.presalePerson' }
             },
-
         ])
 
         if (totalPresale.length) return res.status(200).json({ total: totalPresale[0].total, enquiry: preSaleData })
@@ -468,7 +492,10 @@ export const monthlyEnquiries = async (req: Request, res: Response, next: NextFu
         }
         const result = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $project: {
@@ -693,7 +720,7 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
             { _id: enquiryId },
             {
                 $push: { 'preSale.revisionComment': revisionComment },
-                status: 'Assigned To Presales',
+                status: 'Assigned To Presales Manager',
                 'preSale.seenbyEmployee': false,
                 'preSale.newFeedbackAccess': true,
                 'preSale.createdDate': Date.now()
@@ -826,7 +853,10 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         const totalPendingJobs: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -840,7 +870,10 @@ export const presalesCount = async (req: Request, res: Response, next: NextFunct
 
         const totalCompletedJobs: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: accessFilter
+                $match: {
+                    ...accessFilter,
+                    isDeleted: { $ne: true }
+                }
             },
             {
                 $group: { _id: null, total: { $sum: 1 } }
@@ -973,9 +1006,7 @@ export const markFeedbackResponseAsViewed = async (req: Request, res: Response, 
 
 export const RejectPresaleJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req.body)
-        const { enqId, comment } = req.body;
-
+        const { enqId, comment, role } = req.body;
         const enquiry = await enquiryModel.findOne({ _id: new ObjectId(enqId) });
 
         if (!enquiry) {
@@ -985,7 +1016,8 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
         // Add a new rejection event to the history
         enquiry.preSale.rejectionHistory.push({
             rejectionReason: comment,
-            rejectedBy: enquiry.preSale.presalePerson
+            rejectedBy: enquiry.preSale.presalePerson,
+            rejectedRole: role
         });
 
         enquiry.preSale.feedback = [];
@@ -996,7 +1028,7 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
         delete enquiry.preSale.estimations;
         enquiry.preSale.newFeedbackAccess = true;
 
-        enquiry.status = 'Rejected by Presale';
+        enquiry.status = `Rejected by Presale ${role}`;
 
         const result = await enquiry.save();
         if (!result) {
@@ -1010,3 +1042,44 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
     }
 };
 
+export const deleteEnquiry = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { dataId, employeeId } = req.body
+
+        // Check if enquiry exists and isn't already deleted
+        const enquiry = await enquiryModel.findOne({
+            _id: dataId,
+        });
+
+        if (!enquiry) {
+            return res.status(404).json({
+                message: 'Enquiry not found or already deleted'
+            });
+        }
+        newTrash('Enquiry', dataId, employeeId)
+        // Soft delete the enquiry
+        await enquiryModel.findByIdAndUpdate(dataId, {
+            isDeleted: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Enquiry deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const reAssignJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { enquiryId, employeeId } = req.body
+        if (!employeeId) {
+            return res.status(404).json({ message: 'Something went wrong' });
+        }
+        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId, status: 'Assigned To Presale Engineer' } })
+        return res.status(200).json({ message: 'Enquiry Reassigned successfully' })
+    } catch (error) {
+        next(error)
+    }
+}

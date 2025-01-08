@@ -7,9 +7,10 @@ import Enquiry from "../models/enquiry.model";
 import { Server } from "socket.io";
 import { calculateDiscountPrice, getAllReportedEmployees, getUSDRated } from "../common/util";
 const { ObjectId } = require('mongodb');
+import { newTrash } from '../controllers/trash.controller'
 import { removeFile } from '../common/util'
-import quotationModel from "../models/quotation.model";
 import { deleteFileFromAws, uploadFileToAws } from '../common/aws-connect';
+import Event from '../models/events.model'
 
 export const saveQuotation = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,6 +24,8 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
         if (quoteData.enqId) {
             await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
+            const event = await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: quote._id } })
+            await Quotation.findOneAndUpdate({ _id: quote._id }, { $set: { eventId: event._id } })
         }else{
             delete quoteData.enqId
         }
@@ -53,6 +56,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
         let isDepartment = department == null ? true : false;
 
         let matchFilters = {
+            isDeleted: { $ne: true },
             $and: [
                 { quoteId: { $regex: search, $options: 'i' } },
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
@@ -98,6 +102,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             },
             {
                 $match: {
+                    isDeleted: { $ne: true },
                     status: { $ne: 'revised' }
                 }
             },
@@ -194,6 +199,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             },
             {
                 $match: {
+                    isDeleted: { $ne: true },
                     status: { $ne: 'revised' }
                 }
             }
@@ -213,10 +219,12 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
 
         let skipNum: number = (page - 1) * row;
 
-        let matchFilters = {
+        let matchFilters: any = {
+            isDeleted: { $ne: true },
             dealData: { $exists: true },
             'dealData.status': { $nin: ['rejected', 'approved'] }
         };
+
 
         let accessFilter = {};
         let searchFilter = {};
@@ -224,10 +232,10 @@ export const getDealSheet = async (req: Request, res: Response, next: NextFuncti
         if (searchCriteria && searchQuery) {
             switch (searchCriteria) {
                 case 'dealId':
-                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'customer':
-                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'salesperson':
                     searchFilter['$or'] = [
@@ -412,10 +420,10 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
         if (searchCriteria && searchQuery) {
             switch (searchCriteria) {
                 case 'dealId':
-                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['dealData.dealId'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'customer':
-                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' } 
+                    searchFilter['client.companyName'] = { $regex: searchQuery, $options: 'i' }
                     break;
                 case 'salesperson':
                     searchFilter['$or'] = [
@@ -467,7 +475,7 @@ export const getApprovedDealSheet = async (req: Request, res: Response, next: Ne
                     as: 'client'
                 }
             },
-            
+
             {
                 $unwind: '$client'
             },
@@ -888,11 +896,10 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
         const totalQuotes = await Quotation.aggregate([
             {
                 $match: {
-                    'dealData.status': { $ne: 'approved' }
+                    isDeleted: { $ne: true },
+                    'dealData.status': { $ne: 'approved' },
+                    ...accessFilter
                 }
-            },
-            {
-                $match: accessFilter
             },
             {
                 $group: {
@@ -1135,6 +1142,36 @@ export const markAsQuotationSeened = async (req: Request, res: Response, next: N
     }
 };
 
+export const deleteQuotation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { dataId, employeeId } = req.body;
+
+        // Check if quote exists and isn't already deleted
+        const quote = await Quotation.findOne({
+            _id: dataId,
+        });
+
+        if (!quote) {
+            return res.status(404).json({
+                message: 'Quote not found or already deleted'
+            });
+        }
+
+        // Soft delete the quote
+        await Quotation.findByIdAndUpdate(dataId, {
+            isDeleted: true
+        });
+
+        newTrash('Quotation', dataId, employeeId)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Quote deleted successfully'
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 export const removeLpo = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { quoteId, fileName } = req.params;

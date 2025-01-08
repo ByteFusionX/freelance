@@ -22,6 +22,7 @@ export interface Customer extends Document {
   createdBy: Types.ObjectId; // Denotes the current owner
   sharedWith: Types.ObjectId[]; // Array of employees with shared access
   createdDate: Date;
+  isDeleted: boolean;
 }
 
 const contactDetailSchema = new Schema({
@@ -45,6 +46,10 @@ const customerSchema = new Schema<Customer>({
   createdBy: { type: Schema.Types.ObjectId, ref: "Employee", required: true }, // Current owner
   sharedWith: [{ type: Schema.Types.ObjectId, ref: "Employee" }], // Employees with shared access
   createdDate: { type: Date, default: Date.now },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  }
 });
 
 export default model<Customer>("Customer", customerSchema);

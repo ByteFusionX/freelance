@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jobModel from "../models/job.model"
 import Employee from '../models/employee.model';
+import { newTrash } from '../controllers/trash.controller';
 import { calculateDiscountPrice, calculateDiscountPricePipe, getAllReportedEmployees, getUSDRated } from "../common/util";
 
 
@@ -15,6 +16,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         let skipNum: number = (page - 1) * row;
 
         let matchFilters: any = {
+            isDeleted: { $ne: true },
             $and: [
                 {
                     $or: [
@@ -55,7 +57,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             default:
                 break;
         }
-
+        
         const qatarUsdRate = await getUSDRated();
 
         const jobData = await jobModel.aggregate([
@@ -226,7 +228,9 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
         }
 
         const jobTotal: { total: number }[] = await jobModel.aggregate([
-
+            {
+                $match: { isDeleted: { $ne: true } }
+            },
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
             },
@@ -282,6 +286,9 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
 
         const customers = await jobModel.aggregate([
             {
+                $match: { isDeleted: { $ne: true } }
+            },
+            {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotaion' }
             },
             {
@@ -319,5 +326,36 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
     } catch (error) {
         console.log(error)
 next(error)
+    }
+}
+
+export const deleteJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { dataId, employeeId } = req.body
+
+        // Check if job exists and isn't already deleted
+        const job = await jobModel.findOne({
+            _id: dataId,
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                message: 'Job not found or already deleted'
+            });
+        }
+
+        // Soft delete the job
+        await jobModel.findByIdAndUpdate(dataId, {
+            isDeleted: true
+        });
+        
+        newTrash('Job', dataId, employeeId)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Job deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }

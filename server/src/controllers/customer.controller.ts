@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import Customer from '../models/customer.model';
 import Employee from '../models/employee.model';
+import { newTrash } from '../controllers/trash.controller'
 import { getAllReportedEmployees } from "../common/util";
 import employeeModel from "../models/employee.model";
 const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const customer = await Customer.find({ isDeleted: { $ne: true } })
+            .sort({ createdDate: -1 })
+            .populate('department createdBy');
         const userId = new ObjectId(req.params.userId);
 
         const employeeAccess = await employeeModel.findOne({ _id:new ObjectId(userId) }).populate('category') as any
@@ -115,6 +119,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
 
         let searchRegex = search.split('').join('\\s*');
         let matchFilters = {
+            isDeleted: { $ne: true },
             $or: [
                 { companyName: { $regex: search, $options: 'i' } },
                 { clientRef: { $regex: search, $options: 'i' } },]
@@ -347,7 +352,10 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
         }
 
 
-        const matchFilters = { clientRef: customerId }
+        const matchFilters = {
+            clientRef: customerId,
+            isDeleted: { $ne: true }
+        }
         const filters = { $and: [matchFilters, accessFilter] }
 
         const customerExist = await Customer.findOne({ clientRef: customerId });
@@ -625,5 +633,35 @@ const generateClientRef = async (date: string) => {
         return clientRef;
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const deleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { dataId, employeeId } = req.body
+
+        // Check if customer exists and isn't already deleted
+        const customer = await Customer.findOne({
+            _id: dataId,
+        });
+
+        if (!customer) {
+            return res.status(404).json({
+                message: 'Customer not found or already deleted'
+            });
+        }
+
+        // Soft delete the customer
+        await Customer.findByIdAndUpdate(dataId, {
+            isDeleted: true
+        });
+        newTrash('Customer', dataId, employeeId)
+
+        return res.status(200).json({
+            success: true,
+            message: 'Customer deleted successfully'
+        });
+    } catch (error) {
+        next(error);
     }
 }

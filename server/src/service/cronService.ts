@@ -1,6 +1,10 @@
 import employeeModel from "../models/employee.model";
 import announcementModel from "../models/announcement.model";
+import Notification from "../models/notification.model";
 import { fetchExchangeRate } from "../common/util";
+import Event from '../models/events.model';
+import { createNotification } from '../controllers/notification.controller';
+import { Server } from "socket.io";
 const cron = require('node-cron');
 
 const processEmployeeEvent = async (element, eventType) => {
@@ -46,6 +50,7 @@ const processEmployeeEvent = async (element, eventType) => {
     }
 };
 
+
 const startCronJob = () => {
     cron.schedule('0 1 * * *', async () => {
         try {
@@ -82,13 +87,32 @@ const startCronJob = () => {
                 const anniversaryPromises = anniversaryEmployees.map(element => processEmployeeEvent(element, 'anniversary'));
                 await Promise.all(anniversaryPromises);
             }
+            checkTodayEventsAndSendNotifications()
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+            const notifications = await Notification.find({
+                date: { $lt: thirtyDaysAgo },
+                'recipients.status': 'read'
+            });
+    
+            notifications.forEach(async (notification) => {
+                const allRead = notification.recipients.every(recipient => recipient.status === 'read');
+                if (allRead) {
+                    await Notification.findByIdAndDelete(notification._id);
+                } else {
+                    notification.recipients = notification.recipients.filter(recipient => recipient.status !== 'read');
+                    await notification.save();
+                }
+            });
 
         } catch (error) {
             console.error('Cron job error:', error.message);
         }
     }).start();
-
     fetchExchangeRate();
+
 
     cron.schedule('0 */4 * * *', () => {
         console.log('Updating exchange rate...');
@@ -96,4 +120,40 @@ const startCronJob = () => {
     }).start();
 };
 
+const checkTodayEventsAndSendNotifications = async () => {
+    try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const events = await Event.find({ date: { $gte: startOfDay, $lt: endOfDay } });
+
+        events.forEach(async (event) => {
+            // Create and send notifications for each event
+            const saveNewNotification = await createNotification({
+                type: 'Event',
+                title: `You have ${event.event} Assigned Today!`,
+                message: `${event.summary}`,
+                date: new Date(),
+                sentBy: event.createdBy,
+                recipients: [{ objectId: event.employee, status: 'unread' }],
+                referenceId: event._id,
+                additionalData: {}
+            });
+
+            if (saveNewNotification) {
+                const socket = global.io as Server; // Assuming you have access to the global io instance
+                saveNewNotification.recipients.forEach((recipient) => {
+                    socket.to(recipient.objectId._id.toString()).emit("recieveNotifications", saveNewNotification);
+                });
+            }
+        });
+    } catch (error) {
+        console.error("Error checking today's events and sending notifications:", error);
+    }
+}
+
+export { checkTodayEventsAndSendNotifications };
 export default startCronJob

@@ -16,6 +16,7 @@ interface Employee extends Document {
     password: string;
     createdBy: Types.ObjectId;
     targets: Target[];
+    isDeleted: boolean;
 }
 
 interface Target {
@@ -128,6 +129,10 @@ const employeeSchema = new Schema<Employee>({
     targets: {
       type: [targetSchema], 
     },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 employeeSchema.index({ firstName: 1, lastName: 1 })

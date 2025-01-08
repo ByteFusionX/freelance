@@ -49,12 +49,11 @@ import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
     MatButtonModule,
     MatTooltipModule,
     directiveSharedModule,
-    FormsModule,
     SkeltonLoadingComponent,
     UploadFileComponent,
     PaginationComponent,
     MatDividerModule,
-    pipeModule
+    pipeModule,
 ],
   providers: []
 })

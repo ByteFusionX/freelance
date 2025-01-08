@@ -521,5 +521,8 @@ export class QuotationService {
     });
   }
 
+  deleteQuotation(data: { dataId: string, employeeId: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/quotation/delete`, data);
+  }
 
 }

@@ -27,6 +27,7 @@ import * as pdfMake from 'pdfmake/build/pdfmake';
   providers: [NumberFormatterPipe]
 })
 export class JobListComponent {
+
   selectedDateFormat: string = "monthly";
   selectedEmployee: string | null = null;
   selectedFile!: string | undefined;
@@ -71,9 +72,15 @@ export class JobListComponent {
 
   ngOnInit() {
     this.employees$ = this._jobService.getJobSalesPerson();
-    const currentYear = new Date().getFullYear()
+    this.subscriptions.add(
+      this.subject.subscribe((data) => {
+        this.page = data.page
+        this.row = data.row
+        const currentYear = new Date().getFullYear()
     this.getAllJobs(undefined,currentYear)
     this.reportDate = `${currentYear}`;
+      })
+    )
   }
 
   selectedStatus!: number | null;
@@ -91,7 +98,6 @@ export class JobListComponent {
     { value: 'Cancelled' },
     { value: 'On Hold' },
     { value: 'Invoiced' }
-
   ];
 
   onfilterApplied() {
@@ -112,7 +118,7 @@ export class JobListComponent {
   }
 
 
-  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status'];
+  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status', 'action'];
 
   getAllJobs(selectedMonth?: number, selectedYear?: number) {
     this.isLoading = true;
@@ -153,7 +159,6 @@ export class JobListComponent {
         })
       })
     )
-
   }
 
   handleNotClose(event: MouseEvent) {
@@ -441,6 +446,32 @@ export class JobListComponent {
 
   onPageNumberClick(event: { page: number, row: number }) {
     this.subject.next(event)
+  }
+
+  onDeleteJob(jobId: string) {
+    const employee = this._employeeService.employeeToken()
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Delete Job',
+        description: 'Are you sure you want to delete this job? This action cannot be undone.',
+        icon: 'heroExclamationTriangle',
+        IconColor: 'red'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this._jobService.deleteJob({ dataId: jobId, employeeId: employee.id }).subscribe({
+          next: () => {
+            this.toast.success('Job deleted successfully');
+            this.getAllJobs();
+          },
+          error: (error) => {
+            this.toast.error('Failed to delete job');
+          }
+        });
+      }
+    });
   }
 
 }
