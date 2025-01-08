@@ -1,7 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { getEmployee } from '../../interfaces/employee.interface';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
@@ -31,6 +31,7 @@ export class EventsComponent implements OnInit, OnDestroy {
   eventError: boolean = false;
   isClear: boolean = false;
   isSaving: boolean = false;
+  availabiltyInput$ = new Subject<string>();
 
   private subscriptions = new Subscription()
 

@@ -21,6 +21,7 @@ export class ViewEmployeeComponent {
   targetColumns: string[] = ['year', 'targetType', 'targetValue', 'critical', 'moderate', 'action'];
   isTargetLoading: boolean = true;
   isEmpty: boolean = false;
+  isDeleteOption: boolean = false;
 
   targets: Target[] = [];
 
@@ -32,6 +33,15 @@ export class ViewEmployeeComponent {
     private route: ActivatedRoute
   ) {
     this.initEmployeeData();
+  }
+
+  ngOnInit() {
+    this.employeeService.employeeData$.subscribe((employee) => {
+      if (employee?.category.role == 'superAdmin') {
+        this.isDeleteOption = true
+      }
+
+    })
   }
 
   private initEmployeeData(): void {

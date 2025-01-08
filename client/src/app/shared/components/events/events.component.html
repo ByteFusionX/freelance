@@ -1,4 +1,4 @@
-<div class="w-[500px]  max-h-[95vh]">
+<div class="w-[500px]  max-h-[95vh]"></div>
     <div class="border border-white border-b-gray-300 p-3 px-6 flex justify-between">
         <h3 class="text-md font-medium">New Event</h3>
         <button class="bg-gray-200 rounded-lg p-1 text-center flex items-center justify-center" (click)="onClose()">
@@ -13,12 +13,12 @@
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="event">
                         Events *
                     </label>
-                    <ng-select id="events" class="form" placeholder="Select Event" appendTo="body" name="events"
-                        (change)="onChangeEvent($event)" [(ngModel)]="selectedEvent">
+                    <ng-select id="events" class="form" placeholder="Select Event" appendTo="body" name="events" [addTag]="true"
+                        (change)="onChangeEvent($event)" [(ngModel)]="selectedEvent" typeToSearchText="Please enter 2 or more characters"
+                        [typeahead]="availabiltyInput$" >
                         <ng-option [value]="'Meeting'">Meeting</ng-option>
                         <ng-option [value]="'Call'">Call</ng-option>
                         <ng-option [value]="'Send/Recieved Email'">Send/Recieved Email</ng-option>
-                        <ng-option [value]="'Other'">Other</ng-option>
                     </ng-select>
                     <p class="text-sm mt-1 text-red-500" *ngIf="eventError">Select Event</p>
                 </div>

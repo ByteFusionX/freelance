@@ -3,7 +3,8 @@ import { BehaviorSubject, filter, Observable, Subject, switchMap, take } from 'r
 import { Socket } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { NotificationCounts } from 'src/app/shared/interfaces/notification.interface';
+import { fetchNotifications, NotificationCounts, TextNotification } from 'src/app/shared/interfaces/notification.interface';
+import { EmployeeService } from './employee/employee.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,11 +12,15 @@ import { NotificationCounts } from 'src/app/shared/interfaces/notification.inter
 export class NotificationService {
     private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0, quotationCount: 0, enquiryCount: 0 });
     notificationCounts$ = this.notificationsSubject.asObservable();
+
+    textNotificationsSubject = new BehaviorSubject<{viewed:TextNotification[],unviewed:TextNotification[]}>({viewed:[],unviewed:[]});
+    textNotificationsSubject$ = this.textNotificationsSubject.asObservable();
     api: string = environment.api
 
     constructor(
         private http: HttpClient,
-        private socket: Socket
+        private socket: Socket,
+        private employeeService:EmployeeService
     ) { }
 
     initializeNotifications() {
@@ -23,6 +28,20 @@ export class NotificationService {
             {
                 next: (notificationType) => {
                     this.incrementNotificationCount(notificationType);
+                },
+                error: (error) => {
+                    console.error('Error receiving notifications:', error);
+                }
+            }
+        );
+
+        this.socket.fromEvent<any>('recieveNotifications').subscribe(
+            {
+                next: (notification) => {
+                    console.log(notification)
+                    const notifications = this.textNotificationsSubject.value
+                    notifications.unviewed.unshift(notification)
+                    this.textNotificationsSubject.next(notifications)
                 },
                 error: (error) => {
                     console.error('Error receiving notifications:', error);
@@ -39,7 +58,6 @@ export class NotificationService {
         switch (notificationType) {
             case 'announcement':
                 updatedCounts.announcementCount += 1;
-                console.log(updatedCounts)
                 break;
             case 'assignedJob':
                 updatedCounts.assignedJobCount += 1;
@@ -108,8 +126,29 @@ export class NotificationService {
         })
     }
 
+    getEmployeeTextNotifications(token: string) {
+        this.http.get<{viewed:TextNotification[],unviewed:TextNotification[]}>(`${this.api}/notification/${token}`).subscribe((data) => {
+            this.textNotificationsSubject.next(data)
+        })
+    }
+
     authSocketIo(token: string) {
         this.socket.emit('auth', token);
+    }
+    
+
+    markAsRead(notificationId?: string): Observable<any> {
+        return this.employeeService.employeeData$.pipe(
+            take(1),
+            switchMap(employeeData => {
+                if (employeeData) {
+                    const recipientId = employeeData._id;
+                    return this.http.patch(`${this.api}/notification/mark-as-read`, { notificationId, recipientId });
+                } else {
+                    throw new Error('Employee data not found');
+                }
+            })
+        );
     }
 }
 

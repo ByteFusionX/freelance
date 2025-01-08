@@ -54,6 +54,7 @@ export class JobListComponent {
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
+  isDeleteOption: boolean = false;
   loader = this.loadingBar.useRef();
 
   private subscriptions = new Subscription();
@@ -79,6 +80,13 @@ export class JobListComponent {
         const currentYear = new Date().getFullYear()
     this.getAllJobs(undefined,currentYear)
     this.reportDate = `${currentYear}`;
+  }))
+    this.subscriptions.add(
+      this._employeeService.employeeData$.subscribe((employee) => {
+        if (employee?.category.role == 'superAdmin') {
+          this.isDeleteOption = true
+        }
+
       })
     )
   }

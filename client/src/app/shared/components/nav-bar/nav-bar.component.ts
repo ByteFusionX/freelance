@@ -8,7 +8,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 import { Observable } from 'rxjs';
 import { getEmployee } from '../../interfaces/employee.interface';
 import { Router } from '@angular/router';
-import { NotificationCounts } from '../../interfaces/notification.interface';
+import { NotificationCounts, TextNotification } from '../../interfaces/notification.interface';
 import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
@@ -20,6 +20,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 })
 export class NavBarComponent {
   notificationCounts$!: Observable<NotificationCounts>;
+  textNotificationCount$!: Observable<{viewed:TextNotification[],unviewed:TextNotification[]}>;
   @Output() reduce = new EventEmitter<boolean>()
   showFullBar: boolean = true
   menuState: boolean = false
@@ -36,6 +37,7 @@ export class NavBarComponent {
 
   ngOnInit() {
     this.notificationCounts$ = this._notificationService.notificationCounts$;
+    this.textNotificationCount$ = this._notificationService.textNotificationsSubject$;
     this.employee = this._employeeService.employeeToken()
     if (this.employee) {
       const employeeId = this.employee.employeeId

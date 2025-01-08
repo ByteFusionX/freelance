@@ -31,6 +31,7 @@ export class QuotationViewComponent {
   revisionComment: string = '';
   progress: number = 0;
   selectedOption: number = 0;
+  isDeleteOption:boolean = false;
 
   subscriptions = new Subscription();
 
@@ -43,6 +44,15 @@ export class QuotationViewComponent {
     private _employeeService: EmployeeService
   ) {
     this.getQuoteData();
+
+    this.subscriptions.add(
+      this._employeeService.employeeData$.subscribe((employee) => {
+        if (employee?.category.role == 'superAdmin') {
+          this.isDeleteOption = true
+        }
+
+      })
+    )
   }
 
   getQuoteData() {

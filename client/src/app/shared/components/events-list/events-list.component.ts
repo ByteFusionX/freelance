@@ -3,7 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { IconsModule } from 'src/app/lib/icons/icons.module';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EventsService } from 'src/app/core/services/events/events.service';
-import { Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { EventsComponent } from '../events/events.component';
 import { ToastrService } from 'ngx-toastr';
 import { Events } from '../../interfaces/evets.interface';
@@ -15,7 +15,7 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 @Component({
   selector: 'app-events-list',
   standalone: true,
-  imports: [CommonModule, IconsModule, MatDialogModule, EventsComponent, MatTooltipModule],
+  imports: [CommonModule, IconsModule, MatDialogModule, MatTooltipModule],
   templateUrl: './events-list.component.html',
   styleUrls: ['./events-list.component.css'],
   providers: [DatePipe]
@@ -23,7 +23,8 @@ import { EmployeeService } from 'src/app/core/services/employee/employee.service
 export class EventsListComponent implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription()
-  events$!: Observable<Events[]>;
+  private eventsSubject = new BehaviorSubject<Events[]>([]);
+  events$ = this.eventsSubject.asObservable();
   isReassigned: boolean = false;
   isChecked = false;
   employeeToken!: any;
@@ -51,8 +52,10 @@ export class EventsListComponent implements OnInit, OnDestroy {
     this.employeeToken = this._employeeServices.employeeToken()
   }
 
-  fetchEvents() {
-    this.events$ = this._eventsServices.fetchEvents(this.data.collectionId)
+  fetchEvents(): void {
+    this._eventsServices.fetchEvents(this.data.collectionId).subscribe((events) => {
+      this.eventsSubject.next(events);
+    });
   }
 
   ngOnDestroy(): void {
@@ -88,45 +91,57 @@ export class EventsListComponent implements OnInit, OnDestroy {
   onCheckboxClick(event: Event, eventId: string): void {
     const checkbox = event.target as HTMLInputElement;
     this.isChecked = checkbox.checked;
-    if (this.isChecked == true) {
+    if (this.isChecked) {
       this.subscriptions.add(
-        this._eventsServices.eventStatus(eventId, 'completed').subscribe(
-          (res) => {
-            if (res.success === true) {
-              this.fetchEvents()
-              this.toaster.success('Event completion updated')
-            }
-          })
-      )
-    };
+        this._eventsServices.eventStatus(eventId, 'completed').subscribe((res) => {
+          if (res.success === true) {
+            this.updateEventStatus(eventId, 'completed');
+            this.toaster.success('Event completion updated');
+          }
+        })
+      );
+    }
   }
 
-  onDeleteEvent(eventId: string) {
+  private updateEventStatus(eventId: string, status: string): void {
+    const currentEvents = this.eventsSubject.value;
+    const updatedEvents = currentEvents.map((event) =>
+      event._id === eventId ? { ...event, status } : event
+    );
+    this.eventsSubject.next(updatedEvents);
+  }
+
+  onDeleteEvent(eventId: string): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Event',
         description: 'Are you sure you want to delete this event?',
         icon: 'heroExclamationCircle',
-        IconColor: 'red'
-      }
+        IconColor: 'red',
+      },
     });
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.subscriptions.add(
-          this._eventsServices.eventDelete(eventId).subscribe(
-            (res) => {
-              if (res.success) {
-                this.toaster.success('Event Deleted')
-                this.fetchEvents()
-              }
-            })
-        )
+          this._eventsServices.eventDelete(eventId).subscribe((res) => {
+            if (res.success) {
+              this.toaster.success('Event Deleted');
+              this.removeEvent(eventId);
+            }
+          })
+        );
       }
-    })
+    });
+  }
+  
+  private removeEvent(eventId: string): void {
+    const currentEvents = this.eventsSubject.value;
+    const updatedEvents = currentEvents.filter((event) => event._id !== eventId);
+    this.eventsSubject.next(updatedEvents);
   }
 
-  isCreatedEmployee(employeeId:string): boolean {
-    if(this.employeeToken.id == employeeId){
+  isCreatedEmployee(employeeId: string): boolean {
+    if (this.employeeToken.id == employeeId) {
       return true;
     }
     return false;

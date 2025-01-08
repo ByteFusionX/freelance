@@ -10,7 +10,7 @@
                 </div>
             </button>
             <button class="bg-red-700 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded text-sm"
-                (click)="deleteQuote()">
+                (click)="deleteQuote()" *ngIf="isDeleteOption">
                 <div class="flex justify-center items-center gap-2">
                     <ng-icon name="heroTrash"></ng-icon>
                     Delete

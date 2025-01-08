@@ -45,6 +45,7 @@ export class AppComponent implements OnDestroy, OnInit {
     if (token) {
       this._notificationService.authSocketIo(token)
       this._notificationService.getEmployeeNotifications(token)
+      this._notificationService.getEmployeeTextNotifications(token)
       this._notificationService.initializeNotifications()
     }
 
@@ -85,6 +86,7 @@ export class AppComponent implements OnDestroy, OnInit {
     this.employeeToken = localStorage.getItem('employeeToken');
     this.getCelebData()
   }
+  
 
   getCelebData() {
     if (this.employeeToken) {

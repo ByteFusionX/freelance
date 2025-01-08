@@ -1,12 +1,169 @@
 <div class="w-full">
+  <!-- Header Section -->
   <div class="flex items-center justify-between p-6 border-b">
     <div class="flex items-center">
-      <ng-icon name="heroBellSolid" class="text-2xl "></ng-icon>
-      <span class="ml-2 text-lg font-semibold">0 New Notifications</span>
+      <ng-icon name="heroBellSolid" class="text-2xl"></ng-icon>
+      <ng-container *ngIf="(notifications$ | async) as notifications">
+        <span class="ml-2 text-lg font-semibold">
+          {{ notifications.unviewed.length }} New Notifications
+        </span>
+      </ng-container>
     </div>
     <ng-icon name="heroXMark" class="cursor-pointer text-xl hover:text-red-500" (click)="onClose()"></ng-icon>
   </div>
-  <div class="mt-4 text-center text-gray-600">
-    There are no new notifications
+
+  <!-- Topbar with Toggle Buttons -->
+  <div class="flex justify-center border-b">
+    <button
+      class="w-full sm:w-1/2 text-lg font-semibold p-2 hover:bg-gray-100  [@supports(--css-properties:)] bg-gray-200"
+      [class.bg-gray-200]="activeTab === 'unread'" (click)="activeTab = 'unread'">
+      Unread
+    </button>
+    <button class="w-full sm:w-1/2 text-lg font-semibold p-2 hover:bg-gray-100 "
+      [class.bg-gray-200]="activeTab === 'read'" (click)="activeTab = 'read'">
+      Read
+    </button>
   </div>
+
+
+  <!-- Notifications Content -->
+  <div>
+    <!-- Unread Notifications -->
+    <ng-container *ngIf="activeTab === 'unread'">
+      <h2 class="text-lg font-semibold text-gray-700 px-6 py-3 border-b">Unread Notifications</h2>
+      <ng-container *ngIf="(notifications$ | async) as notifications">
+        <ng-container *ngIf="notifications.unviewed.length > 0; else noUnread">
+          <div *ngFor="let notification of notifications.unviewed">
+            <!-- Notification Card -->
+            <div
+              class="flex items-center bg-white hover:bg-gray-50 transition duration-200 border-b px-6 py-3 rounded-lg">
+              <!-- Icon -->
+              <div  [ngClass]="{
+                'bg-blue-100': notification.type === 'Event'
+              }" class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full text-white">
+
+                <ng-icon [name]="getIconName(notification.referenceId.event)" class="text-2xl"
+                class="text-2xl text-blue-600">
+                </ng-icon>
+              </div>
+
+              <!-- Notification Content -->
+              <div class="ml-4 w-full">
+                <div class="flex justify-between items-center gap-2 relative">
+                  <!-- Notification Details -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ notification.title }}
+                    </h3>
+                    <p class="text-gray-600 mt-1">{{ notification.message }}</p>
+                    <p class="text-sm text-gray-500 mt-2 flex items-center gap-2">
+                      <span *ngIf="notification.sentBy.avatar"
+                        class="flex-shrink-0 w-6 h-6 rounded-full overflow-hidden">
+                        <img [src]="notification.sentBy.avatar" alt="{{ notification.sentBy.firstName }}" />
+                      </span>
+                      <span>Assigned by: {{ notification.sentBy.firstName }} {{notification.sentBy.lastName}}
+                        <span *ngIf="notification.type === 'Event' && notification.referenceId.collectionId"
+                          class="px-2 py-1 bg-gray-200 text-gray-800 rounded text-xs font-medium">
+                          {{ notification.referenceId.collectionId.enquiryId }}
+                        </span>
+                      </span>
+                    </p>
+
+                    <!-- Event Date -->
+                    <p *ngIf="notification.type === 'Event'" class="text-sm text-green-600 font-medium mt-2">
+                      Event Date: {{ notification.referenceId.date | date : "EEEE yyyy-MM-dd hh:mm a" }}
+                    </p>
+                  </div>
+
+                  <!-- Notification Actions -->
+                  <div class="flex flex-col items-end gap-2 h-full justify-between">
+                    <button
+                      class="text-sm text-blue-600 hover:text-blue-400 hover:bg-blue-50 px-3 py-1 rounded-lg border border-blue-400"
+                      (click)="onMarkAsRead(notification._id)">
+                      Mark as Read
+                    </button>
+                  </div>
+
+                  <!-- Notification Date (positioned at the bottom-right) -->
+                  <p class="text-xs text-gray-400 absolute bottom-0 right-0 mt-auto">{{ notification.date | relativeTime
+                    }}</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #noUnread>
+          <p class="text-gray-500 text-center mt-4">No unread notifications.</p>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+
+
+    <!-- Read Notifications -->
+    <ng-container *ngIf="activeTab === 'read'">
+      <h2 class="text-lg font-semibold text-gray-700 px-6 py-3 border-b">Read Notifications<br>
+        <span class="text-xs text-gray-400 font-light">The Read Notifications older than 30 days will be removed automatically</span>
+      </h2>
+
+      <ng-container *ngIf="(notifications$ | async) as notifications">
+        <ng-container *ngIf="notifications.viewed.length > 0; else noRead">
+          <div *ngFor="let notification of notifications.viewed">
+            <!-- Notification Card -->
+            <div
+              class="flex items-center bg-white hover:bg-gray-50 transition duration-200 border-b px-6 py-3 rounded-lg">
+              <!-- Icon -->
+              <div  [ngClass]="{
+                'bg-blue-100': notification.type === 'Event'
+              }" class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full text-white">
+
+                <ng-icon [name]="getIconName(notification.referenceId.event)" class="text-2xl"
+                class="text-2xl text-blue-600">
+                </ng-icon>
+              </div>
+              <!-- Notification Content -->
+              <div class="ml-4 w-full">
+                <div class="flex justify-between items-center gap-2 relative">
+                  <!-- Notification Details -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ notification.title }}</h3>
+
+                    <p class="text-gray-600 mt-1">{{ notification.message }}</p>
+                    <p class="text-sm text-gray-500 mt-2 flex items-center gap-2">
+                      <span *ngIf="notification.sentBy.avatar"
+                        class="flex-shrink-0 w-6 h-6 rounded-full overflow-hidden">
+                        <img [src]="notification.sentBy.avatar" alt="{{ notification.sentBy.firstName }}" />
+                      </span>
+                      <span>
+                        Assigned by: {{ notification.sentBy.firstName }} {{ notification.sentBy.lastName }}
+                        <span *ngIf="notification.type === 'Event' && notification.referenceId.collectionId"
+                          class="px-2 py-1 bg-gray-200 text-gray-800 rounded text-xs font-medium">
+                          {{ notification.referenceId.collectionId.enquiryId }}
+                        </span>
+                      </span>
+                    </p>
+
+
+                    <!-- Event Date -->
+                    <p *ngIf="notification.type === 'Event'" class="text-sm text-green-600 font-medium mt-2">
+                      Event Date: {{ notification.referenceId.date | date : "EEEE yyyy-MM-dd hh:mm a" }}
+                    </p>
+                  </div>
+
+                  <!-- Notification Date (positioned at the bottom-right) -->
+                  <p class="text-xs text-gray-400 absolute bottom-0 right-0 mt-auto">{{ notification.date | relativeTime
+                    }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #noRead>
+          <p class="text-gray-500 text-center mt-4">No read notifications.</p>
+        </ng-template>
+      </ng-container>
+    </ng-container>
+
+  </div>
+
 </div>

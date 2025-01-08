@@ -9,7 +9,7 @@
                     Edit
                 </div>
             </button>
-            <button class="bg-red-600 hover:bg-red-500 text-white font-medium py-2.5 px-4 rounded text-sm" (click)="deleteEmployee()">
+            <button class="bg-red-600 hover:bg-red-500 text-white font-medium py-2.5 px-4 rounded text-sm" (click)="deleteEmployee()" *ngIf="isDeleteOption">
                 <div class="flex justify-center items-center gap-2">
                     <ng-icon name="heroTrash"></ng-icon>
                     Delete

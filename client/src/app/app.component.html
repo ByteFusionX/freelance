@@ -4,21 +4,22 @@
 </div>
 
 <div class="w-full h-screen flex" *ngIf="!isLoginRoute()">
-    <div class="h-screen">
+    <div class="h-screen" (click)="closeSidenav()">
         <app-side-bar [showFullBar]="reduceState"></app-side-bar>
     </div>
 
-    <div class="w-full h-screen overflow-y-auto flex flex-col ">
+    <div class="w-full h-screen overflow-y-auto flex flex-col">
         <mat-drawer-container class="example-container" [hasBackdrop]="false">
-            <mat-drawer #drawer mode="over" position="end" class="w-96 bg-red-400 z-50">
+            <mat-drawer #drawer mode="over" position="end" class="w-[600px] h-full bg-red-400 z-50">
                 <app-notification (closeSidenav)="closeSidenav()"></app-notification>
             </mat-drawer>
-            <mat-drawer-content>
+            <mat-drawer-content >
                 <app-nav-bar (reduce)="reduceSideBar($event)" (toggleDrawer)="drawer.toggle()"></app-nav-bar>
-                <div class="max-h-[calc(100vh-65px)]">
+                <div class="h-[calc(100vh-85px)]" (click)="closeSidenav()">
                     <router-outlet></router-outlet>
                 </div>
             </mat-drawer-content>
         </mat-drawer-container>
     </div>
+    
 </div>

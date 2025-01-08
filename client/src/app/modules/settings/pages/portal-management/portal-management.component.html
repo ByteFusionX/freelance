@@ -145,7 +145,7 @@
                         <td mat-cell *matCellDef="let element; let i=index">
                             <ng-icon class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"
                                 (click)="onEditClick(i)"></ng-icon>
-                            <ng-icon class=" cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash"
+                            <ng-icon class=" cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash" *ngIf="categorySection"
                                 (click)="onDeleteClick(i)"></ng-icon>
                         </td>
                     </ng-container>
@@ -215,7 +215,7 @@
                         <td mat-cell *matCellDef="let element; let i=index">
                             <ng-icon class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"
                                 (click)="onInternalEditClick(i)"></ng-icon>
-                            <ng-icon class="cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash"
+                            <ng-icon class="cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash"  *ngIf="categorySection"
                                 (click)="onInternalDeleteClick(i)"></ng-icon>
                         </td>
                     </ng-container>
@@ -275,7 +275,7 @@
                         <td mat-cell *matCellDef="let element; let i=index">
                             <ng-icon class=" cursor-pointer hover:text-purple-600" name="heroPencilSquare"
                                 (click)="onEditCustomerClick(i)"></ng-icon>
-                            <ng-icon class="cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash"
+                            <ng-icon class="cursor-pointer hover:text-red-600 mx-2 text-orange-500" name="heroTrash"  *ngIf="categorySection"
                                 (click)="onCustomerDeleteClick(i)"></ng-icon>
                         </td>
                     </ng-container>

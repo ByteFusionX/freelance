@@ -32,6 +32,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   isEmpty: boolean = false;
   assigningPresale: boolean = false;
   isFiltered: boolean = false;
+  isDeleteOption: boolean = false;
   createEnquiry: boolean | undefined = false;
 
   status: { name: string }[] = [{ name: 'Work In Progress' }, { name: 'Assigned To Presale Manager' }];
@@ -69,6 +70,14 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   })
 
   ngOnInit(): void {
+    this.subscriptions.add(
+      this._employeeService.employeeData$.subscribe((employee) => {
+        if (employee?.category.role == 'superAdmin') {
+          this.isDeleteOption = true
+        }
+
+      })
+    )
     this.checkPermission()
     this.salesPerson$ = this._employeeService.getAllEmployees()
     this.subscriptions.add(
