@@ -125,7 +125,7 @@
                                 </ng-template>
 
                                 <ng-container *ngIf="(notificationCounts$ | async) as notifications">
-                                    <span *ngIf="notifications.assignedJobCount > 0"
+                                    <span *ngIf="notifications.assignedJobCount > 0 || notifications.reAssignedJobCount > 0"
                                         class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white text-xs font-bold h-2 w-2 flex items-center justify-center rounded-full"></span>
                                 </ng-container>
                             </div>
@@ -138,7 +138,7 @@
 
                                 <li class="p-2 flex justify-between hover:text-violet-800 rounded-md cursor-pointer"
                                     routerLink="/assigned-jobs" [class.active]="activeLink === '/assigned-jobs'"
-                                    *ngIf="privileges?.announcement?.viewReport !== 'none' && showTabs">
+                                    *ngIf="privileges?.assignedJob?.viewReport == 'all' ">
                                     <button class=" mx-6 relative">
                                         Assigned Jobs
                                     </button>
@@ -155,19 +155,25 @@
                                 <li class="p-2 flex justify-between hover:text-violet-800 rounded-md cursor-pointer"
                                     routerLink="/assigned-jobs/reassigned"
                                     [class.active]="activeLink === '/assigned-jobs/reassigned'"
-                                    *ngIf="privileges?.announcement?.viewReport !== 'none' && showTabs">
+                                    *ngIf="privileges?.assignedJob?.viewReport !== 'none' && showTabs">
                                     <button class=" mx-6 relative">
-                                        Reassigned Jobs
+                                        
+                                        <ng-container *ngIf="privileges?.assignedJob?.viewReport == 'all'; else showShortText">
+                                            Reassigned Jobs
+                                        </ng-container>
+                                        <ng-template #showShortText>
+                                            Assigned Jobs
+                                        </ng-template>
                                     </button>
-                                    <!-- <div *ngIf="(notificationCounts$ | async) as notifications">
-                                        <div *ngIf="notifications.assignedJobCount"
+                                    <div *ngIf="(notificationCounts$ | async) as notifications">
+                                        <div *ngIf="notifications.reAssignedJobCount"
                                             class="flex justify-center items-center">
                                             <div
                                                 class="bg-orange-500  my-auto  text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full">
-                                                <p>{{notifications.assignedJobCount}}</p>
+                                                <p>{{notifications.reAssignedJobCount}}</p>
                                             </div>
                                         </div>
-                                    </div> -->
+                                    </div>
                                 </li>
                                 <li class="p-2 hover:text-violet-800 rounded-md cursor-pointer"
                                     routerLink="/assigned-jobs/completed" routerLinkActive="active"

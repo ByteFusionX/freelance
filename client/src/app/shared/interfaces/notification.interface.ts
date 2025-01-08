@@ -1,20 +1,11 @@
 export interface NotificationCounts {
     assignedJobCount : number,
+    reAssignedJobCount : number,
     announcementCount : number
     dealSheetCount : number
     feedbackCount : number
     quotationCount : number
     enquiryCount : number
-}
-
-export interface fetchNotifications {
-    assignedJobCount : number,
-    announcementCount : number
-    dealSheetCount : number
-    feedbackCount : number
-    quotationCount : number
-    enquiryCount : number
-    notifications: TextNotification[]
 }
 
 export interface TextNotification {

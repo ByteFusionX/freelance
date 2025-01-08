@@ -332,7 +332,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
             {
-                $match: { status: { $ne: 'Quoted' }}
+                $match: { status: { $ne: 'Quoted' } }
             },
             {
                 $match: {
@@ -357,7 +357,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
                 }
             },
             {
-                $match: { status: { $ne: 'Quoted' }}
+                $match: { status: { $ne: 'Quoted' } }
             },
             {
                 $match: { "preSale.presalePerson": { $exists: true, $ne: null } }
@@ -746,7 +746,7 @@ export const reviseQuoteEstimation = async (req: any, res: Response, next: NextF
 
 export const uploadEstimations = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let { optionalItems, enquiryId, currency, totalDiscount, preSaleNote,selectedOption } = req.body;
+        let { optionalItems, enquiryId, currency, totalDiscount, preSaleNote, selectedOption } = req.body;
 
         const quote = await quotationModel.findOne({ enqId: enquiryId })
         if (quote) {
@@ -962,6 +962,28 @@ export const markAsSeenJob = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+export const markAsSeenReAssingedJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const jobIds: string = req.body.jobId
+
+
+        const result = await enquiryModel.updateOne(
+            { _id: jobIds },
+            { $set: { reAssignedSeen: true } }
+        );
+        console.log(result)
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'No enquiries found' });
+        }
+
+        res.status(200).json({ message: 'Enquiries marked as seen', result });
+    } catch (error) {
+        console.log(error)
+        next(error);
+    }
+};
+
 export const markAsSeenFeedback = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { enqId, feedbackId } = req.body;
@@ -1035,6 +1057,9 @@ export const RejectPresaleJob = async (req: Request, res: Response, next: NextFu
             return res.status(404).json({ message: 'Something went wrong' });
         }
 
+        const socket = req.app.get('io') as Server;
+        socket.to(result.preSale.presalePerson.toString()).emit("notifications", 'assignedJob')
+
         res.status(200).json({ success: true });
     } catch (error) {
         console.log(error)
@@ -1077,7 +1102,9 @@ export const reAssignJob = async (req: Request, res: Response, next: NextFunctio
         if (!employeeId) {
             return res.status(404).json({ message: 'Something went wrong' });
         }
-        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId, status: 'Assigned To Presale Engineer' } })
+        const enquiryUpdate = await enquiryModel.findOneAndUpdate({ _id: enquiryId }, { $set: { reAssigned: employeeId, status: 'Assigned To Presale Engineer', reAssignedSeen: false } })
+        const socket = req.app.get('io') as Server;
+        socket.to(employeeId.toString()).emit("notifications", 'reAssignedJob')
         return res.status(200).json({ message: 'Enquiry Reassigned successfully' })
     } catch (error) {
         next(error)

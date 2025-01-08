@@ -24,7 +24,7 @@ export class ReassignEmployeeComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.employees$ = this._employeeService.getAllEmployees()
+    this.employees$ = this._employeeService.getPresaleEngineers()
   }
 
   onClose() {

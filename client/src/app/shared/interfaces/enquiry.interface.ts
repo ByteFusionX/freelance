@@ -46,6 +46,7 @@ export interface getEnquiry {
         estimations:Estimations
     };
     status: string;
+    reAssignedSeen:boolean;
     eventId?:any;
 }
 

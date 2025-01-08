@@ -33,6 +33,71 @@ export const getEmployees = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
+export const getPresaleManagers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Fetch employees and populate the 'category' and 'department' fields
+        const employees = await Employee.aggregate([
+            { $match: { isDeleted: { $ne: true } } },
+            {
+                $lookup: {
+                    from: 'categories', 
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category' 
+                }
+            },
+            { $unwind: { path: '$category', preserveNullAndEmptyArrays: false } },
+            { $match: { 'category.privileges.assignedJob.viewReport': 'all' } },
+            {
+                $project: {
+                    password: 0
+                }
+            },
+
+            { $sort: { createdDate: -1 } }
+        ]);
+        if (employees.length) {
+            return res.status(200).json(employees);
+        }
+        return res.status(204).json(); // No content
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const getPresaleEngineers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employees = await Employee.aggregate([
+            { $match: { isDeleted: { $ne: true } } },
+            {
+                $lookup: {
+                    from: 'categories', 
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category' 
+                }
+            },
+            { $unwind: { path: '$category', preserveNullAndEmptyArrays: false } },
+            { $match: { 'category.privileges.assignedJob.viewReport': 'assigned' } },
+            {
+                $project: {
+                    password: 0
+                }
+            },
+
+            { $sort: { createdDate: -1 } }
+        ]);
+
+        if (employees.length) {
+            return res.status(200).json(employees);
+        }
+        return res.status(204).json();
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const getEmployeesForCustomerTransfer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const customerId = req.params.customerId;
@@ -658,6 +723,11 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
 
         });
 
+        const reAssignedJobCount = await enquiryModel.countDocuments({
+            reAssigned: new ObjectId(userId),
+            reAssignedSeen: false
+        });
+
         const dealSheetCount = await quotationModel.countDocuments({
             "dealData.status": "pending",
             "dealData.seenByApprover": false,
@@ -683,11 +753,14 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
         const employeeCount = {
             announcementCount,
             assignedJobCount,
+            reAssignedJobCount,
             dealSheetCount,
             feedbackCount,
             quotationCount,
             enquiryCount
         }
+
+        console.log(employeeCount)
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
     } catch (error) {

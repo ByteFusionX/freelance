@@ -3,14 +3,14 @@ import { BehaviorSubject, filter, Observable, Subject, switchMap, take } from 'r
 import { Socket } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { fetchNotifications, NotificationCounts, TextNotification } from 'src/app/shared/interfaces/notification.interface';
+import { NotificationCounts, TextNotification } from 'src/app/shared/interfaces/notification.interface';
 import { EmployeeService } from './employee/employee.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class NotificationService {
-    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0, quotationCount: 0, enquiryCount: 0 });
+    private notificationsSubject = new BehaviorSubject<NotificationCounts>({ announcementCount: 0, assignedJobCount: 0, reAssignedJobCount: 0, dealSheetCount: 0, feedbackCount: 0, quotationCount: 0, enquiryCount: 0 });
     notificationCounts$ = this.notificationsSubject.asObservable();
 
     textNotificationsSubject = new BehaviorSubject<{viewed:TextNotification[],unviewed:TextNotification[]}>({viewed:[],unviewed:[]});
@@ -62,6 +62,9 @@ export class NotificationService {
             case 'assignedJob':
                 updatedCounts.assignedJobCount += 1;
                 break;
+            case 'reAssignedJob':
+                updatedCounts.reAssignedJobCount += 1;
+                break;
             case 'dealSheet':
                 updatedCounts.dealSheetCount += 1;
                 break;
@@ -93,6 +96,11 @@ export class NotificationService {
             case 'assignedJob':
                 if (updatedCounts.assignedJobCount) {
                     updatedCounts.assignedJobCount -= value;
+                }
+                break;
+            case 'reAssignedJob':
+                if (updatedCounts.reAssignedJobCount) {
+                    updatedCounts.reAssignedJobCount -= value;
                 }
                 break;
             case 'dealSheet':

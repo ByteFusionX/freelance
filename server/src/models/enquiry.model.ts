@@ -18,6 +18,7 @@ interface Enquiry extends Document {
     status: string;
     attachments: []
     isDeleted: boolean,
+    reAssignedSeen: boolean,
     reAssigned: any,
     eventId: string,
 }
@@ -186,6 +187,10 @@ const enquirySchema = new Schema<Enquiry>({
     },
     reAssigned: {
         type: Schema.Types.ObjectId,
+    },
+    reAssignedSeen: {
+        type: Boolean,
+        default: false
     },
     eventId: {
         type: String,

@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { createEmployee, getEmployees, login, getEmployee, getFilteredEmployees, editEmployee, getEmployeeByEmployeId, isEmployeePresent, getNotificationCounts, setTarget, updateTarget, getEmployeesForCustomerTransfer, deleteEmployee } from "../controllers/employee.controller";
+import { createEmployee, getEmployees, login, getEmployee, getFilteredEmployees, editEmployee, getEmployeeByEmployeId, isEmployeePresent, getNotificationCounts, setTarget, updateTarget, getEmployeesForCustomerTransfer, deleteEmployee, getPresaleEngineers, getPresaleManagers } from "../controllers/employee.controller";
 const empRouter = Router()
 
 empRouter.get('/', getEmployees)
+empRouter.get('/presale-managers', getPresaleManagers)
+empRouter.get('/presale-engineers', getPresaleEngineers)
 
 empRouter.get('/check', isEmployeePresent)
 empRouter.get('/view/get/:employeeId', getEmployeeByEmployeId)

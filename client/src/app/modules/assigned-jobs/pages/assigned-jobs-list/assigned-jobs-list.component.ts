@@ -98,6 +98,9 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
             this.dataSource.data = filteredEnquiries;
             this.total = filteredEnquiries.length;
             this.isLoading = false;
+            if(!filteredEnquiries.length){
+              this.isEmpty = true
+            }
             this.updateNotViewedJobIds();
             this.observeAllJobs();
           },
@@ -147,6 +150,7 @@ export class AssignedJobsListComponent implements OnInit, OnDestroy, AfterViewIn
     this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
     this._notificationService.decrementNotificationCount('assignedJob', 1)
   }
+  
 
 
   ngOnDestroy(): void {

@@ -32,7 +32,7 @@ export class AssignPresaleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.employees$ = this._employeeService.getAllEmployees()
+    this.employees$ = this._employeeService.getPresaleManagers()
     if (this.data) {
       console.log(this.data)
       this.selectedEmployee = this.data.presalePerson

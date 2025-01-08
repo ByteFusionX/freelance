@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { BehaviorSubject, Subject, Subscription, takeUntil } from 'rxjs';
+import { BehaviorSubject, filter, Subject, Subscription, takeUntil } from 'rxjs';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { Estimations, feedback, getEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { saveAs } from 'file-saver';
@@ -95,6 +95,9 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
             this.dataSource.data = filteredEnquiries;
             this.total = filteredEnquiries.length;
             this.isLoading = false;
+            if(!filteredEnquiries.length){
+              this.isEmpty = true
+            }
             this.updateNotViewedJobIds();
             this.observeAllJobs();
           },
@@ -109,7 +112,7 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
   updateNotViewedJobIds() {
     this.notViewedJobIds.clear();
     this.dataSource.data.forEach(job => {
-      if (!job.preSale.seenbyEmployee) {
+      if (!job.reAssignedSeen) {
         this.notViewedJobIds.add(job._id);
       }
     });
@@ -141,8 +144,8 @@ export class ReassignedJobsComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   markJobAsViewed(jobId: string) {
-    this._enquiryService.markJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
-    this._notificationService.decrementNotificationCount('assignedJob', 1)
+    this._enquiryService.markReassignJobAsViewed(jobId).pipe(takeUntil(this.destroy$)).subscribe();
+    this._notificationService.decrementNotificationCount('reAssignedJob', 1)
   }
 
 

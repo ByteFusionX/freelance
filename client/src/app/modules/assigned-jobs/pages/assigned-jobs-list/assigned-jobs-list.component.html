@@ -67,7 +67,7 @@
                                 {{element.reAssigned[0].firstName}}
                                 {{element.reAssigned[0].lastName}}
                             </div>
-                            <button matTooltip="Reassign to Engineer" matTooltipPosition="above"
+                            <button matTooltip="Reassign to Engineer" matTooltipPosition="above" *ngIf="element.status !== 'Assigned To Presale Engineer'"
                                 matTooltipClass="mat-tooltip" class="cursor-pointer flex justify-center items-center"
                                 (click)="onReassignClicks(element._id)">
                                 <ng-icon name="heroUserPlus" class="text-gray-600 text-2xl"></ng-icon>
@@ -101,7 +101,7 @@
                                 *ngSwitchCase="'Assigned To Presale Manager'">{{element.status}}r</p>
                             <p class="w-fit bg-red-100 rounded-full px-2 text-red-600 whitespace-nowrap flex justify-center items-center gap-1"
                                 *ngSwitchCase="'Rejected by Presale Engineer'">{{element.status}}<ng-icon
-                                    name="heroInformationCircle" class="text-center text-gray-700 text-md"></ng-icon>
+                                    name="heroInformationCircle" class="text-center text-gray-700 text-md cursor-pointer" (click)="openReview(element.preSale.rejectionHistory)"></ng-icon>
                             </p>
                             <p class="w-fit bg-orange-100 rounded-full px-2 text-orange-600 whitespace-nowrap"
                                 *ngSwitchDefault="">{{element.status}}</p>

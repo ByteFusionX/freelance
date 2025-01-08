@@ -6,6 +6,7 @@ import { Privileges, getEmployee } from 'src/app/shared/interfaces/employee.inte
 
 export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     let privileges: Privileges | undefined;
+    let isSuperAdmin: boolean;
 
     const router: Router = inject(Router);
 
@@ -16,6 +17,7 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
     return employeeService.getEmployee(employeeId).pipe(
         map((data) => {
             employeeService.employeeSubject.next(data);
+            isSuperAdmin = data.category.role == 'superAdmin'
             privileges = data?.category.privileges;
             return checkPermission()
         })
@@ -61,6 +63,13 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                 break;
 
             case '/assigned-jobs':
+                if (privileges?.assignedJob?.viewReport == 'none' || privileges?.assignedJob?.viewReport == 'assigned') {
+                    router.navigate(['/home']);
+                    return false;
+                }
+                break;
+
+            case '/assigned-jobs/reassigned':
                 if (privileges?.assignedJob?.viewReport == 'none') {
                     router.navigate(['/home']);
                     return false;
@@ -108,6 +117,15 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
                         router.navigate(['/home']);
                         return false;
                     }
+                }
+
+                break;
+
+            case '/recycle':
+                if (!isSuperAdmin) {
+                    router.navigate(['/home']);
+                    return false;
+
                 }
 
                 break;
