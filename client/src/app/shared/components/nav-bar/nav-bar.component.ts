@@ -26,6 +26,7 @@ export class NavBarComponent {
   showPortalMangement: boolean = false;
   employee!: { id: string, employeeId: string };
   employeeData$!: Observable<getEmployee | undefined>
+  @Output() toggleDrawer = new EventEmitter<void>();
 
   constructor(
     private _employeeService: EmployeeService,
@@ -70,5 +71,9 @@ export class NavBarComponent {
   signOut() {
     localStorage.removeItem('employeeToken')
     this._router.navigate(['/login'])
+  }
+
+  onBellClick() {
+    this.toggleDrawer.emit();
   }
 }

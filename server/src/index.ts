@@ -27,16 +27,18 @@ import dashboardRouter from './routes/dashboard.router';
 import trashRouter from './routes/trash.router';
 import eventRouter from './routes/event.router';
 import { connectToDatabase } from './db/connect';
+import notificationRouter from './routes/notification.router';
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: process.env.ORIGIN1 ?? 'http://localhost:4200',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true
   }
 });
+global.io = io;
 app.set('io', io);
 
 app.use(morgan("dev"));
@@ -72,6 +74,7 @@ app.use('/company', companyRouter)
 app.use('/dashboard', dashboardRouter)
 app.use('/trash', trashRouter)
 app.use('/events', eventRouter)
+app.use('/notification', notificationRouter)
 
 
 const uploadFolderPath = path.join(__dirname, 'uploads');

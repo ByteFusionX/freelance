@@ -8,6 +8,7 @@ import { OptionalItemsComponent } from './optional-items/optional-items.componen
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationComponent } from './notification/notification.component';
 
 
 
@@ -20,7 +21,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         NgSelectModule,
         ReactiveFormsModule,
         MatSnackBarModule,
-        FormsModule
+        FormsModule,
+        NotificationComponent
     ],
     exports: [OptionalItemsComponent],
     declarations: [CelebrationDialogComponent, OptionalItemsComponent],

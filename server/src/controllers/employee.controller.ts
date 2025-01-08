@@ -12,6 +12,7 @@ import { getAllReportedEmployees, getUSDRated } from "../common/util";
 import customerModel from "../models/customer.model";
 import employeeModel from "../models/employee.model";
 import { CostExplorer } from "aws-sdk";
+import notificationModel from "../models/notification.model";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -678,6 +679,7 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             "preSale.seenbySalesPerson": false,
             status: 'Work In Progress'
         })
+
         const employeeCount = {
             announcementCount,
             assignedJobCount,

@@ -76,7 +76,9 @@ export class JobListComponent {
       this.subject.subscribe((data) => {
         this.page = data.page
         this.row = data.row
-        this.getAllJobs()
+        const currentYear = new Date().getFullYear()
+    this.getAllJobs(undefined,currentYear)
+    this.reportDate = `${currentYear}`;
       })
     )
   }
