@@ -17,6 +17,8 @@ import saveAs from 'file-saver';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewRejectsComponent } from './view-rejects/view-rejects.component';
 import { EventsListComponent } from 'src/app/shared/components/events-list/events-list.component';
+import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { CustomerService } from 'src/app/core/services/customer/customer.service';
 
 @Component({
   selector: 'app-enquiry',
@@ -27,6 +29,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
 
   enqId: string | null = null
   salesPerson$!: Observable<getEmployee[]>;
+  customers$!: Observable<getCustomer[]>;
 
   isLoading: boolean = true;
   isEmpty: boolean = false;
@@ -48,6 +51,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   toDate: string | null = null
   selectedStatus: string | null = null;
   selectedSalesPerson: string | null = null;
+  selectedCustomer: string | null = null;
   selectedDepartment: string | null = null;
   isDeletedClicked: boolean = false;
   isEventClicked: boolean = false;
@@ -60,6 +64,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private _employeeService: EmployeeService,
     private _enquiryService: EnquiryService,
+    private _customerService: CustomerService,
     private router: Router,
     private toaster: ToastrService
   ) { }
@@ -72,6 +77,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
+        this.customers$ = this._customerService.getAllCustomers(employee?._id)
         if (employee?.category.role == 'superAdmin') {
           this.isDeleteOption = true
         }
@@ -85,6 +91,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
         this.selectedDepartment = data
       })
     )
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -112,6 +119,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       page: this.page,
       row: this.row,
       salesPerson: this.selectedSalesPerson,
+      customer: this.selectedCustomer,
       status: this.selectedStatus,
       fromDate: this.fromDate,
       toDate: this.toDate,

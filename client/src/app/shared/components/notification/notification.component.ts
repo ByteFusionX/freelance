@@ -26,9 +26,6 @@ export class NotificationComponent {
 
   ngOnInit() {
     this.notifications$ = this._notificationService.textNotificationsSubject$
-    this.notifications$.subscribe((not)=>{
-      console.log(not)
-    })
   }
 
   onClose() {
@@ -36,7 +33,6 @@ export class NotificationComponent {
   }
 
   getIconName(type: string): string {
-    console.log(type)
     switch (type) {
       case 'Call':
         return 'heroPhone';
@@ -63,7 +59,6 @@ export class NotificationComponent {
             if (notificationToMove) {
               const updatedUnviewed = notifications.unviewed.filter(notification => notification._id !== notificationId);
               const updatedViewed = [...notifications.viewed, notificationToMove];
-              console.log(updatedViewed);
               this._notificationService.textNotificationsSubject.next({
                 viewed: updatedViewed as TextNotification[],
                 unviewed: updatedUnviewed

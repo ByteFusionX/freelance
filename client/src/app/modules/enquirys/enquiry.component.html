@@ -49,6 +49,14 @@
                             </ng-select>
                         </div>
                         <div class="mb-2">
+                            <label for="customer" class="font-medium">Customer:</label>
+                            <ng-select id="customer" [(ngModel)]="selectedCustomer" class=" filter"
+                                placeholder="Customer" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let customer of customers$ | async"
+                                    [value]="customer._id">{{customer.companyName}}</ng-option>
+                            </ng-select>
+                        </div>
+                        <div class="mb-2">
                             <label for="salesPerson" class="font-medium"> Status:</label>
                             <ng-select appNoLeadingSpace [(ngModel)]="selectedStatus" class=" filter"
                                 placeholder="Status" appendTo="body" (change)="onfilterApplied()">
@@ -169,7 +177,8 @@
                             <span *ngIf="element.preSale.seenbySalesPerson === false"
                                 class="absolute top-0 right-0 -mt-1 -mr-1 h-2.5 w-2.5 rounded-full bg-orange-500"></span>
                         </button>
-                        <button type="button" *ngIf="!element.preSale?.presalePerson || element.status == 'Rejected by Presale Manager'"
+                        <button type="button"
+                            *ngIf="!element.preSale?.presalePerson || element.status == 'Rejected by Presale Manager'"
                             (click)="onAssignPresale($event,element.preSale,element._id,i)"
                             class="bg-orange-500 hover:bg-orange-400 text-white font-medium p-2 rounded text-sm whitespace-nowrap ">
                             <ng-icon *ngIf="assigningPresale" class="spin" name="heroArrowPath"></ng-icon>

@@ -10,7 +10,7 @@ const { ObjectId } = require('mongodb')
 export const jobList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, search, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
-
+        console.log(selectedYear)
         let isStatus = status == null ? true : false;
         let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
@@ -147,7 +147,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
         ]);
 
 
-        const jobTotal: { total: number, lpoValueSum: number }[] = await jobModel.aggregate([
+        const jobTotal = await jobModel.aggregate([
 
             {
                 $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
@@ -171,11 +171,48 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                 $match: { ...accessFilter, ...matchFilters }
             },
             {
-                $count: "total"
+                $addFields: {
+                    lpoValue: {
+                        $let: {
+                            vars: {
+                                baseLpoValue: {
+                                    $sum: {
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $multiply: [
+                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
+                                                    qatarUsdRate
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
+                                        ]
+                                    }
+                                }
+                            },
+                            in: {
+                                $reduce: {
+                                    input: '$quotation.dealData.additionalCosts',
+                                    initialValue: '$$baseLpoValue',
+                                    in: {
+                                        $cond: [
+                                            { $eq: ['$$this.type', 'Customer Discount'] },
+                                            { $subtract: ['$$value', '$$this.value'] },
+                                            '$$value'
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
             },
         ]).exec();
 
-        const totalValues = jobData.reduce((acc, job) => {
+        console.log(jobTotal)
+
+        const totalValues = jobTotal.reduce((acc, job) => {
             const quote = job?.quotation;
             if (quote.currency == 'USD') {
                 acc.totalUSDValue += Number(job?.lpoValue.toFixed(2))
@@ -193,7 +230,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
 
         if (jobTotal.length) {
-            return res.status(200).json({ total: jobTotal[0].total, totalLpo: totalLpoValue, job: jobData });
+            return res.status(200).json({ total: jobTotal.length, totalLpo: totalLpoValue, job: jobData });
         } else {
             return res.status(504).json({ err: 'No job data found' });
         }

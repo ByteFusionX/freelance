@@ -38,11 +38,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   filterForm!: FormGroup;
   departments: getDepartment[] = [];
-  years: string[] = [];
+  years: number[] = [];
   salesPersons: getEmployee[] = [];
 
   selectedTarget!: string;
-  selectedTargetYear: string = 'total';
+  selectedTargetYear: string | number = 'total';
   selectedSalespersonName: string = ''
 
   filtered: boolean = false;
@@ -203,8 +203,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   onCompareChange() {
     this.ngSelectLoading = true;
-    this.selectedTargetYear = 'total';
-    this.onTargetYearChange(false);
 
     const salesPersonIds = this.filterForm.get('salesPersonIds')?.value;
     const oneSalesPersonSelected = Array.isArray(salesPersonIds) && salesPersonIds.length === 1;
@@ -213,12 +211,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const salesPerson = this.salesPersons.find((person) => person._id == salesPersonIds[0])
       if (salesPerson?.targets && salesPerson.targets.length) {
         this.handleTargets(salesPerson?.targets);
+        this.checkTheCurrentYear()
         this.ngSelectLoading = false;
       }
     } else if (this.selectedTarget == 'personal') {
       this.userData$.subscribe((res) => {
         if (res?.targets && res?.targets) {
           this.handleTargets(res.targets);
+          this.checkTheCurrentYear()
           this.ngSelectLoading = false;
         } else {
           this.ngSelectLoading = false;
@@ -229,12 +229,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else if (this.selectedTarget == 'company') {
       this._profileService.getCompanyTargets().subscribe((res) => {
         this.handleTargets(res.targets);
+        this.checkTheCurrentYear()
         this.ngSelectLoading = false;
       })
     }
   }
 
-  onTargetYearChange(reset:boolean) {
+  checkTheCurrentYear() {
+    const currentYear = new Date().getFullYear();
+
+    if (this.years.includes(currentYear)) {
+      this.selectedTargetYear = currentYear;
+    } else {
+      this.selectedTargetYear = 'total';
+      this._toaster.warning('There is no targets for the current year')
+    }
+    this.onTargetYearChange(false);
+  }
+
+  onTargetYearChange(reset: boolean) {
     if (this.selectedTargetYear == 'total') {
       this.minDate = ''
       this.maxDate = ''
@@ -242,7 +255,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
     }
-    console.log(this.minDate, this.maxDate)
     this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
@@ -251,7 +263,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 
   handleTargets(targets: Target[]) {
-    this.years = targets.map((target) => target.year);
+    this.years = targets.map((target) => Number(target.year));
     const extractedData = this.extractRevenueAndProfitTargets(targets);
     this.salesTarget = extractedData?.salesRevenue as RangeTarget;
     this.grossProfitTarget = extractedData?.grossProfit as RangeTarget;

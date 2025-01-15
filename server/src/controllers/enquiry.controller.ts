@@ -175,9 +175,11 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
 
 export const getEnquiries = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, row, salesPerson, status, fromDate, toDate, department, access, userId } = req.body;
+        let { page, row, salesPerson, status, customer, fromDate, toDate, department, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
+
         let isSalesPerson = salesPerson == null ? true : false;
+        let isCustomer = customer == null ? true : false;
         let isStatus = status == null ? true : false;
         let isDate = fromDate == null || toDate == null ? true : false;
         let isDepartment = department == null ? true : false;
@@ -187,6 +189,7 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             $and: [
                 { $or: [{ salesPerson: new ObjectId(salesPerson) }, { salesPerson: { $exists: isSalesPerson } }] },
                 { $or: [{ status: status }, { status: { $exists: isStatus } }] },
+                { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
                 {
                     $or: [
                         { $and: [{ date: { $gte: new Date(fromDate) } }, { date: { $lte: new Date(toDate) } }] },
@@ -317,17 +320,20 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         let row = Number(req.query.row)
         let skipNum: number = (page - 1) * row;
         let { filter, access, userId } = req.query;
-        let accessFilter: any = { status: 'Assigned To Presales' };
+        let accessFilter: any = {};
         switch (access) {
             case 'assigned':
-                accessFilter['preSale.presalePerson'] = new ObjectId(userId);
+                accessFilter['$or'] = [
+                    { 'preSale.presalePerson': new ObjectId(userId) },
+                    { reAssigned : new ObjectId(userId) }, 
+                ];
                 break;
             default:
                 break;
         }
 
         if (filter == 'completed') {
-            accessFilter.status = { $ne: 'Assigned To Presales' }
+            accessFilter.status = 'Work In Progress'
         }
 
         const totalPresale: { total: number }[] = await enquiryModel.aggregate([
@@ -336,7 +342,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
             },
             {
                 $match: {
-                    // ...accessFilter,
+                    ...accessFilter,
                     isDeleted: { $ne: true }
                 }
             },
@@ -352,7 +358,7 @@ export const getPreSaleJobs = async (req: Request, res: Response, next: NextFunc
         const preSaleData = await enquiryModel.aggregate([
             {
                 $match: {
-                    // ...accessFilter,
+                    ...accessFilter,
                     isDeleted: { $ne: true }
                 }
             },

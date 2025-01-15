@@ -73,14 +73,13 @@ export class JobListComponent {
 
   ngOnInit() {
     this.employees$ = this._jobService.getJobSalesPerson();
+    this.reportDate = new Date().getFullYear().toString();
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
         this.row = data.row
-        const currentYear = new Date().getFullYear()
-    this.getAllJobs(undefined,currentYear)
-    this.reportDate = `${currentYear}`;
-  }))
+        this.getAllJobs(undefined)
+      }))
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
         if (employee?.category.role == 'superAdmin') {
@@ -128,7 +127,7 @@ export class JobListComponent {
 
   displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status', 'action'];
 
-  getAllJobs(selectedMonth?: number, selectedYear?: number) {
+  getAllJobs(selectedMonth?: number) {
     this.isLoading = true;
 
     let access;
@@ -144,7 +143,7 @@ export class JobListComponent {
       salesPerson: this.selectedEmployee,
       status: this.selectedStatus as number,
       selectedMonth: selectedMonth,
-      selectedYear: selectedYear,
+      selectedYear: this.reportDate as unknown as number,
       access: access,
       userId: userId
     }
@@ -268,13 +267,13 @@ export class JobListComponent {
             next: (event) => {
               if (event.type === HttpEventType.Response) {
                 const fileContent: Blob = new Blob([event['body']], { type: 'application/pdf' });
-  
+
                 // Create an object URL for the PDF blob
                 const fileURL = URL.createObjectURL(fileContent);
-  
+
                 // Open the PDF in a new tab
                 window.open(fileURL, '_blank');
-  
+
                 // Optionally revoke the object URL after some time
                 setTimeout(() => {
                   URL.revokeObjectURL(fileURL);
