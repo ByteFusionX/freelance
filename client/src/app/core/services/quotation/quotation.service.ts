@@ -133,12 +133,12 @@ export class QuotationService {
         quoteData.quoteId = res.quoteId;
       });
     }
-    
-    
+
+
     const tables = optionalItems.map((items, index) => {
       // Define a standalone option header as a paragraph
       let optionHeader
-      if(optionalItems.length > 1){
+      if (optionalItems.length > 1) {
         optionHeader = {
           text: `Option ${index + 1}`,
           style: 'optionHeader',
@@ -146,7 +146,7 @@ export class QuotationService {
           alignment: 'left'
         };
       }
-    
+
       const itemTableHeader = [
         { text: 'Sl.\nNo', style: 'tableSlNo' },
         { text: 'Part Number/Description', style: 'tableHeader' },
@@ -156,31 +156,31 @@ export class QuotationService {
         { text: `Total Cost (${quoteData.currency})`, style: 'tableHeader' },
         { text: `Availability`, style: 'tableHeader' },
       ];
-    
-      const tableBody:any[] = [];
+
+      const tableBody: any[] = [];
       let totalCost = 0;
       let serialNumber = 1;
-    
+
       items.items.forEach(item => {
         tableBody.push([
           { text: item.itemName, colSpan: 7, style: 'itemRow' },
           '', '', '', '', '', ''
         ]);
-    
+
         item.itemDetails.forEach(detail => {
           const decimalMargin = detail.profit / 100;
           const unitPrice = detail.unitCost / (1 - decimalMargin);
           const totalPrice = unitPrice * detail.quantity;
           totalCost += totalPrice;
-    
+
           const segments = detail.detail;
           const result = [];
           const regex = /(\*\*\{[^}]+\}\*\*)|(\*\*[^{]*\*\*)|(\{[^}]*\})|([^{*}]+)/g;
           let match;
-    
+
           while ((match = regex.exec(segments)) !== null) {
             const [fullMatch] = match;
-    
+
             if (fullMatch.startsWith('**')) {
               if (fullMatch.includes('{') && fullMatch.includes('}')) {
                 const text = fullMatch.slice(3, -3).trim();
@@ -197,7 +197,7 @@ export class QuotationService {
               if (text) result.push({ text });
             }
           }
-    
+
           tableBody.push([
             { text: serialNumber++, style: 'tableText', alignment: 'center' },
             { text: result, style: 'tableText' },
@@ -209,16 +209,16 @@ export class QuotationService {
           ]);
         });
       });
-    
+
       const totalAmount = [
         { text: 'Sub Total', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
         { text: this.formatNumber(totalCost), style: 'tableFooter' },
         { text: '', style: 'tableFooter' }
       ];
-    
+
       let discount;
       let finalAmount;
-    
+
       if (items.totalDiscount != 0) {
         discount = [
           { text: 'Special Discount', style: 'tableFooter', colSpan: 5 }, '', '', '', '',
@@ -237,7 +237,7 @@ export class QuotationService {
           { text: '', style: 'tableFooter' }
         ];
       }
-    
+
       let body;
       if (optionalItems.length > 1) {
         if (items.totalDiscount != 0) {
@@ -272,19 +272,19 @@ export class QuotationService {
           ];
         }
       }
-    
+
       return [
         optionHeader, // Add the standalone header here
         {
           table: {
             headerRows: 1,
-            widths: [20, '*', 25, 40, 60, 60, 60],
+            widths: [20, 175, 25, 40, 60, 60, 60],
             body: body
           }
         }
       ];
     });
-    
+
 
     const documentDefinition: any = {
       defaultStyle: {

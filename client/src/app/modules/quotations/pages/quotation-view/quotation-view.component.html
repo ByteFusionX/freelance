@@ -182,7 +182,7 @@
                             </tr>
                             <ng-container *ngFor="let itemsDetail of item.itemDetails">
                                 <tr class="bg-white border-b text-gray-800">
-                                    <th scope="row" class="px-6 border font-normal py-2 whitespace-pre-line">
+                                    <th scope="row" class="px-6 border font-normal py-2 whitespace-normal break-words max-w-[28rem]">
                                         <div [innerHTML]="itemsDetail.detail | parseBracketsText | parseBoldText"></div>
                                     </th>
     
