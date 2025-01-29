@@ -230,7 +230,6 @@ export class CreateQuotatationComponent {
 
   async onPreviewPdf() {
     this.submit = true;
-console.log(this.quoteForm,this.quoteForm.value)
     if (this.quoteForm.valid) {
       this.isPreviewing = true;
 
@@ -330,6 +329,13 @@ console.log(this.quoteForm,this.quoteForm.value)
 
   onCalculationOptionChange() {
     this.calculateTotalValuesAfterPactch()
+  }
+
+  calculateDiscountPrice() {
+    return (
+      this.calculatedValues.sellingPrice -
+      (this.calculatedValues.discount || 0)
+    );
   }
 
   calculateTotalValuesAfterPactch() {

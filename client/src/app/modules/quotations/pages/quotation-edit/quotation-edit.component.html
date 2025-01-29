@@ -139,7 +139,7 @@
                                 Total Selling price
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculatedValues.sellingPrice | numberFormatter}}
+                                {{calculateDiscountPrice() | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -147,7 +147,7 @@
                                 Profit Margin
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{(calculatedValues.sellingPrice - calculatedValues.totalCost) | numberFormatter}}
+                                {{(calculateDiscountPrice() - calculatedValues.totalCost) | numberFormatter}}
                             </td>
                         </tr>
                         <tr class=" border-b ">
@@ -184,7 +184,7 @@
                                 Total Amount
                             </td>
                             <td class="px-2 py-2 border text-center uppercase text-xl font-medium">
-                                {{calculateDiscountPrice() | numberFormatter}}
+                                {{ calculateDiscountPrice() | numberFormatter}}
                             </td>
                         </tr>
 

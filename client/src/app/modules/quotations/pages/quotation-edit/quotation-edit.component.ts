@@ -205,7 +205,7 @@ export class QuotationEditComponent {
   calculateDiscountPrice() {
     return (
       this.calculatedValues.sellingPrice -
-      (this.quoteForm.get('totalDiscount')?.value || 0)
+      (this.calculatedValues.discount || 0)
     );
   }
 

@@ -13,6 +13,7 @@ import customerModel from "../models/customer.model";
 import employeeModel from "../models/employee.model";
 import { CostExplorer } from "aws-sdk";
 import notificationModel from "../models/notification.model";
+import mongoose from "mongoose";
 const ObjectId = require('mongoose').Types.ObjectId;
 
 export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
@@ -559,44 +560,54 @@ export const setTarget = async (req: Request, res: Response, next: NextFunction)
 export const updateTarget = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const target = req.body;
-
         const employeeId = req.params.employeeId;
         const targetId = req.params.targetId;
 
-        const employee = await Employee.findOne({
-            _id: employeeId,
-            "targets.year": target.year,
-        });
+        // Validate targetId
+        if (!mongoose.Types.ObjectId.isValid(targetId)) {
+            return res.status(400).json({ message: 'Invalid target ID' });
+        }
+        const targetObjectId = new mongoose.Types.ObjectId(targetId);
 
-        if (employee) {
-            const isDuplicate = employee.targets.some((t, i) =>
-                t._id !== targetId && t.year == target.year
-            );
-
-            if (isDuplicate) {
-                return res.status(409).json({
-                    message: `A target with year ${target.year} already exists.`,
-                });
-            }
+        // Find the employee
+        const employee = await Employee.findById(employeeId);
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
         }
 
+        // Check for duplicate year in other targets (excluding the current target)
+        const isDuplicate = employee.targets.some(t => 
+            t._id.toString() === targetObjectId.toString() && t.year === target.year
+        );
 
-        const employeeTargetUpdate = await Employee.findOneAndUpdate(
-            { _id: employeeId, "targets._id": targetId },
-            { $set: { "targets.$": target } },
+        if (isDuplicate) {
+            return res.status(409).json({
+                message: `A target with year ${target.year} already exists.`,
+            });
+        }
+
+        // Proceed to update the target
+        const updatedEmployee = await Employee.findOneAndUpdate(
+            { 
+                _id: employeeId, 
+                "targets._id": targetObjectId 
+            },
+            { 
+                $set: { "targets.$": { ...target, _id: targetObjectId } } 
+            },
             { new: true }
         );
 
-        if (employeeTargetUpdate) {
-            return res.status(200).json(employeeTargetUpdate.targets);
+        if (!updatedEmployee) {
+            return res.status(404).json({ message: 'Target not found' });
         }
-        return res.status(204).json();
-    } catch (error) {
-        console.log(error)
-        next(error)
-    }
-}
 
+        return res.status(200).json(updatedEmployee.targets);
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
 
 export const changePasswordOfEmployee = async (req: Request, res: Response, next: NextFunction) => {
     try {
