@@ -210,14 +210,12 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
         ]).exec();
 
-        console.log(jobTotal)
-
         const totalValues = jobTotal.reduce((acc, job) => {
             const quote = job?.quotation;
             if (quote.currency == 'USD') {
-                acc.totalUSDValue += Number(job?.lpoValue.toFixed(2))
+                acc.totalUSDValue += parseFloat(job?.lpoValue)
             } else {
-                acc.totalQARValue += Number(job?.lpoValue.toFixed(2))
+                acc.totalQARValue += parseFloat(job?.lpoValue)
 
             }
             return acc;

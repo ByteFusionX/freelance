@@ -238,6 +238,8 @@ export class ApprovedDealsComponent {
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
+    console.log(quoteData, priceDetails)
+
     const dialogRef = this._dialog.open(ApproveDealComponent,
       {
         data: { approval, quoteData, quoteItems, priceDetails },

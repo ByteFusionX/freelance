@@ -180,7 +180,7 @@
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">
                         LPO Value </th>
-                    <td mat-cell *matCellDef="let element"> {{formatNumber(element.lpoValue.toFixed(2))}} QAR </td>
+                    <td mat-cell *matCellDef="let element"> {{element.lpoValue | numberFormatter}} QAR </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">

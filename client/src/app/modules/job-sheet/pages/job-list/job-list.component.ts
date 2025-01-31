@@ -152,6 +152,7 @@ export class JobListComponent {
       this._jobService.getJobs(filterData).subscribe({
         next: (data: JobTable) => {
           this.dataSource.data = [...data.job];
+          console.log(data)
           this.filteredData.data = data.job;
           this.total = data.total;
           this.totalLpoValue = data.totalLpo;
@@ -247,10 +248,10 @@ export class JobListComponent {
       }
     })
 
-    priceDetails.totalSellingPrice -= quoteData.dealData.totalDiscount;
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
+    console.log(quoteData, priceDetails)
     this._dialog.open(ApproveDealComponent,
       {
         data: { approval: false, quoteData, quoteItems, priceDetails },

@@ -15,6 +15,7 @@ import { SkeltonLoadingComponent } from 'src/app/shared/components/skelton-loadi
 import { PaginationComponent } from 'src/app/shared/components/pagination/pagination.component';
 import { GenerateReportComponent } from 'src/app/shared/components/generate-report/generate-report.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { pipeModule } from "../../shared/pipes/pipe.module";
 
 
 
@@ -38,6 +39,7 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     ReactiveFormsModule,
     GenerateReportComponent,
     NgxExtendedPdfViewerModule,
-  ]
+    pipeModule
+]
 })
 export class JobSheetModule { }

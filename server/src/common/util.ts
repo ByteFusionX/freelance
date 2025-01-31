@@ -113,51 +113,31 @@ export const getDateRange = (fromDate: string, toDate: string) => {
 
 export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {
-        $subtract: [
-            {
-                $round: [
-                    {
-                        $sum: {
-                            $map: {
-                                input: input,
-                                as: 'item',
-                                in: {
-                                    $sum: {
-                                        $map: {
-                                            input: '$$item.itemDetails',
-                                            as: 'itemDetail',
-                                            in: {
-                                                $round: [ // Round intermediate multiplication
-                                                    {
-                                                        $multiply: [
-                                                            {
-                                                                $round: [ // Round division for unit price calculation
-                                                                    {
-                                                                        $divide: [
-                                                                            '$$itemDetail.unitCost',
-                                                                            { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
-                                                                        ]
-                                                                    },
-                                                                    2
-                                                                ]
-                                                            },
-                                                            '$$itemDetail.quantity'
-                                                        ]
-                                                    },
-                                                    2
-                                                ]
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+        $sum: {
+            $map: {
+                input: input,
+                as: 'item',
+                in: {
+                    $sum: {
+                        $map: {
+                            input: '$$item.itemDetails',
+                            as: 'itemDetail',
+                            in: {
+                                $multiply: [
+                                    {
+                                        $divide: [
+                                            '$$itemDetail.unitCost',
+                                            { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
+                                        ]
+                                    },
+                                            '$$itemDetail.quantity'
+                                ]
+                            },
                         }
-                    },
-                    2 // Final rounding to 2 decimal places
-                ]
-            },
-            discount
-        ]
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -41,10 +41,10 @@ export const getPresaleManagers = async (req: Request, res: Response, next: Next
             { $match: { isDeleted: { $ne: true } } },
             {
                 $lookup: {
-                    from: 'categories', 
+                    from: 'categories',
                     localField: 'category',
                     foreignField: '_id',
-                    as: 'category' 
+                    as: 'category'
                 }
             },
             { $unwind: { path: '$category', preserveNullAndEmptyArrays: false } },
@@ -73,10 +73,10 @@ export const getPresaleEngineers = async (req: Request, res: Response, next: Nex
             { $match: { isDeleted: { $ne: true } } },
             {
                 $lookup: {
-                    from: 'categories', 
+                    from: 'categories',
                     localField: 'category',
                     foreignField: '_id',
-                    as: 'category' 
+                    as: 'category'
                 }
             },
             { $unwind: { path: '$category', preserveNullAndEmptyArrays: false } },
@@ -114,10 +114,11 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
             return res.status(404).json({ message: "Customer not found" });
         }
 
-        const employeeAccess = await employeeModel.findOne({ _id:new ObjectId(userId) }).populate('category') as any
+        const employeeAccess = await employeeModel.findOne({ _id: new ObjectId(userId) }).populate('category') as any
 
-        if(employeeAccess.category.privileges.employee.viewReport == 'none'){
-            const reportedEmployee = await employeeModel.findOne({_id:employeeAccess.reportingTo})
+        const reportedEmployee = await employeeModel.findOne({ _id: employeeAccess.reportingTo })
+
+        if (employeeAccess.category.privileges.employee.viewReport == 'none') {
             res.status(200).json([reportedEmployee]);
         }
 
@@ -145,7 +146,7 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
 
 
         // Fetch all employees
-        const allEmployees = await Employee.aggregate([
+        let allEmployees = await Employee.aggregate([
             {
                 $match: accessFilter
             },
@@ -161,6 +162,11 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
             { $project: { password: 0 } },
         ]);
 
+        console.log(allEmployees,reportedEmployee,'SHSHSH')
+        
+        allEmployees = [...allEmployees,reportedEmployee]   
+        
+        console.log(allEmployees,'SHSHSH')
         // Filter employees without access
         const employeesWithoutAccess = await Promise.all(
             allEmployees.map(async (employee) => {
@@ -576,7 +582,7 @@ export const updateTarget = async (req: Request, res: Response, next: NextFuncti
         }
 
         // Check for duplicate year in other targets (excluding the current target)
-        const isDuplicate = employee.targets.some(t => 
+        const isDuplicate = employee.targets.some(t =>
             t._id.toString() === targetObjectId.toString() && t.year === target.year
         );
 
@@ -588,12 +594,12 @@ export const updateTarget = async (req: Request, res: Response, next: NextFuncti
 
         // Proceed to update the target
         const updatedEmployee = await Employee.findOneAndUpdate(
-            { 
-                _id: employeeId, 
-                "targets._id": targetObjectId 
+            {
+                _id: employeeId,
+                "targets._id": targetObjectId
             },
-            { 
-                $set: { "targets.$": { ...target, _id: targetObjectId } } 
+            {
+                $set: { "targets.$": { ...target, _id: targetObjectId } }
             },
             { new: true }
         );
