@@ -78,10 +78,12 @@ export const getFileUrlFromAws = async (fileName: string, expireTime: number | n
 export const isFileAvailableInAwsBucket = async (fileName: string): Promise<boolean> => {
     try {
         // Check if the object exists
-        await s3Client.send(new GetObjectCommand({
+        const s3send = await s3Client.send(new GetObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME, // Specify the AWS S3 bucket name
             Key: fileName, // Specify the file name
         }));
+
+        console.log(s3send)
 
         // If the object exists, return true
         return true;
