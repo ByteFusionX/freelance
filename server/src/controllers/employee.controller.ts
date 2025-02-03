@@ -114,9 +114,14 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
             return res.status(404).json({ message: "Customer not found" });
         }
 
-        const employeeAccess = await employeeModel.findOne({ _id: new ObjectId(userId) }).populate('category') as any
+        const employeeAccess = await employeeModel.findOne({ _id: new ObjectId(userId) }).populate('category') as any;
 
-        const reportedEmployee = await employeeModel.findOne({ _id: employeeAccess.reportingTo })
+        // Check if employeeAccess is null
+        if (!employeeAccess) {
+            return res.status(404).json({ message: "Employee not found" });
+        }
+
+        const reportedEmployee = await employeeModel.findOne({ _id: employeeAccess.reportingTo });
 
         if (employeeAccess.category.privileges.employee.viewReport == 'none') {
             res.status(200).json([reportedEmployee]);

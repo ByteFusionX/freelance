@@ -57,8 +57,10 @@ export const getFileUrlFromAws = async (fileName: string, expireTime: number | n
                 Bucket: process.env.AWS_BUCKET_NAME, // Specify the AWS S3 bucket name
                 Key: fileName, // Specify the file name
             };
+            console.log(objectGetParams)
 
             const command = new GetObjectCommand(objectGetParams);
+            console.log(command)
             const url = await getSignedUrl(s3Client, command, { expiresIn: expireTime ?? undefined });
             console.log(url)
             return url;
