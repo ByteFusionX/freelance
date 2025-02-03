@@ -732,15 +732,32 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                         _id: '$quotation.createdBy',
                         totalRevenue: {
                             $sum: {
-                                $cond: [
-                                    { $eq: ['$quotation.currency', 'USD'] },
+                                $add: [
                                     {
-                                        $multiply: [
-                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
-                                            qatarUsdRates
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $round: [
+                                                    { $multiply: [calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')                                                   , qatarUsdRates] },
+                                                    2
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
                                         ]
                                     },
-                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
+                                    {
+                                        $reduce: {
+                                            input: '$quotation.dealData.additionalCosts',
+                                            initialValue: 0,
+                                            in: {
+                                                $cond: [
+                                                    { $eq: ['$$this.type', 'Customer Discount'] },
+                                                    { $round: [{ $subtract: ['$$value', '$$this.value'] }, 2] },
+                                                    '$$value'
+                                                ]
+                                            }
+                                        }
+                                    }
                                 ]
                             }
                         },
@@ -760,13 +777,7 @@ export const getRevenuePerSalesperson = async (req: Request, res: Response, next
                     $project: {
                         _id: 0,
                         name: '$salesPerson',
-                        value: {
-                            $substr: [
-                                { $toString: { $round: ['$totalRevenue', 2] } },
-                                0,
-                                -1
-                            ]
-                        }
+                        value: '$totalRevenue'
                     }
                 },
             ]).exec();
@@ -1046,6 +1057,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     }
                 }
             ]);
+            console.log({ total: enqTotal.length, converted: enquiriesWithJobs.length })
+
 
             return res.status(200).json({ total: enqTotal.length, converted: enquiriesWithJobs.length })
         }
@@ -1159,6 +1172,122 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                     }
                 },
             ]);
+
+            console.log({ total: enqTotal.length, converted: enquiriesWithJobs.length })
+
+            return res.status(200).json({ total: enqTotal.length, converted: enquiriesWithJobs.length })
+        }
+
+    } catch (error) {
+        console.log(error)
+next(error);
+    }
+}
+
+export const getReAssignedPresaleJobSalesConversion = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { userId, filters } = req.body;
+        if (userId) {
+            const userCategory = (await employeeModel.findById(userId)).category;
+            const privileges: Privileges = (await categoryModel.findById(userCategory)).privileges;
+
+
+            let accessFilter = {};
+
+            switch (privileges.assignedJob.viewReport) {
+                case 'assigned':
+                    accessFilter['reAssigned'] = new ObjectId(userId);
+                    break;
+                default:
+                    break;
+            }
+
+            const enqTotal = await enquiryModel.aggregate([
+                {
+                    $match: {
+                        "reAssigned": { $exists: true, $ne: null }
+                    }
+                },
+                {
+                    $unset: "createdDate"
+                },
+                {
+                    $addFields: {
+                        createdDate: { $toDate: "$preSale.createdDate" }
+                    }
+                },
+                {
+                    $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+                },
+                {
+                    $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                },
+                {
+                    $unwind: "$salesPerson"
+                },
+                {
+                    $unwind: "$department"
+                },
+                {
+                    $match: buildDashboardFilters(filters, accessFilter)
+                }
+            ]).exec();
+
+            const enquiriesWithJobs = await enquiryModel.aggregate([
+                {
+                    $match: {
+                        "reAssigned": { $exists: true, $ne: null }
+                    }
+                },
+                {
+                    $unset: "createdDate"
+                },
+                {
+                    $addFields: {
+                        createdDate: { $toDate: "$preSale.createdDate" }
+                    }
+                },
+                {
+                    $lookup: { from: 'employees', localField: 'salesPerson', foreignField: '_id', as: 'salesPerson' }
+                },
+                {
+                    $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' }
+                },
+                {
+                    $unwind: "$salesPerson"
+                },
+                {
+                    $unwind: "$department"
+                },
+                {
+                    $match: buildDashboardFilters(filters, accessFilter)
+                },
+                {
+                    $lookup: {
+                        from: 'quotations',
+                        localField: '_id',
+                        foreignField: 'enqId',
+                        as: 'quotation'
+                    }
+                },
+                {
+                    $unwind: '$quotation'
+                },
+                {
+                    $lookup: {
+                        from: 'jobs',
+                        localField: 'quotation._id',
+                        foreignField: 'quoteId',
+                        as: 'job'
+                    }
+                },
+                {
+                    $match: {
+                        'job': { $ne: [] }
+                    }
+                },
+            ]);
+            console.log({ total: enqTotal.length, converted: enquiriesWithJobs.length })
 
             return res.status(200).json({ total: enqTotal.length, converted: enquiriesWithJobs.length })
         }

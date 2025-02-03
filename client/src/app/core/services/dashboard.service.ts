@@ -37,6 +37,9 @@ export class DashboardService {
     private presalesConvesionSubject = new Subject<SalesConversion>();
     presaleConvesion$ = this.presalesConvesionSubject.asObservable();
 
+    private reAssignedpresalesConvesionSubject = new Subject<SalesConversion>();
+    reAssignedpresaleConvesion$ = this.presalesConvesionSubject.asObservable();
+
     constructor(private http: HttpClient) { }
 
     getDashboardMetrics(userId: any, filters: Filters): Observable<Metric[]> {
@@ -57,6 +60,10 @@ export class DashboardService {
 
     getPresaleJobSalesConversion(userId: any, filters: Filters): Observable<SalesConversion> {
         return this.http.post<SalesConversion>(`${this.apiUrl}/dashboard/presaleSalesConversion`, { userId, filters })
+    }
+
+    getRePresaleJobSalesConversion(userId: any, filters: Filters): Observable<SalesConversion> {
+        return this.http.post<SalesConversion>(`${this.apiUrl}/dashboard/rePresaleSalesConversion`, { userId, filters })
     }
 
     updateGuageChart(updatedValues: { targetValue?: number, badRange?: number, moderateRange?: number, companyRevenue?: number }) {
@@ -85,6 +92,10 @@ export class DashboardService {
 
     updatePresaleConversions(data: SalesConversion) {
         this.presalesConvesionSubject.next(data)
+    }
+
+    updateRePresaleConversions(data: SalesConversion) {
+        this.reAssignedpresalesConvesionSubject.next(data)
     }
 
 

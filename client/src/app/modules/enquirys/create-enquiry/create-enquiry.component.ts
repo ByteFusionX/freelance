@@ -36,12 +36,9 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   tokenData!: { id: string, employeeId: string };
   submit: boolean = false;
-  preSaleFiles!: Presale;
-  preSaleButton: string = 'Assign To Preslase'
 
   isSaving: boolean = false;
   isQuoting: boolean = false;
-  assignedPresale: boolean = false;
 
   today = new Date().toISOString().substring(0, 10)
   enquiryForm = this._fb.group({
@@ -133,17 +130,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }
-
-    if (this.preSaleFiles) {
-      formData.append('presalePerson', JSON.stringify(this.preSaleFiles.presalePerson));
-      formData.append('presaleComment', JSON.stringify(this.preSaleFiles.comment));
-      if(this.preSaleFiles.newPresaleFile){
-        for (let i = 0; i < this.preSaleFiles.newPresaleFile.length; i++) {
-          formData.append('presaleFiles', (this.preSaleFiles.newPresaleFile[i] as Blob))
-        }
-      }
-    }
-
     return formData;
   }
 
@@ -173,29 +159,6 @@ export class CreateEnquiryDialog implements OnInit, OnDestroy {
 
   createCustomer() {
     this.onClose()
-  }
-
-  onClickPresale() {
-    const presale = this.enquiryForm.controls.presale.value
-    const presaleDialog = this.dialog.open(AssignPresaleComponent, { data: presale })
-    presaleDialog.afterClosed().subscribe((data) => {
-      if (data) {
-        if (data.clear) {
-          this.preSaleButton = `Assign To Presale`;
-          this.assignedPresale = false;
-          this.cdr.detectChanges();
-          this.enquiryForm.controls.status.setValue('Work In Progress')
-          this.enquiryForm.controls.presale.setValue(null)
-        } else {
-          this.enquiryForm.controls.presale.setValue(data)
-          this.preSaleFiles = data;
-          this.preSaleButton = `Assigned To ${data.presalePersonName}`;
-          this.assignedPresale = true;
-          this.cdr.detectChanges();
-          this.enquiryForm.controls.status.setValue('Assigned To Presales')
-        }
-      }
-    })
   }
 
   onClickQuote() {

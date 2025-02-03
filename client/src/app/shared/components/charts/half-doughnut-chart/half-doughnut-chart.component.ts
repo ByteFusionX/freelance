@@ -39,6 +39,10 @@ export class HalfDoughnutChartComponent implements AfterViewInit {
       this._dashboardService.presaleConvesion$.subscribe((data) => {
         this.updateChart(this.chartInstance, data);
       });
+    } else if (this.conversionType === 'reAssingedPresale') {
+      this._dashboardService.reAssignedpresaleConvesion$.subscribe((data) => {
+        this.updateChart(this.chartInstance, data);
+      });
     }
 
   }

@@ -94,7 +94,8 @@
                 </ng-container>
                 <ng-container *ngIf="jobAccess">
                     <label for="" class="hidden md:block">Target Year : </label>
-                    <ng-select [(ngModel)]="selectedTargetYear" [clearable]="false" (change)="onTargetYearChange(false)">
+                    <ng-select [(ngModel)]="selectedTargetYear" [clearable]="false"
+                        (change)="onTargetYearChange(false)">
 
                         <ng-option value="total">Total</ng-option>
                         <ng-option *ngFor="let year of years" [value]="year">{{
@@ -110,7 +111,8 @@
                     <p class="mx-2 text-sm whiter5space-nowrap text-violet-700 font-semibold" *ngIf="filtered">Filtered
                         By</p>
                 </div>
-                <button class="flex items-center justify-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-2 bg-violet-700 text-sm gap-1 text-white"
+                <button
+                    class="flex items-center justify-center cursor-pointer border border-gray/60 rounded-[6px] px-[20px] py-2 bg-violet-700 text-sm gap-1 text-white"
                     (click)="exportToExcel()">
                     <ng-icon name="heroDocumentText"></ng-icon>
                     Export As Excel
@@ -124,10 +126,12 @@
                         <div class="bg-white p-6 rounded-md" *ngFor="let metric of metrics" @opacityTrigger>
                             <p class="font-semibold text-sm">{{ metric.name }}</p>
                             <p class="font-bold text-[1.7rem]">
-                                {{ metric.type === 'QAR' ? this.formatNumber(metric.value) : this.formatNumber(metric.value)  }} {{ metric.type }}
+                                {{ metric.type === 'QAR' ? this.formatNumber(metric.value) :
+                                this.formatNumber(metric.value) }} {{ metric.type }}
                             </p>
                             <p class="font-medium text-gray-800 text-xs">
-                                +{{ metric.type === 'QAR' ? this.formatNumber(metric.lastWeek) : this.formatNumber(metric.lastWeek)  }}
+                                +{{ metric.type === 'QAR' ? this.formatNumber(metric.lastWeek) :
+                                this.formatNumber(metric.lastWeek) }}
                                 {{ metric.lastWeekName }} this week
                             </p>
                         </div>
@@ -180,9 +184,23 @@
                                 <h3 class="text-center py-3 text-lg -mb-20">Direct</h3>
                                 <app-half-doughnut-chart [conversionType]="'direct'"></app-half-doughnut-chart>
                             </div>
-                            <div>
+                            <div *ngIf="privileges?.assignedJob?.viewReport == 'all'">
                                 <h3 class="text-center py-3 text-lg -mb-20">Assigned</h3>
                                 <app-half-doughnut-chart [conversionType]="'presale'"></app-half-doughnut-chart>
+                            </div>
+
+                            <div>
+                                <h3 class="text-center py-3 text-lg -mb-20">
+                                    <ng-container
+                                        *ngIf="privileges?.assignedJob?.viewReport == 'all'; else showShortText">
+                                        Reassigned
+                                    </ng-container>
+                                    <ng-template #showShortText>
+                                        Assigned
+                                    </ng-template>
+                                </h3>
+                                <app-half-doughnut-chart
+                                    [conversionType]="'reAssingedPresale'"></app-half-doughnut-chart>
                             </div>
                         </div>
                     </div>

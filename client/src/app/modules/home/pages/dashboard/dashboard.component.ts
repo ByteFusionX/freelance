@@ -49,6 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   bothTarget: boolean = false;
   ngSelectLoading: boolean = false;
   disablePersonalTarget: boolean = false;
+  privileges!: Privileges | undefined;
 
   minDate!: string;
   maxDate!: string;
@@ -73,6 +74,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.checkPermission();
     const currentYear = new Date().getFullYear().toString()
     this.selectedTargetYear = currentYear;
     this.onTargetYearChange(true)
@@ -127,10 +129,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
               })
             )
 
+            this.subscriptions.add(
+              this._dashboardService.getRePresaleJobSalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
+                this._dashboardService.updatePresaleConversions(res)
+              })
+            )
+
           }
         }
       })
     )
+  }
+
+  checkPermission() {
+    this._employeeService.employeeData$.subscribe((data) => {
+      this.privileges = data?.category.privileges
+    })
   }
 
   updateGuageReports(companyRevenue: number) {
