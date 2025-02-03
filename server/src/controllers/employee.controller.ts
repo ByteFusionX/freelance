@@ -123,7 +123,7 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
 
         const reportedEmployee = await employeeModel.findOne({ _id: employeeAccess.reportingTo });
 
-        if (employeeAccess.category.privileges.employee.viewReport == 'none') {
+        if (employeeAccess?.category?.privileges?.employee?.viewReport == 'none') {
             res.status(200).json([reportedEmployee]);
         }
 
@@ -183,7 +183,7 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
                     return { employee, hasAccess: true }; // Mark as having access
                 }
 
-                const privilege = employee.category?.privileges?.customer?.viewReport;
+                const privilege = employee?.category?.privileges?.customer?.viewReport;
 
                 switch (privilege) {
                     case "created":
