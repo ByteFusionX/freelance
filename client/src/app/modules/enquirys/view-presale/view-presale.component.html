@@ -10,6 +10,9 @@
         </svg>
       </button>
     </div>
+    <div class="text-gray-600 text-md mb-4">
+        Estimated By: <strong>{{data.reAssigned ? (data.reAssigned.firstName + ' ' + data.reAssigned.lastName) : (data.preSale.presalePerson.firstName + ' ' + data.preSale.presalePerson.lastName)}}</strong>
+    </div>
     <!-- Modal Content -->
         <div  class="overflow-y-scroll max-h-[77vh] pr-2">
           <div class="relative overflow-x-auto my-3">

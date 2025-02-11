@@ -23,11 +23,16 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
         const saveQuote = await (await quote.save()).populate('department')
 
         if (quoteData.enqId) {
-            await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' })
-            const event = await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: quote._id } })
-            await Quotation.findOneAndUpdate({ _id: quote._id }, { $set: { eventId: event._id } })
-        }else{
-            delete quoteData.enqId
+            const enquiry = await Enquiry.findById(quoteData.enqId);
+            if (enquiry) {
+                await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' });
+                const event = await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: quote._id } });
+                await Quotation.findOneAndUpdate({ _id: saveQuote._id }, { $set: { eventId: event._id } });
+            } else {
+                console.log(`Enquiry with ID ${quoteData.enqId} not found.`);
+            }
+        } else {
+            delete quoteData.enqId;
         }
 
         if (saveQuote) {
@@ -43,7 +48,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
 
 export const getQuotations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let { page, search, row, salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
+        let { page, search, row, salesPerson, customer, fromDate, toDate, department, quoteStatus, dealStatus, access, userId } = req.body;
         let skipNum: number = (page - 1) * row;
 
 
@@ -58,6 +63,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
         let matchFilters = {
             isDeleted: { $ne: true },
             $and: [
+                ...(quoteStatus ? [{ status: quoteStatus }] : []),
+                ...(dealStatus ? [{ 'dealData.status' : dealStatus }] : []),
                 { quoteId: { $regex: search, $options: 'i' } },
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
                 { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
@@ -72,6 +79,8 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
                 }
             ]
         }
+
+        console.log(matchFilters)
 
         let accessFilter = {};
 
@@ -680,15 +689,43 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
     try {
         const { status } = req.body;
         const { quoteId } = req.params;
-        const quoteUpdated = await Quotation.findByIdAndUpdate(quoteId, { status: status })
+
+        const statusCheck = await Quotation.findOne({ _id: quoteId });
+        
+        type UpdateQuery = {
+            $set?: { status: string; lpoFiles?: any[] };
+            $unset?: { [key: string]: number };
+        };
+
+        let updateObject: UpdateQuery = {
+            $set: { status }
+        };
+        
+        if (statusCheck.status === 'Won') {
+            updateObject = {
+                $set: { 
+                    status,
+                    lpoFiles: [] // Set to empty array
+                },
+                $unset: {
+                    dealData: 1 // Remove dealData
+                }
+            };
+        }
+
+        const quoteUpdated = await Quotation.findByIdAndUpdate(
+            quoteId, 
+            updateObject,
+            { new: true }
+        );
 
         if (quoteUpdated) {
-            return res.status(200).json(status)
+            return res.status(200).json(status);
         }
-        return res.status(502).json()
+        return res.status(404).json({ message: "Quote not found" });
     } catch (error) {
-        console.log(error)
-        next(error)
+        console.log(error);
+        next(error);
     }
 }
 

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 
 import { QuotationsRoutingModule } from './quotations-routing.module';
 import { QuotationsComponent } from './quotations.component';
@@ -64,7 +64,8 @@ import { componentModule } from 'src/app/shared/components/component.module';
         MatTooltipModule,
         NgApexchartsModule,
         MatSnackBarModule,
-        componentModule
+        componentModule,
+        TitleCasePipe
     ]
 })
 export class QuotationsModule { }

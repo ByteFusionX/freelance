@@ -42,6 +42,7 @@ export class QuotationListComponent {
   isEmpty: boolean = false;
   isFiltered: boolean = false;
   isEnter: boolean = false;
+  isSuperAdmin: boolean = false;
   lastStatus!: QuoteStatus;
   createQuotation: boolean | undefined = false;
   loader = this.loadingBar.useRef();
@@ -51,6 +52,7 @@ export class QuotationListComponent {
   isEventClicked: boolean = false
 
   quoteStatuses = Object.values(QuoteStatus);
+  dealStatuses = ['pending','approved','rejected'];
   displayedColumns: string[] = ['date', 'quoteId', 'customerName', 'description', 'salesPerson', 'department', 'totalCost', 'status', 'dealStatus', 'events', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
@@ -64,6 +66,8 @@ export class QuotationListComponent {
   selectedCustomer: string | null = null;
   selectedSalesPerson: string | null = null;
   selectedDepartment: string | null = null;
+  selectedQuoteStatus: string | null = null;
+  selectedDealStatus: string | null = null;
 
   private subscriptions = new Subscription();
   private subject = new BehaviorSubject<{ page: number, row: number }>({ page: this.page, row: this.row });
@@ -139,6 +143,8 @@ export class QuotationListComponent {
       fromDate: this.fromDate,
       toDate: this.toDate,
       department: this.selectedDepartment,
+      quoteStatus: this.selectedQuoteStatus,
+      dealStatus: this.selectedDealStatus,
       access: access,
       userId: userId
     }
@@ -223,11 +229,12 @@ export class QuotationListComponent {
     this.dataSource.data[i].status = this.lastStatus;
     this.filteredData.data[i].status = this.lastStatus;
 
+
     const dialogRef = this._dialog.open(ConfirmationDialogComponent,
       {
         data: {
           title: `Are you absolutely sure?`,
-          description: `Please note that the status will be updated to ${status}. The change will be reflected in the reports accordingly.`,
+          description: `Please note that the status will be updated to ${status} ${this.lastStatus === 'Won' ? '. This will remove the deal data and LPO files' : ''}. The change will be reflected in the reports accordingly.`,
           icon: 'heroExclamationCircle',
           IconColor: 'orange'
         }
@@ -359,7 +366,7 @@ export class QuotationListComponent {
     const dialogRef = this._dialog.open(DealFormComponent,
       {
         data: data,
-        width: '1400px'
+        width: '1600px'
       });
 
     dialogRef.afterClosed().subscribe((dealData: dealData) => {
@@ -451,6 +458,7 @@ export class QuotationListComponent {
   checkPermission() {
     this._employeeService.employeeData$.subscribe((data) => {
       this.createQuotation = data?.category.privileges.quotation.create
+      this.isSuperAdmin = data?.category.role === 'superAdmin'
     })
   }
 

@@ -32,6 +32,7 @@ export class AssignPresaleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    console.log('sj')
     this.employees$ = this._employeeService.getPresaleManagers()
     if (this.data) {
       console.log(this.data)
@@ -57,6 +58,8 @@ export class AssignPresaleComponent implements OnInit {
   }
 
   onSubmit() {
+    console.log(this.selectedFiles)
+
     let presalePersonName: String;
     this.isSaving = true;
     this.employees$.subscribe((employees) => {
@@ -76,6 +79,7 @@ export class AssignPresaleComponent implements OnInit {
           }
         })
         let presale = { presalePerson: this.selectedEmployee, newPresaleFile: newFiles, existingPresaleFiles: existingFile, presalePersonName: presalePersonName, comment: this.comment }
+        console.log(presale)
         this.isSaving = false;
         this.dialogRef.close(presale)
       } else {

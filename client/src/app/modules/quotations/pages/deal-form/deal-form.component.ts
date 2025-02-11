@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { fileEnterState } from 'src/app/modules/enquirys/enquiry-animations';
 import { Quotatation, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
@@ -58,13 +58,17 @@ export class DealFormComponent {
   }
 
   createItemDetailGroup(detail: QuoteItemDetail): FormGroup {
+    const decimalMargin = detail.profit / 100 || 0;
+    const unitPrice = Number((detail.unitCost / (1 - decimalMargin) || 0).toFixed(2));
+
     return this.fb.group({
       dealSelected: [false],
-      detail: [detail.detail],
-      quantity: [detail.quantity],
-      unitCost: [detail.unitCost],
-      profit: [detail.profit],
-      availability: [detail.availability],
+      detail: [detail.detail, Validators.required],
+      quantity: [detail.quantity, Validators.required],
+      unitCost: [detail.unitCost, Validators.required],
+      profit: [detail.profit, Validators.required],
+      unitPrice: [unitPrice, Validators.required],
+      availability: [detail.availability, Validators.required],
       supplierName: ['', this.supplierNameValidator()],
       phoneNo: ['', this.supplierNameValidator()],
       email: ['', [this.supplierNameValidator(), Validators.email]],
@@ -215,6 +219,24 @@ export class DealFormComponent {
       }
       return null;
     };
+  }
+
+  calculateUnitPriceForInput(i: number, j: number) {
+    const itemDetail = this.getItemDetailsControls(i).controls[j] as FormControl;
+    const decimalMargin = itemDetail.get('profit')?.value / 100 || 0;
+    const unitPrice = itemDetail.get('unitCost')?.value / (1 - decimalMargin) || 0;
+    itemDetail.get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)));
+  }
+
+  calculateProfit(i: number, j: number) {
+    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
+    if (unitCost && unitPrice) {
+      const profit = ((unitPrice - unitCost) / unitPrice) * 100;
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(4));
+    } else if (unitCost) {
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue('');
+    }
   }
 
   calculateSellingPrice(): number {

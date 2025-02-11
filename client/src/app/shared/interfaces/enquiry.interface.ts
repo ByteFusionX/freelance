@@ -1,6 +1,6 @@
 import { ContactDetail, getCustomer } from "./customer.interface";
 import { getDepartment } from "./department.interface";
-import { getEmployee } from "./employee.interface";
+import { getEmployee, getEmployeeDetails } from "./employee.interface";
 import { OptionalItems, QuoteItem } from "./quotation.interface";
 
 export interface Enquiry {
@@ -36,7 +36,7 @@ export interface getEnquiry {
     date: string;
     attachments: Files[];
     preSale: {
-        presalePerson: string;
+        presalePerson: getEmployeeDetails;
         presaleFiles: Files[] | null;
         items?: QuoteItem[];
         comment: string;
@@ -48,6 +48,7 @@ export interface getEnquiry {
     status: string;
     reAssignedSeen:boolean;
     eventId?:any;
+    reAssigned: getEmployeeDetails;
 }
 
 export interface EnquiryTable {

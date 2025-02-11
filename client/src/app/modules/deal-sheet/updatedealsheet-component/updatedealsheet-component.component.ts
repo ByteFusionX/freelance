@@ -1,5 +1,5 @@
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { priceDetails, Quotatation, QuoteItem, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
 import { fileEnterState } from '../../enquirys/enquiry-animations';
@@ -36,7 +36,7 @@ export class UpdatedealsheetComponent implements OnInit {
       items: this.fb.array(this.data.quoteItems.map(item => this.createItemGroup(item as QuoteItem))),
       costs: this.fb.array([], this.additionalCostsValidator())
     });
-    this.data.quoteData.dealData.additionalCosts.forEach((cost)=>{
+    this.data.quoteData.dealData.additionalCosts.forEach((cost) => {
       this.patchCost(cost)
     })
 
@@ -47,7 +47,7 @@ export class UpdatedealsheetComponent implements OnInit {
   onCalculationOptionChange() {
     this.items.clear();
     this.data.quoteData.optionalItems[this.selectedOption].items.forEach(item => {
-        this.items.push(this.createItemGroup(item));
+      this.items.push(this.createItemGroup(item));
     });
   }
 
@@ -64,7 +64,7 @@ export class UpdatedealsheetComponent implements OnInit {
         email: detail.email,
       })),
     }));
-    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles,totalDiscount : this.data.quoteData.optionalItems[this.selectedOption].totalDiscount }));
+    formData.append('dealData', JSON.stringify({ ...data, items: updatedItems, removedFiles: this.removedFiles, existingFiles: this.existingFiles, totalDiscount: this.data.quoteData.optionalItems[this.selectedOption].totalDiscount }));
     for (let i = 0; i < this.selectedFiles.length; i++) {
       formData.append('attachments', (this.selectedFiles[i] as Blob))
     }
@@ -116,16 +116,20 @@ export class UpdatedealsheetComponent implements OnInit {
   }
 
   createItemDetailGroup(detail: QuoteItemDetail): FormGroup {
+    const decimalMargin = detail.profit / 100 || 0;
+    const unitPrice = Number((detail.unitCost / (1 - decimalMargin) || 0).toFixed(2));
+
     return this.fb.group({
       dealSelected: [detail.dealSelected || false],
-      detail: [detail.detail || ''],
-      quantity: [detail.quantity || 0],
-      unitCost: [detail.unitCost || 0],
-      profit: [detail.profit || 0],
-      availability: [detail.availability || ''],
-      supplierName: [detail.supplierName, this.supplierNameValidator()],
-      phoneNo: [detail.phoneNo, this.supplierNameValidator()],
-      email: [detail.email, [this.supplierNameValidator(), Validators.email]],
+      detail: [detail.detail, Validators.required],
+      quantity: [detail.quantity, Validators.required],
+      unitCost: [detail.unitCost, Validators.required],
+      profit: [detail.profit, Validators.required],
+      unitPrice: [unitPrice, Validators.required],
+      availability: [detail.availability, Validators.required],
+      supplierName: ['', this.supplierNameValidator()],
+      phoneNo: ['', this.supplierNameValidator()],
+      email: ['', [this.supplierNameValidator(), Validators.email]],
     });
   }
 
@@ -201,36 +205,36 @@ export class UpdatedealsheetComponent implements OnInit {
       type: [type, Validators.required],
       value: ['', Validators.required]
     });
-    
+
     if (type !== 'Customer Discount') {
       group = this.fb.group({
         type: [type, Validators.required],
-        name:['', Validators.required],
+        name: ['', Validators.required],
         value: ['', Validators.required]
       });
-    } 
-    
+    }
+
     this.costs.push(group);
   }
 
-  patchCost(cost:{type: string,value:number,name:string}): void {
+  patchCost(cost: { type: string, value: number, name: string }): void {
     let group;
-    if(!cost.type){
+    if (!cost.type) {
       cost.type = 'Additional Cost'
     }
     group = this.fb.group({
       type: [cost.type, Validators.required],
       value: [cost.value, Validators.required]
     });
-    
+
     if (cost.type !== 'Customer Discount') {
       group = this.fb.group({
         type: [cost.type, Validators.required],
-        name:[cost.name, Validators.required],
+        name: [cost.name, Validators.required],
         value: [cost.value, Validators.required]
       });
-    } 
-    
+    }
+
     this.costs.push(group);
   }
 
@@ -246,17 +250,35 @@ export class UpdatedealsheetComponent implements OnInit {
     return index;
   }
 
+  calculateUnitPriceForInput(i: number, j: number) {
+    const itemDetail = this.getItemDetailsControls(i).controls[j] as FormControl;
+    const decimalMargin = itemDetail.get('profit')?.value / 100 || 0;
+    const unitPrice = itemDetail.get('unitCost')?.value / (1 - decimalMargin) || 0;
+    itemDetail.get('unitPrice')?.setValue(Number(unitPrice.toFixed(2)));
+  }
+
+  calculateProfit(i: number, j: number) {
+    const unitCost = this.getItemDetailsControls(i).controls[j].get('unitCost')?.value;
+    const unitPrice = this.getItemDetailsControls(i).controls[j].get('unitPrice')?.value;
+    if (unitCost && unitPrice) {
+      const profit = ((unitPrice - unitCost) / unitPrice) * 100;
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue(profit.toFixed(4));
+    } else if (unitCost) {
+      this.getItemDetailsControls(i).controls[j].get('profit')?.setValue('');
+    }
+  }
+
   calculateSellingPrice(): number {
     let totalCost = 0;
     this.items.value.forEach((item: any, i: number) => {
       this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
-        if(item.dealSelected){
+        if (item.dealSelected) {
           totalCost += this.calculateTotalPrice(i, j)
         }
       })
     })
-    this.costs.value.forEach((cost:any,i:number)=>{
-      if(cost.type == 'Customer Discount'){
+    this.costs.value.forEach((cost: any, i: number) => {
+      if (cost.type == 'Customer Discount') {
         totalCost -= cost.value
       }
     })
@@ -268,16 +290,16 @@ export class UpdatedealsheetComponent implements OnInit {
     let totalCost = 0;
     this.items.value.forEach((item: any, i: number) => {
       this.getItemDetailsControls(i).value.forEach((item: any, j: number) => {
-        if(item.dealSelected){
+        if (item.dealSelected) {
           totalCost += this.calculateTotalCost(i, j)
         }
       })
     })
 
-    this.costs.value.forEach((cost:any,i:number)=>{
-      if(cost.type == 'Additional Cost'){
+    this.costs.value.forEach((cost: any, i: number) => {
+      if (cost.type == 'Additional Cost') {
         totalCost += cost.value
-      }else if(cost.type === 'Supplier Discount'){
+      } else if (cost.type === 'Supplier Discount') {
         totalCost -= cost.value
       }
     })
@@ -285,7 +307,7 @@ export class UpdatedealsheetComponent implements OnInit {
     return totalCost;
   }
 
-  
+
 
   calculateTotalCost(i: number, j: number) {
     return this.getItemDetailsControls(i).controls[j].get('quantity')?.value * this.getItemDetailsControls(i).controls[j].get('unitCost')?.value

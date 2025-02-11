@@ -90,7 +90,7 @@
                             <div>Total Selling Price </div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.totalSellingPrice | numberFormatter }}
+                            {{ data.priceDetails.totalSellingPrice | numberFormatter }} {{ data.quoteData.currency }}
                         </td>
                     </tr>
                     <tr>
@@ -99,7 +99,7 @@
                             <div>Total cost</div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.totalCost | numberFormatter }}
+                            {{ data.priceDetails.totalCost | numberFormatter }} {{ data.quoteData.currency }}
                         </td>
                     </tr>
                     <tr>
@@ -108,7 +108,7 @@
                             <div>Profit </div>
                         </th>
                         <td class=" px-4 border text-gray-800">
-                            {{ data.priceDetails.profit | numberFormatter }}
+                            {{ data.priceDetails.profit | numberFormatter }} {{ data.quoteData.currency }}
                         </td>
                     </tr>
                     <tr>
@@ -141,16 +141,16 @@
                             <div class="px-2 py-3">QTY</div>
                         </th>
                         <th scope="col" class="border   text-center">
-                            <div class="px-6 py-3">Unit Selling Price</div>
+                            <div class="px-6 py-3">Unit Selling Price ({{ data.quoteData.currency }})</div>
                         </th>
                         <th scope="col" class="border   text-center">
-                            <div class="px-6 py-3">Total Selling Price</div>
+                            <div class="px-6 py-3">Total Selling Price ({{ data.quoteData.currency }})</div>
                         </th>
                         <th scope="col" class="border   text-center">
-                            <div class="px-6 py-3">Unit Cost</div>
+                            <div class="px-6 py-3">Unit Cost ({{ data.quoteData.currency }})</div>
                         </th>
                         <th scope="col" class="border   text-center">
-                            <div class="px-6 py-3">Total Cost</div>
+                            <div class="px-6 py-3">Total Cost ({{ data.quoteData.currency }})</div>
                         </th>
 
                         <th scope="col" class="border   text-center min-w-[90px]">

@@ -24,7 +24,8 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                         { 'clientDetails.companyName': { $regex: search, $options: 'i' } }
                     ]
                 },
-                { $or: [{ status: status }, { status: { $exists: isStatus } }] }
+                { $or: [{ status: status }, { status: { $exists: isStatus } }] },
+                { $or: [{ 'quotation.dealData.dealId': { $exists: true } }, { 'quotation.dealData': { $exists: true } }] }
             ]
         };
 
@@ -36,6 +37,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             let startDate = new Date(selectedYear, 0, 1);
             let endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
             matchFilters.$and.push({ createdDate: { $gte: startDate, $lte: endDate } });
+            console.log(matchFilters)
         }
 
         let accessFilter = {};
@@ -57,7 +59,7 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             default:
                 break;
         }
-        
+
         const qatarUsdRate = await getUSDRated();
 
         const jobData = await jobModel.aggregate([
@@ -78,12 +80,6 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             },
             {
                 $sort: { createdDate: -1 }
-            },
-            {
-                $skip: skipNum
-            },
-            {
-                $limit: row
             },
             {
                 $lookup: { from: 'departments', localField: 'quotation.department', foreignField: '_id', as: 'departmentDetails' }
@@ -139,10 +135,16 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                         }
                     }
                 }
-                
+
             },
             {
                 $match: { ...accessFilter, ...matchFilters }
+            },
+            {
+                $skip: skipNum
+            },
+            {
+                $limit: row
             },
         ]);
 
@@ -206,35 +208,26 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
                         }
                     }
                 }
-                
+
             },
         ]).exec();
 
+        console.log(jobTotal)
+
         const totalValues = jobTotal.reduce((acc, job) => {
-            const quote = job?.quotation;
-            if (quote.currency == 'USD') {
-                acc.totalUSDValue += parseFloat(job?.lpoValue)
-            } else {
-                acc.totalQARValue += parseFloat(job?.lpoValue)
-
-            }
+            acc += job?.lpoValue;
             return acc;
-        }, {
-            totalUSDValue: 0,
-            totalQARValue: 0,
-        });
-
-        const totalLpoValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRate);
+        }, 0);
 
 
         if (jobTotal.length) {
-            return res.status(200).json({ total: jobTotal.length, totalLpo: totalLpoValue, job: jobData });
+            return res.status(200).json({ total: jobTotal.length, totalLpo: totalValues, job: jobData });
         } else {
             return res.status(504).json({ err: 'No job data found' });
         }
     } catch (error) {
         console.log(error)
-next(error);
+        next(error);
     }
 };
 
@@ -292,7 +285,7 @@ export const totalJob = async (req: Request, res: Response, next: NextFunction) 
         return res.status(502).json()
     } catch (error) {
         console.log(error)
-next(error);
+        next(error);
     }
 };
 
@@ -311,7 +304,7 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
         return res.status(502).json()
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 
@@ -360,7 +353,7 @@ export const getJobSalesPerson = async (req: Request, res: Response, next: NextF
         return res.status(204).json()
     } catch (error) {
         console.log(error)
-next(error)
+        next(error)
     }
 }
 
@@ -383,7 +376,7 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
         await jobModel.findByIdAndUpdate(dataId, {
             isDeleted: true
         });
-        
+
         newTrash('Job', dataId, employeeId)
 
         return res.status(200).json({

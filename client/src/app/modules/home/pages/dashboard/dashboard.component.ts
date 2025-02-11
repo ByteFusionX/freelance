@@ -106,7 +106,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
               })
             );
             this.subscriptions.add(
-              this._dashboardService.getRevenuePerSalesperson(this.userId, this.filterForm.value).subscribe((res) => {
+              this._dashboardService.getRevenuePerSalesperson(this.userId, this.filterForm.value).subscribe((res: any) => {
+                if (res.length == 1) {
+
+                  this._dashboardService.guageChart$.subscribe((report) => {
+                    let criticalRange = report.criticalRange
+
+                    if (criticalRange > res[0].value) {
+                      res.push({ name: 'To Achieve Target', value: criticalRange - res[0].value, itemStyle: { color: '#D3D3D3' } })
+                    }
+                  })
+                }
                 this._dashboardService.updateDonutChart(res)
               })
             )

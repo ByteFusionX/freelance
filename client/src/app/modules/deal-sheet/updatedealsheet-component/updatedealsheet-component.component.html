@@ -23,18 +23,16 @@
 
       <div class="my-4" *ngIf="data.quoteData.optionalItems.length > 1">
         <label for="mainCalculationOption" class="uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-            Select Option for the Deal:
+          Select Option for the Deal:
         </label>
-        <select id="mainCalculationOption" 
-                (change)="onCalculationOptionChange()" 
-                [(ngModel)]="selectedOption" 
-                [ngModelOptions]="{standalone: true}"
-                class="w-52 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-transparent focus:border-violet-500 p-2.5">
-            <option *ngFor="let option of data.quoteData.optionalItems; let i = index" [value]="i">
-                Option {{ i + 1 }}
-            </option>
+        <select id="mainCalculationOption" (change)="onCalculationOptionChange()" [(ngModel)]="selectedOption"
+          [ngModelOptions]="{standalone: true}"
+          class="w-52 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-transparent focus:border-violet-500 p-2.5">
+          <option *ngFor="let option of data.quoteData.optionalItems; let i = index" [value]="i">
+            Option {{ i + 1 }}
+          </option>
         </select>
-    </div>
+      </div>
 
       <table class="w-full text-sm text-left rtl:text-right text-gray-500 border mb-4">
         <thead class="text-xs text-gray-700 uppercase bg-violet-50">
@@ -121,15 +119,18 @@
                     class="border py-2 px-6 text-center">
                     <div class="flex justify-center items-center">
                       <input appNoLeadingSpace formControlName="profit" *ngIf="detail.get('dealSelected')?.value"
-                        class="w-8 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                        type="number" placeholder="00">
+                        class="w-20 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        type="number" placeholder="00" (input)="calculateUnitPriceForInput(i, j)">
                       <p *ngIf="!detail.get('dealSelected')?.value">{{ detail.get('profit')?.value }}</p>
                       <p class="ml-0.5 mb-0.5">%</p>
                     </div>
                   </td>
 
-                  <td class="px-2 py-2 border text-center">
-                    {{ detail.get('unitCost')?.value.toFixed(2) }}
+                  <td class="px-6 py-3 border-l border-b border-t text-center">
+                    <input appNoLeadingSpace formControlName="unitPrice" *ngIf="detail.get('dealSelected')?.value"
+                      class="w-20 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      type="number" placeholder="00" (input)="calculateProfit(i,j)">
+                    <p *ngIf="!detail.get('dealSelected')?.value">{{ calculateUnitPrice(i,j).toFixed(2) }}</p>
                   </td>
 
                   <td class="px-2 py-2 border text-center">

@@ -73,12 +73,19 @@ export class JobListComponent {
 
   ngOnInit() {
     this.employees$ = this._jobService.getJobSalesPerson();
-    this.reportDate = new Date().getFullYear().toString();
+    const currentYear = new Date().getFullYear().toString();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonthIndex = new Date().getMonth();
+    const currentMonthName = monthNames[currentMonthIndex];
+
+    this.reportDate = `${currentMonthName} - ${currentYear}`;
+
+    console.log(currentMonthIndex)
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
         this.row = data.row
-        this.getAllJobs(undefined)
+        this.getAllJobs(currentMonthIndex+1,currentYear)
       }))
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
@@ -127,7 +134,7 @@ export class JobListComponent {
 
   displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status', 'action'];
 
-  getAllJobs(selectedMonth?: number) {
+  getAllJobs(selectedMonth?: number,selectedYear?: string) {
     this.isLoading = true;
 
     let access;
@@ -143,7 +150,7 @@ export class JobListComponent {
       salesPerson: this.selectedEmployee,
       status: this.selectedStatus as number,
       selectedMonth: selectedMonth,
-      selectedYear: this.reportDate as unknown as number,
+      selectedYear: selectedYear as unknown as number,
       access: access,
       userId: userId
     }
@@ -408,6 +415,7 @@ export class JobListComponent {
     if (!this.isEmpty) {
       const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
+        console.log(data)
         return [
           data.jobId,
           data.clientDetails.companyName,
@@ -416,7 +424,7 @@ export class JobListComponent {
           data.departmentDetails[0].departmentName,
           data.quotation.quoteId,
           data.quotation.dealData.dealId,
-          data.quotation.lpoValue,
+         `${data.lpoValue.toFixed(2)} QAR`,
           data.status
         ];
       });
@@ -438,7 +446,7 @@ export class JobListComponent {
       return '';
     }
 
-    return parseInt(value).toLocaleString('en-US', {
+    return parseFloat(value).toLocaleString('en-US', {
       minimumFractionDigits,
       maximumFractionDigits
     });

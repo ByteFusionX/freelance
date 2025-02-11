@@ -259,6 +259,24 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             {
                 $lookup: {
                     from: 'employees',
+                    localField: 'preSale.presalePerson',
+                    foreignField: '_id',
+                    as: 'preSale.presalePerson'
+                }
+            },
+            { $unwind: { path: '$preSale.presalePerson', preserveNullAndEmptyArrays: true }  },
+            {
+                $lookup: {
+                    from: 'employees',
+                    localField: 'reAssigned',
+                    foreignField: '_id',
+                    as: 'reAssigned'
+                }
+            },
+            { $unwind: { path: '$reAssigned', preserveNullAndEmptyArrays: true }  },
+            {
+                $lookup: {
+                    from: 'employees',
                     localField: 'preSale.rejectionHistory.rejectedBy',
                     foreignField: '_id',
                     as: 'employeeDetails'
@@ -266,32 +284,45 @@ export const getEnquiries = async (req: Request, res: Response, next: NextFuncti
             },
             {
                 $addFields: {
-                    "preSale.rejectionHistory": {
-                        $map: {
-                            input: "$preSale.rejectionHistory",
-                            as: "rejection",
-                            in: {
+                    "preSale": {
+                        $cond: {
+                            if: { $ifNull: ["$preSale", false] },
+                            then: {
                                 $mergeObjects: [
-                                    "$$rejection",
+                                    "$preSale",
                                     {
-                                        employeeId: {
-                                            $arrayElemAt: [
-                                                {
-                                                    $filter: {
-                                                        input: "$employeeDetails",
-                                                        as: "emp",
-                                                        cond: { $eq: ["$$emp._id", "$$rejection.rejectedBy"] }
-                                                    }
-                                                }, 0
-                                            ]
+                                        rejectionHistory: {
+                                            $map: {
+                                                input: "$preSale.rejectionHistory",
+                                                as: "rejection",
+                                                in: {
+                                                    $mergeObjects: [
+                                                        "$$rejection",
+                                                        {
+                                                            employeeId: {
+                                                                $arrayElemAt: [
+                                                                    {
+                                                                        $filter: {
+                                                                            input: "$employeeDetails",
+                                                                            as: "emp",
+                                                                            cond: { $eq: ["$$emp._id", "$$rejection.rejectedBy"] }
+                                                                        }
+                                                                    }, 0
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
                                         }
                                     }
                                 ]
-                            }
+                            },
+                            else: "$$REMOVE"
                         }
                     }
                 }
-            },
+            }
         ]);
 
         if (enquiryTotal.length) return res.status(200).json({ total: enquiryTotal[0].total, enquiry: enquiryData })

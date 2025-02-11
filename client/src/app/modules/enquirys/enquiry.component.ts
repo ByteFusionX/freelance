@@ -34,6 +34,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isEmpty: boolean = false;
   assigningPresale: boolean = false;
+  assigningPresaleIndex!: number ;
   isFiltered: boolean = false;
   isDeleteOption: boolean = false;
   createEnquiry: boolean | undefined = false;
@@ -217,6 +218,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     presaleDialog.afterClosed().subscribe((data: any) => {
       if (data) {
         this.assigningPresale = true;
+        this.assigningPresaleIndex = index
         const presaleData = {
           comment: data.comment,
           newPresaleFile: data.newPresaleFile,
@@ -282,7 +284,7 @@ export class EnquiryComponent implements OnInit, OnDestroy {
   onRowClicks(index: number) {
     let enqData = this.dataSource.data[index]
     if (!this.isDeletedClicked && !this.isEventClicked) {
-      if (enqData.status != 'Assigned To Presale Manager') {
+      if (enqData.status === 'Work In Progress') {
         this._enquiryService.emitToQuote(enqData)
         this.router.navigate(['/quotations/create'])
       } else {

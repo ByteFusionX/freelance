@@ -98,8 +98,24 @@
                                     [value]="department._id">{{department.departmentName}}</ng-option>
                             </ng-select>
                         </div>
+                        <div class="mb-2">
+                            <label for="quoteStatus" class="font-medium">Quote Status:</label>
+                            <ng-select dropdownPosition="top" id="quoteStatus" [(ngModel)]="selectedQuoteStatus"
+                                class="filter" placeholder="Quote Status" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let status of quoteStatuses"
+                                    [value]="status">{{status}}</ng-option>
+                            </ng-select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="dealStatus" class="font-medium">Deal Status:</label>
+                            <ng-select dropdownPosition="top" id="dealStatus" [(ngModel)]="selectedDealStatus"
+                                class="filter" placeholder="Deal Status" appendTo="body" (change)="onfilterApplied()">
+                                <ng-option *ngFor="let status of dealStatuses"
+                                    [value]="status">{{status | titlecase }}</ng-option>
+                            </ng-select>
+                        </div>
                         <button *ngIf="isFiltered"
-                            class="w-full bg-orange-500 hover:bg-orange-00 text-white font-medium py-2.5 px-4 rounded text-xs"
+                            class="w-full bg-orange-500 hover:bg-orange-700 text-white font-medium py-2.5 px-4 rounded text-xs"
                             (click)="onClear()">
                             x Clear All Filter
                         </button>
@@ -186,7 +202,7 @@
                         Status </th>
                     <td mat-cell *matCellDef="let element;let i= index" class="hover:bg-white"
                         (click)="preventClick($event)">
-                        <div (click)="onStatus($event,element.status)" *ngIf="!element.lpoFiles.length"
+                        <div (click)="onStatus($event,element.status)" *ngIf="!element.lpoFiles.length || isSuperAdmin"
                             class="flex items-center cursor-pointer border border-gray/60 rounded-[6px] px-[14px] py-1 max-w-fit hover:bg-white"
                             [matMenuTriggerFor]="beforeMenu" mat-button>
                             <p class="mx-2 text-sm whitespace-nowrap">{{element.status}}</p>
@@ -204,7 +220,7 @@
 
                             </div>
                         </mat-menu>
-                        <div class="w-full flex justify-center items-center" *ngIf="element.lpoFiles.length">
+                        <div class="w-full flex justify-center items-center" *ngIf="element.lpoFiles.length && !isSuperAdmin">
                             <p *ngIf="element.status === 'Won'"
                                 class="w-fit text-center bg-green-100 rounded-full px-5 text-green-600  py-1">
                                 {{element.status}}</p>
@@ -221,7 +237,7 @@
                     <td mat-cell *matCellDef="let element;let i= index" class="hover:bg-white"
                         (click)="preventClick($event)">
                         <div class="w-full flex justify-center items-center" *ngIf="element?.dealData?.status">
-                            <div [ngSwitch]="element.dealData.status" class="flex items-center space-x-2">
+                            <div [ngSwitch]="element?.dealData?.status" class="flex items-center space-x-2">
                                 <div *ngSwitchCase="'pending'"
                                     class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg px-4  text-sm">
                                     Pending
@@ -266,7 +282,7 @@
                         (click)="preventClick($event)">
                         <div class="flex justify-end items-center gap-2">
                             <div (click)="onClickLpo(element,$event)"
-                                *ngIf="element.status == 'Won' && !element.lpoFiles.length " matTooltip="Upload Lpo"
+                                *ngIf="element.status == 'Won' && !element?.lpoFiles?.length " matTooltip="Upload Lpo"
                                 matTooltipPosition="above" matTooltipClass="mat-tooltip"
                                 class="cursor-pointer text-center flex justify-center items-center gap-2 px-2 py-2 bg-violet-700 hover:bg-violet-600 text-white text-sm rounded-full font-medium">
                                 <ng-icon name="heroDocumentArrowUp"></ng-icon>

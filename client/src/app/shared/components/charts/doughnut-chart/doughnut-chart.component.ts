@@ -27,7 +27,10 @@ export class DoughnutChartComponent implements OnInit, AfterViewInit {
     this.chartInstance = echarts.init(this.doughnutChart.nativeElement);
     new ResizeObserver(() => this.chartInstance.resize()).observe(this.doughnutChart.nativeElement);
 
-    this._dashboardService.donutChart$.subscribe((data) => {
+    this._dashboardService.donutChart$.subscribe((data :any) => {
+
+
+      console.log(data,data.length)
       if (!this.chartInstance) {
         console.error('Chart instance is not initialized');
         return;
