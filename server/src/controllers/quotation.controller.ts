@@ -27,7 +27,9 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
             if (enquiry) {
                 await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' });
                 const event = await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: quote._id } });
-                await Quotation.findOneAndUpdate({ _id: saveQuote._id }, { $set: { eventId: event._id } });
+                if(event){
+                    await Quotation.findOneAndUpdate({ _id: saveQuote._id }, { $set: { eventId: event._id } });
+                }
             } else {
                 console.log(`Enquiry with ID ${quoteData.enqId} not found.`);
             }

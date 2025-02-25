@@ -1008,6 +1008,8 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                 }
             ]).exec();
 
+            console.log(enqTotal)
+
             const enquiriesWithJobs = await enquiryModel.aggregate([
                 {
                     $unset: "createdDate"
@@ -1057,7 +1059,7 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                     }
                 }
             ]);
-            console.log({ total: enqTotal.length, converted: enquiriesWithJobs.length })
+            console.log({ total: enqTotal.length, converted: enquiriesWithJobs.length },'enq')
 
 
             return res.status(200).json({ total: enqTotal.length, converted: enquiriesWithJobs.length })
