@@ -28,7 +28,7 @@ export class PendingDealsComponent {
   selectedFile!: string | undefined;
   searchQuery: string = '';
   searchCriteria: string = 'dealId';
-  
+
   isLoading: boolean = true;
   isEmpty: boolean = false;
   progress: number = 0
@@ -38,7 +38,7 @@ export class PendingDealsComponent {
   private readonly destroy$ = new Subject<void>();
   private notViewedDealIds: Set<string> = new Set();
 
-  displayedColumns: string[] = ['dealId', 'quotations', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms','lpo', 'action'];
+  displayedColumns: string[] = ['dealId', 'quotations', 'customerName', 'description', 'salesPerson', 'department', 'paymentTerms', 'lpo', 'action'];
 
   dataSource = new MatTableDataSource<Quotatation>()
 
@@ -118,7 +118,7 @@ export class PendingDealsComponent {
     this.subscriptions.add(
       this._quoteService.getDealSheet(filterData)
         .subscribe((data: getDealSheet) => {
-          if (data && data.dealSheet  && data.dealSheet.length) {
+          if (data && data.dealSheet && data.dealSheet.length) {
             this.dataSource.data = [...data.dealSheet];
             this.dataSource._updateChangeSubscription()
             this.total = data.total
@@ -169,7 +169,7 @@ export class PendingDealsComponent {
     if (element?.nativeElement) {
       observer.observe(element.nativeElement);
     }
-}
+  }
 
   markQuoteAsViewed(quoteIds: string) {
     this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe({
@@ -181,7 +181,7 @@ export class PendingDealsComponent {
       }
     });
   }
- 
+
   onPreviewPdf(quotedData: getQuotatation) {
     this.loader.start()
     let quoteData: getQuotatation = quotedData;
@@ -255,12 +255,12 @@ export class PendingDealsComponent {
       return;
     });
 
-    quoteData.dealData.additionalCosts.forEach((cost,i:number)=>{
-      if(cost.type == 'Additional Cost'){
+    quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
+      if (cost.type == 'Additional Cost') {
         priceDetails.totalCost += cost.value
-      }else if(cost.type === 'Supplier Discount'){
+      } else if (cost.type === 'Supplier Discount') {
         priceDetails.totalCost -= cost.value
-      } else if(cost.type === 'Customer Discount'){
+      } else if (cost.type === 'Customer Discount') {
         priceDetails.totalSellingPrice -= cost.value
       } else {
         priceDetails.totalCost += cost.value
@@ -276,9 +276,9 @@ export class PendingDealsComponent {
         width: '1200px'
       });
 
-    dialogRef.afterClosed().subscribe((actions: { approve: boolean, updating: boolean }) => {
+    dialogRef.afterClosed().subscribe((actions: { approve: boolean, updating: boolean, comment: string }) => {
       if (actions.approve && !actions.updating) {
-        this._quoteService.approveDeal(quoteData._id, this.userId).subscribe((res) => {
+        this._quoteService.approveDeal(quoteData._id, actions.comment, this.userId).subscribe((res) => {
           if (res.success) {
             this.dataSource.data.splice(index, 1)
             this.dataSource._updateChangeSubscription()
@@ -297,10 +297,11 @@ export class PendingDealsComponent {
 
   onRejectDeal(quoteData: Quotatation, index: number) {
     const rejectModal = this._dialog.open(RejectDealComponent, {
+      data: { reject: true },
       width: '500px'
     })
-    rejectModal.afterClosed().subscribe((comment) => {
-      if (comment) {
+    rejectModal.afterClosed().subscribe(({submit,comment}) => {
+      if (submit && comment) {
         this._quoteService.rejectDeal(comment, quoteData._id).subscribe((res) => {
           if (res) {
             this.dataSource.data.splice(index, 1)

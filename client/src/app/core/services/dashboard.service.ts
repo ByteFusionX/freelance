@@ -38,7 +38,7 @@ export class DashboardService {
     presaleConvesion$ = this.presalesConvesionSubject.asObservable();
 
     private reAssignedpresalesConvesionSubject = new Subject<SalesConversion>();
-    reAssignedpresaleConvesion$ = this.presalesConvesionSubject.asObservable();
+    reAssignedpresaleConvesion$ = this.reAssignedpresalesConvesionSubject.asObservable();
 
     constructor(private http: HttpClient) { }
 

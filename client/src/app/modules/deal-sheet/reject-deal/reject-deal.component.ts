@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-reject-deal',
@@ -13,6 +13,7 @@ export class RejectDealComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<RejectDealComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { reject: boolean  },
   ) {
     this.rejectForm = this.fb.group({
       comment: ['', Validators.required]
@@ -22,9 +23,9 @@ export class RejectDealComponent {
   ngOnInit(): void {}
 
   onSubmit(): void {
-    if (this.rejectForm.valid) {
+    if (this.rejectForm.valid || !this.data.reject) {
       const comment = this.rejectForm.value.comment;
-      this.dialogRef.close(comment)
+      this.dialogRef.close({submit:true,comment})
     }
   }
 

@@ -23,10 +23,6 @@ export class HalfDoughnutChartComponent implements AfterViewInit {
     this.makeChartResponsive();
   }
 
-  // ngAfterViewChecked(): void {
-  //   this.onWindowResize()
-  // }
-
   initializeChart(): void {
     this.chartInstance = echarts.init(this.halfDoughnutChart.nativeElement);
 
@@ -49,6 +45,14 @@ export class HalfDoughnutChartComponent implements AfterViewInit {
 
   private updateChart(chartInstance: echarts.ECharts, data: any): void {
     const option = {
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          const value = params.value;
+          const percent = ((value / data.total) * 100).toFixed(1);
+          return `${params.name}: ${value} (${percent}%)`;
+        }
+      },
       series: [
         {
           name: 'Access From',
@@ -62,7 +66,7 @@ export class HalfDoughnutChartComponent implements AfterViewInit {
             show: true,
             fontSize: 20,
             position: 'center',
-            formatter: function (value: number) {
+            formatter: function (params: any) {
               return data.total > 0 ? `${((data.converted / data.total) * 100).toFixed(0)}%` : '0%';
             },
           },
@@ -70,48 +74,15 @@ export class HalfDoughnutChartComponent implements AfterViewInit {
             show: true
           },
           data: [
-            { value: data.converted || 0 },
-            { value: data.total - data.converted || 0.1 },
+            { value: data.converted || 0, name: 'Converted' },
+            { value: data.total - data.converted || 0, name: 'Not Converted' },
           ]
         }
       ]
     };
     chartInstance.setOption(option);
   }
-
-  // @HostListener('window:resize', ['$event'])
-  // onWindowResize(): void {
-  //   const screenWidth = window.innerWidth;
-  //   switch (true) {
-  //     case (screenWidth >= 1024 && screenWidth < 1280):
-  //       this.chartResize({ width: 350, height: 250 });
-  //       break;
-
-  //     case (screenWidth >= 1280 && screenWidth < 1536):
-  //       this.chartResize({ width: 400, height: 300 });
-  //       break;
-
-  //     case (screenWidth >= 1536 && screenWidth < 1600):
-  //       this.chartResize({ width: 450, height: 320 });
-  //       break;
-
-  //     case (screenWidth >= 1600 && screenWidth < 1920):
-  //       this.chartResize({ width: 500, height: 350 });
-  //       break;
-
-  //     case (screenWidth >= 1920 && screenWidth <= 2560):
-  //       this.chartResize({ width: 550, height: 450 });
-  //       break;
-
-  //     case (screenWidth >= 2560):
-  //       this.chartResize({ width: 600, height: 500 });
-  //       break;
-
-  //     default:
-  //       this.chartResize({ width: 300, height: 220 });
-  //       break;
-  //   }
-  // }
+  
 
   chartResize(size: any) {
     if (this.chartInstance) {

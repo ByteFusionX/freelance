@@ -146,6 +146,21 @@
                         {{element.quotation.dealData.dealId}} </td>
                 </ng-container>
 
+                <ng-container matColumnDef="comment">
+                    <th *matHeaderCellDef
+                        class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden ">
+                        Comment </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="flex justify-center items-center gap-3" *ngIf="element.comment">
+                                <button (click)="onViewComment(element.comment)"
+                                    class="w-7 h-7 rounded-full border border-gray-300 hover:border-gray-500 flex justify-center items-center"
+                                    matTooltip="View Comment" matTooltipPosition="above" matTooltipClass="mat-tooltip">
+                                    <ng-icon name="heroEye" class="text-black"></ng-icon>
+                                </button>
+                            </div>
+                        </td>
+                </ng-container>
+
                 <ng-container matColumnDef="lpo">
                     <th *matHeaderCellDef
                         class="bg-gray-100  px-[20px] py-[16px] text-start text-dark  text-[15px] font-medium border-none before:hidden">

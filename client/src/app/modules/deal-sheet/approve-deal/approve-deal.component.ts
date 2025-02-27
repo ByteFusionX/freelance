@@ -11,6 +11,7 @@ import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { HttpEventType } from '@angular/common/http';
 import saveAs from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
+import { RejectDealComponent } from '../reject-deal/reject-deal.component';
 
 @Component({
   selector: 'app-approve-deal',
@@ -97,20 +98,14 @@ export class ApproveDealComponent implements OnInit {
 
 
   onApprove() {
-    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
-      {
-        data: {
-          title: `Are you absolutely sure?`,
-          description: `This action cannot be undone. This will approve this deal and proceed to job.`,
-          icon: 'heroExclamationCircle',
-          IconColor: 'orange'
-        }
-      });
-
-    dialogRef.afterClosed().subscribe((approved: boolean) => {
-      if (approved) {
+    const rejectModal = this._dialog.open(RejectDealComponent, {
+      data:{reject:false},
+      width: '500px'
+    })
+    rejectModal.afterClosed().subscribe(({submit, comment}) => {
+      if (submit) {
         this.isApproving = true;
-        this.dialogRef.close({ approve: true, updating: false })
+        this.dialogRef.close({ approve: true, updating: false, comment })
       }
     })
   }

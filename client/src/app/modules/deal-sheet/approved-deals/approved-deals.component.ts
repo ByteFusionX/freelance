@@ -238,26 +238,6 @@ export class ApprovedDealsComponent {
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
-
-    const dialogRef = this._dialog.open(ApproveDealComponent,
-      {
-        data: { approval, quoteData, quoteItems, priceDetails },
-        width: '1200px'
-      });
-
-    dialogRef.afterClosed().subscribe((actions: { approve: boolean, updating: boolean }) => {
-      if (actions.approve && !actions.updating) {
-        this._quoteService.approveDeal(quoteData._id, this.userId).subscribe((res) => {
-          if (res.success) {
-            this.dataSource.data.splice(index, 1)
-            this.dataSource._updateChangeSubscription()
-            if (this.dataSource.data.length == 0) {
-              this.isEmpty = true;
-            }
-          }
-        })
-      }
-    })
   }
 
   onPageNumberClick(event: { page: number, row: number }) {

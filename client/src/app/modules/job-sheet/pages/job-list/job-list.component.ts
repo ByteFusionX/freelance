@@ -19,6 +19,7 @@ import { LoadingBarService } from '@ngx-loading-bar/core';
 import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
 import * as pdfMake from 'pdfmake/build/pdfmake';
+import { ViewCommentComponent } from 'src/app/modules/assigned-jobs/pages/view-comment/view-comment.component';
 
 @Component({
   selector: 'app-job-list',
@@ -131,7 +132,7 @@ export class JobListComponent {
   }
 
 
-  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet', 'lpo', 'lpoValue', 'status', 'action'];
+  displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet','comment', 'lpo', 'lpoValue', 'status', 'action'];
 
   getAllJobs(selectedMonth?: number,selectedYear?: string) {
     this.isLoading = true;
@@ -429,6 +430,13 @@ export class JobListComponent {
     } else {
       this.toast.warning('No Data to generate Report');
     }
+  }
+
+  onViewComment(comment: string) {
+    this._dialog.open(ViewCommentComponent, {
+      width: '500px',
+      data: { comment }
+    })
   }
 
 

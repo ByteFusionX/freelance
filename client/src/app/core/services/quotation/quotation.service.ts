@@ -60,8 +60,8 @@ export class QuotationService {
     return this.http.post<any>(`${this.api}/quotation/lpo`, lpoData)
   }
 
-  approveDeal(quoteId: string | undefined, userId: string | undefined): Observable<{ success: true }> {
-    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId, userId })
+  approveDeal(quoteId: string | undefined, comment: string | undefined, userId: string | undefined): Observable<{ success: true }> {
+    return this.http.post<{ success: true }>(`${this.api}/quotation/deal/approve`, { quoteId, userId, comment })
   }
 
   rejectDeal(comment: string, quoteId?: string): Observable<{ success: true }> {

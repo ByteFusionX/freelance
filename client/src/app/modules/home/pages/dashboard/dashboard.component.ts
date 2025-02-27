@@ -54,9 +54,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   minDate!: string;
   maxDate!: string;
 
-  @ViewChild('fromDateInput') fromDateInput!: ElementRef;
-  @ViewChild('toDateInput') toDateInput!: ElementRef;
-
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
 
@@ -88,10 +85,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.filterForm.patchValue({ fromDate: fromDate, toDate: toDate })
 
-    setTimeout(() => {
-      this.fromDateInput.nativeElement.value = fromDate;
-      this.toDateInput.nativeElement.value = toDate;
-    }, 0);
+    console.log(this.filterForm.value)
     
     this.onFilter()
 
@@ -160,7 +154,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
             this.subscriptions.add(
               this._dashboardService.getRePresaleJobSalesConversion(this.userId, this.filterForm.value).subscribe((res) => {
-                this._dashboardService.updatePresaleConversions(res)
+                this._dashboardService.updateRePresaleConversions(res)
               })
             )
 
@@ -298,7 +292,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
     }
-    this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     this.getDashboardReports();
 
     this.getSalesTarget(reset)
