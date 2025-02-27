@@ -95,7 +95,7 @@
                 <ng-container *ngIf="jobAccess">
                     <label for="" class="hidden md:block">Target Year : </label>
                     <ng-select [(ngModel)]="selectedTargetYear" [clearable]="false"
-                        (change)="onTargetYearChange(false)">
+                        (change)="onTargetYearChange(false,true)">
 
                         <ng-option value="total">Total</ng-option>
                         <ng-option *ngFor="let year of years" [value]="year">{{

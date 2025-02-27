@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.onFilter()
 
     this.selectedTargetYear = currentYear.toString();
-    this.onTargetYearChange(true)
+    this.onTargetYearChange(true,false)
     this.getSalesPerson();
     this.getDepartments();
     // this.getSalesTarget(true);
@@ -281,16 +281,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.selectedTargetYear = 'total';
       this._toaster.warning('There is no targets for the current year')
     }
-    this.onTargetYearChange(false);
+    this.onTargetYearChange(false,true);
   }
 
-  onTargetYearChange(reset: boolean) {
+  onTargetYearChange(reset: boolean,updateValues:boolean) {
     if (this.selectedTargetYear == 'total') {
       this.minDate = ''
       this.maxDate = ''
     } else {
       this.minDate = `${this.selectedTargetYear}-01-01`
       this.maxDate = `${this.selectedTargetYear}-12-31`
+    }
+
+    if(updateValues){
+      this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
     }
     this.getDashboardReports();
 
