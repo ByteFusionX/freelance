@@ -342,7 +342,7 @@ export class OptionalItemsComponent implements OnInit {
   }
 
   calculateDiscount() {
-    return this.optionalItems.value[this.selectedOption].totalDiscount
+    return this.optionalItems.value[this.selectedOption].totalDiscount || 0
   }
 
 
