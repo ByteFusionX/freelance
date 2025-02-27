@@ -26,10 +26,6 @@ export class NotificationComponent {
 
   ngOnInit() {
     this.notifications$ = this._notificationService.textNotificationsSubject$
-
-    this.notifications$.subscribe((res)=>{
-      console.log(res)
-    })
   }
 
   onClose() {

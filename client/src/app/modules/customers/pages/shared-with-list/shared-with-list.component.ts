@@ -29,7 +29,6 @@ export class SharedWithListComponent {
     this._employeeService.employeeData$.subscribe((res) => {
       this.userId = res?._id
     })
-    console.log(this.data.sharedWith)
   }
 
   stopSharing(employeeId?: string) {

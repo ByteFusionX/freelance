@@ -70,7 +70,6 @@ export class OptionalItemsComponent implements OnInit {
   }
 
   onCalculationOptionChange() {
-    // console.log(this.selectedOption.value)
     this.emitCalculatedValues()
   }
 
@@ -163,7 +162,6 @@ export class OptionalItemsComponent implements OnInit {
 
   removeOptions(i: number): void {
     const removedOption = this.optionalItems.at(i).value;
-    console.log(removedOption)
     this.removedOptions.push({ option: removedOption, i });
     this.optionalItems.removeAt(i);
 
@@ -226,9 +224,8 @@ export class OptionalItemsComponent implements OnInit {
   }
 
   undoRemoveOptions(): void {
-    if (this.removedOptions.length > 0) {
+    if (this.removedOptions.length > 0) {  
       const { option, i } = this.removedOptions.pop();
-      console.log(option, i);
       const optionGroup = this._fb.group({
         items: this._fb.array(
           option.items.map((item: any) =>

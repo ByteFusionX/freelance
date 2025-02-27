@@ -276,7 +276,6 @@ export class CreateQuotatationComponent {
 
   onQuoteSubmit() {
     this.submit = true;
-    console.log(this.quoteForm.value);
     
     if (this.quoteForm.valid) {
       this.isSaving = true;
@@ -310,7 +309,6 @@ export class CreateQuotatationComponent {
   }
 
   patchValues(data: getEnquiry) {
-    console.log(data);
     
     this.quoteForm.patchValue({
       client: data?.client._id,

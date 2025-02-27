@@ -124,6 +124,11 @@
     }
   },
   "cli": {
+    "cache": {
+      "enabled": true,
+      "path": ".angular/cache",
+      "environment": "all"
+    },
     "analytics": "50935f45-3c88-4acf-9e31-dd4a2a4ce48f"
   }
 }

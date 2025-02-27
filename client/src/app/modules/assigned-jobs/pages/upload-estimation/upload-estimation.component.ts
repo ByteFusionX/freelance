@@ -62,7 +62,6 @@ export class UploadEstimationComponent {
     const navigation = this._router.getCurrentNavigation();
     const isUpload = this._router.url.includes('upload-estimations')
     const isEdit = this._router.url.includes('edit-estimations')
-    console.log(navigation)
     if (navigation && isUpload) {
       this.quoteForm.patchValue({ totalDiscount: '0' })
       this.enqId = navigation.extras.state?.['enquiryId']
@@ -85,7 +84,6 @@ export class UploadEstimationComponent {
 
   onSubmit() {
     this.submit = true;
-    console.log(this.enqId,this.quoteForm.value,this.quoteForm.valid)
     if (this.enqId && this.quoteForm.valid) {
       this.isSaving = true;
       const quoteForm = this.quoteForm.value

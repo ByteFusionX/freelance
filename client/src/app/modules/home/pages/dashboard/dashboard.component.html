@@ -14,14 +14,14 @@
             <!-- Year Filter -->
             <div class="flex justify-between items-center mb-2">
                 <label for="fromDate" class="font-medium"> From:</label>
-                <input dateFutureDirective type="date" id="fromDate" formControlName="fromDate" onkeydown="return false"
+                <input #fromDateInput dateFutureDirective type="date" id="fromDate" formControlName="fromDate" onkeydown="return false"
                     [min]="minDate" [max]="maxDate"
                     class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
                     required="true">
             </div>
             <div class="flex justify-between  items-center">
                 <label for="toDate" class="font-medium"> To:</label>
-                <input dateFutureDirective type="date" id="toDate" formControlName="toDate" onkeydown="return false"
+                <input #toDateInput dateFutureDirective type="date" id="toDate" formControlName="toDate" onkeydown="return false"
                     [min]="minDate" [max]="maxDate"
                     class="h-10 inline-flex items-center text-body bg-white border border-gray/60 rounded-[6px] px-[20px]"
                     required="true">

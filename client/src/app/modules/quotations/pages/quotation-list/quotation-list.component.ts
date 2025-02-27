@@ -252,7 +252,7 @@ export class QuotationListComponent {
 
 
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
-    console.log(quoteData)
+
     event.stopPropagation()
     let priceDetails = {
       totalSellingPrice: 0,

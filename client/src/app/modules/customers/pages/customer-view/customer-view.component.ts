@@ -74,7 +74,6 @@ export class CustomerViewComponent {
 
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        console.log(this.customerData);
         this._customerService.deleteCustomer({ dataId: this.customerData._id, employeeId: employee.id }).subscribe({
           next: () => {
             this._toast.success('Customer deleted successfully');

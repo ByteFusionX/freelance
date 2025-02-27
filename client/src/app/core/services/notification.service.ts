@@ -38,7 +38,6 @@ export class NotificationService {
         this.socket.fromEvent<any>('recieveNotifications').subscribe(
             {
                 next: (notification) => {
-                    console.log(notification)
                     const notifications = this.textNotificationsSubject.value
                     notifications.unviewed.unshift(notification)
                     this.textNotificationsSubject.next(notifications)

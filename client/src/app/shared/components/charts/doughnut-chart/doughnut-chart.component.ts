@@ -30,9 +30,8 @@ export class DoughnutChartComponent implements OnInit, AfterViewInit {
     this._dashboardService.donutChart$.subscribe((data :any) => {
 
 
-      console.log(data,data.length)
       if (!this.chartInstance) {
-        console.error('Chart instance is not initialized');
+        console.error('Chart instance is not initialized');  
         return;
       }
 

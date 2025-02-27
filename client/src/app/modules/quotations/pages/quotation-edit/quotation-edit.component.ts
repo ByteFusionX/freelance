@@ -248,7 +248,6 @@ export class QuotationEditComponent {
 
   async onPreviewPdf() {
     this.submit = true;
-console.log(this.quoteForm,this.quoteForm.value)
     if (this.quoteForm.valid) {
       this.isPreviewing = true;
 
@@ -291,7 +290,6 @@ console.log(this.quoteForm,this.quoteForm.value)
 
   onQuoteSaveSubmit() {
     this.submit = true;
-    console.log(this.quoteForm.value,this.quoteForm)
     if (this.quoteForm.valid) {
       this.isSaving = true;
       this._quoteService.updateQuotation(this.quoteForm.value, this.quoteData._id).subscribe((res: Quotatation) => {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartOptions } from './dashboard.chart';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { BehaviorSubject, filter, map, Observable, Subscription } from 'rxjs';
@@ -54,6 +54,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   minDate!: string;
   maxDate!: string;
 
+  @ViewChild('fromDateInput') fromDateInput!: ElementRef;
+  @ViewChild('toDateInput') toDateInput!: ElementRef;
+
   private subscriptions = new Subscription()
   public chartOptions!: Partial<ChartOptions>;
 
@@ -75,8 +78,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkPermission();
-    const currentYear = new Date().getFullYear().toString()
-    this.selectedTargetYear = currentYear;
+
+    const currentDate = new Date()
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const fromDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+    const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const toDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    this.filterForm.patchValue({ fromDate: fromDate, toDate: toDate })
+
+    setTimeout(() => {
+      this.fromDateInput.nativeElement.value = fromDate;
+      this.toDateInput.nativeElement.value = toDate;
+    }, 0);
+    
+    this.onFilter()
+
+    this.selectedTargetYear = currentYear.toString();
     this.onTargetYearChange(true)
     this.getSalesPerson();
     this.getDepartments();
@@ -337,6 +356,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.selectedSalespersonName = ''
     }
 
+
     this.getDashboardReports();
   }
 
@@ -398,7 +418,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       // Function to get employee names by IDs
       const getEmployeeNames = (ids: string[]) => {
-        console.log(ids);
 
         return ids
           .map(id => {

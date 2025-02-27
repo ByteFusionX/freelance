@@ -121,11 +121,6 @@ export class CustomersListComponent {
 
     shareDialog.afterClosed().subscribe((res) => {
       if (res) {
-        console.log({
-          customerId: customerId,
-          employees: res.employees,
-          type: res.type
-        });
         this._customerService.shareOrTransferCustomer({
           customerId: customerId,
           employees: res.employees,

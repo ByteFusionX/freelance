@@ -80,7 +80,6 @@ export class JobListComponent {
 
     this.reportDate = `${currentMonthName} - ${currentYear}`;
 
-    console.log(currentMonthIndex)
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
@@ -159,7 +158,6 @@ export class JobListComponent {
       this._jobService.getJobs(filterData).subscribe({
         next: (data: JobTable) => {
           this.dataSource.data = [...data.job];
-          console.log(data)
           this.filteredData.data = data.job;
           this.total = data.total;
           this.totalLpoValue = data.totalLpo;
@@ -258,7 +256,6 @@ export class JobListComponent {
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
-    console.log(quoteData, priceDetails)
     this._dialog.open(ApproveDealComponent,
       {
         data: { approval: false, quoteData, quoteItems, priceDetails },
@@ -415,7 +412,6 @@ export class JobListComponent {
     if (!this.isEmpty) {
       const tableHeader: string[] = ['JobId', 'Customer', 'Description', 'Sales Person', 'Department', 'Quote', 'Deal', 'LPO Val.', 'Status'];
       const tableData = this.dataSource.data.map((data: any) => {
-        console.log(data)
         return [
           data.jobId,
           data.clientDetails.companyName,

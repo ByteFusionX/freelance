@@ -36,7 +36,6 @@ export class ViewPresaleComponent {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.data)
     
     this._employeeService.employeeData$.subscribe((data) => {
       if (data?._id) {

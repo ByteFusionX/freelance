@@ -174,7 +174,6 @@ export class PendingDealsComponent {
   markQuoteAsViewed(quoteIds: string) {
     this._quoteService.markDealAsViewed(quoteIds).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        console.log(`Successfully marked ${quoteIds} as viewed`);
         this._notificationService.decrementNotificationCount('dealSheet', 1);
       },
       error: (err) => {

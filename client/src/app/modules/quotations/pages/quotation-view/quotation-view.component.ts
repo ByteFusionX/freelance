@@ -66,7 +66,7 @@ export class QuotationViewComponent {
   }
 
   onQuoteEdit() {
-    let quoteData: quotatationForm = this.quoteData;
+    let quoteData: quotatationForm = this.quoteData; 
     const navigationExtras: NavigationExtras = {
       state: quoteData
     };
@@ -191,11 +191,11 @@ export class QuotationViewComponent {
   }
 
   calculateProfitMargin(): number {
-    return this.calculateSellingPrice() - this.calculateAllTotalCost() || 0
+    return this.calculateDiscoutPrice() - this.calculateAllTotalCost() || 0
   }
 
   calculateTotalProfit(): number {
-    return ((this.calculateSellingPrice() - this.calculateAllTotalCost()) / this.calculateSellingPrice() * 100) || 0
+    return ((this.calculateDiscoutPrice() - this.calculateAllTotalCost()) / this.calculateDiscoutPrice() * 100) || 0
   }
 
   calculateDiscoutPrice(): number {

@@ -112,7 +112,6 @@ export class QuotationService {
   }
 
   async generatePDF(quoteData: getQuotatation, includeStamp: boolean) {
-    console.log(quoteData);
     (pdfMake as any).fonts = {
       EBGaramond: {
         normal: `${window.location.origin}/assets/font/EBGaramond-Regular.ttf`,
