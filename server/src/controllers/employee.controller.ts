@@ -167,12 +167,9 @@ export const getEmployeesForCustomerTransfer = async (req: Request, res: Respons
             { $project: { password: 0 } },
         ]);
 
-        console.log(allEmployees,reportedEmployee,'SHSHSH')
         
         allEmployees = [...allEmployees,reportedEmployee]   
         
-        console.log(allEmployees,'SHSHSH')
-        // Filter employees without access
         const employeesWithoutAccess = await Promise.all(
             allEmployees.map(async (employee) => {
                 // Check if the employee is in the sharedWith array
@@ -782,7 +779,6 @@ export const getNotificationCounts = async (req: Request, res: Response, next: N
             enquiryCount
         }
 
-        console.log(employeeCount)
         if (employeeCount) return res.status(200).json(employeeCount)
         return res.status(502).json()
     } catch (error) {

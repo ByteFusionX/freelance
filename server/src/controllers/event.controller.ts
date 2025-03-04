@@ -5,6 +5,8 @@ import Enquiry from '../models/enquiry.model';
 import Quotation from '../models/quotation.model'
 import { createNotification } from "./notification.controller";
 import { Server } from "socket.io";
+import Notification from "../models/notification.model";
+
 
 export const newEvent = async (req: any, res: Response, next: NextFunction) => {
     try {
@@ -41,8 +43,7 @@ export const newEvent = async (req: any, res: Response, next: NextFunction) => {
 
             if (saveNewNotification) {
                 const socket = req.app.get('io') as Server;
-                saveNewNotification.recipients.forEach((recipient)=>{          
-                    console.log(recipient)      
+                saveNewNotification.recipients.forEach((recipient)=>{        
                     socket.to(recipient.objectId._id.toString()).emit("recieveNotifications", saveNewNotification)
                 })
             }
@@ -93,7 +94,11 @@ export const deleteEvent = async (req: Request, res: Response, next: NextFunctio
     try {
         const eventId = req.params.eventId
         const eventDelete = await Event.findOneAndDelete({ _id: eventId })
-        return res.status(200).json({ success: true })
+        const eventNotificationDelete = await Notification.findOneAndDelete({ referenceId: eventId })
+
+        if(eventDelete && eventNotificationDelete){
+            return res.status(200).json({ success: true })
+        }
     } catch (error) {
         next(error)
     }

@@ -238,6 +238,12 @@ export class ApprovedDealsComponent {
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
     priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
 
+    
+    this._dialog.open(ApproveDealComponent,
+      {
+        data: { approval, quoteData, quoteItems, priceDetails },
+        width: '1200px'
+      });
   }
 
   onPageNumberClick(event: { page: number, row: number }) {

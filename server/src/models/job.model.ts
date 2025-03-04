@@ -4,6 +4,7 @@ interface Job extends Document {
     quoteId: Types.ObjectId;
     jobId: string;
     status: string;
+    comment:string;
     createdDate: Date;
     isDeleted: boolean;
 }
@@ -28,6 +29,9 @@ const jobSchema = new Schema<Job>({
         type: String,
         required: true,
         unique: true,
+    },
+    comment: {
+        type: String,
     },
     status: {
         type: String,

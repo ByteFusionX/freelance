@@ -91,6 +91,7 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
                     companyName: 1,
                     clientRef: 1,
                     department: 1,
+                    companyAddress: 1,
                     createdBy: 1,
                     contactDetails: 1
                 },

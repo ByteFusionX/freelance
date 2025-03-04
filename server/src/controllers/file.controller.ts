@@ -11,11 +11,7 @@ const { ObjectId } = require('mongodb')
 export const DownloadFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const fileName = req.query.file as string;
-        console.log(fileName);
-
-        console.log(fileName)
         const url = await getFileUrlFromAws(fileName);
-        console.log(url)
 
         // Stream the file from S3 to the response
         const response = await fetch(url);

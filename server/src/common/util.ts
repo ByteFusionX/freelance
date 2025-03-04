@@ -89,7 +89,6 @@ export const getDateRange = (fromDate: string, toDate: string) => {
     let gte: Date, lte: string | number | Date;
 
     const currentDate = new Date();
-    console.log(fromDate, toDate);
 
     if (!toDate && !fromDate) {
         gte = new Date(currentDate);
@@ -120,7 +119,13 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
                 in: {
                     $sum: {
                         $map: {
-                            input: '$$item.itemDetails',
+                            input: {
+                                $filter: {
+                                    input: '$$item.itemDetails',
+                                    as: 'itemDetail',
+                                    cond: '$$itemDetail.dealSelected'
+                                }
+                            },
                             as: 'itemDetail',
                             in: {
                                 $multiply: [
@@ -130,7 +135,7 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
                                             { $subtract: [1, { $divide: ['$$itemDetail.profit', 100] }] }
                                         ]
                                     },
-                                            '$$itemDetail.quantity'
+                                    '$$itemDetail.quantity'
                                 ]
                             },
                         }
@@ -140,6 +145,7 @@ export const calculateDiscountPricePipe = (input: string, discount: string) => {
         }
     }
 }
+
 
 
 export const calculateQuoteDiscountPricePipe = (input: string) => {

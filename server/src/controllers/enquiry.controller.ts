@@ -94,9 +94,6 @@ export const assignPresale = async (req: any, res: Response, next: NextFunction)
         const presale = JSON.parse(req.body.presaleData || '{}'); // Default to an empty object to prevent crashes
         let presaleFiles = [];
 
-        // console.log(req.files?.newPresaleFile); // Safely access newPresaleFile
-        // console.log(presale);
-
         // Upload new files to AWS and build the `presaleFiles` array
         if (req.files?.newPresaleFile) {
             presaleFiles = await Promise.all(req.files.newPresaleFile.map(async (file: any) => {

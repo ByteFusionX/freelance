@@ -10,7 +10,6 @@ const { ObjectId } = require('mongodb')
 export const jobList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         let { page, search, row, status, salesPerson, selectedMonth, selectedYear, access, userId } = req.body;
-        console.log(selectedYear)
         let isStatus = status == null ? true : false;
         let isSalesPerson = salesPerson == null ? true : false;
         let skipNum: number = (page - 1) * row;
@@ -37,7 +36,6 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
             let startDate = new Date(selectedYear, 0, 1);
             let endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
             matchFilters.$and.push({ createdDate: { $gte: startDate, $lte: endDate } });
-            console.log(matchFilters)
         }
 
         let accessFilter = {};
@@ -211,8 +209,6 @@ export const jobList = async (req: Request, res: Response, next: NextFunction) =
 
             },
         ]).exec();
-
-        console.log(jobTotal)
 
         const totalValues = jobTotal.reduce((acc, job) => {
             acc += job?.lpoValue;

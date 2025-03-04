@@ -19,8 +19,6 @@ const s3Client = new S3Client({
 
 export const uploadFileToAws = async (fileName: string, filePath: string): Promise<string | void> => {
     try {
-        console.log('AWS Access Key ID:', process.env.AWS_ACCESSKEYID);
-        console.log('AWS Secret Access Key:', process.env.AWS_SECRETACCESSKEY);
         // Configure the parameters for the S3 upload
         const uploadParams = {
             Bucket: process.env.AWS_BUCKET_NAME,

@@ -27,7 +27,7 @@ export const saveQuotation = async (req: Request, res: Response, next: NextFunct
             if (enquiry) {
                 await Enquiry.findByIdAndUpdate(quoteData.enqId, { status: 'Quoted' });
                 const event = await Event.findOneAndUpdate({ collectionId: quoteData.enqId }, { $set: { collectionId: quote._id } });
-                if(event){
+                if (event) {
                     await Quotation.findOneAndUpdate({ _id: saveQuote._id }, { $set: { eventId: event._id } });
                 }
             } else {
@@ -66,7 +66,7 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             isDeleted: { $ne: true },
             $and: [
                 ...(quoteStatus ? [{ status: quoteStatus }] : []),
-                ...(dealStatus ? [{ 'dealData.status' : dealStatus }] : []),
+                ...(dealStatus ? [{ 'dealData.status': dealStatus }] : []),
                 { quoteId: { $regex: search, $options: 'i' } },
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
                 { $or: [{ client: new ObjectId(customer) }, { client: { $exists: isCustomer } }] },
@@ -82,7 +82,6 @@ export const getQuotations = async (req: Request, res: Response, next: NextFunct
             ]
         }
 
-        console.log(matchFilters)
 
         let accessFilter = {};
 
@@ -693,7 +692,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         const { quoteId } = req.params;
 
         const statusCheck = await Quotation.findOne({ _id: quoteId });
-        
+
         type UpdateQuery = {
             $set?: { status: string; lpoFiles?: any[] };
             $unset?: { [key: string]: number };
@@ -702,10 +701,10 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         let updateObject: UpdateQuery = {
             $set: { status }
         };
-        
+
         if (statusCheck.status === 'Won') {
             updateObject = {
-                $set: { 
+                $set: {
                     status,
                     lpoFiles: [] // Set to empty array
                 },
@@ -716,7 +715,7 @@ export const updateQuoteStatus = async (req: Request, res: Response, next: NextF
         }
 
         const quoteUpdated = await Quotation.findByIdAndUpdate(
-            quoteId, 
+            quoteId,
             updateObject,
             { new: true }
         );
@@ -806,7 +805,8 @@ export const approveDeal = async (req: Request, res: Response, next: NextFunctio
         const jobId = await generateJobId()
         const jobData = {
             quoteId: req.body.quoteId,
-            jobId: jobId
+            jobId: jobId,
+            comment: req.body.comment
         }
 
         const job = new Job(jobData);

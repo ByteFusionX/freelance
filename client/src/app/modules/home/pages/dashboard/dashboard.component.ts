@@ -295,6 +295,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if(updateValues){
       this.filterForm.patchValue({ fromDate: this.minDate, toDate: this.maxDate })
+
+      
     }
     this.getDashboardReports();
 
