@@ -227,7 +227,13 @@ export const calculateCostPricePipe = (input: string) => {
                                 in: {
                                     $sum: {
                                         $map: {
-                                            input: '$$item.itemDetails',
+                                            input: {
+                                                $filter: {
+                                                    input: '$$item.itemDetails',
+                                                    as: 'itemDetail',
+                                                    cond: '$$itemDetail.dealSelected'
+                                                }
+                                            },
                                             as: 'itemDetail',
                                             in: {
                                                 $round: [ // Round intermediate multiplication
