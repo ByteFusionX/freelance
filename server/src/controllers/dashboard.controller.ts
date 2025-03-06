@@ -251,23 +251,19 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
                     _id: 0,
                     totalSellingPrice: { $round: ['$totalSellingPrice', 2] },
                     lastWeekSellingPrice: { $round: ['$lastWeekSellingPrice', 2] },
-                    totalCostPrice: { $round: ['$totalCostPrice', 2] }, // Ensure these fields are rounded first
+                    totalCostPrice: { $round: ['$totalCostPrice', 2] },
                     lastWeekCostPrice: { $round: ['$lastWeekCostPrice', 2] },
                     grossProfit: {
-                        $round: [{
-                            $subtract: [
-                                { $round: ['$totalSellingPrice', 2] },
-                                { $round: ['$totalCostPrice', 2] }
-                            ]
-                        }, 2]
+                        $round: [
+                            { $subtract: ['$totalSellingPrice', '$totalCostPrice'] },
+                            2
+                        ]
                     },
                     lastWeekGrossProfit: {
-                        $round: [{
-                            $subtract: [
-                                { $round: ['$lastWeekSellingPrice', 2] },
-                                { $round: ['$lastWeekCostPrice', 2] }
-                            ]
-                        }, 2]
+                        $round: [
+                            { $subtract: ['$lastWeekSellingPrice', '$lastWeekCostPrice'] },
+                            2
+                        ]
                     },
                     totalJobAwarded: 1,
                     lastWeekJobAwarded: 1
@@ -276,6 +272,7 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
 
         ]).exec();
 
+        console.log(jobTotal[0])
 
         return jobTotal[0];
     } catch (error) {
