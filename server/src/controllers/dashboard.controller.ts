@@ -1061,7 +1061,10 @@ export const getEnquirySalesConversion = async (req: Request, res: Response, nex
                 }
             ]).exec();
 
-            return res.status(200).json({ total: directTotal[0].directQuotes, converted: directTotal[0].jobbedQuotes })
+            const totalQuotes = directTotal.length > 0 ? directTotal[0].directQuotes : 0;
+            const convertedQuotes = directTotal.length > 0 ? directTotal[0].jobbedQuotes : 0;
+
+            return res.status(200).json({ total: totalQuotes, converted: convertedQuotes });
         }
 
     } catch (error) {
@@ -1182,7 +1185,10 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
             ]).exec();
 
 
-            return res.status(200).json({ total: directTotal[0].directQuotes, converted: directTotal[0].jobbedQuotes })
+            const totalQuotes = directTotal.length > 0 ? directTotal[0].directQuotes : 0;
+            const convertedQuotes = directTotal.length > 0 ? directTotal[0].jobbedQuotes : 0;
+
+            return res.status(200).json({ total: totalQuotes, converted: convertedQuotes });
         }
 
     } catch (error) {
@@ -1305,7 +1311,10 @@ export const getReAssignedPresaleJobSalesConversion = async (req: Request, res: 
             ]).exec();
 
 
-            return res.status(200).json({ total: directTotal[0].directQuotes, converted: directTotal[0].jobbedQuotes })
+            const totalQuotes = directTotal.length > 0 ? directTotal[0].directQuotes : 0;
+            const convertedQuotes = directTotal.length > 0 ? directTotal[0].jobbedQuotes : 0;
+
+            return res.status(200).json({ total: totalQuotes, converted: convertedQuotes });
         }
 
     } catch (error) {
