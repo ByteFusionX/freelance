@@ -1,8 +1,10 @@
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { priceDetails, Quotatation, QuoteItem, QuoteItemDetail } from 'src/app/shared/interfaces/quotation.interface';
 import { fileEnterState } from '../../enquirys/enquiry-animations';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'app-updatedealsheet-component',
@@ -27,6 +29,7 @@ export class UpdatedealsheetComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { approval: boolean, quoteData: Quotatation, quoteItems: (QuoteItem | undefined)[], priceDetails: priceDetails, quoteView: boolean },
     public dialogRef: MatDialogRef<UpdatedealsheetComponent>,
+    public _dialog: MatDialog,
     private fb: FormBuilder
   ) { }
 
@@ -106,6 +109,29 @@ export class UpdatedealsheetComponent implements OnInit {
     this.removedFiles.push(...removedFiles)
   }
 
+  fetchLatestQuote() {
+    const dialogRef = this._dialog.open(ConfirmationDialogComponent,
+      {
+        data: {
+          title: `Are you absolutely sure?`,
+          description: `This action is irreversible. This will remove all the entered data and replace it with the latest quotation.`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'orange'
+        }
+      });
+
+    dialogRef.afterClosed().subscribe((approved: boolean) => {
+      if (approved) {
+        this.items.clear()
+
+        // Add new controls to the FormArray
+        this.data.quoteData.optionalItems[0].items.forEach(item => {
+          this.items.push(this.createItemGroup(item as QuoteItem));
+        });
+      }
+    })
+  }
+
 
   createItemGroup(item: QuoteItem): FormGroup {
     return this.fb.group({
@@ -127,9 +153,9 @@ export class UpdatedealsheetComponent implements OnInit {
       profit: [detail.profit, Validators.required],
       unitPrice: [unitPrice, Validators.required],
       availability: [detail.availability, Validators.required],
-      supplierName: ['', this.supplierNameValidator()],
-      phoneNo: ['', this.supplierNameValidator()],
-      email: ['', [this.supplierNameValidator(), Validators.email]],
+      supplierName: [detail.supplierName, this.supplierNameValidator()],
+      phoneNo: [detail.phoneNo, this.supplierNameValidator()],
+      email: [detail.email, [this.supplierNameValidator(), Validators.email]],
     });
   }
 

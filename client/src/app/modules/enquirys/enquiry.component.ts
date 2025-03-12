@@ -8,7 +8,7 @@ import { getEmployee } from 'src/app/shared/interfaces/employee.interface';
 import { EnquiryService } from 'src/app/core/services/enquiry/enquiry.service';
 import { EnquiryTable, getEnquiry, Presale } from 'src/app/shared/interfaces/enquiry.interface';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AssignPresaleComponent } from './assign-presale/assign-presale.component';
 import { ViewPresaleComponent } from './view-presale/view-presale.component';
@@ -67,7 +67,9 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     private _enquiryService: EnquiryService,
     private _customerService: CustomerService,
     private router: Router,
-    private toaster: ToastrService
+    private toaster: ToastrService,
+    private _router: Router,
+    private _route: ActivatedRoute,
   ) { }
 
   formData = this.fb.group({
@@ -93,13 +95,61 @@ export class EnquiryComponent implements OnInit, OnDestroy {
       })
     )
 
+        // Read URL parameters and initialize filters
+        this._route.queryParams.subscribe(params => {
+          this.page = params['page'] ? parseInt(params['page']) : 1;
+          this.row = params['row'] ? parseInt(params['row']) : 10;
+          this.fromDate = params['fromDate'] || null;
+          this.toDate = params['toDate'] || null;
+          this.selectedCustomer = params['customer'] || null;
+          this.selectedSalesPerson = params['salesPerson'] || null;
+          this.selectedDepartment = params['department'] || null;
+    
+          // Update form data if dates exist in URL
+          if (this.fromDate) {
+            this.formData.controls.fromDate.setValue(this.fromDate);
+          }
+          if (this.toDate) {
+            this.formData.controls.toDate.setValue(this.toDate);
+          }
+    
+          // Set isFiltered flag if any filter is applied
+          this.isFiltered = !!(this.fromDate || this.toDate || 
+                             this.selectedCustomer || this.selectedSalesPerson || 
+                             this.selectedDepartment);
+    
+          // Initialize the BehaviorSubject with the current page and row
+          this.subject.next({ page: this.page, row: this.row });
+        });
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
         this.page = data.page
         this.row = data.row
         this.getEnquiries()
+        this.updateUrlParams()
       })
     )
+  }
+
+  updateUrlParams() {
+    const queryParams: any = {};
+    
+    if (this.page !== 1) queryParams.page = this.page;
+    if (this.row !== 10) queryParams.row = this.row;
+    
+    if (this.fromDate) queryParams.fromDate = this.fromDate;
+    if (this.toDate) queryParams.toDate = this.toDate;
+     queryParams.customer = this.selectedCustomer;
+     queryParams.salesPerson = this.selectedSalesPerson;
+     queryParams.department = this.selectedDepartment;
+
+    this._router.navigate([], {
+      relativeTo: this._route,
+      queryParams: queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true 
+    });
   }
 
   ngOnDestroy(): void {
@@ -253,7 +303,10 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     this.selectedSalesPerson = null;
     this.selectedDepartment = null;
     this.selectedStatus = null;
+    this.formData.reset();
+    this.page = 1;
     this.getEnquiries()
+    this.updateUrlParams();
   }
 
   handleNotClose(event: MouseEvent) {
@@ -273,11 +326,13 @@ export class EnquiryComponent implements OnInit, OnDestroy {
     }
     this.isFiltered = true;
     this.getEnquiries()
+    this.updateUrlParams();
   }
 
   onfilterApplied() {
     this.isFiltered = true;
     this.getEnquiries()
+    this.updateUrlParams();
   }
 
   onRowClicks(index: number) {

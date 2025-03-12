@@ -20,6 +20,7 @@ import { getCreators } from 'src/app/shared/interfaces/employee.interface';
 import { NumberFormatterPipe } from 'src/app/shared/pipes/numFormatter.pipe';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import { ViewCommentComponent } from 'src/app/modules/assigned-jobs/pages/view-comment/view-comment.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-job-list',
@@ -68,7 +69,9 @@ export class JobListComponent {
     private _generatePdfSerive: GeneratePdfReport,
     private _employeeService: EmployeeService,
     private _quotationService: QuotationService,
-    private loadingBar: LoadingBarService
+    private loadingBar: LoadingBarService,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
 
@@ -81,20 +84,40 @@ export class JobListComponent {
 
     this.reportDate = `${currentMonthName} - ${currentYear}`;
 
+    // Read URL parameters
+    this.route.queryParams.subscribe(params => {
+      this.page = params['page'] ? parseInt(params['page']) : 1;
+      this.row = params['row'] ? parseInt(params['row']) : 10;
+      this.searchQuery = params['search'] || '';
+      this.selectedEmployee = params['employee'] || null;
+      this.selectedStatus = params['status'] ? parseInt(params['status']) : null;
+      
+      // Update subject with the values from URL
+      this.subject.next({ page: this.page, row: this.row });
+
+      // If any filter is applied from URL, update the isEnter flag
+      if (this.searchQuery) {
+        this.isEnter = true;
+      }
+    });
+
     this.subscriptions.add(
       this.subject.subscribe((data) => {
-        this.page = data.page
-        this.row = data.row
-        this.getAllJobs(currentMonthIndex+1,currentYear)
-      }))
+        this.page = data.page;
+        this.row = data.row;
+        // Update URL parameters for pagination
+        this.updateUrlParams();
+        this.getAllJobs(currentMonthIndex+1, currentYear);
+      })
+    );
+
     this.subscriptions.add(
       this._employeeService.employeeData$.subscribe((employee) => {
         if (employee?.category.role == 'superAdmin') {
-          this.isDeleteOption = true
+          this.isDeleteOption = true;
         }
-
       })
-    )
+    );
   }
 
   selectedStatus!: number | null;
@@ -102,7 +125,7 @@ export class JobListComponent {
   formData = this._fb.group({
     fromDate: new FormControl(),
     toDate: new FormControl(),
-  })
+  });
 
   status: { value: string }[] = [
     { value: 'Work In Progress' },
@@ -114,8 +137,28 @@ export class JobListComponent {
     { value: 'Invoiced' }
   ];
 
+  // Update URL parameters with current filter and pagination state
+  updateUrlParams() {
+    const queryParams: any = {};
+    
+    if (this.page !== 1) queryParams.page = this.page;
+    if (this.row !== 10) queryParams.row = this.row;
+    queryParams.search = this.searchQuery ? this.searchQuery : null;
+    queryParams.employee = this.selectedEmployee;
+    queryParams.status = this.selectedStatus;
+
+    // Navigate with the updated query parameters without reloading the page
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: queryParams,
+      queryParamsHandling: 'merge', // preserve other query params
+      replaceUrl: true // don't add to browser history for every filter change
+    });
+  }
+
   onfilterApplied() {
-    this.getAllJobs()
+    this.updateUrlParams();
+    this.getAllJobs();
   }
 
   ngModelChange() {
@@ -126,23 +169,24 @@ export class JobListComponent {
   }
 
   onSearch() {
-    this.isEnter = true
+    this.isEnter = true;
     this.isLoading = true;
-    this.getAllJobs()
+    this.updateUrlParams();
+    this.getAllJobs();
   }
-
 
   displayedColumns: string[] = ['jobId', 'customerName', 'description', 'salesPersonName', 'department', 'quotations', 'dealSheet','comment', 'lpo', 'lpoValue', 'status', 'action'];
 
-  getAllJobs(selectedMonth?: number,selectedYear?: string) {
+  getAllJobs(selectedMonth?: number, selectedYear?: string) {
     this.isLoading = true;
 
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.jobSheet.viewReport
-      userId = employee?._id
-    })
+      access = employee?.category.privileges.jobSheet.viewReport;
+      userId = employee?._id;
+    });
+    
     let filterData = {
       search: this.searchQuery,
       page: this.page,
@@ -153,7 +197,7 @@ export class JobListComponent {
       selectedYear: selectedYear as unknown as number,
       access: access,
       userId: userId
-    }
+    };
 
     this.subscriptions.add(
       this._jobService.getJobs(filterData).subscribe({
@@ -166,13 +210,13 @@ export class JobListComponent {
           this.isLoading = false;
         },
         error: ((error) => {
-          if (error.status == 504) this.jobId = '000'
-          this.dataSource.data = []
+          if (error.status == 504) this.jobId = '000';
+          this.dataSource.data = [];
           this.isLoading = false;
           this.isEmpty = true;
         })
       })
-    )
+    );
   }
 
   handleNotClose(event: MouseEvent) {
@@ -180,7 +224,7 @@ export class JobListComponent {
   }
 
   onDownloadClicks(file: any) {
-    this.selectedFile = file.fileName
+    this.selectedFile = file.fileName;
     this.subscriptions.add(
       this._jobService.downloadFile(file.fileName)
         .subscribe({
@@ -188,30 +232,30 @@ export class JobListComponent {
             if (event.type === HttpEventType.DownloadProgress) {
               this.progress = Math.round(100 * event.loaded / event.total);
             } else if (event.type === HttpEventType.Response) {
-              const fileContent: Blob = new Blob([event['body']])
-              saveAs(fileContent, file.originalname)
-              this.clearProgress()
+              const fileContent: Blob = new Blob([event['body']]);
+              saveAs(fileContent, file.originalname);
+              this.clearProgress();
             }
           },
           error: (error) => {
             if (error.status == 404) {
-              this.selectedFile = undefined
-              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.')
+              this.selectedFile = undefined;
+              this.toast.warning('Sorry, The requested file was not found on the server. Please ensure that the file exists and try again.');
             }
           }
         })
-    )
+    );
   }
 
   clearProgress() {
     setTimeout(() => {
       this.selectedFile = undefined;
-      this.progress = 0
-    }, 1000)
+      this.progress = 0;
+    }, 1000);
   }
 
   onGenerateReport() {
-    this.getAllJobs()
+    this.getAllJobs();
   }
 
   onViewDealSheet(quoteData: Quotatation, salesPerson: any, customer: any) {
@@ -222,7 +266,7 @@ export class JobListComponent {
       totalCost: 0,
       profit: 0,
       perc: 0
-    }
+    };
 
     const quoteItems = quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
@@ -232,10 +276,10 @@ export class JobListComponent {
           itemSelected++;
           priceDetails.totalSellingPrice += itemDetail.unitCost / (1 - (itemDetail.profit / 100)) * itemDetail.quantity;
           priceDetails.totalCost += itemDetail.quantity * itemDetail.unitCost;
-          return itemDetail
+          return itemDetail;
         }
         return;
-      })
+      });
 
       if (itemSelected) return item;
 
@@ -244,18 +288,18 @@ export class JobListComponent {
 
     quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
       if (cost.type == 'Additional Cost') {
-        priceDetails.totalCost += cost.value
+        priceDetails.totalCost += cost.value;
       } else if (cost.type === 'Supplier Discount') {
-        priceDetails.totalCost -= cost.value
+        priceDetails.totalCost -= cost.value;
       } else if (cost.type === 'Customer Discount') {
-        priceDetails.totalSellingPrice -= cost.value
+        priceDetails.totalSellingPrice -= cost.value;
       } else {
-        priceDetails.totalCost += cost.value
+        priceDetails.totalCost += cost.value;
       }
-    })
+    });
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
-    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
+    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100;
 
     this._dialog.open(ApproveDealComponent,
       {
@@ -301,14 +345,13 @@ export class JobListComponent {
     }
   }
 
-
   onPreviewPdf(quotedData: getQuotatation, salesPerson: any, customer: any, attention: any) {
-    this.loader.start()
+    this.loader.start();
     quotedData.createdBy = salesPerson;
     quotedData.client = customer;
     quotedData.attention = attention;
     let quoteData: getQuotatation = quotedData;
-    const pdfDoc = this._quotationService.generatePDF(quoteData, true)
+    const pdfDoc = this._quotationService.generatePDF(quoteData, true);
     pdfDoc.then((pdf) => {
       pdf.getBlob((blob: Blob) => {
         let url = window.URL.createObjectURL(blob);
@@ -317,12 +360,12 @@ export class JobListComponent {
           { data: { url: url, formatedQuote: quoteData } });
       });
     });
-    this.loader.complete()
+    this.loader.complete();
   }
 
   onStatus(event: Event, status: JobStatus) {
-    event.stopPropagation()
-    this.lastStatus = status
+    event.stopPropagation();
+    this.lastStatus = status;
   }
 
   updateStatus(i: number, jobId: string, status: JobStatus) {
@@ -344,11 +387,10 @@ export class JobListComponent {
         this._jobService.updateJobStatus(jobId, status).subscribe((res: JobStatus) => {
           this.dataSource.data[i].status = res;
           this.filteredData.data[i].status = res;
-        })
+        });
       }
-    })
+    });
   }
-
 
   generatePdf(dateRange: { selectedMonth?: number, selectedYear: number, selectedMonthName?: string, download: boolean }) {
     if (dateRange.selectedMonth && dateRange.selectedYear) {
@@ -373,9 +415,10 @@ export class JobListComponent {
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.jobSheet.viewReport
-      userId = employee?._id
-    })
+      access = employee?.category.privileges.jobSheet.viewReport;
+      userId = employee?._id;
+    });
+    
     let filterData = {
       search: this.searchQuery,
       page: this.page,
@@ -421,12 +464,12 @@ export class JobListComponent {
           data.departmentDetails[0].departmentName,
           data.quotation.quoteId,
           data.quotation.dealData.dealId,
-         `${data.lpoValue.toFixed(2)} QAR`,
+          `${data.lpoValue.toFixed(2)} QAR`,
           data.status
         ];
       });
       const width = ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
-      this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width)
+      this._generatePdfSerive.generatePdf('Job Report', this.reportDate, tableData, tableHeader, width);
     } else {
       this.toast.warning('No Data to generate Report');
     }
@@ -436,13 +479,12 @@ export class JobListComponent {
     this._dialog.open(ViewCommentComponent, {
       width: '500px',
       data: { comment }
-    })
+    });
   }
 
-
   onRemoveReport() {
-    this.reportDate = ''
-    this.getAllJobs()
+    this.reportDate = '';
+    this.getAllJobs();
   }
 
   formatNumber(value: any, minimumFractionDigits: number = 2, maximumFractionDigits: number = 2): string {
@@ -460,16 +502,29 @@ export class JobListComponent {
     this.searchQuery = ''; // Clear the search query
     this.selectedEmployee = null; // Reset selected employee
     this.selectedStatus = null; // Reset selected status
-    this.onfilterApplied(); // Call the filter applied function to reapply filters
+    
+    // Reset pagination
+    this.page = 1;
+    this.row = 10;
+    this.subject.next({ page: this.page, row: this.row });
+    
+    // Update URL to clear parameters
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
+    
+    // Apply filters (which will now be the default values)
+    this.onfilterApplied();
   }
 
-
   onPageNumberClick(event: { page: number, row: number }) {
-    this.subject.next(event)
+    this.subject.next(event);
   }
 
   onDeleteJob(jobId: string) {
-    const employee = this._employeeService.employeeToken()
+    const employee = this._employeeService.employeeToken();
     const dialogRef = this._dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Delete Job',
@@ -493,5 +548,4 @@ export class JobListComponent {
       }
     });
   }
-
 }

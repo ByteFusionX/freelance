@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { NavigationExtras, Router } from '@angular/router';
+import { NavigationExtras, Router, ActivatedRoute } from '@angular/router';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
 import { ContactDetail, getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
@@ -76,6 +76,7 @@ export class QuotationListComponent {
     private _fb: FormBuilder,
     private _quoteService: QuotationService,
     private _router: Router,
+    private _route: ActivatedRoute,
     private _dialog: MatDialog,
     private _employeeService: EmployeeService,
     private _customerService: CustomerService,
@@ -92,23 +93,55 @@ export class QuotationListComponent {
   })
 
   ngOnInit() {
-    this.checkPermission()
-    this.salesPerson$ = this._employeeService.getAllEmployees()
-    this.departments$ = this._departetmentService.getDepartments()
+    this.checkPermission();
+    this.salesPerson$ = this._employeeService.getAllEmployees();
+    this.departments$ = this._departetmentService.getDepartments();
+
+    // Read URL parameters and initialize filters
+    this._route.queryParams.subscribe(params => {
+      this.page = params['page'] ? parseInt(params['page']) : 1;
+      this.row = params['row'] ? parseInt(params['row']) : 10;
+      this.searchQuery = params['search'] || '';
+      this.fromDate = params['fromDate'] || null;
+      this.toDate = params['toDate'] || null;
+      this.selectedCustomer = params['customer'] || null;
+      this.selectedSalesPerson = params['salesPerson'] || null;
+      this.selectedDepartment = params['department'] || null;
+      this.selectedQuoteStatus = params['quoteStatus'] || null;
+      this.selectedDealStatus = params['dealStatus'] || null;
+
+      // Update form data if dates exist in URL
+      if (this.fromDate) {
+        this.formData.controls.fromDate.setValue(this.fromDate);
+      }
+      if (this.toDate) {
+        this.formData.controls.toDate.setValue(this.toDate);
+      }
+
+      // Set isFiltered flag if any filter is applied
+      this.isFiltered = !!(this.searchQuery || this.fromDate || this.toDate || 
+                         this.selectedCustomer || this.selectedSalesPerson || 
+                         this.selectedDepartment || this.selectedQuoteStatus || 
+                         this.selectedDealStatus);
+
+      // Initialize the BehaviorSubject with the current page and row
+      this.subject.next({ page: this.page, row: this.row });
+    });
 
     this.subscriptions.add(
       this.subject.subscribe((data) => {
-        this.page = data.page
-        this.row = data.row
-        this.getQuotations()
+        this.page = data.page;
+        this.row = data.row;
+        this.getQuotations();
+        this.updateUrlParams();
       })
-    )
-    this.customers$ = this._customerService.getAllCustomers(this.userId)
+    );
 
+    this.customers$ = this._customerService.getAllCustomers(this.userId);
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe()
+    this.subscriptions.unsubscribe();
   }
 
   ngModelChange() {
@@ -119,9 +152,38 @@ export class QuotationListComponent {
   }
 
   onSearch() {
-    this.isEnter = true
+    this.isEnter = true;
     this.isLoading = true;
-    this.getQuotations()
+    this.page = 1; // Reset to first page when searching
+    this.getQuotations();
+    this.updateUrlParams();
+  }
+
+  // Update URL parameters without reloading the page
+  updateUrlParams() {
+    const queryParams: any = {};
+    
+    // Add pagination params
+    if (this.page !== 1) queryParams.page = this.page;
+    if (this.row !== 10) queryParams.row = this.row;
+    
+    // Add filter params (only if they have values)
+    queryParams.search = this.searchQuery ? this.searchQuery : null;
+    if (this.fromDate) queryParams.fromDate = this.fromDate;
+    if (this.toDate) queryParams.toDate = this.toDate;
+    queryParams.customer = this.selectedCustomer;
+    queryParams.salesPerson = this.selectedSalesPerson;
+    queryParams.department = this.selectedDepartment;
+    queryParams.quoteStatus = this.selectedQuoteStatus;
+    queryParams.dealStatus = this.selectedDealStatus;
+    
+    // Update URL without reloading the page
+    this._router.navigate([], {
+      relativeTo: this._route,
+      queryParams: queryParams,
+      queryParamsHandling: 'merge', // Keep existing query params
+      replaceUrl: true // Replace the current URL in browser history
+    });
   }
 
   getQuotations() {
@@ -129,10 +191,10 @@ export class QuotationListComponent {
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.quotation.viewReport
-      userId = employee?._id
+      access = employee?.category.privileges.quotation.viewReport;
+      userId = employee?._id;
       this.userId = userId;
-    })
+    });
 
     let filterData = {
       search: this.searchQuery,
@@ -147,28 +209,27 @@ export class QuotationListComponent {
       dealStatus: this.selectedDealStatus,
       access: access,
       userId: userId
-    }
+    };
+
     this.subscriptions.add(
       this._quoteService.getQuotation(filterData)
         .subscribe((data: getQuotation) => {
           if (data) {
             this.dataSource.data = [...data.quotations];
             this.filteredData.data = data.quotations;
-            this.total = data.total
-            this.isEmpty = false
+            this.total = data.total;
+            this.isEmpty = false;
           } else {
             this.dataSource.data = [];
             this.isEmpty = true;
           }
-          this.isLoading = false
+          this.isLoading = false;
         })
-    )
-
+    );
   }
 
   onRowClicks(index: number) {
-
-    let data = this.dataSource.data[index]
+    let data = this.dataSource.data[index];
     const navigationExtras: NavigationExtras = {
       state: data
     };
@@ -177,7 +238,7 @@ export class QuotationListComponent {
   }
 
   onQuoteEdit(data: quotatationForm, event: Event) {
-    event.stopPropagation()
+    event.stopPropagation();
     let quoteData = data;
 
     const navigationExtras: NavigationExtras = {
@@ -193,42 +254,54 @@ export class QuotationListComponent {
 
   onClear() {
     this.isFiltered = false;
-    this.fromDate = null
-    this.toDate = null
+    this.searchQuery = '';  
+    this.fromDate = null;
+    this.toDate = null;
     this.selectedCustomer = null;
     this.selectedSalesPerson = null;
     this.selectedDepartment = null;
-    this.getQuotations()
+    this.selectedQuoteStatus = null;
+    this.selectedDealStatus = null;
+    this.formData.reset();
+    this.page = 1; 
+    this.getQuotations();
+    
+    this._router.navigate([], {
+      relativeTo: this._route,
+      queryParams: {}, 
+      replaceUrl: true
+    });
   }
 
   onSubmit() {
-    this.fromDate = null
-    this.toDate = null
-    let from = this.formData.controls.fromDate.value
-    let to = this.formData.controls.toDate.value
+    this.fromDate = null;
+    this.toDate = null;
+    let from = this.formData.controls.fromDate.value;
+    let to = this.formData.controls.toDate.value;
     const current = new Date();
-    const today = current.toISOString().split('T')[0]
+    const today = current.toISOString().split('T')[0];
     if (from <= to && to <= today && from.length && to.length) {
-      this.fromDate = from
-      this.toDate = to
+      this.fromDate = from;
+      this.toDate = to;
     }
     this.isFiltered = true;
-    this.getQuotations()
+    this.page = 1; // Reset to first page when applying new filters
+    this.getQuotations();
+    this.updateUrlParams();
   }
 
   onStatus(event: Event, status: QuoteStatus) {
-    event.stopPropagation()
-    this.lastStatus = status
+    event.stopPropagation();
+    this.lastStatus = status;
   }
 
   preventClick(event: Event) {
-    event.stopPropagation()
+    event.stopPropagation();
   }
 
   updateStatus(i: number, quoteId: string, status: QuoteStatus) {
     this.dataSource.data[i].status = this.lastStatus;
     this.filteredData.data[i].status = this.lastStatus;
-
 
     const dialogRef = this._dialog.open(ConfirmationDialogComponent,
       {
@@ -245,21 +318,19 @@ export class QuotationListComponent {
         this._quoteService.updateQuoteStatus(quoteId, status).subscribe((res: QuoteStatus) => {
           this.dataSource.data[i].status = res;
           this.filteredData.data[i].status = res;
-        })
+        });
       }
-    })
+    });
   }
 
-
   onPreviewDeal(approval: boolean, quoteData: Quotatation, event: Event, index: number) {
-
-    event.stopPropagation()
+    event.stopPropagation();
     let priceDetails = {
       totalSellingPrice: 0,
       totalCost: 0,
       profit: 0,
       perc: 0,
-    }
+    };
 
     const quoteItems = quoteData.dealData.updatedItems.map((item) => {
       let itemSelected = 0;
@@ -269,28 +340,28 @@ export class QuotationListComponent {
           itemSelected++;
           priceDetails.totalSellingPrice += itemDetail.unitCost / (1 - (itemDetail.profit / 100)) * itemDetail.quantity;
           priceDetails.totalCost += itemDetail.quantity * itemDetail.unitCost;
-          return itemDetail
+          return itemDetail;
         }
         return;
-      })
+      });
 
       return item;
     });
 
     quoteData.dealData.additionalCosts.forEach((cost, i: number) => {
       if (cost.type == 'Additional Cost') {
-        priceDetails.totalCost += cost.value
+        priceDetails.totalCost += cost.value;
       } else if (cost.type === 'Supplier Discount') {
-        priceDetails.totalCost -= cost.value
+        priceDetails.totalCost -= cost.value;
       } else if (cost.type === 'Customer Discount') {
-        priceDetails.totalSellingPrice -= cost.value
+        priceDetails.totalSellingPrice -= cost.value;
       } else {
-        priceDetails.totalCost += cost.value
+        priceDetails.totalCost += cost.value;
       }
-    })
+    });
 
     priceDetails.profit = priceDetails.totalSellingPrice - priceDetails.totalCost;
-    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100
+    priceDetails.perc = (priceDetails.profit / priceDetails.totalSellingPrice) * 100;
 
     const dialogRef = this._dialog.open(ApproveDealComponent,
       {
@@ -303,22 +374,24 @@ export class QuotationListComponent {
       if (data?.updatedData) {
         this.dataSource.data[index].dealData = data.updatedData.dealData;
       }
-      this.dataSource._updateChangeSubscription()
-    })
+      this.dataSource._updateChangeSubscription();
+    });
   }
 
   onfilterApplied() {
     this.isFiltered = true;
+    this.page = 1; // Reset to first page when applying filters
     this.getQuotations();
+    this.updateUrlParams();
   }
 
   generateReport() {
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.quotation.viewReport
-      userId = employee?._id
-    })
+      access = employee?.category.privileges.quotation.viewReport;
+      userId = employee?._id;
+    });
 
     let filterData = {
       salesPerson: this.selectedSalesPerson,
@@ -328,41 +401,41 @@ export class QuotationListComponent {
       department: this.selectedDepartment,
       access: access,
       userId: userId
-    }
+    };
     this._dialog.open(ViewReportComponent,
       {
         data: filterData,
         width: '768px'
-      })
+      });
   }
 
   onClickLpo(data: Quotatation, event: Event) {
-    event.stopPropagation()
-    const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data, width: '500px' })
+    event.stopPropagation();
+    const lpoDialog = this._dialog.open(UploadLpoComponent, { data: data, width: '500px' });
     lpoDialog.afterClosed().subscribe((quote: Quotatation) => {
       if (quote) {
-        this.loader.start()
-        this.getQuotations()
-        this.loader.complete()
+        this.loader.start();
+        this.getQuotations();
+        this.loader.complete();
       }
-    })
+    });
   }
 
   onViewLpo(data: Quotatation, event: Event, index: number) {
-    event.stopPropagation()
+    event.stopPropagation();
     this._dialog.open(ViewLpoComponent,
       {
         data: data
       }).afterClosed().subscribe((quote: Quotatation) => {
         if (quote) {
-          this.dataSource.data[index].lpoFiles = quote.lpoFiles
+          this.dataSource.data[index].lpoFiles = quote.lpoFiles;
           this.dataSource._updateChangeSubscription();
         }
       });
   }
 
   onConvertToDealSheet(data: Quotatation, event: Event, index: number) {
-    event.stopPropagation()
+    event.stopPropagation();
     const dialogRef = this._dialog.open(DealFormComponent,
       {
         data: data,
@@ -375,13 +448,13 @@ export class QuotationListComponent {
           this.dataSource.data[index].optionalItems = res.optionalItems;
           this.dataSource.data[index].dealData = res.dealData;
           this.dataSource._updateChangeSubscription();
-        })
+        });
       }
-    })
+    });
   }
 
   generateExcelReport() {
-    this.loader.start()
+    this.loader.start();
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Quotations');
 
@@ -401,10 +474,10 @@ export class QuotationListComponent {
     let access;
     let userId;
     this._employeeService.employeeData$.subscribe((employee) => {
-      access = employee?.category.privileges.quotation.viewReport
-      userId = employee?._id
+      access = employee?.category.privileges.quotation.viewReport;
+      userId = employee?._id;
       this.userId = userId;
-    })
+    });
 
     let filterData = {
       search: this.searchQuery,
@@ -415,9 +488,11 @@ export class QuotationListComponent {
       fromDate: this.fromDate,
       toDate: this.toDate,
       department: this.selectedDepartment,
+      quoteStatus: this.selectedQuoteStatus,
+      dealStatus: this.selectedDealStatus,
       access: access,
       userId: userId
-    }
+    };
     this.subscriptions.add(
       this._quoteService.getQuotation(filterData)
         .subscribe((data: getQuotation) => {
@@ -448,27 +523,27 @@ export class QuotationListComponent {
               FileSaver.saveAs(blob, 'quotations_report.xlsx');
             });
           } else {
-            this.toaster.warning('There is no quotation.')
+            this.toaster.warning('There is no quotation.');
           }
         })
-    )
-    this.loader.complete()
+    );
+    this.loader.complete();
   }
 
   checkPermission() {
     this._employeeService.employeeData$.subscribe((data) => {
-      this.createQuotation = data?.category.privileges.quotation.create
-      this.isSuperAdmin = data?.category.role === 'superAdmin'
-    })
+      this.createQuotation = data?.category.privileges.quotation.create;
+      this.isSuperAdmin = data?.category.role === 'superAdmin';
+    });
   }
 
   onPageNumberClick(event: { page: number, row: number }) {
-    this.subject.next(event)
+    this.subject.next(event);
   }
 
   calculateUnitPrice(j: number, k: number, quoteData: Quotatation) {
     const decimalMargin = quoteData.optionalItems[0].items[j].itemDetails[k].profit / 100;
-    return quoteData.optionalItems[0].items[j].itemDetails[k].unitCost / (1 - decimalMargin)
+    return quoteData.optionalItems[0].items[j].itemDetails[k].unitCost / (1 - decimalMargin);
   }
 
   calculateTotalPrice(j: number, k: number, quoteData: Quotatation) {
@@ -479,22 +554,22 @@ export class QuotationListComponent {
     let totalCost = 0;
     quoteData.optionalItems[0].items.forEach((item, j) => {
       item.itemDetails.forEach((itemDetail, k) => {
-        totalCost += this.calculateTotalPrice(j, k, quoteData)
-      })
-    })
+        totalCost += this.calculateTotalPrice(j, k, quoteData);
+      });
+    });
 
     return totalCost;
   }
 
   calculateDiscoutPrice(quoteData: Quotatation): number {
-    return this.calculateSellingPrice(quoteData) - quoteData.optionalItems[0].totalDiscount
+    return this.calculateSellingPrice(quoteData) - quoteData.optionalItems[0].totalDiscount;
   }
 
   onEventClicks(enquiryId: string) {
     this.isEventClicked = true;
-    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' })
+    const dialog = this._dialog.open(EventsListComponent, { data: { collectionId: enquiryId, from: 'Enquiry' }, width: '500px' });
     dialog.afterClosed().subscribe(() => {
-      this.isEventClicked = false
-    })
+      this.isEventClicked = false;
+    });
   }
 }
