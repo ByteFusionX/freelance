@@ -90,7 +90,7 @@ export class JobListComponent {
       this.row = params['row'] ? parseInt(params['row']) : 10;
       this.searchQuery = params['search'] || '';
       this.selectedEmployee = params['employee'] || null;
-      this.selectedStatus = params['status'] ? parseInt(params['status']) : null;
+      this.selectedStatus = params['status'] ? params['status'] : null;
       
       // Update subject with the values from URL
       this.subject.next({ page: this.page, row: this.row });
