@@ -121,7 +121,6 @@ export class CreateQuotatationComponent {
   }
 
   onCalculatedValuesReceived(values: { totalCost: number, sellingPrice: number, totalProfit: number, discount: number }) {
-    console.log(values)
     this.calculatedValues = values;
   }
 

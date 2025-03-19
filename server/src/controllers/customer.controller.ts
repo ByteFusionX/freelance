@@ -8,19 +8,16 @@ const { ObjectId } = require('mongodb')
 
 export const getAllCustomers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const customer = await Customer.find({ isDeleted: { $ne: true } })
-            .sort({ createdDate: -1 })
-            .populate('department createdBy');
         const userId = new ObjectId(req.params.userId);
 
-        const employeeAccess = await employeeModel.findOne({ _id:new ObjectId(userId) }).populate('category') as any
+        const employeeAccess = await employeeModel.findOne({ _id: new ObjectId(userId) }).populate('category') as any
 
 
         // Access Filter
         let accessFilter = {};
         const reportedToUserIds = await getAllReportedEmployees(userId);
 
-        switch (employeeAccess.category.privileges.customer.viewReport ) {
+        switch (employeeAccess.category.privileges.customer.viewReport) {
             case 'created':
                 accessFilter = {
                     $or: [
@@ -57,6 +54,7 @@ export const getAllCustomers = async (req: Request, res: Response, next: NextFun
         // Fetch Customers
         const customers = await Customer.aggregate([
             { $match: filters },
+            { $match: { isDeleted: { $ne: true } } },
             {
                 $lookup: {
                     from: 'departments',
@@ -272,7 +270,7 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
                     path: "$sharedWith",
                     preserveNullAndEmptyArrays: true,
                 },
-                
+
             },
             {
                 $unwind: "$department",
