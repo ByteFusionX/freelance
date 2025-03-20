@@ -6,6 +6,7 @@ interface Job extends Document {
     status: string;
     comment:string;
     createdDate: Date;
+    updatedDate: Date;
     isDeleted: boolean;
 }
 
@@ -39,6 +40,10 @@ const jobSchema = new Schema<Job>({
         default: jobStatus.WorkInProgress,
     },
     createdDate: {
+        type: Date,
+        default: Date.now
+    },
+    updatedDate: {
         type: Date,
         default: Date.now
     },

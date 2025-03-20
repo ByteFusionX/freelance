@@ -149,7 +149,7 @@ export class QuotationEditComponent {
     })
     this.customers$ = this._customerService.getAllCustomers(userId);
     if (this.quoteData) {
-      this.onCustomerChange(this.quoteData.client)
+      this.onCustomerChange(this.quoteData.client,false)
     }
   }
 
@@ -170,13 +170,18 @@ export class QuotationEditComponent {
     })
   }
 
-  async onCustomerChange(event: string | getCustomer) {
+  async onCustomerChange(event: string | getCustomer, fromTemplate: boolean) {
+    if (fromTemplate) {
+      this.quoteForm.controls['attention'].patchValue(undefined)
+    }
     const customers = await this.customers$.pipe(first()).toPromise() as getCustomer[];
     const customer: getCustomer | undefined = customers.find((value) => value._id == event)
     if (customer) {
       this.contacts = customer?.contactDetails;
     }
   }
+
+
 
   onCustomerNote(event: Note, noteType: string) {
     if (noteType == 'customerNotes') {
@@ -198,7 +203,7 @@ export class QuotationEditComponent {
     }
   }
 
-  onCalculatedValuesReceived(values: { totalCost: number, sellingPrice: number, totalProfit: number , discount: number }) {
+  onCalculatedValuesReceived(values: { totalCost: number, sellingPrice: number, totalProfit: number, discount: number }) {
     this.calculatedValues = values;
   }
 

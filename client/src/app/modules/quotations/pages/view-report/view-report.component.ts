@@ -1,8 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { QuotationService } from 'src/app/core/services/quotation/quotation.service';
-import { ChartOptions } from 'src/app/modules/home/pages/dashboard/dashboard.chart';
-import { FilterQuote, PieChartOptions, Quotatation, QuoteStatus, QuoteStatusColors, ReportDetails } from 'src/app/shared/interfaces/quotation.interface';
+import { FilterQuote, PieChartOptions, QuoteStatus, QuoteStatusColors, ReportDetails } from 'src/app/shared/interfaces/quotation.interface';
 
 @Component({
   selector: 'app-view-report',
@@ -10,79 +9,120 @@ import { FilterQuote, PieChartOptions, Quotatation, QuoteStatus, QuoteStatusColo
   styleUrls: ['./view-report.component.css']
 })
 export class ViewReportComponent {
-  reportData!:ReportDetails;
+  reportData!: ReportDetails;
   public chartOptions!: Partial<PieChartOptions>;
-
+  QuoteStatusColors = QuoteStatusColors;
+  
   constructor(
     private dialogRef: MatDialogRef<ViewReportComponent>,
     @Inject(MAT_DIALOG_DATA) public data: FilterQuote,
-    private _quotationSerice:QuotationService
+    private _quotationSerice: QuotationService
   ) { }
-
-  ngOnInit(){
-    this._quotationSerice.getQuotationReport(this.data).subscribe((res)=>{
+  
+  ngOnInit() {
+    this._quotationSerice.getQuotationReport(this.data).subscribe((res) => {
       this.reportData = res;
-      this.getPieChartDetails()
-    })
+      this.getPieChartDetails();
+    });
   }
-
-  getPieChartDetails(){
-    this.chartDetails()
+  
+  getPieChartDetails() {
+    this.chartDetails();
   }
-
+  
   onClose() {
-    this.dialogRef.close()
+    this.dialogRef.close();
   }
-
+  
   chartDetails() {
     this.chartOptions = {
       series: this.reportData.pieChartData.map(data => data.value),
       chart: {
-        width: 380,
         type: 'pie',
+        height: 280,
+        fontFamily: 'inherit',
+        background: 'transparent',
+        toolbar: {
+          show: false
+        },
+        animations: {
+          enabled: true,
+          speed: 500
+        }
       },
       labels: this.reportData.pieChartData.map(data => data.name),
-      colors: this.reportData.pieChartData.map(data => QuoteStatusColors[data.name as QuoteStatus]),
+      colors: this.reportData.pieChartData.map(data => {
+        return QuoteStatusColors[data.name as keyof typeof QuoteStatusColors] || '#CCCCCC';
+      }),
+      stroke: {
+        width: 2,
+        colors: ['#fff']
+      },
       dataLabels: {
+        enabled: false
+      },
+      legend: {
+        show: false
+      },
+      tooltip: {
         enabled: true,
-        formatter: (val: number) => {
-          return ''; 
+        theme: 'light',
+        fillSeriesColor: false,
+        style: {
+          fontSize: '14px'
         },
-        dropShadow: {
-          enabled: false
+        y: {
+          formatter: (val: number) => {
+            return val.toString();
+          }
         }
       },
       plotOptions: {
         pie: {
-          dataLabels: {
-            offset: -10
+          donut: {
+            size: '50%',
+            labels: {
+              show: false
+            }
+          },
+          customScale: 0.9,
+          offsetX: 0,
+          offsetY: 0,
+          expandOnClick: true
+        }
+      },
+      states: {
+        hover: {
+          filter: {
+            type: 'darken',
+            value: 0.9
           }
         }
       },
-      tooltip: {
-        y: {
-          formatter: (val: number) => {
-            return val.toString(); 
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 240
+            },
+            plotOptions: {
+              pie: {
+                customScale: 0.8
+              }
+            }
           }
         }
-      },
-      legend: {
-        show: true,
-        position: 'right', 
-        markers: {
-          width: 12,
-          height: 12
-        },
-        itemMargin: {
-          horizontal: 5,
-          vertical: 5
-        },
-        formatter: (seriesName: string, opts: any) => {
-          const value = this.reportData.pieChartData.find(data => data.name === seriesName)?.value;
-          return `${seriesName}: ${value}`; 
-        }
-      },
+      ]
     };
-    // this.showChart = true;
+  }
+  
+  getPercentage(value: number): string {
+    const total = this.reportData.pieChartData.reduce((sum, item) => sum + item.value, 0);
+    return ((value / total) * 100).toFixed(1) + '%';
+  }
+  
+  getStatusColor(statusName: string): string {
+    return QuoteStatusColors[statusName as keyof typeof QuoteStatusColors] || '#CCCCCC';
   }
 }

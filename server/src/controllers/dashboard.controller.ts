@@ -24,8 +24,16 @@ export const getDashboardMetrics = async (req: Request, res: Response, next: Nex
                     method: getRevenueAchieved,
                     metrics: [
                         { name: 'Revenue Achieved', type: 'QAR', key: 'totalSellingPrice', lastKey: 'lastWeekSellingPrice', lastWeekName: 'revenue', rank: 1 },
-                        { name: 'Gross Profit', type: 'QAR', key: 'grossProfit', lastKey: 'lastWeekgrossProfit', lastWeekName: 'profit', rank: 2 },
+                        { name: 'Gross Profit', type: 'QAR', key: 'grossProfit', lastKey: 'lastWeekGrossProfit', lastWeekName: 'profit', rank: 2 },
                         { name: 'Total Job Awarded', type: 'No.', key: 'totalJobAwarded', lastKey: 'lastWeekJobAwarded', lastWeekName: 'job awarded', rank: 6 },
+                    ]
+                },
+                invoiced: {
+                    privilege: privileges.jobSheet.viewReport,
+                    method: getInvoicedData,
+                    metrics: [
+                        { name: 'Invoiced Gross Profit', type: 'QAR', key: 'totalInvoicedProfit', lastKey: 'lastWeekInvoicedProfit', lastWeekName: 'invoiced profit', rank: 12 },
+                        { name: 'Total Job Invoiced', type: 'No.', key: 'totalInvoicedJobs', lastKey: 'lastWeekInvoicedJobs', lastWeekName: 'invoiced', rank: 11 },
                     ]
                 },
                 enquiry: {
@@ -277,6 +285,155 @@ const getRevenueAchieved = async (access: string, userId: string, filters: Filte
         return jobTotal[0];
     } catch (error) {
         console.error(error);
+    }
+}
+
+const getInvoicedData = async (access: string, userId: string, filters: Filters) => {
+    try {
+        let accessFilter = {};
+
+        let employeesReportingToUser = await employeeModel.find({ reportingTo: userId }, '_id');
+        let reportedToUserIds = employeesReportingToUser.map(employee => employee._id);
+
+        switch (access) {
+            case 'created':
+                accessFilter = { 'salesPerson._id': new ObjectId(userId) };
+                break;
+            case 'reported':
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
+                break;
+            case 'createdAndReported':
+                reportedToUserIds.push(new ObjectId(userId));
+                accessFilter = { 'salesPerson._id': { $in: reportedToUserIds } };
+                break;
+
+            default:
+                break;
+        }
+
+        const qatarUsdRate = await getUSDRated();
+
+        const currentDate = new Date();
+        const sevenDaysAgo = new Date(currentDate);
+        sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+        // Add status filter for 'Invoiced' jobs
+        const statusFilter = { 'status': 'Invoiced' };
+        // Combine with other filters
+        const combinedFilter = { ...buildDashboardFilters(filters, accessFilter), ...statusFilter };
+
+        const invoicedJobTotal = await jobModel.aggregate([
+            {
+                $lookup: { from: 'quotations', localField: 'quoteId', foreignField: '_id', as: 'quotation' }
+            },
+            {
+                $unwind: "$quotation"
+            },
+            {
+                $lookup: { from: 'employees', localField: 'quotation.createdBy', foreignField: '_id', as: 'salesPerson' }
+            },
+            {
+                $lookup: { from: 'departments', localField: 'quotation.department', foreignField: '_id', as: 'department' }
+            },
+            {
+                $unwind: "$salesPerson"
+            },
+            {
+                $unwind: "$department"
+            },
+            {
+                $match: combinedFilter
+            },
+            {
+                $addFields: {
+                    invoicedProfit: {
+                        $round: [
+                            { 
+                                $subtract: [
+                                    { 
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $multiply: [
+                                                    calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount'),
+                                                    qatarUsdRate
+                                                ]
+                                            },
+                                            calculateDiscountPricePipe('$quotation.dealData.updatedItems', '$quotation.dealData.totalDiscount')
+                                        ]
+                                    },
+                                    { 
+                                        $cond: [
+                                            { $eq: ['$quotation.currency', 'USD'] },
+                                            {
+                                                $multiply: [
+                                                    calculateCostPricePipe('$quotation.dealData.updatedItems'),
+                                                    qatarUsdRate
+                                                ]
+                                            },
+                                            calculateCostPricePipe('$quotation.dealData.updatedItems')
+                                        ]
+                                    }
+                                ]
+                            },
+                            2
+                        ]
+                    },
+                    isUpdatedLastWeek: {
+                        $gte: ['$updatedDate', sevenDaysAgo]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalInvoicedProfit: { $sum: '$invoicedProfit' },
+                    lastWeekInvoicedProfit: {
+                        $sum: {
+                            '$cond': [
+                                '$isUpdatedLastWeek',
+                                '$invoicedProfit',
+                                0
+                            ]
+                        }
+                    },
+                    totalInvoicedJobs: { $sum: 1 },
+                    lastWeekInvoicedJobs: {
+                        $sum: {
+                            '$cond': [
+                                '$isUpdatedLastWeek',
+                                1,
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    totalInvoicedProfit: { $round: ['$totalInvoicedProfit', 2] },
+                    lastWeekInvoicedProfit: { $round: ['$lastWeekInvoicedProfit', 2] },
+                    totalInvoicedJobs: 1,
+                    lastWeekInvoicedJobs: 1
+                }
+            }
+        ]).exec();
+
+        return invoicedJobTotal[0] || { 
+            totalInvoicedProfit: 0, 
+            lastWeekInvoicedProfit: 0,
+            totalInvoicedJobs: 0,
+            lastWeekInvoicedJobs: 0
+        };
+    } catch (error) {
+        console.error(error);
+        return { 
+            totalInvoicedProfit: 0, 
+            lastWeekInvoicedProfit: 0,
+            totalInvoicedJobs: 0,
+            lastWeekInvoicedJobs: 0
+        };
     }
 }
 
@@ -1124,7 +1281,7 @@ export const getPresaleJobSalesConversion = async (req: Request, res: Response, 
                 },
                 {
                     $match: {
-                        "enquiry.preSale.presalePerson": { $exists: true, $ne:null },
+                        "enquiry.preSale.presalePerson": { $exists: true, $ne: null },
                     }
                 },
                 {
@@ -1249,8 +1406,8 @@ export const getReAssignedPresaleJobSalesConversion = async (req: Request, res: 
                 },
                 {
                     $match: {
-                        "enquiry.preSale.presalePerson": { $exists: true, $ne:null },
-                        "enquiry.reAssigned": { $exists: true, $ne:null },
+                        "enquiry.preSale.presalePerson": { $exists: true, $ne: null },
+                        "enquiry.reAssigned": { $exists: true, $ne: null },
                     }
                 },
                 {

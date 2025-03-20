@@ -84,31 +84,47 @@ export const buildDashboardFilters = (filters: Filters, accessFilter: any) => {
     return { ...accessFilter, ...matchFilter };
 }
 
-
 export const getDateRange = (fromDate: string, toDate: string) => {
-    let gte: Date, lte: string | number | Date;
-
+    let gte: Date, lte: Date;
     const currentDate = new Date();
-
+    
+    // Case 1: No dates provided
     if (!toDate && !fromDate) {
-        gte = new Date(currentDate);
-        gte.setFullYear(currentDate.getFullYear() - 1);
-        lte = currentDate;
-    } else if (!fromDate && toDate) {
-        lte = new Date(toDate);
-        gte = new Date(lte);
-        gte.setFullYear(lte.getFullYear() - 1);
-    } else if (fromDate && !toDate) {
-        gte = new Date(fromDate);
-        lte = currentDate;
-    } else if (fromDate && toDate) {
-
-        gte = new Date(fromDate);
-        lte = new Date(toDate);
+      gte = new Date(currentDate);
+      gte.setFullYear(currentDate.getFullYear() - 1);
+      lte = currentDate;
+    } 
+    // Case 2: Only toDate provided
+    else if (!fromDate && toDate) {
+      lte = new Date(toDate);
+      gte = new Date(lte);
+      gte.setFullYear(lte.getFullYear() - 1);
+    } 
+    // Case 3: Only fromDate provided
+    else if (fromDate && !toDate) {
+      gte = new Date(fromDate);
+      lte = currentDate;
+    } 
+    // Case 4: Both dates provided
+    else if (fromDate && toDate) {
+      gte = new Date(fromDate);
+      lte = new Date(toDate);
+      
+      // Check if there's approximately a one-month gap
+      const monthsDiff = (lte.getFullYear() - gte.getFullYear()) * 12 + (lte.getMonth() - gte.getMonth());
+      
+      if (monthsDiff <= 1) {
+        // Set gte to first day of previous month
+        gte = new Date(gte.getFullYear(), gte.getMonth() - 2, 1);
+        
+        // Set lte to last day of next month
+        lte = new Date(lte.getFullYear(), lte.getMonth() + 1, 0);
+      }
     }
-
+    
     return { gte, lte };
-}
+  };
+
 
 export const calculateDiscountPricePipe = (input: string, discount: string) => {
     return {

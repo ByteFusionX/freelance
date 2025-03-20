@@ -179,13 +179,11 @@ export interface priceDetails {
 export interface PieChartData {
     name: string;
     value: number;
+    lpoValue: number;
 }
 
 export interface ReportDetails {
-    totalValue: number;
-    totalWonValue: number;
-    totalJobAwarded: number;
-    totalLossValue: number;
+    totalValue: any;
     pieChartData: PieChartData[];
 }
 
@@ -198,6 +196,9 @@ export type PieChartOptions = {
     dataLabels: ApexDataLabels;
     plotOptions: ApexPlotOptions;
     colors: any;
+    responsive: any;
+    stroke: any;
+    states: any;
 };
 
 

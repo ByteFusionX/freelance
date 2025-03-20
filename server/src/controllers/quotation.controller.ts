@@ -965,7 +965,6 @@ export const totalQuotation = async (req: Request, res: Response, next: NextFunc
         next(error)
     }
 }
-
 export const getReportDetails = async (req: Request, res: Response) => {
     try {
         let { salesPerson, customer, fromDate, toDate, department, access, userId } = req.body;
@@ -974,6 +973,7 @@ export const getReportDetails = async (req: Request, res: Response) => {
         let isDate = fromDate == null || toDate == null ? true : false;
         let isDepartment = department == null ? true : false;
 
+        // Basic match filters
         let matchFilters = {
             $and: [
                 { $or: [{ createdBy: new ObjectId(salesPerson) }, { createdBy: { $exists: isSalesPerson } }] },
@@ -990,8 +990,8 @@ export const getReportDetails = async (req: Request, res: Response) => {
             ]
         }
 
+        // Access filter logic
         let accessFilter = {};
-
         let reportedToUserIds = await getAllReportedEmployees(userId);
 
         switch (access) {
@@ -1005,115 +1005,89 @@ export const getReportDetails = async (req: Request, res: Response) => {
                 reportedToUserIds.push(new ObjectId(userId));
                 accessFilter = { createdBy: { $in: reportedToUserIds } };
                 break;
-
             default:
                 break;
         }
 
         const filters = { $and: [matchFilters, accessFilter] }
 
+        // Get all quotations
         const quotations = await Quotation.aggregate([
-            {
-                $match: filters
-            },
-        ])
+            { $match: filters }
+        ]);
 
-        const jobQuoataions = await Quotation.aggregate([
-            {
-                $match: filters
-            },
-            {
-                $lookup: {
-                    from: 'jobs',
-                    localField: '_id',
-                    foreignField: 'quoteId',
-                    as: 'jobs'
-                }
-            },
-            {
-                $match: {
-                    'jobs.0': { $exists: true }
-                }
-            },
-            {
-                $project: {
-                    jobs: 0
-                }
-            }
-        ])
-
+        // Calculate values
+        const qatarUsdRates = await getUSDRated();
+        
         const totalValues = quotations.reduce((acc: any, quote: any) => {
-            if (quote.currency == 'USD') {
-                acc.totalUSDValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-            } else if (quote.currency == 'QAR') {
-                acc.totalQARValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
+            // Calculate the discounted price for the current quote
+            const discountPrice = calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
+            
+            // Track values for each status type
+            if (!acc.statusValues[quote.status]) {
+                acc.statusValues[quote.status] = {
+                    qar: 0,
+                    usd: 0,
+                    combined: 0,
+                    lpoValue: 0 // Add LPO value tracking
+                };
             }
 
-            if (quote.status === quoteStatus.Won) {
-                if (quote.currency == 'USD') {
-                    acc.totalUSDWonValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-                } else if (quote.currency == 'QAR') {
-                    acc.totalQARWonValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-                }
-            } else if (quote.status === quoteStatus.Lost) {
-                if (quote.currency == 'USD') {
-                    acc.totalUSDLossValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-                } else if (quote.currency == 'QAR') {
-                    acc.totalQARLossValue += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-                }
+            // Add to the appropriate currency total
+            if (quote.currency == 'USD') {
+                acc.statusValues[quote.status].usd += discountPrice;
+            } else if (quote.currency == 'QAR') {
+                acc.statusValues[quote.status].qar += discountPrice;
             }
+            
+            // Calculate LPO value (example calculation - modify as needed)
+            acc.statusValues[quote.status].lpoValue += discountPrice * 0.8; // Assuming LPO is 80% of quote value
+            
+            // Track counts for pie chart
             acc.statusCounts[quote.status] = (acc.statusCounts[quote.status] || 0) + 1;
+            
+            // Add to total values
+            if (quote.currency == 'USD') {
+                acc.totalUSDValue += discountPrice;
+            } else if (quote.currency == 'QAR') {
+                acc.totalQARValue += discountPrice;
+            }
+            
             return acc;
         }, {
             totalUSDValue: 0,
             totalQARValue: 0,
-            totalUSDWonValue: 0,
-            totalQARWonValue: 0,
-            totalUSDLossValue: 0,
-            totalQARLossValue: 0,
-            statusCounts: {}
+            statusCounts: {},
+            statusValues: {}
         });
 
-        const totalJobAwardedUQ = jobQuoataions.reduce((acc: any, quote: any) => {
-            if (quote.currency == 'USD') {
-                acc.totalUSDJobAwarded += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-            } else if (quote.currency == 'QAR') {
-                acc.totalQARJobAwarded += calculateDiscountPrice(quote.optionalItems[0].totalDiscount, quote.optionalItems[0].items);
-            }
-            return acc
-        }, {
-            totalUSDJobAwarded: 0,
-            totalQARJobAwarded: 0
-        })
+        // Calculate combined values and total value
+        const totalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
+        
+        // Create pie chart data with LPO values
+        const pieChartData = Object.keys(totalValues.statusCounts).map(status => {
+            const statusData = totalValues.statusValues[status];
+            statusData.combined = statusData.qar + (statusData.usd * qatarUsdRates);
+            
+            return {
+                name: status,
+                value: totalValues.statusCounts[status],
+                lpoValue: statusData.lpoValue // Add LPO value to pie chart data
+            };
+        });
 
-        const pieChartData = Object.keys(totalValues.statusCounts).map(status => ({
-            name: status,
-            value: totalValues.statusCounts[status]
-        }));
+        console.log(pieChartData)
+        // Return only pie chart data and total value
+        return res.status(200).json({
+            totalValue,
+            pieChartData
+        });
 
-        const qatarUsdRates = await getUSDRated();
-
-        const tatalValue = totalValues.totalQARValue + (totalValues.totalUSDValue * qatarUsdRates);
-        const totalWonValue = totalValues.totalQARValue + (totalValues.totalUSDWonValue * qatarUsdRates);
-        const totalLossValue = totalValues.totalQARLossValue + (totalValues.totalUSDLossValue * qatarUsdRates);
-        const totalJobAwarded = totalJobAwardedUQ.totalQARJobAwarded + (totalJobAwardedUQ.totalUSDJobAwarded * qatarUsdRates);
-
-        if (totalValues && pieChartData) {
-            return res.status(200).json({
-                totalValue: tatalValue,
-                totalWonValue: totalWonValue,
-                totalLossValue: totalLossValue,
-                totalJobAwarded: totalJobAwarded,
-                pieChartData
-            })
-        }
-
-        return res.status(502).json();
     } catch (error) {
         console.error(error);
+        return res.status(502).json({ error: "Failed to generate report" });
     }
 };
-
 
 const generateJobId = async () => {
     try {

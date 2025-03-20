@@ -292,7 +292,7 @@ export const updateJobStatus = async (req: Request, res: Response, next: NextFun
     try {
         const { status } = req.body;
         const { jobId } = req.params;
-        const jobUpdated = await jobModel.findByIdAndUpdate(jobId, { status: status })
+        const jobUpdated = await jobModel.findByIdAndUpdate(jobId, { status: status, updatedDate: Date.now() })
 
         if (jobUpdated) {
             return res.status(200).json(status)

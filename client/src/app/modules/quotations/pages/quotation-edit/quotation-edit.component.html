@@ -14,7 +14,7 @@
                             Client
                         </label>
                         <ng-select [class.border-red-500]="f['client'].invalid && submit" class="form border"
-                            (change)="onCustomerChange($event)" formControlName="client" bindLabel="companyName">
+                            (change)="onCustomerChange($event,true)" formControlName="client" bindLabel="companyName">
                             <ng-option *ngFor="let customer of customers$ | async"
                                 [value]="customer._id">{{customer.companyName}}</ng-option>
                             <ng-template ng-footer-tmp>
