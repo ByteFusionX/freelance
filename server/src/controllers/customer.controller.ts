@@ -240,6 +240,14 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
             },
             {
                 $lookup: {
+                    from: 'customertypes',
+                    localField: 'customerType',
+                    foreignField: '_id',
+                    as: 'customerType',
+                },
+            },
+            {
+                $lookup: {
                     from: 'employees',
                     localField: 'createdBy',
                     foreignField: '_id',
@@ -274,6 +282,13 @@ export const getFilteredCustomers = async (req: Request, res: Response, next: Ne
             },
             {
                 $unwind: "$department",
+            },
+            {
+                $unwind: {
+                    path: "$customerType",
+                    preserveNullAndEmptyArrays: true,
+                },
+
             },
             {
                 $unwind: "$createdBy",
@@ -382,7 +397,21 @@ export const getCustomerByCustomerId = async (req: Request, res: Response, next:
                     }
                 },
                 {
+                    $lookup: {
+                        from: 'customertypes',
+                        localField: 'customerType',
+                        foreignField: '_id',
+                        as: 'customerType'
+                    }
+                },
+                {
                     $unwind: "$contactDetails.department",
+                },
+                {
+                    $unwind: {
+                        path: "$customerType",
+                        preserveNullAndEmptyArrays: true,
+                    },
                 },
                 {
                     $unwind: "$department"

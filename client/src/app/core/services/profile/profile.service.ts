@@ -7,6 +7,7 @@ import { NoteDelete, NotePatch, NotePost, Notes } from 'src/app/shared/interface
 import { TotalEnquiry } from 'src/app/shared/interfaces/enquiry.interface';
 import { getCompanyDetails } from 'src/app/shared/interfaces/company.interface';
 import { Target } from 'src/app/shared/interfaces/employee.interface';
+import { getCustomerType } from 'src/app/shared/interfaces/customerType.interface';
 
 
 @Injectable({
@@ -33,9 +34,27 @@ export class ProfileService {
     return this.http.get<getDepartment[]>(`${this.api}/department/customer`)
   }
 
+  getCustomerTypes(): Observable<getCustomerType[]> {
+    return this.http.get<getCustomerType[]>(`${this.api}/customerType`)
+  }
+
+  setCustomerType(customerType: getCustomerType): Observable<getCustomerType> {
+    return this.http.post<getCustomerType>(`${this.api}/customerType`, customerType)
+  }
+
+  updateCustomerType(customerType: getCustomerType): Observable<getCustomerType> {
+    return this.http.put<getCustomerType>(`${this.api}/customerType`, customerType)
+  }
+
+
+  deleteCustomerType(data: { dataId: string, employee: string}): Observable<any> {
+    return this.http.post<any>(`${this.api}/customerType/delete-customerType`,data)
+  }
+
   updateCustomerDepartment(department: Department): Observable<getDepartment> {
     return this.http.put<getDepartment>(`${this.api}/department/customer`, department)
   }
+  
 
   totalEnquiries(access?: string, userId?: string): Observable<TotalEnquiry[]> {
     return this.http.get<TotalEnquiry[]>(`${this.api}/department/enquiry-count?access=${access}&userId=${userId}`)

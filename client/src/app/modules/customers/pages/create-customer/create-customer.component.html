@@ -152,17 +152,20 @@
                   for="customerType">
                   Customer Type
                 </label>
-                <ng-select [ngClass]="{'border-red-500':f['customerType'].invalid && isSubmitted}" id="customerType"
-                  class="form border" placeholder="Customer Type" appendTo="body" formControlName="customerType">
-                  <ng-option value="hospitality">Hospitality </ng-option>
-                  <ng-option  value="education">⁠Education </ng-option>
-                  <ng-option  value="health&Environment">⁠Health & Environment </ng-option>
-                  <ng-option  value="oil&Gas">⁠Oil&Gas </ng-option>
-                  <ng-option  value="construction">⁠Construction  </ng-option>
-                  <ng-option  value="others">⁠Others </ng-option>
+                <ng-select
+                [ngClass]="{'border-red-500':f['customerType'].invalid && isSubmitted}"
+                id="customerType" class="form border" placeholder="Customer Type" appendTo="body"
+                formControlName="customerType">
+                <ng-option *ngFor="let type of customerTypes"
+                  [value]="type._id">{{type.customerTypeName}}</ng-option>
+                <ng-template ng-footer-tmp>
+                  <a *ngIf="canCreateCustomerType" (click)="createCustomerType()"
+                    class="text-violet-700 cursor-pointer flex justify-center items-center h-full w-full font-medium">
+                    + Create Customer Type
+                  </a>
+                </ng-template>
 
-
-                </ng-select>
+              </ng-select>
               </div>
               <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
                 <label class="block uppercase tracking-wide text-gray-700 text-sm font-bold mb-2"

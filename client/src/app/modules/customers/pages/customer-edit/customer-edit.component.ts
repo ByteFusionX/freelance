@@ -9,6 +9,8 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateDepartmentDialog } from 'src/app/modules/settings/pages/create-department/create-department.component';
+import { getCustomerType } from 'src/app/shared/interfaces/customerType.interface';
+import { CreateCustomerTypeDialog } from 'src/app/modules/settings/pages/create-customer-type/create-customer-type.component';
 
 @Component({
   selector: 'app-customer-edit',
@@ -18,12 +20,14 @@ import { CreateDepartmentDialog } from 'src/app/modules/settings/pages/create-de
 export class CustomerEditComponent {
   departments: getDepartment[] = [];
   customerDepartments: getDepartment[] = [];
+  customerTypes: getCustomerType[] = []
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
   customerData!: getCustomer;
   initalLength: number = 0;
   isSaving: boolean = false;
   customerExist: boolean = false;
+  canCreateCustomerType:boolean = false
 
   constructor(
     private _fb: FormBuilder,
@@ -41,6 +45,10 @@ export class CustomerEditComponent {
 
 
   ngOnInit() {
+    this.getCustomerType()
+    this._employeeService.employeeData$.subscribe((data)=>{
+      this.canCreateCustomerType = data?.category.privileges.portalManagement.customerType as boolean  // need to revisit
+   })
     this.customerForm = this._fb.group({
       department: ['', Validators.required],
       contactDetails: this._fb.array([
@@ -64,11 +72,12 @@ export class CustomerEditComponent {
 
     if (this.customerData && this.departments) {
       const { contactDetails, department } = this.customerData;
-
+      console.log(this.customerData)
       contactDetails.slice(1).forEach(() => this.addContactFormGroup());
 
       this.customerForm.patchValue(this.customerData);
       this.customerForm.get('department')?.patchValue(department._id);
+      this.customerForm.get('customerType')?.patchValue(this.customerData.customerType.customerTypeName)
 
       contactDetails.forEach((contactDetail, index) => {
         this.contactDetails.at(index).patchValue({ department: contactDetail.department._id });
@@ -78,6 +87,21 @@ export class CustomerEditComponent {
     }
 
   }
+
+  getCustomerType() {
+    this._profileService.getCustomerTypes().subscribe((res: getCustomerType[]) => {
+      this.customerTypes = res
+    })
+  }
+
+   createCustomerType() {
+      const dialogRef = this.dialog.open(CreateCustomerTypeDialog, {
+        data: {}
+      });
+      dialogRef.afterClosed().subscribe(data => {
+        this.customerTypes = [...this.customerTypes, data]
+      })
+    }
 
   getCustomerData() {
     const navigation = this._router.getCurrentNavigation();

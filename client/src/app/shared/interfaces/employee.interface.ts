@@ -135,5 +135,6 @@ export interface Privileges {
     department: boolean;
     notesAndTerms: boolean;
     companyTarget: boolean;
+    customerType: boolean;
   };
 }

@@ -16,6 +16,7 @@ import { PortalManagementComponent } from './pages/portal-management/portal-mana
 import { EditCategoryComponent } from './pages/edit-category/edit-category.component';
 import { pipeModule } from "../../shared/pipes/pipe.module";
 import { InternalDepartmentComponent } from './pages/internal-department/internal-department.component';
+import { CreateCustomerTypeDialog } from './pages/create-customer-type/create-customer-type.component';
 
 
 
@@ -25,6 +26,7 @@ import { InternalDepartmentComponent } from './pages/internal-department/interna
     PortalManagementComponent,
     EditCategoryComponent,
     InternalDepartmentComponent,
+    CreateCustomerTypeDialog,
   ],
   imports: [
     CommonModule,
