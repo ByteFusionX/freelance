@@ -73,7 +73,8 @@ export class EditCategoryComponent {
       portalManagement: this._fb.group({
         department: [false],
         notesAndTerms: [false],
-        companyTarget: [false]
+        companyTarget: [false],
+        customerType: [false]
       })
     })
   })

@@ -12,7 +12,7 @@ const trashSchema = new Schema<Trash>({
     deletedFrom: {
         type: String,
         required: true,
-        enum: ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category', 'Job'],
+        enum: ['Employee', 'Customer', 'Quotation', 'Enquiry', 'Department', 'InternalDepartment', 'Category', 'Job', 'CustomerType'],
     },
     deletedData: {
         type: Schema.Types.ObjectId,

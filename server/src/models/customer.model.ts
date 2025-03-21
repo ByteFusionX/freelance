@@ -15,7 +15,7 @@ export interface Customer extends Document {
   department: Types.ObjectId;
   contactDetails: ContactDetail[];
   companyName: string;
-  customerType: string;
+  customerType: Types.ObjectId;
   companyAddress: string;
   customerEmailId: string;
   contactNo: number;
@@ -39,7 +39,7 @@ const customerSchema = new Schema<Customer>({
   department: { type: Schema.Types.ObjectId, ref: "Department", required: true },
   contactDetails: [{ type: contactDetailSchema, required: true }],
   companyName: { type: String, required: true },
-  customerType: { type: String, required: true },
+  customerType: { type: Schema.Types.ObjectId, ref: "CustomerType", required: true },
   companyAddress: { type: String, required: true },
   customerEmailId: { type: String, required: true },
   contactNo: { type: Number, required: true },

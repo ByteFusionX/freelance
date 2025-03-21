@@ -1,3 +1,4 @@
+import { getCustomerType } from "./customerType.interface";
 import { getDepartment } from "./department.interface";
 
 export interface ContactDetail {
@@ -19,10 +20,11 @@ export interface getCustomer {
     companyAddress: string;
     customerEmailId: string;
     contactNo: number;
-    customerType:string;
+    customerType:getCustomerType;
     createdBy:string;
     sharedWith:string[];
 }
+
 
 export interface getFilteredCustomer {
     total:number,

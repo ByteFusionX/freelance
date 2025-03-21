@@ -6,8 +6,10 @@ import { ToastrService } from 'ngx-toastr';
 import { CustomerService } from 'src/app/core/services/customer/customer.service';
 import { EmployeeService } from 'src/app/core/services/employee/employee.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { CreateCustomerTypeDialog } from 'src/app/modules/settings/pages/create-customer-type/create-customer-type.component';
 import { CreateDepartmentDialog } from 'src/app/modules/settings/pages/create-department/create-department.component';
 import { getCustomer } from 'src/app/shared/interfaces/customer.interface';
+import { getCustomerType } from 'src/app/shared/interfaces/customerType.interface';
 import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 
 @Component({
@@ -18,11 +20,13 @@ import { getDepartment } from 'src/app/shared/interfaces/department.interface';
 export class CreateCustomerDialog {
   departments: getDepartment[] = [];
   customerDepartments: getDepartment[] = [];
+  customerTypes: getCustomerType[] = []
   customerForm!: FormGroup;
   isSubmitted: boolean = false;
   isSaving: boolean = false;
   customerExist: boolean = false;
   canCreateDepartment:boolean = false;
+  canCreateCustomerType:boolean = false
 
   constructor(
     private _fb: FormBuilder,
@@ -37,9 +41,12 @@ export class CreateCustomerDialog {
   ngOnInit() {
     this.getDepartment()
     this.getCustomerDepartment()
+    this.getCustomerType()
     this._employeeService.employeeData$.subscribe((data)=>{
       this.canCreateDepartment = data?.category.privileges.portalManagement.department as boolean
-    })
+      this.canCreateCustomerType = data?.category.privileges.portalManagement.customerType as boolean  // need to revisit
+   })
+    
     
     this.customerForm = this._fb.group({
       department: ['', Validators.required],
@@ -95,6 +102,12 @@ export class CreateCustomerDialog {
     })
   }
 
+  getCustomerType() {
+    this._profileService.getCustomerTypes().subscribe((res: getCustomerType[]) => {
+      this.customerTypes = res
+    })
+  }
+
   createCustomerDepartment() {
     const dialogRef = this.dialog.open(CreateDepartmentDialog, {
       data: { forCustomer: true }
@@ -105,6 +118,15 @@ export class CreateCustomerDialog {
         this.customerDepartments = [...this.customerDepartments, data];
       }
     });
+  }
+
+  createCustomerType() {
+    const dialogRef = this.dialog.open(CreateCustomerTypeDialog, {
+      data: {}
+    });
+    dialogRef.afterClosed().subscribe(data => {
+      this.customerTypes = [...this.customerTypes, data]
+    })
   }
 
   hasContactDetailsErrors(): boolean {

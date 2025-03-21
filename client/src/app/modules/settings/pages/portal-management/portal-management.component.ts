@@ -13,6 +13,7 @@ import { EditCategoryComponent } from '../edit-category/edit-category.component'
 import { GetCategory, Privileges, Target } from 'src/app/shared/interfaces/employee.interface';
 import { SetTargetComponent } from 'src/app/shared/components/set-target/set-target.component';
 import { InternalDepartmentComponent } from '../internal-department/internal-department.component';
+import { CreateCustomerTypeDialog } from '../create-customer-type/create-customer-type.component';
 
 @Component({
   selector: 'app-portal-management',
@@ -29,6 +30,7 @@ export class PortalManagementComponent {
   isDepartmentLoading: boolean = true
   isInternalDepartmentLoading: boolean = true
   isCustomerDepartmentLoading: boolean = true
+  isCustomerTypeLoading: boolean = true
   isNotesLoading: boolean = true
   isCategoryLoading: boolean = true;
   categorySection: boolean = false;
@@ -44,6 +46,7 @@ export class PortalManagementComponent {
   departmentDataSource: any = new MatTableDataSource();
   internalDepartmentDataSource: any = new MatTableDataSource();
   customerDepartmentDataSource: any = new MatTableDataSource();
+  customerTypeDataSource: any = new MatTableDataSource();
   cstcDataSource: any = new MatTableDataSource();
   categoryDataSource: any = new MatTableDataSource();
   compnayTargetDataSource: any = new MatTableDataSource();
@@ -121,6 +124,17 @@ export class PortalManagementComponent {
           )
         }
 
+        if(this.privileges?.portalManagement?.customerType){
+          this.subscriptions.add(
+            this._profileService.getCustomerTypes().subscribe((data) => {
+              if(data) {
+                this.customerTypeDataSource.data = data
+                this.isCustomerTypeLoading = false
+              }
+            })
+          )
+        }
+
         if (this.privileges?.portalManagement?.notesAndTerms) {
           this.subscriptions.add(
             this._profileService.getNotes().subscribe((data) => {
@@ -185,6 +199,17 @@ export class PortalManagementComponent {
     });
   }
 
+  onCreateCustomerType() {
+    const dialogRef = this.dialog.open(CreateCustomerTypeDialog, {
+      data: {  }
+    });
+    dialogRef.afterClosed().subscribe(data => {
+      if (data) {
+        this.customerTypeDataSource.data = [...this.customerTypeDataSource.data, data]
+      }
+    });
+  }
+
   onNoteForm(action: string, note?: string, noteId?: string) {
     const dialogRef = this.dialog.open(NoteFormComponent, {
       data: { action, note, noteId }
@@ -235,6 +260,49 @@ export class PortalManagementComponent {
           this.customerDepartmentDataSource._updateChangeSubscription()
         }
       })
+    }
+  }
+
+  onEditCustomerTypeClick(index: number) {
+    let customerType = this.customerTypeDataSource.data[index]
+    if (customerType) {
+      const dialogRef = this.dialog.open(CreateCustomerTypeDialog, { data: {  customerType } });
+      dialogRef.afterClosed().subscribe(data => {
+        if (data) {
+          this.customerTypeDataSource.data[index] = data
+          this.customerTypeDataSource._updateChangeSubscription()
+        }
+      })
+    }
+  }
+
+  onCustomerTypeDeleteClick(index: number) {
+    let customerType = this.customerTypeDataSource.data[index]
+    if (customerType) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        data: {
+          title: 'Delete Customer Type',
+          description: `Are you sure you want to delete "${customerType.customerTypeName}" department?`,
+          icon: 'heroExclamationCircle',
+          IconColor: 'red'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this._profileService.deleteCustomerType({ dataId: customerType._id, employee: this.employeeId }).subscribe({
+            next: () => {
+              // Remove the department from the table
+              this.customerTypeDataSource.data.splice(index, 1);
+              this.customerTypeDataSource._updateChangeSubscription();
+              this._toast.success('Customer Type deleted successfully');
+            },
+            error: (error) => {
+              this._toast.error(error.error.message || 'Failed to delete customer type');
+            }
+          });
+        }
+      });
     }
   }
 
